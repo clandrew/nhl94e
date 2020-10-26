@@ -31,9 +31,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CppCLR_WinformsProjekt.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="AssemblyInfo.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -41,6 +38,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Form1.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
