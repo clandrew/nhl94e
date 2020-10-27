@@ -312,17 +312,52 @@ System::Void CppCLRWinformsProjekt::Form1::exitToolStripMenuItem_Click(System::O
 	this->Close();
 }
 
+System::String^ IntToCliString(int n)
+{
+    std::ostringstream strm;
+    strm << n;
+    return gcnew System::String(strm.str().c_str());
+}
+
 void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 {
     // Declare variables
     System::Windows::Forms::DataGridView^ dataGridView1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column3;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column4;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column5;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column6;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column7;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column8;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column9;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column10;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column11;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column12;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column13;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column14;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column15;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column16;
 
     // Create objects
     dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
     Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column5 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column6 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column7 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column8 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column9 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column10 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column11 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column12 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column13 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column14 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column15 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column16 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 
     System::Windows::Forms::TabPage^ tabPage1;
 
@@ -331,20 +366,86 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     tabPage1->SuspendLayout();
 
     this->tabControl1->Controls->Add(tabPage1);
-    // 
-    // Column1
-    // 
+
     Column1->HeaderText = L"Player Name";
     Column1->Name = L"Column1";
-    // 
-    // Column2
-    // 
+    Column1->ReadOnly = true;
+
     Column2->HeaderText = L"#";
     Column2->Name = L"Column2";
     Column2->Width = 25;
-    // 
-    // tabPage1
-    // 
+    Column2->ReadOnly = true;
+
+    Column3->HeaderText = L"Weight Class";
+    Column3->Name = L"Column3";
+    Column3->Width = 50;
+    Column3->ReadOnly = true;
+
+    Column4->HeaderText = L"Agility";
+    Column4->Name = L"Column4";
+    Column4->Width = 40;
+    Column4->ReadOnly = true;
+
+    Column5->HeaderText = L"Speed";
+    Column5->Name = L"Column5";
+    Column5->Width = 40;
+    Column5->ReadOnly = true;
+
+    Column6->HeaderText = L"Off Aware";
+    Column6->Name = L"Column6";
+    Column6->Width = 40;
+    Column6->ReadOnly = true;
+
+    Column7->HeaderText = L"Def Aware";
+    Column7->Name = L"Column7";
+    Column7->Width = 40;
+    Column7->ReadOnly = true;
+
+    Column8->HeaderText = L"Shot Power";
+    Column8->Name = L"Column8";
+    Column8->Width = 40;
+    Column8->ReadOnly = true;
+
+    Column9->HeaderText = L"Checking";
+    Column9->Name = L"Column9";
+    Column9->Width = 60;
+    Column9->ReadOnly = true;
+
+    Column10->HeaderText = L"Hand";
+    Column10->Name = L"Column10";
+    Column10->Width = 40;
+    Column10->ReadOnly = true;
+
+    Column11->HeaderText = L"Stick Handling";
+    Column11->Name = L"Column11";
+    Column11->Width = 50;
+    Column11->ReadOnly = true;
+
+    Column12->HeaderText = L"Shot Acc";
+    Column12->Name = L"Column12";
+    Column12->Width = 40;
+    Column12->ReadOnly = true;
+
+    Column13->HeaderText = L"Endurance";
+    Column13->Name = L"Column13";
+    Column13->Width = 70;
+    Column13->ReadOnly = true;
+
+    Column14->HeaderText = L"Reserved";
+    Column14->Name = L"Column14";
+    Column14->Width = 60;
+    Column14->ReadOnly = true;
+
+    Column15->HeaderText = L"Pass Acc";
+    Column15->Name = L"Column15";
+    Column15->Width = 40;
+    Column15->ReadOnly = true;
+
+    Column16->HeaderText = L"Aggression";
+    Column16->Name = L"Column16";
+    Column16->Width = 70;
+    Column16->ReadOnly = true;
+
     tabPage1->Controls->Add(dataGridView1);
     tabPage1->Location = System::Drawing::Point(4, 22);
     tabPage1->Name = L"tabPage1";
@@ -360,6 +461,20 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column2 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column3 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column4 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column5 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column6 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column7 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column8 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column9 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column10 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column11 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column12 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column13 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column14 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column15 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column16 });
     dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
     dataGridView1->Location = System::Drawing::Point(3, 3);
     dataGridView1->Name = L"dataGridView1";
@@ -374,11 +489,41 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
 
-        std::ostringstream strm;
-        strm << player.PlayerNumber;
-        System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
+        System::String^ playerNumberString = IntToCliString(player.PlayerNumber);
+        System::String^ weightClassString = IntToCliString(player.WeightFactor);
+        System::String^ agilityString = IntToCliString(player.BaseAgility);
+        System::String^ speedString = IntToCliString(player.BaseSpeed);
+        System::String^ offAwareString = IntToCliString(player.BaseOffAware);
+        System::String^ defAwareString = IntToCliString(player.BaseDefAware);
+        System::String^ shotPowerString = IntToCliString(player.BaseShotPower);
+        System::String^ checkingString = IntToCliString(player.BaseChecking);
+        System::String^ handednessString = player.WhichHandedness == Handedness::Left ? L"L" : L"R";
+        System::String^ stickHandlingString = IntToCliString(player.BaseStickHandling);
+        System::String^ shotAccString = IntToCliString(player.BaseShotAccuracy);
+        System::String^ enduranceString = IntToCliString(player.BaseEndurance);
+        System::String^ reservedString = IntToCliString(player.DontKnow);
+        System::String^ passAccString = IntToCliString(player.BasePassAccuracy);
+        System::String^ aggressionString = IntToCliString(player.BaseAggression);
 
-        dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
+        dataGridView1->Rows->Add(gcnew cli::array<System::String^>(16) 
+        { 
+            playerNameString, 
+            playerNumberString, 
+            weightClassString, 
+            agilityString,
+            speedString,
+            offAwareString,
+            defAwareString,
+            shotPowerString,
+            checkingString,
+            handednessString,
+            stickHandlingString,
+            shotAccString,
+            enduranceString,
+            reservedString,
+            passAccString,
+            aggressionString
+        });
     }
 
     tabPage1->ResumeLayout(false);
@@ -409,4 +554,6 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
         TeamData const& team = allTeams[teamIndex];
         AddTeam(team);
     }
+
+    tabControl1->SelectedIndex = (int)Team::Montreal;
 }
