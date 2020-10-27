@@ -1,4 +1,5 @@
 #pragma once
+#include "TeamData.h"
 
 namespace CppCLRWinformsProjekt {
 
@@ -149,5 +150,6 @@ namespace CppCLRWinformsProjekt {
 
 	private: 
 		System::Void Form1_Load(System::Object^ sender, System::EventArgs^ e);
+		void AddTeam(TeamData const& montreal, System::Windows::Forms::DataGridView^ dataGridView1);
 };
 }

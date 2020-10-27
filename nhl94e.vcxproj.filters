@@ -35,6 +35,9 @@
     <ClInclude Include="AddressMapping.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="TeamData.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">

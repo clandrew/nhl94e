@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Form1.h"
 #include "AddressMapping.h"
+#include "TeamData.h"
 #include "Utils.h"
 
 enum class Team
@@ -36,68 +37,6 @@ enum class Team
 };
 
 std::vector<unsigned char> romData;
-
-enum class Handedness
-{
-    Left, Right
-};
-
-struct PlayerData
-{
-    int OriginalROMAddress;
-    int ReplacedROMAddressForRename;
-    std::string Name;
-
-    int PlayerNumber;
-
-    int WeightFactor;
-    int WeightInPounds;
-
-    int BaseAgility;
-    int BaseSpeed;
-
-    int BaseOffAware;
-    int BaseDefAware;
-
-    int BaseShotPower;
-
-    int BaseChecking;
-
-    int HandednessValue;
-    Handedness WhichHandedness;
-
-    int BaseStickHandling;
-    int BaseShotAccuracy;
-    int BaseEndurance;
-    int DontKnow;
-    int BasePassAccuracy;
-    int BaseAggression;
-};
-
-struct TeamData
-{
-    int SourceDataROMAddress;
-    int DestDataROMAddress;
-    std::vector<unsigned char> Header;
-    std::string TeamCity;
-    std::string Acronym;
-    std::string TeamName;
-    std::string Venue;
-    std::vector<PlayerData> Players;
-
-    PlayerData* GetPlayer(std::string name)
-    {
-        for (int i = 0; i < Players.size(); ++i)
-        {
-            if (Players[i].Name.find(name) != -1)
-            {
-                return &Players[i];
-            }
-        }
-        return nullptr;
-    }
-};
-
 
 class RomDataIterator
 {
@@ -373,6 +312,22 @@ System::Void CppCLRWinformsProjekt::Form1::exitToolStripMenuItem_Click(System::O
 	this->Close();
 }
 
+void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal, System::Windows::Forms::DataGridView^ dataGridView1)
+{
+    for (size_t i = 0; i < montreal.Players.size(); ++i)
+    {
+        PlayerData const& player = montreal.Players[i];
+
+        System::String^ playerNameString = gcnew System::String(player.Name.c_str());
+
+        std::ostringstream strm;
+        strm << player.PlayerNumber;
+        System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
+
+        dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
+    }
+}
+
 System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	std::wstring romFilename = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
@@ -445,19 +400,7 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
     dataGridView1->Rows->Clear();
 
     TeamData const& montreal = allTeams[(int)Team::Montreal];
-    for (size_t i = 0; i < montreal.Players.size(); ++i)
-    {
-        PlayerData const& player = montreal.Players[i];
-
-        System::String^ playerNameString = gcnew System::String(player.Name.c_str());
-
-        std::ostringstream strm;
-        strm << player.PlayerNumber;
-        System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
-
-        dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
-
-    }
+    AddTeam(montreal, dataGridView1);
 
     tabPage1->ResumeLayout(false);
     tabPage2->ResumeLayout(false);
