@@ -393,6 +393,38 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
+    System::Windows::Forms::TabPage^ tabPage1;
+    System::Windows::Forms::TabPage^ tabPage2;
+
+    tabPage1 = (gcnew System::Windows::Forms::TabPage());
+    tabPage2 = (gcnew System::Windows::Forms::TabPage());
+
+    tabPage1->SuspendLayout();
+
+    this->tabControl1->Controls->Add(tabPage1);
+    this->tabControl1->Controls->Add(tabPage2);
+    // 
+    // tabPage1
+    // 
+    tabPage1->Controls->Add(this->dataGridView1);
+    tabPage1->Location = System::Drawing::Point(4, 22);
+    tabPage1->Name = L"tabPage1";
+    tabPage1->Padding = System::Windows::Forms::Padding(3);
+    tabPage1->Size = System::Drawing::Size(401, 496);
+    tabPage1->TabIndex = 0;
+    tabPage1->Text = L"MTL";
+    tabPage1->UseVisualStyleBackColor = true;
+    // 
+    // tabPage2
+    // 
+    tabPage2->Location = System::Drawing::Point(4, 22);
+    tabPage2->Name = L"tabPage2";
+    tabPage2->Padding = System::Windows::Forms::Padding(3);
+    tabPage2->Size = System::Drawing::Size(401, 496);
+    tabPage2->TabIndex = 1;
+    tabPage2->Text = L"tabPage2";
+    tabPage2->UseVisualStyleBackColor = true;
+
     this->dataGridView1->Rows->Clear();
     TeamData const& montreal = allTeams[(int)Team::Montreal];
     for (size_t i = 0; i < montreal.Players.size(); ++i)
@@ -408,4 +440,7 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
         this->dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
 
     }
+
+    tabPage1->ResumeLayout(false);
+    tabPage2->ResumeLayout(false);
 }
