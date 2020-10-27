@@ -393,88 +393,54 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
-    for (size_t teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
+    System::Windows::Forms::TabPage^ tabPage1;
+    System::Windows::Forms::TabPage^ tabPage2;
+
+    tabPage1 = (gcnew System::Windows::Forms::TabPage());
+    tabPage2 = (gcnew System::Windows::Forms::TabPage());
+
+    tabPage1->SuspendLayout();
+
+    this->tabControl1->Controls->Add(tabPage1);
+    this->tabControl1->Controls->Add(tabPage2);
+    // 
+    // tabPage1
+    // 
+    tabPage1->Controls->Add(this->dataGridView1);
+    tabPage1->Location = System::Drawing::Point(4, 22);
+    tabPage1->Name = L"tabPage1";
+    tabPage1->Padding = System::Windows::Forms::Padding(3);
+    tabPage1->Size = System::Drawing::Size(401, 496);
+    tabPage1->TabIndex = 0;
+    tabPage1->Text = L"MTL";
+    tabPage1->UseVisualStyleBackColor = true;
+    // 
+    // tabPage2
+    // 
+    tabPage2->Location = System::Drawing::Point(4, 22);
+    tabPage2->Name = L"tabPage2";
+    tabPage2->Padding = System::Windows::Forms::Padding(3);
+    tabPage2->Size = System::Drawing::Size(401, 496);
+    tabPage2->TabIndex = 1;
+    tabPage2->Text = L"tabPage2";
+    tabPage2->UseVisualStyleBackColor = true;
+
+    this->dataGridView1->Rows->Clear();
+    TeamData const& montreal = allTeams[(int)Team::Montreal];
+    for (size_t i = 0; i < montreal.Players.size(); ++i)
     {
-        TeamData const& team = allTeams[teamIndex];
+        PlayerData const& player = montreal.Players[i];
 
-        if (teamIndex != (int)Team::Montreal)
-            continue;
-    
-        System::Windows::Forms::TabControl^ tabControl1;
-        System::Windows::Forms::TabPage^ tabPage1;
-        System::Windows::Forms::DataGridView^ dataGridView1;
-        System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
-        System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
+        System::String^ playerNameString = gcnew System::String(player.Name.c_str());
 
-        tabControl1 = (gcnew System::Windows::Forms::TabControl());
-        tabPage1 = (gcnew System::Windows::Forms::TabPage());
-        dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
-        Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-        Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
-        tabControl1->SuspendLayout();
-        tabPage1->SuspendLayout();
-        (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(dataGridView1))->BeginInit();
-        this->SuspendLayout();
+        std::ostringstream strm;
+        strm << player.PlayerNumber;
+        System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
 
-        tabControl1->Controls->Add(tabPage1);
-        tabControl1->Dock = System::Windows::Forms::DockStyle::Fill;
-        tabControl1->Location = System::Drawing::Point(0, 24);
-        tabControl1->Name = L"tabControl1";
-        tabControl1->SelectedIndex = 0;
-        tabControl1->Size = System::Drawing::Size(409, 522);
-        tabControl1->TabIndex = 2;
+        this->dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
 
-        tabPage1->Controls->Add(dataGridView1);
-        tabPage1->Location = System::Drawing::Point(4, 22);
-        tabPage1->Name = L"tabPage1";
-        tabPage1->Padding = System::Windows::Forms::Padding(3);
-        tabPage1->Size = System::Drawing::Size(401, 496);
-        tabPage1->TabIndex = 0;
-        tabPage1->Text = gcnew System::String(team.Acronym.c_str());
-        tabPage1->UseVisualStyleBackColor = true;
-
-        dataGridView1->AllowUserToAddRows = false;
-        dataGridView1->AllowUserToDeleteRows = false;
-        dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-        dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1 });
-        dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column2 });
-        dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
-        dataGridView1->Location = System::Drawing::Point(3, 3);
-        dataGridView1->Name = L"dataGridView1";
-        dataGridView1->Size = System::Drawing::Size(395, 490);
-        dataGridView1->TabIndex = 0;
-
-        Column1->HeaderText = L"Player Name";
-        Column1->Name = L"Column1";
-
-        Column2->HeaderText = L"#";
-        Column2->Name = L"Column2";
-        Column2->Width = 25;
-
-
-        dataGridView1->Rows->Clear();
-
-        for (size_t playerIndex = 0; playerIndex < team.Players.size(); ++playerIndex)
-        {
-            PlayerData const& player = team.Players[playerIndex];
-
-            System::String^ playerNameString = gcnew System::String(player.Name.c_str());
-
-            std::ostringstream strm;
-            strm << player.PlayerNumber;
-            System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
-
-            dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
-        }
-
-        this->Controls->Add(tabControl1);
-        tabControl1->ResumeLayout(false);
-        tabPage1->ResumeLayout(false);
-        (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(dataGridView1))->EndInit();
-        this->ResumeLayout(false);
-        this->PerformLayout();
     }
 
-
-
+    tabPage1->ResumeLayout(false);
+    tabPage2->ResumeLayout(false);
 }
