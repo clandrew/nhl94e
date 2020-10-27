@@ -29,6 +29,12 @@
     <ClInclude Include="Form1.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AddressMapping.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -41,6 +47,12 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AddressMapping.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
