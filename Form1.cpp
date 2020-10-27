@@ -316,9 +316,13 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 {
     // Declare variables
     System::Windows::Forms::DataGridView^ dataGridView1;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
 
     // Create objects
     dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+    Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 
     System::Windows::Forms::TabPage^ tabPage1;
 
@@ -328,6 +332,17 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
     this->tabControl1->Controls->Add(tabPage1);
     // 
+    // Column1
+    // 
+    Column1->HeaderText = L"Player Name";
+    Column1->Name = L"Column1";
+    // 
+    // Column2
+    // 
+    Column2->HeaderText = L"#";
+    Column2->Name = L"Column2";
+    Column2->Width = 25;
+    // 
     // tabPage1
     // 
     tabPage1->Controls->Add(dataGridView1);
@@ -336,14 +351,15 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     tabPage1->Padding = System::Windows::Forms::Padding(3);
     tabPage1->Size = System::Drawing::Size(401, 496);
     tabPage1->TabIndex = 0;
-    tabPage1->Text = L"MTL";
+    System::String^ teamAcronym = gcnew System::String(montreal.Acronym.c_str());
+    tabPage1->Text = teamAcronym;
     tabPage1->UseVisualStyleBackColor = true;
 
     dataGridView1->AllowUserToAddRows = false;
     dataGridView1->AllowUserToDeleteRows = false;
     dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column1 });
-    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column2 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column2 });
     dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
     dataGridView1->Location = System::Drawing::Point(3, 3);
     dataGridView1->Name = L"dataGridView1";
@@ -388,9 +404,9 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
-    TeamData const& montreal = allTeams[(int)Team::Montreal];
-    AddTeam(montreal);
-
-    //TeamData const& lakings = allTeams[(int)Team::LAKings];
-    //AddTeam(lakings);
+    for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
+    {
+        TeamData const& team = allTeams[teamIndex];
+        AddTeam(team);
+    }
 }
