@@ -393,11 +393,12 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
-    System::Windows::Forms::DataGridView^ dataGridView1;
-
+    // Declare variables
     System::Windows::Forms::TabPage^ tabPage1;
     System::Windows::Forms::TabPage^ tabPage2;
+    System::Windows::Forms::DataGridView^ dataGridView1;
 
+    // Create objects
     tabPage1 = (gcnew System::Windows::Forms::TabPage());
     tabPage2 = (gcnew System::Windows::Forms::TabPage());
     dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
@@ -406,19 +407,6 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     this->tabControl1->Controls->Add(tabPage1);
     this->tabControl1->Controls->Add(tabPage2);
-    // 
-    // dataGridView1
-    // 
-    dataGridView1->AllowUserToAddRows = false;
-    dataGridView1->AllowUserToDeleteRows = false;
-    dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column1 });
-    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column2 });
-    dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
-    dataGridView1->Location = System::Drawing::Point(3, 3);
-    dataGridView1->Name = L"dataGridView1";
-    dataGridView1->Size = System::Drawing::Size(395, 490);
-    dataGridView1->TabIndex = 0;
     // 
     // tabPage1
     // 
@@ -440,6 +428,19 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
     tabPage2->TabIndex = 1;
     tabPage2->Text = L"tabPage2";
     tabPage2->UseVisualStyleBackColor = true;
+    // 
+    // dataGridView1
+    // 
+    dataGridView1->AllowUserToAddRows = false;
+    dataGridView1->AllowUserToDeleteRows = false;
+    dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column1 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column2 });
+    dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
+    dataGridView1->Location = System::Drawing::Point(3, 3);
+    dataGridView1->Name = L"dataGridView1";
+    dataGridView1->Size = System::Drawing::Size(395, 490);
+    dataGridView1->TabIndex = 0;
 
     dataGridView1->Rows->Clear();
 
