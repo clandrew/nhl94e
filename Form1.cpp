@@ -312,8 +312,14 @@ System::Void CppCLRWinformsProjekt::Form1::exitToolStripMenuItem_Click(System::O
 	this->Close();
 }
 
-void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal, System::Windows::Forms::DataGridView^ dataGridView1)
+void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 {
+    // Declare variables
+    System::Windows::Forms::DataGridView^ dataGridView1;
+
+    // Create objects
+    dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+
     System::Windows::Forms::TabPage^ tabPage1;
 
     tabPage1 = (gcnew System::Windows::Forms::TabPage());
@@ -382,13 +388,9 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
-    // Declare variables
-    System::Windows::Forms::DataGridView^ dataGridView1;
-
-    // Create objects
-    dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
-
-
     TeamData const& montreal = allTeams[(int)Team::Montreal];
-    AddTeam(montreal, dataGridView1);
+    AddTeam(montreal);
+
+    //TeamData const& lakings = allTeams[(int)Team::LAKings];
+    //AddTeam(lakings);
 }
