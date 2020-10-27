@@ -400,6 +400,12 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
         PlayerData const& player = montreal.Players[i];
 
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
-        this->dataGridView1->Rows->Add(gcnew cli::array<System::String^>(1) { playerNameString });
+
+        std::ostringstream strm;
+        strm << player.PlayerNumber;
+        System::String^ playerNumberString = gcnew System::String(strm.str().c_str());
+
+        this->dataGridView1->Rows->Add(gcnew cli::array<System::String^>(2) { playerNameString, playerNumberString });
+
     }
 }

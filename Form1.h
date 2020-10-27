@@ -140,6 +140,7 @@ namespace CppCLRWinformsProjekt {
 			this->dataGridView1->AllowUserToDeleteRows = false;
 			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
 			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column1 });
+			this->dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { this->Column2 });
 			this->dataGridView1->Dock = System::Windows::Forms::DockStyle::Fill;
 			this->dataGridView1->Location = System::Drawing::Point(3, 3);
 			this->dataGridView1->Name = L"dataGridView1";
@@ -151,6 +152,12 @@ namespace CppCLRWinformsProjekt {
 			this->Column1->HeaderText = L"Player Name";
 			this->Column1->Name = L"Column1";
 			// 
+			// Column2
+			// 
+			this->Column2->HeaderText = L"#";
+			this->Column2->Name = L"Column2";
+			this->Column2->Width = 25;
+			// 
 			// tabPage2
 			// 
 			this->tabPage2->Location = System::Drawing::Point(4, 22);
@@ -160,11 +167,6 @@ namespace CppCLRWinformsProjekt {
 			this->tabPage2->TabIndex = 1;
 			this->tabPage2->Text = L"tabPage2";
 			this->tabPage2->UseVisualStyleBackColor = true;
-			// 
-			// Column2
-			// 
-			this->Column2->HeaderText = L"Column2";
-			this->Column2->Name = L"Column2";
 			// 
 			// Form1
 			// 
