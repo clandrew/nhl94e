@@ -1,6 +1,11 @@
 #pragma once
 #include "TeamData.h"
 
+struct Test
+{
+
+};
+
 namespace CppCLRWinformsProjekt {
 
 	using namespace System;
@@ -41,6 +46,7 @@ namespace CppCLRWinformsProjekt {
 	private: System::Windows::Forms::ToolStripMenuItem^ exitToolStripMenuItem;
 	private: System::Windows::Forms::Panel^ panel1;
 	private: System::Windows::Forms::TabControl^ tabControl1;
+	private: System::Windows::Forms::ToolStripMenuItem^ saveROMToolStripMenuItem;
 
 	private:
 		/// <summary>
@@ -60,8 +66,8 @@ namespace CppCLRWinformsProjekt {
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
+			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
-			this->tabControl1->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -75,7 +81,10 @@ namespace CppCLRWinformsProjekt {
 			// 
 			// fileToolStripMenuItem
 			// 
-			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->exitToolStripMenuItem });
+			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
+				this->exitToolStripMenuItem,
+					this->saveROMToolStripMenuItem
+			});
 			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
 			this->fileToolStripMenuItem->Text = L"File";
@@ -84,7 +93,7 @@ namespace CppCLRWinformsProjekt {
 			// 
 			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
 			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(135, 22);
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
 			this->exitToolStripMenuItem->Text = L"Exit";
 			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
 			// 
@@ -106,6 +115,15 @@ namespace CppCLRWinformsProjekt {
 			this->tabControl1->Size = System::Drawing::Size(409, 522);
 			this->tabControl1->TabIndex = 2;
 			// 
+			// saveROMToolStripMenuItem
+			// 
+			this->saveROMToolStripMenuItem->Name = L"saveROMToolStripMenuItem";
+			this->saveROMToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>(((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::Shift)
+				| System::Windows::Forms::Keys::S));
+			this->saveROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->saveROMToolStripMenuItem->Text = L"Save ROM";
+			this->saveROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveROMToolStripMenuItem_Click);
+			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -120,7 +138,6 @@ namespace CppCLRWinformsProjekt {
 			this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
-			this->tabControl1->ResumeLayout(false);
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -132,5 +149,6 @@ namespace CppCLRWinformsProjekt {
 	private: 
 		System::Void Form1_Load(System::Object^ sender, System::EventArgs^ e);
 		void AddTeam(TeamData const& montreal);
+	private: System::Void saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e);
 };
 }

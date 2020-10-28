@@ -4,6 +4,9 @@
 #include "TeamData.h"
 #include "Utils.h"
 
+static std::vector<TeamData> s_allTeams;
+static std::vector<unsigned char> s_romData;
+
 enum class Team
 {
     Anaheim = 0x0,
@@ -36,8 +39,6 @@ enum class Team
     AllStarsWest = 0x1B
 };
 
-std::vector<unsigned char> romData;
-
 class RomDataIterator
 {
     int m_fileOffset;
@@ -55,8 +56,8 @@ public:
 
     void SkipHeader()
     {
-        unsigned char headerLength0 = romData[m_fileOffset + 0];
-        unsigned char headerLength1 = romData[m_fileOffset + 1];
+        unsigned char headerLength0 = s_romData[m_fileOffset + 0];
+        unsigned char headerLength1 = s_romData[m_fileOffset + 1];
         m_fileOffset += 2;
 
         assert(headerLength0 > 0x2 && headerLength1 == 0x0);
@@ -70,8 +71,8 @@ public:
 
     std::vector<unsigned char> LoadHeader()
     {
-        unsigned char headerLength0 = romData[m_fileOffset + 0];
-        unsigned char headerLength1 = romData[m_fileOffset + 1];
+        unsigned char headerLength0 = s_romData[m_fileOffset + 0];
+        unsigned char headerLength1 = s_romData[m_fileOffset + 1];
         m_fileOffset += 2;
 
         assert(headerLength0 > 0x2 && headerLength1 == 0x0);
@@ -83,7 +84,7 @@ public:
         std::vector<unsigned char> result;
         for (int i = 0; i < headerLength; ++i)
         {
-            result.push_back(romData[m_fileOffset + i]);
+            result.push_back(s_romData[m_fileOffset + i]);
         }
         m_fileOffset += headerLength;
 
@@ -97,21 +98,21 @@ public:
         unsigned char headerLengthPlusLengthWord0 = headerLengthPlusLengthWord & 0xFF;
         unsigned char headerLengthPlusLengthWord1 = (headerLengthPlusLengthWord >> 8) & 0xFF;
 
-        romData[m_fileOffset + 0] = headerLengthPlusLengthWord0;
-        romData[m_fileOffset + 1] = headerLengthPlusLengthWord1;
+        s_romData[m_fileOffset + 0] = headerLengthPlusLengthWord0;
+        s_romData[m_fileOffset + 1] = headerLengthPlusLengthWord1;
         m_fileOffset += 2;
 
         for (int i = 0; i < headerLength; ++i)
         {
-            romData[m_fileOffset + i] = header[i];
+            s_romData[m_fileOffset + i] = header[i];
         }
         m_fileOffset += headerLength;
     }
 
     std::string LoadROMString()
     {
-        unsigned char stringLength0 = romData[m_fileOffset + 0];
-        unsigned char stringLength1 = romData[m_fileOffset + 1];
+        unsigned char stringLength0 = s_romData[m_fileOffset + 0];
+        unsigned char stringLength1 = s_romData[m_fileOffset + 1];
         m_fileOffset += 2;
 
         // Special sentinel values are used to denote empty string
@@ -125,7 +126,7 @@ public:
         std::string result;
         for (int i = 0; i < stringLength; ++i)
         {
-            result.push_back(romData[m_fileOffset + i]);
+            result.push_back(s_romData[m_fileOffset + i]);
         }
         m_fileOffset += stringLength;
 
@@ -139,20 +140,20 @@ public:
         unsigned char strLengthPlusLengthWord0 = strLengthPlusLengthWord & 0xFF;
         unsigned char strLengthPlusLengthWord1 = (strLengthPlusLengthWord >> 8) & 0xFF;
 
-        romData[m_fileOffset + 0] = strLengthPlusLengthWord0;
-        romData[m_fileOffset + 1] = strLengthPlusLengthWord1;
+        s_romData[m_fileOffset + 0] = strLengthPlusLengthWord0;
+        s_romData[m_fileOffset + 1] = strLengthPlusLengthWord1;
         m_fileOffset += 2;
 
         for (int i = 0; i < strLength; ++i)
         {
-            romData[m_fileOffset + i] = str[i];
+            s_romData[m_fileOffset + i] = str[i];
         }
         m_fileOffset += strLength;
     }
 
     int LoadDecimalNumber()
     {
-        unsigned char numberByte = romData[m_fileOffset];
+        unsigned char numberByte = s_romData[m_fileOffset];
         unsigned char numberTens = (numberByte >> 4) & 0xF;
         unsigned char numberOnes = (numberByte & 0xF);
         ++m_fileOffset;
@@ -164,13 +165,13 @@ public:
         unsigned char numberTens = n / 10;
         unsigned char numberOnes = n % 10;
         unsigned char resultByte = (numberTens << 4) | numberOnes;
-        romData[m_fileOffset] = resultByte;
+        s_romData[m_fileOffset] = resultByte;
         ++m_fileOffset;
     }
 
     void LoadHalfByteNumbers(int* a, int* b)
     {
-        unsigned char stat = romData[m_fileOffset];
+        unsigned char stat = s_romData[m_fileOffset];
         unsigned char weightFactor = (stat >> 4) & 0xF;
         *a = weightFactor;
 
@@ -185,33 +186,33 @@ public:
         assert(a <= 0xf);
         assert(b <= 0xf);
         unsigned char resultByte = (a << 4) | b;
-        romData[m_fileOffset] = resultByte;
+        s_romData[m_fileOffset] = resultByte;
         ++m_fileOffset;
     }
 
     void SaveDelimiter()
     {
-        romData[m_fileOffset] = 0x02;
+        s_romData[m_fileOffset] = 0x02;
         ++m_fileOffset;
-        romData[m_fileOffset] = 0x00;
+        s_romData[m_fileOffset] = 0x00;
         ++m_fileOffset;
     }
 
     void SaveLongAddress4Bytes(int addr) // big endian-to-little-endian
     {
-        romData[m_fileOffset] = addr & 0xFF;
+        s_romData[m_fileOffset] = addr & 0xFF;
         addr >>= 8;
         ++m_fileOffset;
 
-        romData[m_fileOffset] = addr & 0xFF;
+        s_romData[m_fileOffset] = addr & 0xFF;
         addr >>= 8;
         ++m_fileOffset;
 
-        romData[m_fileOffset] = addr & 0xFF;
+        s_romData[m_fileOffset] = addr & 0xFF;
         addr >>= 8;
         ++m_fileOffset;
 
-        romData[m_fileOffset] = 0;
+        s_romData[m_fileOffset] = 0;
         ++m_fileOffset;
 
         assert(addr == 0); // 24-byte address expected
@@ -220,7 +221,7 @@ public:
     void SaveByte(int b)
     {
         assert(b > 0 && b < 256);
-        romData[m_fileOffset] = b;
+        s_romData[m_fileOffset] = b;
         ++m_fileOffset;
     }
 };
@@ -258,7 +259,7 @@ TeamData GetTeamData(int playerDataAddress)
         p.WhichHandedness = p.HandednessValue % 2 == 0 ? Handedness::Left : Handedness::Right;
 
         iter.LoadHalfByteNumbers(&p.BaseStickHandling, &p.BaseShotAccuracy);
-        iter.LoadHalfByteNumbers(&p.BaseEndurance, &p.DontKnow);
+        iter.LoadHalfByteNumbers(&p.BaseEndurance, &p.Roughness);
         iter.LoadHalfByteNumbers(&p.BasePassAccuracy, &p.BaseAggression);
 
         result.Players.push_back(p);
@@ -286,10 +287,10 @@ std::vector<TeamData> LoadPlayerNamesAndStats()
 
         for (int teamIndex = 0; teamIndex < 28; ++teamIndex)
         {
-            unsigned char b0 = romData[fileOffset + 0];
-            unsigned char b1 = romData[fileOffset + 1];
-            unsigned char b2 = romData[fileOffset + 2];
-            unsigned char b3 = romData[fileOffset + 3];
+            unsigned char b0 = s_romData[fileOffset + 0];
+            unsigned char b1 = s_romData[fileOffset + 1];
+            unsigned char b2 = s_romData[fileOffset + 2];
+            unsigned char b3 = s_romData[fileOffset + 3];
 
             int pointer = (b3 << 24) | (b2 << 16) | (b1 << 8) | (b0 << 0);
             playerDataPointers.push_back(pointer);
@@ -418,7 +419,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
     Column11->HeaderText = L"Stick Handling";
     Column11->Name = L"Column11";
-    Column11->Width = 50;
+    Column11->Width = 60;
     Column11->ReadOnly = true;
 
     Column12->HeaderText = L"Shot Acc";
@@ -431,9 +432,9 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column13->Width = 70;
     Column13->ReadOnly = true;
 
-    Column14->HeaderText = L"Reserved";
+    Column14->HeaderText = L"Roughness";
     Column14->Name = L"Column14";
-    Column14->Width = 60;
+    Column14->Width = 70;
     Column14->ReadOnly = true;
 
     Column15->HeaderText = L"Pass Acc";
@@ -501,7 +502,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
         System::String^ stickHandlingString = IntToCliString(player.BaseStickHandling);
         System::String^ shotAccString = IntToCliString(player.BaseShotAccuracy);
         System::String^ enduranceString = IntToCliString(player.BaseEndurance);
-        System::String^ reservedString = IntToCliString(player.DontKnow);
+        System::String^ roughnessString = IntToCliString(player.Roughness);
         System::String^ passAccString = IntToCliString(player.BasePassAccuracy);
         System::String^ aggressionString = IntToCliString(player.BaseAggression);
 
@@ -520,7 +521,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
             stickHandlingString,
             shotAccString,
             enduranceString,
-            reservedString,
+            roughnessString,
             passAccString,
             aggressionString
         });
@@ -532,28 +533,37 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
 {
 	std::wstring romFilename = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
-	romData = LoadBytesFromFile(romFilename.c_str());
+	s_romData = LoadBytesFromFile(romFilename.c_str());
 
     // Check size
     size_t expectedSize = 0x400000;
-    if (romData.size() != expectedSize)
+    if (s_romData.size() != expectedSize)
     {
         std::wostringstream sstream;
         sstream << "This program is designed to work on a Super Nintendo NHL '94 ROM which has been expanded to 32 Mbit (4MB).\n";
         sstream << "Use Lunar Expand or other similar tools to perform expansion.\n";
-        sstream << "Unexpected size detected: found " << romData.size() << " bytes, expected " << expectedSize << " bytes.\n";
+        sstream << "Unexpected size detected: found " << s_romData.size() << " bytes, expected " << expectedSize << " bytes.\n";
 
         System::String^ dialogString = gcnew System::String(sstream.str().c_str());
         MessageBox::Show(dialogString);
     }
 
-    std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
+    s_allTeams = LoadPlayerNamesAndStats();
 
-    for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
+    for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
-        TeamData const& team = allTeams[teamIndex];
+        TeamData const& team = s_allTeams[teamIndex];
         AddTeam(team);
     }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
+}
+
+System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 
+{
+    std::wstring outputFilename = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+    
+    SaveBytesToFile(outputFilename.c_str(), s_romData);
+
+    MessageBox::Show(L"Output file saved.", L"Info");
 }

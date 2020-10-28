@@ -32,7 +32,7 @@ struct PlayerData
     int BaseStickHandling;
     int BaseShotAccuracy;
     int BaseEndurance;
-    int DontKnow;
+    int Roughness; // Not reported in the game card
     int BasePassAccuracy;
     int BaseAggression;
 };
