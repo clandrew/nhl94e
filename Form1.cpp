@@ -247,20 +247,20 @@ TeamData GetTeamData(int playerDataAddress)
         if (p.Name.length() == 0)
             break;
 
-        p.PlayerNumber = iter.LoadDecimalNumber();
+        p.PlayerNumber.OriginalValue = iter.LoadDecimalNumber();
 
-        iter.LoadHalfByteNumbers(&p.WeightFactor, &p.BaseAgility);
+        iter.LoadHalfByteNumbers(&p.WeightFactor, &p.BaseAgility.OriginalValue);
         p.WeightInPounds = 140 + (p.WeightFactor * 8);
 
-        iter.LoadHalfByteNumbers(&p.BaseSpeed, &p.BaseOffAware);
-        iter.LoadHalfByteNumbers(&p.BaseDefAware, &p.BaseShotPower);
+        iter.LoadHalfByteNumbers(&p.BaseSpeed.OriginalValue, &p.BaseOffAware.OriginalValue);
+        iter.LoadHalfByteNumbers(&p.BaseDefAware.OriginalValue, &p.BaseShotPower.OriginalValue);
 
-        iter.LoadHalfByteNumbers(&p.BaseChecking, &p.HandednessValue);
+        iter.LoadHalfByteNumbers(&p.BaseChecking.OriginalValue, &p.HandednessValue);
         p.WhichHandedness = p.HandednessValue % 2 == 0 ? Handedness::Left : Handedness::Right;
 
-        iter.LoadHalfByteNumbers(&p.BaseStickHandling, &p.BaseShotAccuracy);
-        iter.LoadHalfByteNumbers(&p.BaseEndurance, &p.Roughness);
-        iter.LoadHalfByteNumbers(&p.BasePassAccuracy, &p.BaseAggression);
+        iter.LoadHalfByteNumbers(&p.BaseStickHandling.OriginalValue, &p.BaseShotAccuracy.OriginalValue);
+        iter.LoadHalfByteNumbers(&p.BaseEndurance.OriginalValue, &p.Roughness.OriginalValue);
+        iter.LoadHalfByteNumbers(&p.BasePassAccuracy.OriginalValue, &p.BaseAggression.OriginalValue);
 
         result.Players.push_back(p);
     }
@@ -360,6 +360,8 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column15 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column16 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 
+    dataGridView1->CellValidating += gcnew System::Windows::Forms::DataGridViewCellValidatingEventHandler(this, &CppCLRWinformsProjekt::Form1::OnCellValidating);
+
     System::Windows::Forms::TabPage^ tabPage1;
 
     tabPage1 = (gcnew System::Windows::Forms::TabPage());
@@ -385,7 +387,6 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column4->HeaderText = L"Agility";
     Column4->Name = L"Column4";
     Column4->Width = 40;
-    Column4->ReadOnly = true;
 
     Column5->HeaderText = L"Speed";
     Column5->Name = L"Column5";
@@ -490,21 +491,21 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
 
-        System::String^ playerNumberString = IntToCliString(player.PlayerNumber);
+        System::String^ playerNumberString = IntToCliString(player.PlayerNumber.OriginalValue);
         System::String^ weightClassString = IntToCliString(player.WeightFactor);
-        System::String^ agilityString = IntToCliString(player.BaseAgility);
-        System::String^ speedString = IntToCliString(player.BaseSpeed);
-        System::String^ offAwareString = IntToCliString(player.BaseOffAware);
-        System::String^ defAwareString = IntToCliString(player.BaseDefAware);
-        System::String^ shotPowerString = IntToCliString(player.BaseShotPower);
-        System::String^ checkingString = IntToCliString(player.BaseChecking);
+        System::String^ agilityString = IntToCliString(player.BaseAgility.OriginalValue);
+        System::String^ speedString = IntToCliString(player.BaseSpeed.OriginalValue);
+        System::String^ offAwareString = IntToCliString(player.BaseOffAware.OriginalValue);
+        System::String^ defAwareString = IntToCliString(player.BaseDefAware.OriginalValue);
+        System::String^ shotPowerString = IntToCliString(player.BaseShotPower.OriginalValue);
+        System::String^ checkingString = IntToCliString(player.BaseChecking.OriginalValue);
         System::String^ handednessString = player.WhichHandedness == Handedness::Left ? L"L" : L"R";
-        System::String^ stickHandlingString = IntToCliString(player.BaseStickHandling);
-        System::String^ shotAccString = IntToCliString(player.BaseShotAccuracy);
-        System::String^ enduranceString = IntToCliString(player.BaseEndurance);
-        System::String^ roughnessString = IntToCliString(player.Roughness);
-        System::String^ passAccString = IntToCliString(player.BasePassAccuracy);
-        System::String^ aggressionString = IntToCliString(player.BaseAggression);
+        System::String^ stickHandlingString = IntToCliString(player.BaseStickHandling.OriginalValue);
+        System::String^ shotAccString = IntToCliString(player.BaseShotAccuracy.OriginalValue);
+        System::String^ enduranceString = IntToCliString(player.BaseEndurance.OriginalValue);
+        System::String^ roughnessString = IntToCliString(player.Roughness.OriginalValue);
+        System::String^ passAccString = IntToCliString(player.BasePassAccuracy.OriginalValue);
+        System::String^ aggressionString = IntToCliString(player.BaseAggression.OriginalValue);
 
         dataGridView1->Rows->Add(gcnew cli::array<System::String^>(16) 
         { 
@@ -566,4 +567,29 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
     SaveBytesToFile(outputFilename.c_str(), s_romData);
 
     MessageBox::Show(L"Output file saved.", L"Info");
+}
+
+
+void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
+{
+    if (e->ColumnIndex == 3)
+    {
+        System::Int32^ i = gcnew System::Int32(5);
+
+        int r = 0;
+        if (int::TryParse((System::String^)e->FormattedValue, r))
+        {
+            // Valid integer
+            if (r < 0 || r >= 16)
+            {
+                MessageBox::Show(L"Please enter a number between 0 and 15, inclusive.", L"Info");
+                e->Cancel = true;
+            }
+        }
+        else
+        {
+            MessageBox::Show(L"Please enter a number between 0 and 15, inclusive.", L"Info");
+            e->Cancel = true;
+        }
+    }
 }

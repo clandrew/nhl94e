@@ -5,36 +5,43 @@ enum class Handedness
     Left, Right
 };
 
+template<typename T>
+struct ModifiableStat
+{
+    T OriginalValue;
+    T NewValue;
+};
+
 struct PlayerData
 {
     int OriginalROMAddress;
     int ReplacedROMAddressForRename;
     std::string Name;
 
-    int PlayerNumber;
+    ModifiableStat<int> PlayerNumber;
 
     int WeightFactor;
     int WeightInPounds;
 
-    int BaseAgility;
-    int BaseSpeed;
+    ModifiableStat<int> BaseAgility;
+    ModifiableStat<int> BaseSpeed;
 
-    int BaseOffAware;
-    int BaseDefAware;
+    ModifiableStat<int> BaseOffAware;
+    ModifiableStat<int> BaseDefAware;
 
-    int BaseShotPower;
+    ModifiableStat<int> BaseShotPower;
 
-    int BaseChecking;
+    ModifiableStat<int> BaseChecking;
 
     int HandednessValue;
     Handedness WhichHandedness;
 
-    int BaseStickHandling;
-    int BaseShotAccuracy;
-    int BaseEndurance;
-    int Roughness; // Not reported in the game card
-    int BasePassAccuracy;
-    int BaseAggression;
+    ModifiableStat<int> BaseStickHandling;
+    ModifiableStat<int> BaseShotAccuracy;
+    ModifiableStat<int> BaseEndurance;
+    ModifiableStat<int> Roughness; // Not reported in the game card
+    ModifiableStat<int> BasePassAccuracy;
+    ModifiableStat<int> BaseAggression;
 };
 
 struct TeamData
