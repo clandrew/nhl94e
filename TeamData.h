@@ -8,6 +8,7 @@ enum class Handedness
 template<typename T>
 struct ModifiableStat
 {
+    int SourceROMAddress;
     T OriginalValue;
     T NewValue;
 };

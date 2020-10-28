@@ -151,6 +151,23 @@ public:
         m_fileOffset += strLength;
     }
 
+    void SkipROMString()
+    {
+        unsigned char stringLength0 = s_romData[m_fileOffset + 0];
+        unsigned char stringLength1 = s_romData[m_fileOffset + 1];
+        m_fileOffset += 2;
+
+        // Special sentinel values are used to denote empty string
+        if (stringLength0 == 0x02 && stringLength1 == 0x0)
+            return;
+
+        int stringLengthPlusLengthWord = (stringLength1 << 8) | (stringLength0);
+        assert(stringLengthPlusLengthWord > 2);
+        int stringLength = stringLengthPlusLengthWord - 2;
+
+        m_fileOffset += stringLength;
+    }
+
     int LoadDecimalNumber()
     {
         unsigned char numberByte = s_romData[m_fileOffset];
@@ -166,6 +183,11 @@ public:
         unsigned char numberOnes = n % 10;
         unsigned char resultByte = (numberTens << 4) | numberOnes;
         s_romData[m_fileOffset] = resultByte;
+        ++m_fileOffset;
+    }
+
+    void SkipDecimalNumber()
+    {
         ++m_fileOffset;
     }
 
@@ -187,6 +209,11 @@ public:
         assert(b <= 0xf);
         unsigned char resultByte = (a << 4) | b;
         s_romData[m_fileOffset] = resultByte;
+        ++m_fileOffset;
+    }
+
+    void SkipHalfByteNumbers()
+    {
         ++m_fileOffset;
     }
 
@@ -361,6 +388,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column16 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 
     dataGridView1->CellValidating += gcnew System::Windows::Forms::DataGridViewCellValidatingEventHandler(this, &CppCLRWinformsProjekt::Form1::OnCellValidating);
+    dataGridView1->CellValueChanged += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &CppCLRWinformsProjekt::Form1::OnCellValueChanged);
 
     System::Windows::Forms::TabPage^ tabPage1;
 
@@ -564,18 +592,28 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
 {
     std::wstring outputFilename = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
     
+    // Check if anything has been changed
+    TeamData& montreal = s_allTeams[(int)Team::Montreal];
+    PlayerData& roy = montreal.Players[0];
+    RomDataIterator iter(ROMAddressToFileOffset(roy.OriginalROMAddress));
+
+    iter.SkipROMString();
+    iter.SkipDecimalNumber(); // Player number
+
+    if (roy.BaseAgility.OriginalValue != roy.BaseAgility.NewValue)
+    {
+        iter.SaveHalfByteNumbers(roy.WeightFactor, roy.BaseAgility.NewValue);
+    }
+
     SaveBytesToFile(outputFilename.c_str(), s_romData);
 
     MessageBox::Show(L"Output file saved.", L"Info");
 }
 
-
 void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
 {
     if (e->ColumnIndex == 3)
     {
-        System::Int32^ i = gcnew System::Int32(5);
-
         int r = 0;
         if (int::TryParse((System::String^)e->FormattedValue, r))
         {
@@ -591,5 +629,16 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
             MessageBox::Show(L"Please enter a number between 0 and 15, inclusive.", L"Info");
             e->Cancel = true;
         }
+    }
+}
+
+
+void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
+{
+    int playerIndex = e->RowIndex;
+    
+    if (e->ColumnIndex == 3) // Agility
+    {
+
     }
 }

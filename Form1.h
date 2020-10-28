@@ -151,5 +151,6 @@ namespace CppCLRWinformsProjekt {
 		void AddTeam(TeamData const& montreal);
 	private: System::Void saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e);
 		   void OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e);
+		   void OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e);
 };
 }
