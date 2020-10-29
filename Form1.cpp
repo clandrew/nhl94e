@@ -621,7 +621,7 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
 
 void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
 {
-    if (e->ColumnIndex == 3)
+    if (e->ColumnIndex == 4) // Agility
     {
         int r = 0;
         if (int::TryParse((System::String^)e->FormattedValue, r))
@@ -641,23 +641,33 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
     }
 }
 
+enum class WhichStat
+{
+    WeightClass = 3,
+    Agility = 4,
+    Speed = 5,
+    Aggression = 16
+};
 
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
-    DataGridView^ view = (DataGridView^)sender;
+    int teamIndex = tabControl1->SelectedIndex;
     int playerIndex = e->RowIndex;
+    int whichStatIndex = e->ColumnIndex;
+
+    DataGridView^ view = (DataGridView^)sender;
     
-    if (e->ColumnIndex == 3) // Agility
+    if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
         // Commit new value to s_allTeams
-        System::Object^ value = view->Rows[playerIndex]->Cells[e->ColumnIndex]->Value;
+        System::Object^ value = view->Rows[playerIndex]->Cells[whichStatIndex]->Value;
 
-        int r = 0;
-        if (int::TryParse((System::String^)value, r))
+        int n = 0;
+        if (int::TryParse((System::String^)value, n))
         {
-            if (r >= 0 && r <= 6)
+            if (n >= 0 && n <= 6)
             {
-                s_allTeams[(int)Team::Montreal].Players[playerIndex].BaseAgility.NewValue = r;
+                s_allTeams[teamIndex].Players[playerIndex].BaseAgility.NewValue = n;
             }
         }
     }
