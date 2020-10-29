@@ -351,6 +351,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 {
     // Declare variables
     System::Windows::Forms::DataGridView^ dataGridView1;
+    System::Windows::Forms::DataGridViewTextBoxColumn^ Column0;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column3;
@@ -370,6 +371,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
     // Create objects
     dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+    Column0 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
@@ -397,6 +399,11 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     tabPage1->SuspendLayout();
 
     this->tabControl1->Controls->Add(tabPage1);
+
+    Column0->HeaderText = L"Idx";
+    Column0->Name = L"Column0";
+    Column0->Width = 25;
+    Column0->ReadOnly = true;
 
     Column1->HeaderText = L"Player Name";
     Column1->Name = L"Column1";
@@ -489,6 +496,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     dataGridView1->AllowUserToAddRows = false;
     dataGridView1->AllowUserToDeleteRows = false;
     dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column0 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column2 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column3 });
@@ -517,42 +525,43 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     {
         PlayerData const& player = montreal.Players[i];
 
+        System::Object^ playerIndex = i;
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
-
-        System::String^ playerNumberString = IntToCliString(player.PlayerNumber.OriginalValue);
-        System::String^ weightClassString = IntToCliString(player.WeightFactor);
-        System::String^ agilityString = IntToCliString(player.BaseAgility.OriginalValue);
-        System::String^ speedString = IntToCliString(player.BaseSpeed.OriginalValue);
-        System::String^ offAwareString = IntToCliString(player.BaseOffAware.OriginalValue);
-        System::String^ defAwareString = IntToCliString(player.BaseDefAware.OriginalValue);
-        System::String^ shotPowerString = IntToCliString(player.BaseShotPower.OriginalValue);
-        System::String^ checkingString = IntToCliString(player.BaseChecking.OriginalValue);
+        System::Object^ playerNumber = player.PlayerNumber.OriginalValue;
+        System::Object^ weightClass = player.WeightFactor;
+        System::Object^ agility = player.BaseAgility.OriginalValue;
+        System::Object^ speed = player.BaseSpeed.OriginalValue;
+        System::Object^ offAware = player.BaseOffAware.OriginalValue;
+        System::Object^ defAware = player.BaseDefAware.OriginalValue;
+        System::Object^ shotPower = player.BaseShotPower.OriginalValue;
+        System::Object^ checking = player.BaseChecking.OriginalValue;
         System::String^ handednessString = player.WhichHandedness == Handedness::Left ? L"L" : L"R";
-        System::String^ stickHandlingString = IntToCliString(player.BaseStickHandling.OriginalValue);
-        System::String^ shotAccString = IntToCliString(player.BaseShotAccuracy.OriginalValue);
-        System::String^ enduranceString = IntToCliString(player.BaseEndurance.OriginalValue);
-        System::String^ roughnessString = IntToCliString(player.Roughness.OriginalValue);
-        System::String^ passAccString = IntToCliString(player.BasePassAccuracy.OriginalValue);
-        System::String^ aggressionString = IntToCliString(player.BaseAggression.OriginalValue);
+        System::Object^ stickHandling = player.BaseStickHandling.OriginalValue;
+        System::Object^ shotAcc = player.BaseShotAccuracy.OriginalValue;
+        System::Object^ endurance = player.BaseEndurance.OriginalValue;
+        System::Object^ roughness = player.Roughness.OriginalValue;
+        System::Object^ passAcc = player.BasePassAccuracy.OriginalValue;
+        System::Object^ aggression = player.BaseAggression.OriginalValue;
 
-        dataGridView1->Rows->Add(gcnew cli::array<System::String^>(16) 
+        dataGridView1->Rows->Add(gcnew cli::array<System::Object^>(17) 
         { 
+            playerIndex,
             playerNameString, 
-            playerNumberString, 
-            weightClassString, 
-            agilityString,
-            speedString,
-            offAwareString,
-            defAwareString,
-            shotPowerString,
-            checkingString,
+            playerNumber, 
+            weightClass, 
+            agility,
+            speed,
+            offAware,
+            defAware,
+            shotPower,
+            checking,
             handednessString,
-            stickHandlingString,
-            shotAccString,
-            enduranceString,
-            roughnessString,
-            passAccString,
-            aggressionString
+            stickHandling,
+            shotAcc,
+            endurance,
+            roughness,
+            passAcc,
+            aggression
         });
     }
 
@@ -635,10 +644,21 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
 
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
+    DataGridView^ view = (DataGridView^)sender;
     int playerIndex = e->RowIndex;
     
     if (e->ColumnIndex == 3) // Agility
     {
+        // Commit new value to s_allTeams
+        System::Object^ value = view->Rows[playerIndex]->Cells[e->ColumnIndex]->Value;
 
+        int r = 0;
+        if (int::TryParse((System::String^)value, r))
+        {
+            if (r >= 0 && r <= 6)
+            {
+                s_allTeams[(int)Team::Montreal].Players[playerIndex].BaseAgility.NewValue = r;
+            }
+        }
     }
 }
