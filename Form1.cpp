@@ -619,35 +619,90 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
     MessageBox::Show(L"Output file saved.", L"Info");
 }
 
-void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
-{
-    if (e->ColumnIndex == 4) // Agility
-    {
-        int r = 0;
-        if (int::TryParse((System::String^)e->FormattedValue, r))
-        {
-            // Valid integer
-            if (r < 0 || r >= 16)
-            {
-                MessageBox::Show(L"Please enter a number between 0 and 15, inclusive.", L"Info");
-                e->Cancel = true;
-            }
-        }
-        else
-        {
-            MessageBox::Show(L"Please enter a number between 0 and 15, inclusive.", L"Info");
-            e->Cancel = true;
-        }
-    }
-}
-
 enum class WhichStat
 {
+    PlayerIndex = 0,
+    PlayerName = 1,
+    PlayerNumber = 2,
     WeightClass = 3,
     Agility = 4,
     Speed = 5,
+    OffAware = 6,
+    DefAware = 7,
+    ShotPower = 8,
+    Checking = 9,
+    Handedness = 10,
+    StickHandling = 11,
+    ShotAccuracy = 12,
+    Endurance = 13,
+    Roughness = 14,
+    PassAccuracy = 15,
     Aggression = 16
 };
+
+void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
+{
+    WhichStat stat = (WhichStat)e->ColumnIndex;
+    int r = 0;
+
+    switch (stat)
+    {
+    case WhichStat::PlayerNumber:
+        {
+            if (!int::TryParse((System::String^)e->FormattedValue, r) || r < 1 || r > 99)
+            {
+                MessageBox::Show(L"Please enter a number between 1 and 99, inclusive.", L"Info");
+                e->Cancel = true;
+            }
+            break;
+        }
+    case WhichStat::WeightClass:
+        {
+            if (!int::TryParse((System::String^)e->FormattedValue, r) || r < 0 || r > 16)
+            {
+                MessageBox::Show(L"Please enter a number between 0 and 16, inclusive.", L"Info");
+                e->Cancel = true;
+            }
+            break;
+        }
+    case WhichStat::Handedness:
+        {
+            // L or R
+            if (e->FormattedValue != "L" && e->FormattedValue != "R")
+            {
+                MessageBox::Show(L"Please enter either L or R.", L"Info");
+                e->Cancel = true;
+            }
+            break;
+        }
+    case WhichStat::Agility:
+    case WhichStat::Speed:
+    case WhichStat::OffAware:
+    case WhichStat::DefAware:
+    case WhichStat::ShotPower:
+    case WhichStat::Checking:
+    case WhichStat::StickHandling:
+    case WhichStat::ShotAccuracy:
+    case WhichStat::Endurance:
+    case WhichStat::Roughness:
+    case WhichStat::PassAccuracy:
+    case WhichStat::Aggression:
+        {
+            if (!int::TryParse((System::String^)e->FormattedValue, r) || r < 0 || r > 6)
+            {
+                MessageBox::Show(L"Please enter a number between 0 and 6, inclusive.", L"Info");
+                e->Cancel = true;
+            }
+            break;
+        }
+    case WhichStat::PlayerIndex:
+        // Can't change this
+    case WhichStat::PlayerName:
+        // Can't change this (for now)
+    default:
+        ;
+    }
+}
 
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
@@ -656,6 +711,27 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     int whichStatIndex = e->ColumnIndex;
 
     DataGridView^ view = (DataGridView^)sender;
+
+    /*
+    
+    PlayerIndex = 0,
+    PlayerName = 1,
+    PlayerNumber = 2,
+    WeightClass = 3,
+    Agility = 4,
+    Speed = 5,
+    OffAware = 6,
+    DefAware = 7,
+    ShotPower = 8,
+    Checking = 9,
+    Handedness = 10,
+    StickHandling = 11,
+    ShotAccuracy = 12,
+    Endurance = 13,
+    Roughness = 14,
+    PassAccuracy = 15,
+    Aggression = 16
+    */
     
     if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
