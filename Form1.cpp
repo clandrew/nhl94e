@@ -596,6 +596,7 @@ System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System
 {
     s_allTeams.clear();
     s_romData.clear();
+    this->tabControl1->Controls->Clear();
 
     OpenFileDialog^ dialog = gcnew OpenFileDialog();
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
