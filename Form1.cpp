@@ -7,6 +7,27 @@
 static std::vector<TeamData> s_allTeams;
 static std::vector<unsigned char> s_romData;
 
+enum class WhichStat
+{
+    PlayerIndex = 0,
+    PlayerName = 1,
+    PlayerNumber = 2,
+    WeightClass = 3,
+    Agility = 4,
+    Speed = 5,
+    OffAware = 6,
+    DefAware = 7,
+    ShotPower = 8,
+    Checking = 9,
+    Handedness = 10,
+    StickHandling = 11,
+    ShotAccuracy = 12,
+    Endurance = 13,
+    Roughness = 14,
+    PassAccuracy = 15,
+    Aggression = 16
+};
+
 enum class Team
 {
     Anaheim = 0x0,
@@ -426,27 +447,22 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column5->HeaderText = L"Speed";
     Column5->Name = L"Column5";
     Column5->Width = 40;
-    Column5->ReadOnly = true;
 
     Column6->HeaderText = L"Off Aware";
     Column6->Name = L"Column6";
     Column6->Width = 40;
-    Column6->ReadOnly = true;
 
     Column7->HeaderText = L"Def Aware";
     Column7->Name = L"Column7";
     Column7->Width = 40;
-    Column7->ReadOnly = true;
 
     Column8->HeaderText = L"Shot Power";
     Column8->Name = L"Column8";
     Column8->Width = 40;
-    Column8->ReadOnly = true;
 
     Column9->HeaderText = L"Checking";
     Column9->Name = L"Column9";
     Column9->Width = 60;
-    Column9->ReadOnly = true;
 
     Column10->HeaderText = L"Hand";
     Column10->Name = L"Column10";
@@ -456,32 +472,26 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column11->HeaderText = L"Stick Handling";
     Column11->Name = L"Column11";
     Column11->Width = 60;
-    Column11->ReadOnly = true;
 
     Column12->HeaderText = L"Shot Acc";
     Column12->Name = L"Column12";
     Column12->Width = 40;
-    Column12->ReadOnly = true;
 
     Column13->HeaderText = L"Endurance";
     Column13->Name = L"Column13";
     Column13->Width = 70;
-    Column13->ReadOnly = true;
 
     Column14->HeaderText = L"Roughness";
     Column14->Name = L"Column14";
     Column14->Width = 70;
-    Column14->ReadOnly = true;
 
     Column15->HeaderText = L"Pass Acc";
     Column15->Name = L"Column15";
     Column15->Width = 40;
-    Column15->ReadOnly = true;
 
     Column16->HeaderText = L"Aggression";
     Column16->Name = L"Column16";
     Column16->Width = 70;
-    Column16->ReadOnly = true;
 
     tabPage1->Controls->Add(dataGridView1);
     tabPage1->Location = System::Drawing::Point(4, 22);
@@ -619,27 +629,6 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
     MessageBox::Show(L"Output file saved.", L"Info");
 }
 
-enum class WhichStat
-{
-    PlayerIndex = 0,
-    PlayerName = 1,
-    PlayerNumber = 2,
-    WeightClass = 3,
-    Agility = 4,
-    Speed = 5,
-    OffAware = 6,
-    DefAware = 7,
-    ShotPower = 8,
-    Checking = 9,
-    Handedness = 10,
-    StickHandling = 11,
-    ShotAccuracy = 12,
-    Endurance = 13,
-    Roughness = 14,
-    PassAccuracy = 15,
-    Aggression = 16
-};
-
 void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
 {
     WhichStat stat = (WhichStat)e->ColumnIndex;
@@ -707,35 +696,16 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
     int teamIndex = tabControl1->SelectedIndex;
-    int playerIndex = e->RowIndex;
+    int rowIndex = e->RowIndex;
     int whichStatIndex = e->ColumnIndex;
 
     DataGridView^ view = (DataGridView^)sender;
-
-    /*
-    
-    PlayerIndex = 0,
-    PlayerName = 1,
-    PlayerNumber = 2,
-    WeightClass = 3,
-    Agility = 4,
-    Speed = 5,
-    OffAware = 6,
-    DefAware = 7,
-    ShotPower = 8,
-    Checking = 9,
-    Handedness = 10,
-    StickHandling = 11,
-    ShotAccuracy = 12,
-    Endurance = 13,
-    Roughness = 14,
-    PassAccuracy = 15,
-    Aggression = 16
-    */
     
     if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
         // Commit new value to s_allTeams
+        unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
         System::Object^ value = view->Rows[playerIndex]->Cells[whichStatIndex]->Value;
 
         int n = 0;
