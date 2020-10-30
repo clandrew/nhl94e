@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "Form1.h"
 #include "AddressMapping.h"
 #include "TeamData.h"
@@ -580,10 +580,33 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
     tabPage1->ResumeLayout(false);
 }
 
-System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
+std::wstring ManagedToWideString(System::String^ s)
 {
-	std::wstring romFilename = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
-	s_romData = LoadBytesFromFile(romFilename.c_str());
+    array<wchar_t>^ arr = s->ToCharArray();
+
+    std::wstring result;
+    for (int i = 0; i < arr->Length; ++i)
+    {
+        result.push_back(arr[i]);
+    }
+    return result;
+}
+
+System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+{
+    s_allTeams.clear();
+    s_romData.clear();
+
+    OpenFileDialog^ dialog = gcnew OpenFileDialog();
+    System::Windows::Forms::DialogResult result = dialog->ShowDialog();
+    if (result != System::Windows::Forms::DialogResult::OK)
+        return;
+
+    //std::wstring romFilename = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
+
+    std::wstring romFilename = ManagedToWideString(dialog->FileName);
+
+    s_romData = LoadBytesFromFile(romFilename.c_str());
 
     // Check size
     size_t expectedSize = 0x400000;
@@ -596,6 +619,7 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
         System::String^ dialogString = gcnew System::String(sstream.str().c_str());
         MessageBox::Show(dialogString);
+        return;
     }
 
     s_allTeams = LoadPlayerNamesAndStats();
@@ -607,6 +631,10 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
     }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
+}
+
+System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
+{
 }
 
 System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 

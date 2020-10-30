@@ -141,6 +141,8 @@ struct PlayerData
             System::Diagnostics::Debug::Assert(false); // Unexpected stat
             break;
         }
+
+        return false;
     }
 };
 
