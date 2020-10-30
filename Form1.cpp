@@ -437,7 +437,6 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
     Column2->HeaderText = L"#";
     Column2->Name = L"Column2";
     Column2->Width = 25;
-    Column2->ReadOnly = true;
 
     Column3->HeaderText = L"Weight Class";
     Column3->Name = L"Column3";
@@ -711,6 +710,7 @@ void TryCommitStatChange(
     int teamIndex,
     int rowIndex,
     int whichStatIndex,
+    int minAllowedValue,
     int maxAllowedValue)
 {
     System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
@@ -718,7 +718,7 @@ void TryCommitStatChange(
     int n = 0;
     if (int::TryParse((System::String^)value, n))
     {
-        if (n >= 0 && n <= maxAllowedValue)
+        if (n >= minAllowedValue && n <= maxAllowedValue)
         {
             // Commit new value to s_allTeams
             unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);                      
@@ -738,10 +738,14 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     
     if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
-        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 6);
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 6);
     }
     else if (whichStatIndex == (int)WhichStat::WeightClass)
     {
-        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 16);
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 16);
+    }
+    else if (whichStatIndex == (int)WhichStat::PlayerNumber)
+    {
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 1, 99);
     }
 }
