@@ -115,6 +115,33 @@ struct PlayerData
                 break;
         }
     }
+
+    bool IsNumericalStatChanged(WhichStat s)
+    {
+        switch (s)
+        {
+        case WhichStat::PlayerNumber: return PlayerNumber.IsChanged(); break;
+        case WhichStat::WeightClass: return WeightFactor.IsChanged(); break;
+        case WhichStat::Agility: return BaseAgility.IsChanged(); break;
+        case WhichStat::Speed: return BaseSpeed.IsChanged(); break;
+        case WhichStat::OffAware: return BaseOffAware.IsChanged(); break;
+        case WhichStat::DefAware: return BaseDefAware.IsChanged(); break;
+        case WhichStat::ShotPower: return BaseShotPower.IsChanged(); break;
+        case WhichStat::Checking: return BaseChecking.IsChanged(); break;
+        case WhichStat::Handedness: return HandednessValue.IsChanged(); break;
+        case WhichStat::StickHandling: return BaseStickHandling.IsChanged(); break;
+        case WhichStat::ShotAccuracy: return BaseShotAccuracy.IsChanged(); break;
+        case WhichStat::Endurance: return BaseEndurance.IsChanged(); break;
+        case WhichStat::Roughness: return Roughness.IsChanged(); break;
+        case WhichStat::PassAccuracy: return BasePassAccuracy.IsChanged(); break;
+        case WhichStat::Aggression: return BaseAggression.IsChanged(); break;
+
+        case WhichStat::PlayerIndex:
+        case WhichStat::PlayerName:
+            System::Diagnostics::Debug::Assert(false); // Unexpected stat
+            break;
+        }
+    }
 };
 
 struct TeamData
