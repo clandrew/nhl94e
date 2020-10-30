@@ -372,7 +372,7 @@ System::String^ IntToCliString(int n)
     return gcnew System::String(strm.str().c_str());
 }
 
-void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
+void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
 {
     // Declare variables
     System::Windows::Forms::DataGridView^ dataGridView1;
@@ -502,7 +502,7 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     tabPage1->Padding = System::Windows::Forms::Padding(3);
     tabPage1->Size = System::Drawing::Size(401, 496);
     tabPage1->TabIndex = 0;
-    System::String^ teamAcronym = gcnew System::String(montreal.Acronym.c_str());
+    System::String^ teamAcronym = gcnew System::String(team.Acronym.c_str());
     tabPage1->Text = teamAcronym;
     tabPage1->UseVisualStyleBackColor = true;
 
@@ -534,9 +534,9 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
     dataGridView1->Rows->Clear();
 
-    for (size_t i = 0; i < montreal.Players.size(); ++i)
+    for (size_t i = 0; i < team.Players.size(); ++i)
     {
-        PlayerData const& player = montreal.Players[i];
+        PlayerData const& player = team.Players[i];
 
         System::Object^ playerIndex = i;
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
@@ -604,7 +604,7 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& team = s_allTeams[teamIndex];
-        AddTeam(team);
+        AddTeamGridUI(team);
     }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
