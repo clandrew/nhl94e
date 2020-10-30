@@ -7,27 +7,6 @@
 static std::vector<TeamData> s_allTeams;
 static std::vector<unsigned char> s_romData;
 
-enum class WhichStat
-{
-    PlayerIndex = 0,
-    PlayerName = 1,
-    PlayerNumber = 2,
-    WeightClass = 3,
-    Agility = 4,
-    Speed = 5,
-    OffAware = 6,
-    DefAware = 7,
-    ShotPower = 8,
-    Checking = 9,
-    Handedness = 10,
-    StickHandling = 11,
-    ShotAccuracy = 12,
-    Endurance = 13,
-    Roughness = 14,
-    PassAccuracy = 15,
-    Aggression = 16
-};
-
 enum class Team
 {
     Anaheim = 0x0,
@@ -295,20 +274,45 @@ TeamData GetTeamData(int playerDataAddress)
         if (p.Name.length() == 0)
             break;
 
-        p.PlayerNumber.OriginalValue = iter.LoadDecimalNumber();
+        p.PlayerNumber.Initialize(iter.LoadDecimalNumber());
 
-        iter.LoadHalfByteNumbers(&p.WeightFactor, &p.BaseAgility.OriginalValue);
-        p.WeightInPounds = 140 + (p.WeightFactor * 8);
+        int weightFactor, agility;
+        iter.LoadHalfByteNumbers(&weightFactor, &agility);
+        p.WeightFactor.Initialize(weightFactor);
+        p.BaseAgility.Initialize(agility);
 
-        iter.LoadHalfByteNumbers(&p.BaseSpeed.OriginalValue, &p.BaseOffAware.OriginalValue);
-        iter.LoadHalfByteNumbers(&p.BaseDefAware.OriginalValue, &p.BaseShotPower.OriginalValue);
+        p.WeightInPounds = 140 + (weightFactor * 8);
 
-        iter.LoadHalfByteNumbers(&p.BaseChecking.OriginalValue, &p.HandednessValue);
-        p.WhichHandedness = p.HandednessValue % 2 == 0 ? Handedness::Left : Handedness::Right;
+        int speed, offAware;
+        iter.LoadHalfByteNumbers(&speed, &offAware);
+        p.BaseSpeed.Initialize(speed);
+        p.BaseOffAware.Initialize(offAware);
 
-        iter.LoadHalfByteNumbers(&p.BaseStickHandling.OriginalValue, &p.BaseShotAccuracy.OriginalValue);
-        iter.LoadHalfByteNumbers(&p.BaseEndurance.OriginalValue, &p.Roughness.OriginalValue);
-        iter.LoadHalfByteNumbers(&p.BasePassAccuracy.OriginalValue, &p.BaseAggression.OriginalValue);
+        int defAware, shotPower;
+        iter.LoadHalfByteNumbers(&defAware, &shotPower);
+        p.BaseDefAware.Initialize(defAware);
+        p.BaseShotPower.Initialize(shotPower);
+
+        int checking, handednessValue;
+        iter.LoadHalfByteNumbers(&checking, &handednessValue);
+        p.BaseChecking.Initialize(checking);
+        p.HandednessValue.Initialize(handednessValue);
+        p.WhichHandedness = handednessValue % 2 == 0 ? Handedness::Left : Handedness::Right;
+
+        int stickHandling, shotAccuracy;
+        iter.LoadHalfByteNumbers(&stickHandling, &shotAccuracy);
+        p.BaseStickHandling.Initialize(stickHandling);
+        p.BaseShotAccuracy.Initialize(shotAccuracy);
+
+        int endurance, roughnness;
+        iter.LoadHalfByteNumbers(&endurance, &roughnness);
+        p.BaseEndurance.Initialize(endurance);
+        p.Roughness.Initialize(roughnness);
+
+        int passAcc, aggression;
+        iter.LoadHalfByteNumbers(&passAcc, &aggression);
+        p.BasePassAccuracy.Initialize(passAcc);
+        p.BaseAggression.Initialize(aggression);
 
         result.Players.push_back(p);
     }
@@ -438,7 +442,6 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
     Column3->HeaderText = L"Weight Class";
     Column3->Name = L"Column3";
     Column3->Width = 50;
-    Column3->ReadOnly = true;
 
     Column4->HeaderText = L"Agility";
     Column4->Name = L"Column4";
@@ -537,21 +540,21 @@ void CppCLRWinformsProjekt::Form1::AddTeam(TeamData const& montreal)
 
         System::Object^ playerIndex = i;
         System::String^ playerNameString = gcnew System::String(player.Name.c_str());
-        System::Object^ playerNumber = player.PlayerNumber.OriginalValue;
-        System::Object^ weightClass = player.WeightFactor;
-        System::Object^ agility = player.BaseAgility.OriginalValue;
-        System::Object^ speed = player.BaseSpeed.OriginalValue;
-        System::Object^ offAware = player.BaseOffAware.OriginalValue;
-        System::Object^ defAware = player.BaseDefAware.OriginalValue;
-        System::Object^ shotPower = player.BaseShotPower.OriginalValue;
-        System::Object^ checking = player.BaseChecking.OriginalValue;
+        System::Object^ playerNumber = player.PlayerNumber.Get();
+        System::Object^ weightClass = player.WeightFactor.Get();
+        System::Object^ agility = player.BaseAgility.Get();
+        System::Object^ speed = player.BaseSpeed.Get();
+        System::Object^ offAware = player.BaseOffAware.Get();
+        System::Object^ defAware = player.BaseDefAware.Get();
+        System::Object^ shotPower = player.BaseShotPower.Get();
+        System::Object^ checking = player.BaseChecking.Get();
         System::String^ handednessString = player.WhichHandedness == Handedness::Left ? L"L" : L"R";
-        System::Object^ stickHandling = player.BaseStickHandling.OriginalValue;
-        System::Object^ shotAcc = player.BaseShotAccuracy.OriginalValue;
-        System::Object^ endurance = player.BaseEndurance.OriginalValue;
-        System::Object^ roughness = player.Roughness.OriginalValue;
-        System::Object^ passAcc = player.BasePassAccuracy.OriginalValue;
-        System::Object^ aggression = player.BaseAggression.OriginalValue;
+        System::Object^ stickHandling = player.BaseStickHandling.Get();
+        System::Object^ shotAcc = player.BaseShotAccuracy.Get();
+        System::Object^ endurance = player.BaseEndurance.Get();
+        System::Object^ roughness = player.Roughness.Get();
+        System::Object^ passAcc = player.BasePassAccuracy.Get();
+        System::Object^ aggression = player.BaseAggression.Get();
 
         dataGridView1->Rows->Add(gcnew cli::array<System::Object^>(17) 
         { 
@@ -611,17 +614,26 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
 {
     std::wstring outputFilename = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
     
-    // Check if anything has been changed
-    TeamData& montreal = s_allTeams[(int)Team::Montreal];
-    PlayerData& roy = montreal.Players[0];
-    RomDataIterator iter(ROMAddressToFileOffset(roy.OriginalROMAddress));
-
-    iter.SkipROMString();
-    iter.SkipDecimalNumber(); // Player number
-
-    if (roy.BaseAgility.OriginalValue != roy.BaseAgility.NewValue)
+    for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
-        iter.SaveHalfByteNumbers(roy.WeightFactor, roy.BaseAgility.NewValue);
+        TeamData& team = s_allTeams[teamIndex];
+
+        for (int playerIndex = 0; playerIndex < team.Players.size(); ++playerIndex)
+        {
+            PlayerData& player = team.Players[playerIndex];
+            RomDataIterator iter(ROMAddressToFileOffset(player.OriginalROMAddress));
+
+            iter.SkipROMString(); // player name
+
+            iter.SaveDecimalNumber(player.PlayerNumber.Get());
+            iter.SaveHalfByteNumbers(player.WeightFactor.Get(), player.BaseAgility.Get());
+            iter.SaveHalfByteNumbers(player.BaseSpeed.Get(), player.BaseOffAware.Get());
+            iter.SaveHalfByteNumbers(player.BaseDefAware.Get(), player.BaseShotPower.Get());
+            iter.SaveHalfByteNumbers(player.BaseChecking.Get(), player.HandednessValue.Get());
+            iter.SaveHalfByteNumbers(player.BaseStickHandling.Get(), player.BaseShotAccuracy.Get());
+            iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get());
+            iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get());
+        }
     }
 
     SaveBytesToFile(outputFilename.c_str(), s_romData);
@@ -693,6 +705,29 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
     }
 }
 
+
+void TryCommitStatChange(
+    System::Windows::Forms::DataGridView^ view,
+    int teamIndex,
+    int rowIndex,
+    int whichStatIndex,
+    int maxAllowedValue)
+{
+    System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
+
+    int n = 0;
+    if (int::TryParse((System::String^)value, n))
+    {
+        if (n >= 0 && n <= maxAllowedValue)
+        {
+            // Commit new value to s_allTeams
+            unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);                      
+
+            s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
+        }
+    }
+}
+
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
     int teamIndex = tabControl1->SelectedIndex;
@@ -703,18 +738,10 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     
     if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
-        // Commit new value to s_allTeams
-        unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
-
-        System::Object^ value = view->Rows[playerIndex]->Cells[whichStatIndex]->Value;
-
-        int n = 0;
-        if (int::TryParse((System::String^)value, n))
-        {
-            if (n >= 0 && n <= 6)
-            {
-                s_allTeams[teamIndex].Players[playerIndex].BaseAgility.NewValue = n;
-            }
-        }
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 6);
+    }
+    else if (whichStatIndex == (int)WhichStat::WeightClass)
+    {
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 16);
     }
 }

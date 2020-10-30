@@ -5,10 +5,55 @@ enum class Handedness
     Left, Right
 };
 
+enum class WhichStat
+{
+    PlayerIndex = 0,
+    PlayerName = 1,
+    PlayerNumber = 2,
+    WeightClass = 3,
+    Agility = 4,
+    Speed = 5,
+    OffAware = 6,
+    DefAware = 7,
+    ShotPower = 8,
+    Checking = 9,
+    Handedness = 10,
+    StickHandling = 11,
+    ShotAccuracy = 12,
+    Endurance = 13,
+    Roughness = 14,
+    PassAccuracy = 15,
+    Aggression = 16
+};
+
 template<typename T>
 struct ModifiableStat
 {
     int SourceROMAddress;
+
+public:
+    void Initialize(T n)
+    {
+        OriginalValue = n;
+        NewValue = n;
+    }
+
+    bool IsChanged() const
+    {
+        return OriginalValue != NewValue;
+    }
+
+    void Set(T const& v)
+    {
+        NewValue = v;
+    }
+
+    T const& Get() const
+    {
+        return NewValue;
+    }
+
+private:
     T OriginalValue;
     T NewValue;
 };
@@ -21,7 +66,7 @@ struct PlayerData
 
     ModifiableStat<int> PlayerNumber;
 
-    int WeightFactor;
+    ModifiableStat<int> WeightFactor;
     int WeightInPounds;
 
     ModifiableStat<int> BaseAgility;
@@ -34,7 +79,7 @@ struct PlayerData
 
     ModifiableStat<int> BaseChecking;
 
-    int HandednessValue;
+    ModifiableStat<int> HandednessValue;
     Handedness WhichHandedness;
 
     ModifiableStat<int> BaseStickHandling;
@@ -43,6 +88,33 @@ struct PlayerData
     ModifiableStat<int> Roughness; // Not reported in the game card
     ModifiableStat<int> BasePassAccuracy;
     ModifiableStat<int> BaseAggression;
+
+    void SetNumericalStat(WhichStat s, int v)
+    {
+        switch (s)
+        {
+            case WhichStat::PlayerNumber: PlayerNumber.Set(v); break;
+            case WhichStat::WeightClass: WeightFactor.Set(v); break;
+            case WhichStat::Agility: BaseAgility.Set(v); break;
+            case WhichStat::Speed: BaseSpeed.Set(v); break;
+            case WhichStat::OffAware: BaseOffAware.Set(v); break;
+            case WhichStat::DefAware: BaseDefAware.Set(v); break;
+            case WhichStat::ShotPower: BaseShotPower.Set(v); break;
+            case WhichStat::Checking: BaseChecking.Set(v); break;
+            case WhichStat::Handedness: HandednessValue.Set(v); break;
+            case WhichStat::StickHandling: BaseStickHandling.Set(v); break;
+            case WhichStat::ShotAccuracy: BaseShotAccuracy.Set(v); break;
+            case WhichStat::Endurance: BaseEndurance.Set(v); break;
+            case WhichStat::Roughness: Roughness.Set(v); break;
+            case WhichStat::PassAccuracy: BasePassAccuracy.Set(v); break;
+            case WhichStat::Aggression: BaseAggression.Set(v); break;
+
+            case WhichStat::PlayerIndex: 
+            case WhichStat::PlayerName:
+                System::Diagnostics::Debug::Assert(false); // Unexpected stat
+                break;
+        }
+    }
 };
 
 struct TeamData
