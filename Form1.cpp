@@ -599,11 +599,11 @@ System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System
     this->tabControl1->Controls->Clear();
 
     OpenFileDialog^ dialog = gcnew OpenFileDialog();
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
+
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
         return;
-
-    //std::wstring romFilename = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
 
     std::wstring romFilename = ManagedToWideString(dialog->FileName);
 
@@ -640,7 +640,13 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 
 System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 
 {
-    std::wstring outputFilename = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+    SaveFileDialog^ dialog = gcnew SaveFileDialog();
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+    System::Windows::Forms::DialogResult result = dialog->ShowDialog();
+    if (result != System::Windows::Forms::DialogResult::OK)
+        return;
+
+    std::wstring outputFilename = ManagedToWideString(dialog->FileName);
     
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
