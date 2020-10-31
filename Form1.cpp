@@ -599,7 +599,9 @@ System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System
     this->tabControl1->Controls->Clear();
 
     OpenFileDialog^ dialog = gcnew OpenFileDialog();
+#if _DEBUG
     dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
+#endif
 
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
@@ -641,7 +643,9 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
+#if _DEBUG
     dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+#endif
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
         return;
