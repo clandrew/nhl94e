@@ -469,7 +469,6 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
     Column10->HeaderText = L"Hand";
     Column10->Name = L"Column10";
     Column10->Width = 40;
-    Column10->ReadOnly = true;
 
     Column11->HeaderText = L"Stick Handling";
     Column11->Name = L"Column11";
@@ -796,5 +795,29 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     else if (whichStatIndex == (int)WhichStat::PlayerNumber)
     {
         TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 1, 99);
+    }
+    else if (whichStatIndex == (int)WhichStat::Handedness)
+    {
+        System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
+
+        if (value != "L" && value != "R")
+        {
+            // Commit new value to s_allTeams
+            unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+            int n = value == "L" ? 0 : 2;
+
+            s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
+
+            if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
+            {
+                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
+            }
+            else
+            {
+                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
+            }
+
+        }
     }
 }
