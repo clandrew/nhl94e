@@ -800,6 +800,7 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     {
         System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
 
+        // TODO: get actual string comparison
         if (value != "L" && value != "R")
         {
             // Commit new value to s_allTeams
