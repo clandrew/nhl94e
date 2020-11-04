@@ -777,14 +777,41 @@ void TryCommitStatChange(
     }
 }
 
+void TryCommitHandednessStatChange(
+    System::Windows::Forms::DataGridView^ view,
+    int teamIndex,
+    int rowIndex)
+{
+    System::Object^ value = view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Value;
+    System::String^ stringValue = (System::String^)value;
+    if (stringValue == "L" || stringValue == "R")
+    {
+        // Commit new value to s_allTeams
+        unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+        int n = value == "L" ? 0 : 2;
+
+        s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat(WhichStat::Handedness, n);
+
+        if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged(WhichStat::Handedness))
+        {
+            view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::LightBlue;
+        }
+        else
+        {
+            view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::White;
+        }
+
+    }
+}
+
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
     int teamIndex = tabControl1->SelectedIndex;
     int rowIndex = e->RowIndex;
     int whichStatIndex = e->ColumnIndex;
 
-    DataGridView^ view = (DataGridView^)sender;
-    
+    DataGridView^ view = (DataGridView^)sender;    
     
     if (whichStatIndex == (int)WhichStat::WeightClass)
     {
@@ -796,27 +823,7 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     }
     else if (whichStatIndex == (int)WhichStat::Handedness)
     {
-        System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
-        System::String^ stringValue = (System::String^)value;
-        if (stringValue == "L" || stringValue == "R")
-        {
-            // Commit new value to s_allTeams
-            unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
-
-            int n = value == "L" ? 0 : 2;
-
-            s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
-
-            if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
-            {
-                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
-            }
-            else
-            {
-                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
-            }
-
-        }
+        TryCommitHandednessStatChange(view, teamIndex, rowIndex);
     }
     else if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
