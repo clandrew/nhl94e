@@ -777,6 +777,21 @@ void TryCommitStatChange(
     }
 }
 
+void UpdateGridCellBackgroundColor(
+    System::Windows::Forms::DataGridViewCell^ gridCell,
+    PlayerData* player,
+    WhichStat whichStat)
+{
+    if (player->IsNumericalStatChanged(whichStat))
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::White;
+    }
+}
+
 void TryCommitHandednessStatChange(
     System::Windows::Forms::DataGridView^ view,
     int teamIndex,
@@ -795,14 +810,10 @@ void TryCommitHandednessStatChange(
 
     s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat(WhichStat::Handedness, n);
 
-    if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged(WhichStat::Handedness))
-    {
-        view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::LightBlue;
-    }
-    else
-    {
-        view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::White;
-    }
+    UpdateGridCellBackgroundColor(
+        view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness],
+        &s_allTeams[teamIndex].Players[playerIndex],
+        WhichStat::Handedness);
 }
 
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
