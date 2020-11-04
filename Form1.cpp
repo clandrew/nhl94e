@@ -784,24 +784,24 @@ void TryCommitHandednessStatChange(
 {
     System::Object^ value = view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Value;
     System::String^ stringValue = (System::String^)value;
-    if (stringValue == "L" || stringValue == "R")
+
+    if (stringValue != "L" && stringValue != "R")
+        return;
+
+    // Commit new value to s_allTeams
+    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+    int n = value == "L" ? 0 : 2;
+
+    s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat(WhichStat::Handedness, n);
+
+    if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged(WhichStat::Handedness))
     {
-        // Commit new value to s_allTeams
-        unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
-
-        int n = value == "L" ? 0 : 2;
-
-        s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat(WhichStat::Handedness, n);
-
-        if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged(WhichStat::Handedness))
-        {
-            view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::LightBlue;
-        }
-        else
-        {
-            view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::White;
-        }
-
+        view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        view->Rows[rowIndex]->Cells[(int)WhichStat::Handedness]->Style->BackColor = System::Drawing::Color::White;
     }
 }
 
