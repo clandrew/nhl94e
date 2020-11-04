@@ -706,7 +706,8 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
     case WhichStat::Handedness:
         {
             // L or R
-            if (e->FormattedValue != "L" && e->FormattedValue != "R")
+            String^ valueString = (String^)e->FormattedValue;
+            if (valueString != "L" && valueString != "R")
             {
                 MessageBox::Show(L"Please enter either L or R.", L"Info");
                 e->Cancel = true;
@@ -784,11 +785,8 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
 
     DataGridView^ view = (DataGridView^)sender;
     
-    if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
-    {
-        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 6);
-    }
-    else if (whichStatIndex == (int)WhichStat::WeightClass)
+    
+    if (whichStatIndex == (int)WhichStat::WeightClass)
     {
         TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 16);
     }
@@ -799,9 +797,8 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     else if (whichStatIndex == (int)WhichStat::Handedness)
     {
         System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
-
         System::String^ stringValue = (System::String^)value;
-        if (stringValue != "L" && stringValue != "R")
+        if (stringValue == "L" || stringValue == "R")
         {
             // Commit new value to s_allTeams
             unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
@@ -820,5 +817,9 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
             }
 
         }
+    }
+    else if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
+    {
+        TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 6);
     }
 }
