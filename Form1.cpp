@@ -800,8 +800,8 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     {
         System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
 
-        // TODO: get actual string comparison
-        if (value != "L" && value != "R")
+        System::String^ stringValue = (System::String^)value;
+        if (stringValue != "L" && stringValue != "R")
         {
             // Commit new value to s_allTeams
             unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
