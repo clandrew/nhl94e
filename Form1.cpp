@@ -268,10 +268,10 @@ TeamData GetTeamData(int playerDataAddress)
         PlayerData p{};
         p.OriginalROMAddress = iter.GetROMOffset();
         p.ReplacedROMAddressForRename = 0;
-        p.Name = iter.LoadROMString();
+        p.Name.Initialize(iter.LoadROMString());
 
         // Convention: empty name string means we reached the end.
-        if (p.Name.length() == 0)
+        if (p.Name.Get().length() == 0)
             break;
 
         p.PlayerNumber.Initialize(iter.LoadDecimalNumber());
@@ -432,7 +432,6 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
 
     Column1->HeaderText = L"Player Name";
     Column1->Name = L"Column1";
-    Column1->ReadOnly = true;
 
     Column2->HeaderText = L"#";
     Column2->Name = L"Column2";
@@ -537,7 +536,7 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
         PlayerData const& player = team.Players[i];
 
         System::Object^ playerIndex = i;
-        System::String^ playerNameString = gcnew System::String(player.Name.c_str());
+        System::String^ playerNameString = gcnew System::String(player.Name.Get().c_str());
         System::Object^ playerNumber = player.PlayerNumber.Get();
         System::Object^ weightClass = player.WeightFactor.Get();
         System::Object^ agility = player.BaseAgility.Get();
@@ -587,6 +586,21 @@ std::wstring ManagedToWideString(System::String^ s)
     for (int i = 0; i < arr->Length; ++i)
     {
         result.push_back(arr[i]);
+    }
+    return result;
+}
+
+std::string ManagedToNarrowASCIIString(System::String^ s)
+{
+    array<wchar_t>^ arr = s->ToCharArray();
+
+    std::string result;
+    for (int i = 0; i < arr->Length; ++i)
+    {
+        wchar_t wide = arr[i];
+        assert(wide < 256);
+        char narrow = static_cast<char>(wide);
+        result.push_back(narrow);
     }
     return result;
 }
@@ -678,6 +692,24 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
     MessageBox::Show(L"Output file saved.", L"Info");
 }
 
+bool IsValidPlayerName(System::String^ name)
+{
+    // Name must consist of alphanumeric letters, space and period
+    for (int i = 0; i < name->Length; ++i)
+    {
+        wchar_t ch = name[i];
+        bool valid =
+            (ch >= L'a' && ch <= L'z') ||
+            (ch >= L'A' && ch <= L'Z') ||
+            ch == L' ' ||
+            ch == L'.';
+        if (!valid)
+            return false;
+    }
+
+    return true;
+}
+
 void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
 {
     WhichStat stat = (WhichStat)e->ColumnIndex;
@@ -685,6 +717,15 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
 
     switch (stat)
     {
+    case WhichStat::PlayerName:
+        {
+            if (!IsValidPlayerName((System::String^)e->FormattedValue))
+            {
+                MessageBox::Show(L"Encountered an invalid character in player name. Valid characters are alphabetic, space and period.", L"Info");
+                e->Cancel = true;
+            }
+            break;
+        }
     case WhichStat::PlayerNumber:
         {
             if (!int::TryParse((System::String^)e->FormattedValue, r) || r < 1 || r > 99)
@@ -736,8 +777,6 @@ void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, Syst
         }
     case WhichStat::PlayerIndex:
         // Can't change this
-    case WhichStat::PlayerName:
-        // Can't change this (for now)
     default:
         ;
     }
@@ -755,25 +794,24 @@ void TryCommitStatChange(
     System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
 
     int n = 0;
-    if (int::TryParse((System::String^)value, n))
+    if (!int::TryParse((System::String^)value, n))
+        return;
+
+    if (n < minAllowedValue || n > maxAllowedValue)
+        return;
+
+    // Commit new value to s_allTeams
+    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+    s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
+
+    if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
     {
-        if (n >= minAllowedValue && n <= maxAllowedValue)
-        {
-            // Commit new value to s_allTeams
-            unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);                      
-
-            s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
-
-            if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
-            {
-                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
-            }
-            else
-            {
-                view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
-            }
-
-        }
+        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
     }
 }
 
@@ -816,6 +854,36 @@ void TryCommitHandednessStatChange(
         WhichStat::Handedness);
 }
 
+void TryCommitPlayerNameChange(
+    System::Windows::Forms::DataGridView^ view,
+    int teamIndex,
+    int rowIndex)
+{
+    System::Windows::Forms::DataGridViewCell^ gridCell = view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerName];
+    System::Object^ value = gridCell->Value;
+    System::String^ stringValue = (System::String^)value;
+
+    if (!IsValidPlayerName(stringValue))
+        return;
+
+    // Commit new value to s_allTeams
+    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+    PlayerData* player = &s_allTeams[teamIndex].Players[playerIndex];
+
+    std::string s = ManagedToNarrowASCIIString(stringValue);
+    s_allTeams[teamIndex].Players[playerIndex].Name.Set(s);
+
+    if (player->Name.IsChanged())
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::White;
+    }
+}
+
 void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
     int teamIndex = tabControl1->SelectedIndex;
@@ -839,5 +907,9 @@ void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, Sy
     else if (whichStatIndex >= (int)WhichStat::Agility && whichStatIndex <= (int)WhichStat::Aggression)
     {
         TryCommitStatChange(view, teamIndex, rowIndex, whichStatIndex, 0, 6);
+    }
+    else if (whichStatIndex == (int)WhichStat::PlayerName)
+    {
+        TryCommitPlayerNameChange(view, teamIndex, rowIndex);
     }
 }

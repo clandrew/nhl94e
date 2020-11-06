@@ -48,6 +48,11 @@ public:
         NewValue = v;
     }
 
+    T const& GetOriginal() const
+    {
+        return OriginalValue;
+    }
+
     T const& Get() const
     {
         return NewValue;
@@ -62,7 +67,7 @@ struct PlayerData
 {
     int OriginalROMAddress;
     int ReplacedROMAddressForRename;
-    std::string Name;
+    ModifiableStat<std::string> Name;
 
     ModifiableStat<int> PlayerNumber;
 
@@ -157,11 +162,11 @@ struct TeamData
     std::string Venue;
     std::vector<PlayerData> Players;
 
-    PlayerData* GetPlayer(std::string name)
+    PlayerData* GetPlayerByOriginalName(std::string name)
     {
         for (int i = 0; i < Players.size(); ++i)
         {
-            if (Players[i].Name.find(name) != -1)
+            if (Players[i].Name.GetOriginal().find(name) != -1)
             {
                 return &Players[i];
             }
