@@ -38,6 +38,9 @@
     <ClInclude Include="TeamData.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Optional.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -63,5 +66,10 @@
     <Image Include="app.ico">
       <Filter>Resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LookupPlayerNameDet.asm">
+      <Filter>Source</Filter>
+    </None>
   </ItemGroup>
 </Project>

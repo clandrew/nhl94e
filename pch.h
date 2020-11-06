@@ -2,6 +2,7 @@
 #define PCH_H
 
 #include <string>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <locale>

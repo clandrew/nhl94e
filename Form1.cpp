@@ -3,6 +3,7 @@
 #include "AddressMapping.h"
 #include "TeamData.h"
 #include "Utils.h"
+#include "Optional.h"
 
 static std::vector<TeamData> s_allTeams;
 static std::vector<unsigned char> s_romData;
@@ -653,6 +654,289 @@ System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, Sy
 {
 }
 
+unsigned char ChrToHex(wchar_t ch)
+{
+    if (ch >= L'0' && ch <= L'9')
+    {
+        return ch - L'0';
+    }
+    else if (ch >= L'A' && ch <= L'F')
+    {
+        return ch - L'A' + 10;
+    }
+    else
+    {
+        assert(false); //Unexpected value
+        return 0;
+    }
+}
+
+unsigned char StrToHex(std::wstring s)
+{
+    assert(s.length() == 2);
+    unsigned char d0 = ChrToHex(s[0]);
+    unsigned char d1 = ChrToHex(s[1]);
+    return (d0 * 16) + d1;
+}
+
+std::vector<unsigned char> LoadAsmFromDebuggerText(std::wstring fileName)
+{
+    std::vector<unsigned char> code;
+
+    std::wifstream f(fileName);
+    std::vector<std::wstring> lines;
+    while (f.good())
+    {
+        std::wstring line;
+        std::getline(f, line);
+
+        size_t commentIndex = line.find(L"//");
+        std::wstring uncomment = line.substr(0, commentIndex);
+        if (uncomment.length() == 0)
+            continue;
+
+        std::wstring removeAddress;
+        if (uncomment[0] == L'$')
+        {
+            removeAddress = uncomment.substr(9);
+        }
+        else
+        {
+            removeAddress = uncomment;
+        }
+
+        if (removeAddress[0] == L'\t' || removeAddress[0] == L' ')
+            continue;
+
+        std::wistringstream strm(removeAddress);
+        std::wstring tokens[4];
+
+        strm >> tokens[0];
+        strm >> tokens[1];
+        strm >> tokens[2];
+        strm >> tokens[3];
+
+        for (int i = 0; i < 4; ++i)
+        {
+            if (tokens[i].length() > 2)
+                break;
+
+            unsigned char b = StrToHex(tokens[i]);
+
+            code.push_back(b);
+        }
+    }
+
+
+    return code;
+}
+
+void InsertDetour(
+    wchar_t const* codeToInsert,
+    int detourSrcStartROMAddress,
+    int detourSrcEndROMAddress,
+    int detourDestROMAddress)
+{
+    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(codeToInsert);
+
+    // Quick parameter checking
+    int detourLength = detourSrcEndROMAddress - detourSrcStartROMAddress + 1; // Addresses are inclusive
+    assert(detourLength >= 4); // Need enough room to insert a long jump
+
+    int fileOffsetSrcStart = ROMAddressToFileOffset(detourSrcStartROMAddress);
+    int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Inclusive
+
+    int fileOffsetDst = ROMAddressToFileOffset(detourDestROMAddress);
+
+    for (size_t i = 0; i < decompressProfileMain.size(); ++i)
+    {
+        s_romData[fileOffsetDst + i] = decompressProfileMain[i];
+    }
+
+    for (int i = fileOffsetSrcStart; i <= fileOffsetSrcEnd; ++i) // Good hygiene
+    {
+        s_romData[i] = 0xEA; // NOP
+    }
+
+    // Insert JMP to detour payload
+    // Detour payload author is responsible for JMPing back or they can RTL.
+    int detourB2 = detourDestROMAddress & 0xFF;
+    detourDestROMAddress >>= 8;
+    int detourB1 = detourDestROMAddress & 0xFF;
+    detourDestROMAddress >>= 8;
+    int detourB0 = detourDestROMAddress & 0xFF;
+    detourDestROMAddress >>= 8;
+    assert(detourDestROMAddress == 0);
+
+    s_romData[fileOffsetSrcStart] = 0x5C; // JMP
+    s_romData[fileOffsetSrcStart + 1] = detourB2;
+    s_romData[fileOffsetSrcStart + 2] = detourB1;
+    s_romData[fileOffsetSrcStart + 3] = detourB0;
+}
+
+struct PlayerRename
+{
+    Team WhichTeam;
+    std::string OriginalName;
+
+    Optional<std::string> NewName;
+    Optional<int> NewNumber;
+};
+
+void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
+{
+    std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
+
+    // There are three lookup tables involved.
+
+    // Table 1)
+    // Key: Middle byte of the team's player data table offset, divided by 2, minus 0x53
+    //     This scheme is chosen because it yields keys which are low positive numbers with no collisions, so that keys can act as array indices.
+    //     For example Montreal's player data offset is 9CC2DB, so its key is C2 -> 61 -> 0xE.
+    // Key range: [0x0-0x22]. There are some holes.
+    // Value: The team index. For example, Montreal is 0xB.
+    // Value range: [0x0-0x1B]. See the enum, "Team"
+    // Element size: 1 byte
+    // Purpose of table:
+    //     To map from the team's player data table offset to get its team index.
+    //     Seems weird but hear me out.
+    //     Ideally, we could get the team index directly. But at the place where we want to do a shim (see "LookupPlayerNameDet.asm"), it's too 
+    //     late and that information is not readily available. In theory we could have gone back to a point in time where we had the team index 
+    //     and stashed it somewhere. But then you have the usual reverse engineering problem of: it's hard to know what's the full set of places 
+    //     those are. It's cleaner to have this function be self contained and not rely on new, messy preconditions. A lookup table like this 
+    //     allows you to do that.
+    //
+    // Table 2)
+    // Key: Team index
+    // Key range: [0x0-0x1B]. See the enum, "Team"
+    // Value : A long pointer.
+    // Value range: Pointers of the form "0xA8xxxx"
+    // Element size: 4 bytes
+    // Purpose of table:
+    //     Maps from "team index" to "team data table", described as Table 3) below. There is a table for each team. This includes the two 
+    //     All Stars teams.
+    //
+    // Table 3)
+    // Key: Player index
+    // Key range: [0-0x19] The most players on a given team is 25 = 0x19.
+    // Value: A long pointer
+    // Value range: By default, pointers of the form "0x9Cxxxx". But you can change this to any long pointer you want, including those in expanded ROM space.
+    // Element size: 4 bytes
+    // Purpose of table:
+    //     Maps from "player index" of a given team to that player's name and number.
+    //     Change elements of this table to freely give characters new names, even longer ones.
+    //     Stats metadata don't need to come after the name and number. They aren't used by the function which dereferences this
+    //     For stats I prefer modifying them without all this relocation business. It's fixed length non string data so who cares. Also I would need to
+    //     look up all the places that touch them to feel good about it and I can't be bothered.
+    //
+    // At the end of the tables is a data stream of non-fixed length.
+    //
+    // In general this approach is memory-optimized for the situation where you plan to modify some players but not all of them.
+    // In the datastream you store just the players whose names need to be patched on top.
+
+    // First, plan out where each of the tables will be so that things are nice and compact.
+
+    const int firstTableLocation = 0xA8D000;
+    const int firstTableSize = 0x23;
+
+    const int secondTableLocation = 0xA8D023;
+    int secondPointerTableSize = static_cast<int>(allTeams.size()) * 4;
+    assert(secondTableLocation == firstTableLocation + firstTableSize);
+
+    const int thirdTableLocation = 0xA8D093;
+    assert(thirdTableLocation == secondTableLocation + secondPointerTableSize);
+    const int totalPlayerCount = 653;
+    const int thirdTableTotalSizes = totalPlayerCount * 4;
+
+    const int datastreamLocation = 0xa8dac7;
+    assert(datastreamLocation == thirdTableLocation + thirdTableTotalSizes);
+
+    // Write the datastream
+    {
+        RomDataIterator datastreamIter(ROMAddressToFileOffset(datastreamLocation));
+        for (int i = 0; i < renames.size(); ++i)
+        {
+            // Look up the person being renamed
+            TeamData* team = &allTeams[(int)renames[i].WhichTeam];
+            PlayerData* playerData = team->GetPlayerByOriginalName(renames[i].OriginalName);
+
+            playerData->ReplacedROMAddressForRename = datastreamIter.GetROMOffset();
+
+            if (renames[i].NewName.HasValue() && renames[i].NewNumber.HasValue())
+            {
+                // Both name and number have changed
+                datastreamIter.SaveROMString(renames[i].NewName.Value());
+                datastreamIter.SaveDecimalNumber(renames[i].NewNumber.Value());
+            }
+            else if (renames[i].NewName.HasValue())
+            {
+                // Name is changed but keep the original number
+                datastreamIter.SaveROMString(renames[i].NewName.Value());
+                datastreamIter.SaveDecimalNumber(playerData->PlayerNumber.GetOriginal());
+            }
+            else if (renames[i].NewNumber.HasValue())
+            {
+                // Number has changed but keep the original name
+                datastreamIter.SaveROMString(playerData->Name.GetOriginal());
+                datastreamIter.SaveDecimalNumber(renames[i].NewNumber.Value());
+            }
+        }
+    }
+
+    // Write the first table
+    const int firstTableMinValue = 0x53;
+    for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
+    {
+        const TeamData& team = allTeams[teamIndex];
+        int key = ((team.SourceDataROMAddress >> 8) & 0xFF) / 2;
+        key -= firstTableMinValue;
+
+        int fileOffset = ROMAddressToFileOffset(firstTableLocation) + key;
+        s_romData[fileOffset] = teamIndex;
+    }
+
+    // Write the second and third tables
+    RomDataIterator secondTableIter(ROMAddressToFileOffset(secondTableLocation));
+    RomDataIterator thirdTableIter(ROMAddressToFileOffset(thirdTableLocation));
+    for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
+    {
+        const TeamData& team = allTeams[teamIndex];
+
+        int teamPointerTableEntry = thirdTableIter.GetROMOffset();
+        secondTableIter.SaveLongAddress4Bytes(teamPointerTableEntry);
+
+        for (int playerIndex = 0; playerIndex < team.Players.size(); ++playerIndex)
+        {
+            const PlayerData& player = team.Players[playerIndex];
+
+            if (player.ReplacedROMAddressForRename != 0)
+            {
+                thirdTableIter.SaveLongAddress4Bytes(player.ReplacedROMAddressForRename);
+            }
+            else
+            {
+                thirdTableIter.SaveLongAddress4Bytes(player.OriginalROMAddress);
+            }
+        }
+    }
+}
+
+void InsertPlayerNameText()
+{
+    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
+
+    std::vector<PlayerRename> renames;
+
+    PlayerRename r{};
+    r.WhichTeam = Team::Montreal;
+    r.OriginalName = "Kirk Muller";
+    r.NewName = "Allie Thunstrom";
+    r.NewNumber = 9;
+    renames.push_back(r);
+
+    AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
+}
+
 System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
@@ -684,8 +968,26 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
             iter.SaveHalfByteNumbers(player.BaseStickHandling.Get(), player.BaseShotAccuracy.Get());
             iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get());
             iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get());
+
+            if (player.Name.IsChanged())
+            {
+
+            }
         }
     }
+
+    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
+
+    std::vector<PlayerRename> renames;
+
+    PlayerRename r{};
+    r.WhichTeam = Team::Montreal;
+    r.OriginalName = "Kirk Muller";
+    r.NewName = "Allie Thunstrom";
+    r.NewNumber = 9;
+    renames.push_back(r);
+
+    AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
 
     SaveBytesToFile(outputFilename.c_str(), s_romData);
 
