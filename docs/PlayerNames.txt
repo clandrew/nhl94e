@@ -1,0 +1,118 @@
+Objective
+=========
+The objective: modify players' names in the game NHL '94 for Super Nintendo.
+
+Players' names are shown as text in the menus and in-game. 
+
+In the team selection menu, it's their first initial and last name. In other places, it's the full first and last name.
+
+Goal is to change how names appear in all these places. Have new names' length be allowed to be different from the old names.
+
+My own personal intended usage for this is to only change a few names, so optimize for that. Also, I don't care if the result is not elegant or wasteful in terms of memory. The result can operate on an expanded ROM. You might approach this differently depending on your priorities.
+
+The Very Easy, Very Limited Way
+===============================
+Easiest way to change names is a pure data hack. Doesn't require any knowledge about SNES at all, only basic computer literacy. Just open the ROM in a hex editor such as HxD. Scroll down until you see players' names on the right, and type over them. Hit Ctrl+S to save. Start your game and go.
+
+Why does this work? Because all player names are literally stored as ASCII, no need for character translation tables or whatever. Also, each name is only stored in 1 place.
+
+But of course, the catch is whatever new name you pick has to be the same length. Even if the new name is shorter, it won't work. And if the new name is longer it definitely won't work. Since the goal is to let you change names without length restrictions we have to do something more.
+
+The reasons why you can't change the name length as a pure data hack take some context to explain. So they are explained further down. The first thing you need to know is the data you just tried to hack- what is it, really.
+
+Player-data Format
+==================
+This describes where and how players' names are stored in the ROM, as well as the neighboring data.
+
+There is a main pointer table. The table has 28 values. This table is stored at ROM address 0x9CA5E7. 
+
+There is 1 value per team. The values are these
+int mainTable[] = { 
+9CEB4F, // Anaheim
+9CABAC, // Boston
+9CAE32, // Buffalo
+9CB0C1, // Calgary
+9CB340, // Chicago
+9CC04F, // Dallas
+9CB5D7, // Detroit
+9CB89D, // Edmonton
+9CE94D, // Florida
+9CBB1D, // Hartford
+9CBDB2, // LA Kings
+9CC2DB, // Montreal
+9CC57E, // New Jersey
+9CC82B, // NY Islanders
+9CCA9C, // NY Rangers
+9CCD06, // Ottawa
+9CCFAC, // Philly
+9CD237, // Pittsburgh
+9CD4D2, // Quebec
+9CD760, // San Jose
+9CD9D4, // St Louis
+9CDC4A, // Tampa Bay
+9CDEDC, // Toronto
+9CE17E, // Vancouver
+9CE6AD, // Washington
+9CE405, // Winnepeg
+9CA657, // All Stars East
+9CA904  // All Stars West
+};
+
+The first element in the array belongs to Anaheim, and the value is 0x9CEB4F.
+The second element in the array belongs to Boston, and the value is 0x9CABAC, and so on.
+
+The teams are ordered alphabetically, except for the all-stars teams at the end. The values themselves aren't in any particular order.
+
+Although the all-stars teams are comprised of players which exist on other teams, they have their own entries in the table. That's the game opting for perf and simplicity of code in the perf-memory tradeoff.
+
+Looking at the values of elements in this array, you might think they also look like ROM addresses and you would be right.
+
+What is stored at each address then? Here is a description.
+
+[H0] [H1] [some number of header bytes] // A two-byte low-endian length H, and a variable-length header stream of length H-2
+
+For each player:
+[L0] [L1] [player's name]     // A two-byte low-endian length L, and then a variable-length string of length L-2
+
+[PlayerNumber]                // A byte for the player number. It's in a decimal format.
+                              // Leftmost half-byte is the tens place value. Rightmost half-byte is the ones place value.
+
+[WeightClass, Agility]        // A byte. Leftmost half-byte is the player's weight class. Rightmost half-byte is their agility rating.
+                              // Weight class is displayed as a measurement in pounds when displayed on the team roster page.
+                              // To convert from weight class to pounds, it's 
+                              // 	pounds = 140 + (weightClass * 8)
+                              // Weight classes range from 0 to 14 in practice. Higher numbers may be hacked.
+                              // Agility rating is from 0 to 6.
+                          
+[Speed, OffenseAware]         // A byte. Leftmost half-byte is player's speed. Rightmost half-byte is their offense awareness rating.
+                              // Ratings are from 0 to 6.
+                          
+[DefenseAware, ShotPower]     // A byte. Leftmost half-byte is player's defense awareness rating. Rightmost half-byte is their shot power.
+                              // Ratings are from 0 to 6.
+                          
+[Checking, Handedness]        // A byte. Leftmost half-byte is player's checking rating. Rightmost half-byte is their handedness.
+                              // Checking rating is from 0 to 6.
+                              // For handedness, if the value is even (divisible by 2) they shoot left. If it's odd they shoot right.
+                          
+[StickHandling, ShotAccuracy] // A byte. Leftmost half-byte is player's stick handling rating. Rightmost half-byte is their shot accuracy.
+                              // Ratings are from 0 to 6.
+                          
+[Endurance, Roughness]        // A byte. Leftmost half-byte is player's endurance rating. Rightmost half-byte is their 'roughness' rating.
+                              // Ratings are from 0 to 6.
+                              // The stat 'roughness' exists but is not displayed in the game or the manual.
+                              
+
+[PassAccuracy, Aggression]    // A byte. Leftmost half-byte is player's pass accuracy rating. Rightmost half-byte is their aggression rating.
+                              // Ratings are from 0 to 6.
+                              
+Then, at the end:
+[00] [00]		      // Two zero bytes mean that's the end of the player data for this team.
+
+Heads up that game data can follow immediately after all this, so no, you're not free to grow things off the end.
+
+Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you need to also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
+
+And of course for making player's names longer, there isn't any extra space off the end, so you need something else entirely. This was the case I was more interested in.
+                              
+
+ For example's sake let's use the value for Montreal which is 0x9CC2DB. ROM Address 0x9CC2DB contains the following
