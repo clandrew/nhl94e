@@ -777,10 +777,9 @@ void InsertDetour(
 struct PlayerRename
 {
     Team WhichTeam;
-    std::string OriginalName;
-
-    Optional<std::string> NewName;
-    Optional<int> NewNumber;
+    int PlayerIndex;
+    ModifiableStat<std::string> Name;
+    ModifiableStat<int> PlayerNumber;
 };
 
 void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
@@ -858,28 +857,12 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
         {
             // Look up the person being renamed
             TeamData* team = &allTeams[(int)renames[i].WhichTeam];
-            PlayerData* playerData = team->GetPlayerByOriginalName(renames[i].OriginalName);
+            PlayerData* playerData = &team->Players[renames[i].PlayerIndex];
 
             playerData->ReplacedROMAddressForRename = datastreamIter.GetROMOffset();
 
-            if (renames[i].NewName.HasValue() && renames[i].NewNumber.HasValue())
-            {
-                // Both name and number have changed
-                datastreamIter.SaveROMString(renames[i].NewName.Value());
-                datastreamIter.SaveDecimalNumber(renames[i].NewNumber.Value());
-            }
-            else if (renames[i].NewName.HasValue())
-            {
-                // Name is changed but keep the original number
-                datastreamIter.SaveROMString(renames[i].NewName.Value());
-                datastreamIter.SaveDecimalNumber(playerData->PlayerNumber.GetOriginal());
-            }
-            else if (renames[i].NewNumber.HasValue())
-            {
-                // Number has changed but keep the original name
-                datastreamIter.SaveROMString(playerData->Name.GetOriginal());
-                datastreamIter.SaveDecimalNumber(renames[i].NewNumber.Value());
-            }
+            datastreamIter.SaveROMString(renames[i].Name.Get());
+            datastreamIter.SaveDecimalNumber(renames[i].PlayerNumber.Get());
         }
     }
 
@@ -923,16 +906,30 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 
 void InsertPlayerNameText()
 {
-    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
-
     std::vector<PlayerRename> renames;
 
-    PlayerRename r{};
-    r.WhichTeam = Team::Montreal;
-    r.OriginalName = "Kirk Muller";
-    r.NewName = "Allie Thunstrom";
-    r.NewNumber = 9;
-    renames.push_back(r);
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    {
+        TeamData const& teamData = s_allTeams[teamIndex];
+        for (size_t playerIndex = 0; playerIndex < teamData.Players.size(); ++playerIndex)
+        {
+            PlayerData const& player = teamData.Players[playerIndex];
+            if (player.Name.IsChanged())
+            {
+                PlayerRename r{};
+                r.Name = player.Name;
+                r.PlayerIndex = playerIndex;
+                r.PlayerNumber = player.PlayerNumber;
+                r.WhichTeam = (Team)teamIndex;
+                renames.push_back(r);
+            }
+        }
+    }
+
+    if (renames.size() == 0)
+        return; // Nothing to do
+
+    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
 
     AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
 }
@@ -968,26 +965,10 @@ System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System
             iter.SaveHalfByteNumbers(player.BaseStickHandling.Get(), player.BaseShotAccuracy.Get());
             iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get());
             iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get());
-
-            if (player.Name.IsChanged())
-            {
-
-            }
         }
     }
 
-    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
-
-    std::vector<PlayerRename> renames;
-
-    PlayerRename r{};
-    r.WhichTeam = Team::Montreal;
-    r.OriginalName = "Kirk Muller";
-    r.NewName = "Allie Thunstrom";
-    r.NewNumber = 9;
-    renames.push_back(r);
-
-    AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
+    InsertPlayerNameText();
 
     SaveBytesToFile(outputFilename.c_str(), s_romData);
 
