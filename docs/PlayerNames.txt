@@ -8,7 +8,7 @@ In the team selection menu, it's their first initial and last name. In other pla
 
 Goal is to change how names appear in all these places. Have new names' length be allowed to be different from the old names.
 
-My own personal intended usage for this is to only change a few names, so optimize for that. And optimize for game stability because I plan to play the game, not just do a quick demo. I don't care if the result is not elegant or wasteful in terms of memory. The result can operate on an expanded ROM. You might approach this differently depending on your priorities.
+My own intended usage for this is to only change a few names, so optimize for that. And optimize for game stability because I plan to play the game, not just do a quick demo. I don't care if the result is not elegant or wasteful in terms of memory. The result can operate on an expanded ROM. You might do something different depending on your priorities.
 
 The Very Easy, Very Limited Way
 ===============================
@@ -24,9 +24,19 @@ Player-data Format
 ==================
 This describes where and how players' names are stored in the ROM, as well as the neighboring data.
 
-There is a main pointer table. The table has 28 values. This table is stored at ROM address 0x9CA5E7. 
+There is what I'm calling a "main pointer table". The table has 28 values. This table is stored at ROM address 0x9CA5E7. 
 
-There is 1 value per team. The values are these
+If you dump the raw data for the table it's
+
+ 	4F EB 9C 00 AC AB 9C 00 32 AE 9C 00 C1 B0 9C 00
+ 	40 B3 9C 00 4F C0 9C 00 D7 B5 9C 00 9D B8 9C 00
+ 	4D E9 9C 00 1D BB 9C 00 B2 BD 9C 00 DB C2 9C 00
+ 	7E C5 9C 00 2B C8 9C 00 9C CA 9C 00 06 CD 9C 00
+ 	AC CF 9C 00 37 D2 9C 00 D2 D4 9C 00 60 D7 9C 00
+ 	D4 D9 9C 00 4A DC 9C 00 DC DE 9C 00 7E E1 9C 00
+ 	AD E6 9C 00 05 E4 9C 00 57 A6 9C 00 04 A9 9C 00
+
+Formatted nicely, the table is
 int mainTable[] = { 
 9CEB4F, // Anaheim
 9CABAC, // Boston
@@ -58,6 +68,7 @@ int mainTable[] = {
 9CA904  // All Stars West
 };
 
+There is 1 value per team. 
 The first element in the array belongs to Anaheim, and the value is 0x9CEB4F.
 The second element in the array belongs to Boston, and the value is 0x9CABAC, and so on.
 
@@ -66,8 +77,7 @@ The teams are ordered alphabetically, except for the all-stars teams at the end.
 Although the all-stars teams are comprised of players which exist on other teams, they have their own entries in the table. That's the game opting for perf and simplicity of code in the perf-memory tradeoff.
 
 Looking at the values of elements in this array, you might think they also look like ROM addresses and you would be right.
-
-What is stored at each address then? Here is a description.
+As for what's stored at each address- here's a description
 
 [H0] [H1] [some number of header bytes] // A two-byte low-endian length H, and a variable-length header stream of length H-2
 
@@ -108,19 +118,56 @@ For each player:
 Then, at the end:
 [00] [00]		      // Two zero bytes mean that's the end of the player data for this team.
 
-Heads up that game data can follow immediately after all this, so no, you're not free to grow things off the end.
+For example, if we dereference and dump what's stored at 9CC2DB (Montreal), we get
 
-The stats stored affect the stats in-game although you'll notice they don't correlate to those stats exactly. That's because each game applies RNG. Try it yourself if you want to see. Boot the game, pick two teams and look at a player's stats. Reset the game, pick the exact same matchup and player to look at. Odds are the stats will be slightly different. If you play a lot of sports games maybe this is not surprising. It represents the real-world idea that any team could maybe, potentially beat any other team.
+55 00 0E 00 79 02 1D 00 0E 00 13 00 15 00 52 11
+21 E8 49 C5 00 01 12 11 07 03 0C 04 00 01 17 12
+07 03 0C 04 00 01 16 11 08 04 0E 03 00 01 13 14
+09 05 0D 03 00 01 12 11 07 03 0C 05 00 01 13 14
+08 04 05 03 00 01 11 17 07 06 03 0D 00 01 16 13
+03 0D 07 06 00 0D 00 50 61 74 72 69 63 6B 20 52
+6F 79 33 66 44 46 00 00 55 66 ...
+
+
+Cleaned up, this is
+
+headerSize = 0x0055;
+byte header[] = {0E 00 79 02 1D 00 0E 00 13 00 15 00 52 11
+                 21 E8 49 C5 00 01 12 11 07 03 0C 04 00 01 17 12
+                 07 03 0C 04 00 01 16 11 08 04 0E 03 00 01 13 14
+                 09 05 0D 03 00 01 12 11 07 03 0C 05 00 01 13 14
+                 08 04 05 03 00 01 11 17 07 06 03 0D 00 01 16 13
+                 03 0D 07 06 00 };
+
+player0 = {
+    // L1 L0 P  a  t  r  i  c  k  __ R  o  y
+       0D 00 50 61 74 72 69 63 6B 20 52 6F 79 // "Patrick Roy" 
+                                              // 11 character length + 2 byte string size = 13 = 0xD, converted to low endian that's 0D 00    
+       33 // Number 33 
+       66 // Weight class 6, agility 6                                    
+       44 // speed 4, OffAware 4
+       46 // DefAware 4, shot power 6
+       00 // checking 0, handedness L
+       00 // stick handling 0, shot accuracy 0
+       55 // endurance 5, roughness 5
+       66 // pass accuracy 6, aggression 6
+}
+
+Etc, for the rest of the players.
+
+Heads up that game data can follow immediately after the data for each team. So no, you're not free to grow things off the end.
+
+Side thing: stats stored affect the stats in-game although you'll notice they don't correlate to those stats exactly. That's because each game applies RNG. Try it yourself if you want to see. Boot the game, pick two teams and look at a player's stats. Reset the game, pick the exact same matchup and player to look at. Odds are the stats will be slightly different. If you play a lot of sports games maybe this is not surprising. There is this real-world idea that any team could potentially beat any other team.
 
 Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you need to also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
 
 And of course for making player's names longer, there isn't any extra space off the end, so you need something else entirely. This was the case I was more interested in.
 
+Why not move the whole team data, and update the "main table" pointer entry?
+============================================================================
+This seemed like a swell idea at first. To get names as long as you want, just make a totally new copy of the player data someplace else with your new names, then adjust the "main table" pointer value to point to it. That would be super easy.
 
-                              
-
-
-The "main table" above is a table of long (four-byte) pointers. That would have you believe you could change a value in the table to move all access of a particular team's player data. Easy enough right? Wrong. Reason being, the game will strip off the upper bank and use a hardcoded $9C in lots of places. 
+Unfortunately, that won't work. It is true the "main table" above is a table of long (four-byte) pointers. That would have you believe you could over-write it to point to any new location. But the game actually ignores the upper bytes of the table value most of the time. The game will strip off the upper bank and use a hardcoded $9C in lots of places. 
 
 Here's an example of what I mean. This is from the code to figure out a player's first initial and last name for the team selection screen.
 
@@ -138,6 +185,137 @@ $9F/C73C 85 89       STA $89                  ; Store the short pointer in the l
 
 There are multiple instances of this pattern. I found several without trying super hard and I believe there are more.
 
-If they were gonna have it this way they could have just stored short pointers. Seems like a waste of space. But it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't attempt it. To be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively.
+Why store long pointers in the table if they were gonna do it this way? They could have just stored short pointers. Seems like a waste of space. It might have been, they started out planning for long pointers but wanted to optimize reading/dereferencing of the table values, then they never tried to go back and shrink the table. 
 
-If we want to move player data (including player names' string data) to a different location in memory, I prefer a safer option that is more targeted, rather than changing main table values (which will cause big, sweeping problems) and trying to clean up the problems with hopes that you found them all. The more targeted way involves detouring the code that loads player names.
+Anyway, it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't try. If you want to try it to be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively.
+
+If we want to move player data (including player names' string data) to a different location in memory, I prefer a safer option that is more targeted, rather than changing main table values- which will cause big, sweeping problems- and trying to clean up the problems with hopes that you found them all. The safer more targeted way involves detouring the code that loads player names.
+
+Detouring the loading of player names
+=====================================
+Detouring is used here inside a function I'm calling LookupPlayerName(). 
+
+There was this fear that there could be multiple code paths pulling names out of the player data. From testing I found there's just the one. LookupPlayerName() is a centralized place and changing it is sufficient.
+
+The original code for LookupPlayerName() is
+                                             ; Function: LookupPlayerName()
+                                             ;     Gets the address of a player's name string, based on the player's index on the team and some previously-set table data.
+                                             ;
+                                             ; Preconditions: 
+                                             ;     $91 contains HomeOrAway. 0 == home, 2 == away
+                                             ;     $9F1CDC and $9F1CDE have been initialized with main table elements for home and away teams respectively.
+                                             ;     $A5 contains PlayerIndexOnTeam
+                                             ;
+                                             ; Postconditions:
+                                             ;     $89-$8B = Address of the player's name string data. (Includes the length field that comes first)
+                                             ;
+                                             ; $A5 gets scrambled.
+
+$9F/C732 A9 9C 00    LDA #$009C              ; Hardcode 9C in the upper bytes. Easy enough.                                              
+$9F/C735 85 8B       STA $8B    [$00:008B]   ; 
+                                             ;
+$9F/C737 A4 91       LDY $91    [$00:0091]   ; Load the choice of HomeOrAway. 0 == home, 2 == away
+$9F/C739 B9 DC 1C    LDA $1CDC,y[$9F:1CDC]   ; Load PlayerNamesStartAddress for the corresponding team.
+                                             ; As mentioned in the preconditions this has been set up for us. As it happens, it's somewhere far away in the chain of function calls.                                             
+$9F/C73C 85 89       STA $89    [$00:0089]   ; And then store the lower bytes.																				
+
+LookupPlayerName_GetOffsetOfPerPlayerData:
+$9F/C73E A0 00 00    LDY #$0000              
+$9F/C741 18          CLC                     
+$9F/C742 67 89       ADC [$89]  [$9C:C2DB]   ; Use the fact that the first two bytes of the PlayerNamesStartAddress
+                                             ; data will give us the offset to the per-player data. 
+
+$9F/C744 85 89       STA $89    [$00:0089]    For example, for Montreal we add 0x55 to get to the start of the
+																				; per-player data.
+
+$9F/C746 80 0A       BRA $0A    [$C752]      ; Goto LookupPlayerName_CheckDone
+
+// LookupPlayerName_ForEachPlayerIndexOnTeam:
+$9F/C748 A5 89       LDA $89    [$00:0089]   ; Load the length of the player's name.
+$9F/C74A 18          CLC                     
+$9F/C74B 67 89       ADC [$89]  [$9C:C330]   ; Increment the current $89-$8B pointer by the length
+$9F/C74D 69 08 00    ADC #$0008              ; Plus 8, it's padding (Not really but let's pretend it is)
+$9F/C750 85 89       STA $89    [$00:0089]   ; Update the current $89-$8B pointer
+
+LookupPlayerName_CheckDone:
+$9F/C752 C6 A5       DEC $A5    [$00:00A5]   
+$9F/C754 10 F2       BPL $F2    [$C748]      ; branch-if-positive LookupPlayerName_ForEachPlayerIndexOnTeam
+
+$9F/C756 6B          RTL                     ; 
+  
+...
+
+is replaced with
+
+$9F/C732             JMP $A08100                ; Jump into expanded ROM space
+$A0/8100 DA          PHX
+
+///////////////////////////////////////////////////////////
+// Calculate key from A
+// 
+4A                   LSR
+4A                   LSR
+4A                   LSR
+4A                   LSR
+4A                   LSR
+4A                   LSR
+4A                   LSR
+4A                   LSR ; Mask off one byte
+
+4A                   LSR ; Divide by 2
+
+// Subtract 0x53
+38                   SEC
+E9 53 00		     SBC #$0053
+
+// Use the key to look up table value from 0xA8D000
+AA                   TAX
+BF 00 D0 A8          LDA 0xA8D000,x
+29 0F 00             AND #$000F
+// E.g., for Montreal we would get 0B as the value.
+
+// Multiply by 4
+0A                   ASL
+0A                   ASL
+
+// Load the array element from 0xA8D023
+AA                   TAX
+BF 23 D0 A8          LDA 0xA8D000,x
+85 89                STA $89
+E8                   INX
+E8                   INX
+BF 23 D0 A8          LDA 0xA8D000,x
+85 8B                STA $8B
+
+// Now we've set up 89-8B to contain 0xA8D477, an address which points to 0x9CC330
+// If A5 == 0, we should load a pointer from 0xA8D477.
+// If A5 == 1, we should load it from 0xA8D477 + 4.
+// $A0/8131
+//PlayerIndexIncrement:
+A5 A5                LDA $A5 ; Sets Z
+F0 0C				 BEQ __ ; goto DonePlayerIndex
+
+E6 89                INC $89
+E6 89                INC $89
+E6 89                INC $89
+E6 89                INC $89
+
+C6 A5                DEC A5
+
+80 F0                BRA $F0 ; goto PlayerIndexIncrement
+
+//DonePlayerIndex:
+A7 89                LDA [$89] ; 0x00A8
+48                   PHA
+E6 89                INC $89
+E6 89                INC $89
+A7 89                LDA [$89] ; 0xD477
+85 8B                STA $8B
+68                   PLA
+85 89                STA $89
+
+// Index by $A5
+
+FA                   PLX
+
+6B                   RTL
