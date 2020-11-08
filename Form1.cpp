@@ -788,7 +788,7 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 
     // There are two lookup tables involved.
 
-    // Table 2) the "alternate main table"
+    // Table 1) the "alternate main table"
     // Key: Team index
     // Key range: [0x0-0x1B]. See the enum, "Team"
     // Value : A long pointer.
@@ -819,15 +819,15 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 
     // First, plan out where each of the tables will be so that things are nice and compact.
 
-    const int secondTableLocation = 0xA8D023;
-    int secondPointerTableSize = static_cast<int>(allTeams.size()) * 4;
+    const int firstTableLocation = 0xA8D000;
+    int firstPointerTableSize = static_cast<int>(allTeams.size()) * 4;
 
-    const int thirdTableLocation = 0xA8D093;
-    assert(thirdTableLocation == secondTableLocation + secondPointerTableSize);
+    const int thirdTableLocation = 0xA8D070;
+    assert(thirdTableLocation == firstTableLocation + firstPointerTableSize);
     const int totalPlayerCount = 653;
     const int thirdTableTotalSizes = totalPlayerCount * 4;
 
-    const int datastreamLocation = 0xa8dac7;
+    const int datastreamLocation = 0xa8daa4;
     assert(datastreamLocation == thirdTableLocation + thirdTableTotalSizes);
 
     // Write the datastream
@@ -847,14 +847,14 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
     }
 
     // Write the second and third tables
-    RomDataIterator secondTableIter(ROMAddressToFileOffset(secondTableLocation));
+    RomDataIterator firstTableIter(ROMAddressToFileOffset(firstTableLocation));
     RomDataIterator thirdTableIter(ROMAddressToFileOffset(thirdTableLocation));
     for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
     {
         const TeamData& team = allTeams[teamIndex];
 
         int teamPointerTableEntry = thirdTableIter.GetROMOffset();
-        secondTableIter.SaveLongAddress4Bytes(teamPointerTableEntry);
+        firstTableIter.SaveLongAddress4Bytes(teamPointerTableEntry);
 
         for (int playerIndex = 0; playerIndex < team.Players.size(); ++playerIndex)
         {

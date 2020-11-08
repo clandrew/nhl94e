@@ -9,13 +9,13 @@ B9 98 1C             LDA $1C98, y[$9F:1C98]
 0A                   ASL
 
 // Use the team index to look up into the "alternate main table".
-// Load the array element from 0xA8D023
+// Load the array element from 0xA8D000
 AA                   TAX
-BF 23 D0 A8          LDA 0xA8D023,x
+BF 00 D0 A8          LDA 0xA8D000,x
 85 89                STA $89
 E8                   INX
 E8                   INX
-BF 23 D0 A8          LDA 0xA8D023,x
+BF 00 D0 A8          LDA 0xA8D000,x
 85 8B                STA $8B
 
 // The "alternate main table" is formatted a bit differently from the "main table".
