@@ -8,7 +8,7 @@ In the team selection menu, it's their first initial and last name. In other pla
 
 Goal is to change how names appear in all these places. Have new names' length be allowed to be different from the old names.
 
-My own personal intended usage for this is to only change a few names, so optimize for that. Also, I don't care if the result is not elegant or wasteful in terms of memory. The result can operate on an expanded ROM. You might approach this differently depending on your priorities.
+My own personal intended usage for this is to only change a few names, so optimize for that. And optimize for game stability because I plan to play the game, not just do a quick demo. I don't care if the result is not elegant or wasteful in terms of memory. The result can operate on an expanded ROM. You might approach this differently depending on your priorities.
 
 The Very Easy, Very Limited Way
 ===============================
@@ -110,9 +110,34 @@ Then, at the end:
 
 Heads up that game data can follow immediately after all this, so no, you're not free to grow things off the end.
 
+The stats stored affect the stats in-game although you'll notice they don't correlate to those stats exactly. That's because each game applies RNG. Try it yourself if you want to see. Boot the game, pick two teams and look at a player's stats. Reset the game, pick the exact same matchup and player to look at. Odds are the stats will be slightly different. If you play a lot of sports games maybe this is not surprising. It represents the real-world idea that any team could maybe, potentially beat any other team.
+
 Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you need to also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
 
 And of course for making player's names longer, there isn't any extra space off the end, so you need something else entirely. This was the case I was more interested in.
+
+
                               
 
- For example's sake let's use the value for Montreal which is 0x9CC2DB. ROM Address 0x9CC2DB contains the following
+
+The "main table" above is a table of long (four-byte) pointers. That would have you believe you could change a value in the table to move all access of a particular team's player data. Easy enough right? Wrong. Reason being, the game will strip off the upper bank and use a hardcoded $9C in lots of places. 
+
+Here's an example of what I mean. This is from the code to figure out a player's first initial and last name for the team selection screen.
+
+			                      ; Precondition: 9F1CDC and $9f1CDE have been initialized with 
+			                      ; main table elements for home and away teams respectively.
+			                      ; We're in 16-bit mode.
+			                      ;
+$9F/C732 A9 9C 00    LDA #$009C               ; Hardcode $9C in the upper part
+$9F/C735 85 8B       STA $8B
+$9F/C737 A4 91       LDY $91
+$9F/C739 B9 DC 1C    LDA $1CDC,y[$9F:1CDC]    ; Load the short pointer from the main table
+$9F/C73C 85 89       STA $89                  ; Store the short pointer in the lower part
+                                              ;
+                                              ; ... do stuff that uses direct addressing on 24-bit pointer. For example, ADC [$89].    
+
+There are multiple instances of this pattern. I found several without trying super hard and I believe there are more.
+
+If they were gonna have it this way they could have just stored short pointers. Seems like a waste of space. But it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't attempt it. To be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively.
+
+If we want to move player data (including player names' string data) to a different location in memory, I prefer a safer option that is more targeted, rather than changing main table values (which will cause big, sweeping problems) and trying to clean up the problems with hopes that you found them all. The more targeted way involves detouring the code that loads player names.
