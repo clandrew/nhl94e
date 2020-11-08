@@ -48,8 +48,6 @@ namespace CppCLRWinformsProjekt {
 	private: System::Windows::Forms::TabControl^ tabControl1;
 	private: System::Windows::Forms::ToolStripMenuItem^ saveROMToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ openROMToolStripMenuItem;
-	private: System::Windows::Forms::DataGridView^ dataGridView2;
-	private: System::Windows::Forms::DataGridView^ dataGridView1;
 
 	private:
 		/// <summary>
@@ -66,17 +64,12 @@ namespace CppCLRWinformsProjekt {
 		{
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->openROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
-			this->dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
-			this->dataGridView2 = (gcnew System::Windows::Forms::DataGridView());
+			this->openROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
-			this->panel1->SuspendLayout();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// menuStrip1
@@ -98,13 +91,13 @@ namespace CppCLRWinformsProjekt {
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
 			this->fileToolStripMenuItem->Text = L"File";
 			// 
-			// openROMToolStripMenuItem
+			// exitToolStripMenuItem
 			// 
-			this->openROMToolStripMenuItem->Name = L"openROMToolStripMenuItem";
-			this->openROMToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
-			this->openROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
-			this->openROMToolStripMenuItem->Text = L"Open ROM";
-			this->openROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::openROMToolStripMenuItem_Click);
+			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->exitToolStripMenuItem->Text = L"Exit";
+			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
 			// 
 			// saveROMToolStripMenuItem
 			// 
@@ -115,19 +108,9 @@ namespace CppCLRWinformsProjekt {
 			this->saveROMToolStripMenuItem->Text = L"Save ROM";
 			this->saveROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveROMToolStripMenuItem_Click);
 			// 
-			// exitToolStripMenuItem
-			// 
-			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
-			this->exitToolStripMenuItem->Text = L"Exit";
-			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
-			// 
 			// panel1
 			// 
 			this->panel1->BackColor = System::Drawing::Color::Transparent;
-			this->panel1->Controls->Add(this->dataGridView2);
-			this->panel1->Controls->Add(this->dataGridView1);
 			this->panel1->Dock = System::Windows::Forms::DockStyle::Right;
 			this->panel1->Location = System::Drawing::Point(409, 24);
 			this->panel1->Name = L"panel1";
@@ -143,23 +126,13 @@ namespace CppCLRWinformsProjekt {
 			this->tabControl1->Size = System::Drawing::Size(409, 522);
 			this->tabControl1->TabIndex = 2;
 			// 
-			// dataGridView1
+			// openROMToolStripMenuItem
 			// 
-			this->dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-			this->dataGridView1->Dock = System::Windows::Forms::DockStyle::Top;
-			this->dataGridView1->Location = System::Drawing::Point(0, 0);
-			this->dataGridView1->Name = L"dataGridView1";
-			this->dataGridView1->Size = System::Drawing::Size(206, 150);
-			this->dataGridView1->TabIndex = 0;
-			// 
-			// dataGridView2
-			// 
-			this->dataGridView2->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
-			this->dataGridView2->Dock = System::Windows::Forms::DockStyle::Bottom;
-			this->dataGridView2->Location = System::Drawing::Point(0, 372);
-			this->dataGridView2->Name = L"dataGridView2";
-			this->dataGridView2->Size = System::Drawing::Size(206, 150);
-			this->dataGridView2->TabIndex = 1;
+			this->openROMToolStripMenuItem->Name = L"openROMToolStripMenuItem";
+			this->openROMToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
+			this->openROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->openROMToolStripMenuItem->Text = L"Open ROM";
+			this->openROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::openROMToolStripMenuItem_Click);
 			// 
 			// Form1
 			// 
@@ -175,9 +148,6 @@ namespace CppCLRWinformsProjekt {
 			this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
-			this->panel1->ResumeLayout(false);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView2))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
