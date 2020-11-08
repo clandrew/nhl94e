@@ -796,10 +796,10 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
     // Element size: 4 bytes
     // Purpose of table:
     //     Alternate main table.
-    //     Maps from "team index" to "team data table", described as Table 3) below. There is a table for each team. This includes the two 
+    //     Maps from "team index" to "team data table", described as Table 2) below. There is a table for each team. This includes the two 
     //     All Stars teams.
     //
-    // Table 3)
+    // Table 2)
     // Key: Player index
     // Key range: [0-0x19] The most players on a given team is 25 = 0x19.
     // Value: A long pointer
@@ -822,13 +822,13 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
     const int firstTableLocation = 0xA8D000;
     int firstPointerTableSize = static_cast<int>(allTeams.size()) * 4;
 
-    const int thirdTableLocation = 0xA8D070;
-    assert(thirdTableLocation == firstTableLocation + firstPointerTableSize);
+    const int secondTableLocation = 0xA8D070;
+    assert(secondTableLocation == firstTableLocation + firstPointerTableSize);
     const int totalPlayerCount = 653;
-    const int thirdTableTotalSizes = totalPlayerCount * 4;
+    const int secondTableTotalSizes = totalPlayerCount * 4;
 
     const int datastreamLocation = 0xa8daa4;
-    assert(datastreamLocation == thirdTableLocation + thirdTableTotalSizes);
+    assert(datastreamLocation == secondTableLocation + secondTableTotalSizes);
 
     // Write the datastream
     {
@@ -846,14 +846,14 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
         }
     }
 
-    // Write the second and third tables
+    // Write the first and second tables
     RomDataIterator firstTableIter(ROMAddressToFileOffset(firstTableLocation));
-    RomDataIterator thirdTableIter(ROMAddressToFileOffset(thirdTableLocation));
+    RomDataIterator secondTableIter(ROMAddressToFileOffset(secondTableLocation));
     for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
     {
         const TeamData& team = allTeams[teamIndex];
 
-        int teamPointerTableEntry = thirdTableIter.GetROMOffset();
+        int teamPointerTableEntry = secondTableIter.GetROMOffset();
         firstTableIter.SaveLongAddress4Bytes(teamPointerTableEntry);
 
         for (int playerIndex = 0; playerIndex < team.Players.size(); ++playerIndex)
@@ -862,11 +862,11 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 
             if (player.ReplacedROMAddressForRename != 0)
             {
-                thirdTableIter.SaveLongAddress4Bytes(player.ReplacedROMAddressForRename);
+                secondTableIter.SaveLongAddress4Bytes(player.ReplacedROMAddressForRename);
             }
             else
             {
-                thirdTableIter.SaveLongAddress4Bytes(player.OriginalROMAddress);
+                secondTableIter.SaveLongAddress4Bytes(player.OriginalROMAddress);
             }
         }
     }
