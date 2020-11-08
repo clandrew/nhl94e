@@ -16,7 +16,7 @@ Easiest way to change names is a pure data hack. Doesn't require any knowledge a
 
 Why does this work? Because all player names are literally stored as ASCII, no need for character translation tables or whatever. Also, each name is only stored in 1 place.
 
-But of course, the catch is whatever new name you pick has to be the same length. Even if the new name is shorter, it won't work. And if the new name is longer it definitely won't work. Since the goal is to let you change names without length restrictions we have to do something more.
+But of course, the catch is whatever new name you pick has to be the same length. Even if the new name is shorter and you pad the extra / adjust the length value, it won't work. And if the new name is longer it definitely won't work. Since the goal is to let you change names without length restrictions we have to do something more.
 
 The reasons why you can't change the name length as a pure data hack take some context to explain. So they are explained further down. The first thing you need to know is the data you just tried to hack- what is it, really.
 
@@ -140,9 +140,9 @@ byte header[] = {0E 00 79 02 1D 00 0E 00 13 00 15 00 52 11
                  03 0D 07 06 00 };
 
 player0 = {
-    // L1 L0 P  a  t  r  i  c  k  __ R  o  y
+    // L0 L1 P  a  t  r  i  c  k  __ R  o  y
        0D 00 50 61 74 72 69 63 6B 20 52 6F 79 // "Patrick Roy" 
-                                              // 11 character length + 2 byte string size = 13 = 0xD, converted to low endian that's 0D 00    
+                                              // 11 character length + 2 byte string size = 13 = 0xD, converted to two-byte low endian that's 0D 00    
        33 // Number 33 
        66 // Weight class 6, agility 6                                    
        44 // speed 4, OffAware 4
@@ -153,21 +153,21 @@ player0 = {
        66 // pass accuracy 6, aggression 6
 }
 
-Etc, for the rest of the players.
+Etc, for the rest of the players. Then there are some team-related strings at the end.
 
-Heads up that game data can follow immediately after the data for each team. So no, you're not free to grow things off the end.
+Heads up that viable (e.g., a subsequent team's) game data can follow immediately after the data for each team. So no, you're not free to grow things off the end.
 
 Side thing: stats stored affect the stats in-game although you'll notice they don't correlate to those stats exactly. That's because each game applies RNG. Try it yourself if you want to see. Boot the game, pick two teams and look at a player's stats. Reset the game, pick the exact same matchup and player to look at. Odds are the stats will be slightly different. If you play a lot of sports games maybe this is not surprising. There is this real-world idea that any team could potentially beat any other team.
 
-Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you need to also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
+Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you'd need to either pad with spaces (could cause things to display weirdly) or also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
 
 And of course for making player's names longer, there isn't any extra space off the end, so you need something else entirely. This was the case I was more interested in.
 
 Why not move the whole team data, and update the "main table" pointer entry?
 ============================================================================
-This seemed like a swell idea at first. To get names as long as you want, just make a totally new copy of the player data someplace else with your new names, then adjust the "main table" pointer value to point to it. That would be super easy.
+This seemed like a swell idea at first. To get names as long as you want, just make a totally new copy of the player data someplace else with your new names, then adjust the "main table" pointer value to point to it. That would be terrific.
 
-Unfortunately, that won't work. It is true the "main table" above is a table of long (four-byte) pointers. That would have you believe you could over-write it to point to any new location. But the game actually ignores the upper bytes of the table value most of the time. The game will strip off the upper bank and use a hardcoded $9C in lots of places. 
+Unfortunately that won't work. It is true the "main table" above is a table of long (four-byte) pointers. That would have you believe you could over-write it to point to any new location. But the game actually ignores the upper bytes of the table value most of, possibly all the time. It will strip off the upper bank and use a hardcoded $9C. 
 
 Here's an example of what I mean. This is from the code to figure out a player's first initial and last name for the team selection screen.
 
@@ -187,17 +187,18 @@ There are multiple instances of this pattern. I found several without trying sup
 
 Why store long pointers in the table if they were gonna do it this way? They could have just stored short pointers. Seems like a waste of space. It might have been, they started out planning for long pointers but wanted to optimize reading/dereferencing of the table values, then they never tried to go back and shrink the table. 
 
-Anyway, it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't try. If you want to try it to be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively.
+Anyway, it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't try. If you want to try it to be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively. We don't have source code and this platform isn't one you can statically disassemble.
 
-If we want to move player data (including player names' string data) to a different location in memory, I prefer a safer option that is more targeted, rather than changing main table values- which will cause big, sweeping problems- and trying to clean up the problems with hopes that you found them all. The safer more targeted way involves detouring the code that loads player names.
+You can adjust these table values to point someplace else in bank $9C, but there isn't all kinds of free space in that bank to put anything.
+
+There's a coupling between the data in this table and some undetermined places in game code. If you change the upper bank in the data, you must change those undetermined places in game code.
+
+If we want to move player data (including player names' string data) to a different location in memory, a different bank- I prefer a safer option that is more targeted, rather than changing main table values- which will cause big, sweeping problems- and trying to clean up the problems with hopes that you found them all. The safer more targeted way involves detouring the code that loads player names.
 
 Detouring the loading of player names
 =====================================
 Detouring is used here inside a function I'm calling LookupPlayerName(). 
-
-There was this fear that there could be multiple code paths pulling names out of the player data. From testing I found there's just the one. LookupPlayerName() is a centralized place and changing it is sufficient.
-
-The original code for LookupPlayerName() is
+The code for LookupPlayerName() is
                                              ; Function: LookupPlayerName()
                                              ;     Gets the address of a player's name string, based on the player's index on the team and some previously-set table data.
                                              ;
@@ -226,7 +227,7 @@ $9F/C742 67 89       ADC [$89]  [$9C:C2DB]   ; Use the fact that the first two b
                                              ; data will give us the offset to the per-player data. 
 
 $9F/C744 85 89       STA $89    [$00:0089]    For example, for Montreal we add 0x55 to get to the start of the
-																				; per-player data.
+                                             ; per-player data.
 
 $9F/C746 80 0A       BRA $0A    [$C752]      ; Goto LookupPlayerName_CheckDone
 
@@ -244,6 +245,11 @@ $9F/C754 10 F2       BPL $F2    [$C748]      ; branch-if-positive LookupPlayerNa
 $9F/C756 6B          RTL                     ; 
   
 ...
+
+The approach here is to use an "alternate main table" which actually does honor the long pointer, and shim LookupPlayerName() to use the "alternate main table" instead.
+
+
+There was this fear that there could be multiple code paths pulling names out of the player data. From testing I found there's just the one. LookupPlayerName() is a centralized place and changing it is sufficient.
 
 is replaced with
 

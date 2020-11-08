@@ -786,32 +786,16 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 {
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
-    // There are three lookup tables involved.
+    // There are two lookup tables involved.
 
-    // Table 1)
-    // Key: Middle byte of the team's player data table offset, divided by 2, minus 0x53
-    //     This scheme is chosen because it yields keys which are low positive numbers with no collisions, so that keys can act as array indices.
-    //     For example Montreal's player data offset is 9CC2DB, so its key is C2 -> 61 -> 0xE.
-    // Key range: [0x0-0x22]. There are some holes.
-    // Value: The team index. For example, Montreal is 0xB.
-    // Value range: [0x0-0x1B]. See the enum, "Team"
-    // Element size: 1 byte
-    // Purpose of table:
-    //     To map from the team's player data table offset to get its team index.
-    //     Seems weird but hear me out.
-    //     Ideally, we could get the team index directly. But at the place where we want to do a shim (see "LookupPlayerNameDet.asm"), it's too 
-    //     late and that information is not readily available. In theory we could have gone back to a point in time where we had the team index 
-    //     and stashed it somewhere. But then you have the usual reverse engineering problem of: it's hard to know what's the full set of places 
-    //     those are. It's cleaner to have this function be self contained and not rely on new, messy preconditions. A lookup table like this 
-    //     allows you to do that.
-    //
-    // Table 2)
+    // Table 2) the "alternate main table"
     // Key: Team index
     // Key range: [0x0-0x1B]. See the enum, "Team"
     // Value : A long pointer.
     // Value range: Pointers of the form "0xA8xxxx"
     // Element size: 4 bytes
     // Purpose of table:
+    //     Alternate main table.
     //     Maps from "team index" to "team data table", described as Table 3) below. There is a table for each team. This includes the two 
     //     All Stars teams.
     //
@@ -835,12 +819,8 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 
     // First, plan out where each of the tables will be so that things are nice and compact.
 
-    const int firstTableLocation = 0xA8D000;
-    const int firstTableSize = 0x23;
-
     const int secondTableLocation = 0xA8D023;
     int secondPointerTableSize = static_cast<int>(allTeams.size()) * 4;
-    assert(secondTableLocation == firstTableLocation + firstTableSize);
 
     const int thirdTableLocation = 0xA8D093;
     assert(thirdTableLocation == secondTableLocation + secondPointerTableSize);
@@ -864,18 +844,6 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
             datastreamIter.SaveROMString(renames[i].Name.Get());
             datastreamIter.SaveDecimalNumber(renames[i].PlayerNumber.Get());
         }
-    }
-
-    // Write the first table
-    const int firstTableMinValue = 0x53;
-    for (int teamIndex = 0; teamIndex < allTeams.size(); ++teamIndex)
-    {
-        const TeamData& team = allTeams[teamIndex];
-        int key = ((team.SourceDataROMAddress >> 8) & 0xFF) / 2;
-        key -= firstTableMinValue;
-
-        int fileOffset = ROMAddressToFileOffset(firstTableLocation) + key;
-        s_romData[fileOffset] = teamIndex;
     }
 
     // Write the second and third tables
