@@ -1117,7 +1117,6 @@ void TryCommitPlayerNameChange(
     if (!IsValidPlayerName(stringValue))
         return;
 
-    // Commit new value to s_allTeams
     unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
 
     PlayerData* player = &s_allTeams[teamIndex].Players[playerIndex];
