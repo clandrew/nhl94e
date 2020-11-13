@@ -606,23 +606,8 @@ std::string ManagedToNarrowASCIIString(System::String^ s)
     return result;
 }
 
-System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+void CppCLRWinformsProjekt::Form1::OpenROM(std::wstring romFilename)
 {
-    s_allTeams.clear();
-    s_romData.clear();
-    this->tabControl1->Controls->Clear();
-
-    OpenFileDialog^ dialog = gcnew OpenFileDialog();
-#if _DEBUG
-    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
-#endif
-
-    System::Windows::Forms::DialogResult result = dialog->ShowDialog();
-    if (result != System::Windows::Forms::DialogResult::OK)
-        return;
-
-    std::wstring romFilename = ManagedToWideString(dialog->FileName);
-
     s_romData = LoadBytesFromFile(romFilename.c_str());
 
     // Check size
@@ -650,8 +635,31 @@ System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System
     tabControl1->SelectedIndex = (int)Team::Montreal;
 }
 
+System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+{
+    s_allTeams.clear();
+    s_romData.clear();
+    this->tabControl1->Controls->Clear();
+
+    OpenFileDialog^ dialog = gcnew OpenFileDialog();
+#if _DEBUG
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc";
+#endif
+
+    System::Windows::Forms::DialogResult result = dialog->ShowDialog();
+    if (result != System::Windows::Forms::DialogResult::OK)
+        return;
+
+    std::wstring romFilename = ManagedToWideString(dialog->FileName);
+
+    OpenROM(romFilename);
+}
+
 System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
 {
+#if _DEBUG
+    OpenROM(L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc");
+#endif
 }
 
 unsigned char ChrToHex(wchar_t ch)

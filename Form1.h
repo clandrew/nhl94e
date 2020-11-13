@@ -163,5 +163,6 @@ namespace CppCLRWinformsProjekt {
 		void OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e);
 		void OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e);
 		System::Void openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e);
+		void OpenROM(std::wstring romFilename);
 };
 }
