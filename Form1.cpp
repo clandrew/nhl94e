@@ -376,7 +376,7 @@ System::String^ IntToCliString(int n)
 void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
 {
     // Declare variables
-    System::Windows::Forms::DataGridView^ dataGridView1;
+    DoubleBufferedDataGridView^ dataGridView1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column0;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
@@ -396,7 +396,7 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column16;
 
     // Create objects
-    dataGridView1 = (gcnew System::Windows::Forms::DataGridView());
+    dataGridView1 = (gcnew DoubleBufferedDataGridView());
     Column0 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());

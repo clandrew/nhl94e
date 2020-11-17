@@ -1,9 +1,10 @@
 #pragma once
 #include "TeamData.h"
 
-struct Test
+ref class DoubleBufferedDataGridView : public System::Windows::Forms::DataGridView
 {
-
+public:
+	DoubleBufferedDataGridView() { DoubleBuffered = true; }
 };
 
 namespace CppCLRWinformsProjekt {
