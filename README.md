@@ -9,7 +9,7 @@ It works by mix of data and code modification. The stats changing is a dead simp
 
 Changing of players' names involves ROM expansion. No worries, the program does the expansion for you automatically.
 
-In the editor:
+Example in the editor:
 
 ![Example image](https://raw.githubusercontent.com/clandrew/nhl94e/main/images/Screen1.PNG "Example image.")
 
