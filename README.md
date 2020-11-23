@@ -1,4 +1,4 @@
-# nhl94e - NHL'94 Player name and statistics ROM editor
+# nhl94e - NHL'94 player name and statistics ROM editor
 This is a player name and statistics editor for the game "NHL '94" for the SNES. Features:
 * Easy-to-use Windows interface
 * Includes editing of player numbers
