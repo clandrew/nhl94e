@@ -2,7 +2,7 @@
 #include "TeamData.h"
 #include "CustomUI.h"
 
-namespace CppCLRWinformsProjekt 
+namespace nhl94e
 {
 
 	using namespace System;
@@ -140,7 +140,7 @@ namespace CppCLRWinformsProjekt
 			this->Controls->Add(this->tabControl1);
 			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->menuStrip1);
-			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"icon.ico")));
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"Form1";
 			this->Text = L"nhl94e";

@@ -361,7 +361,7 @@ std::vector<TeamData> LoadPlayerNamesAndStats()
     return result;
 }
 
-System::Void CppCLRWinformsProjekt::Form1::exitToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+System::Void nhl94e::Form1::exitToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
 	this->Close();
 }
@@ -373,7 +373,7 @@ System::String^ IntToCliString(int n)
     return gcnew System::String(strm.str().c_str());
 }
 
-void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
+void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
 {
     // Declare variables
     DoubleBufferedDataGridView^ dataGridView1;
@@ -415,8 +415,8 @@ void CppCLRWinformsProjekt::Form1::AddTeamGridUI(TeamData const& team)
     Column15 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column16 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 
-    dataGridView1->CellValidating += gcnew System::Windows::Forms::DataGridViewCellValidatingEventHandler(this, &CppCLRWinformsProjekt::Form1::OnCellValidating);
-    dataGridView1->CellValueChanged += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &CppCLRWinformsProjekt::Form1::OnCellValueChanged);
+    dataGridView1->CellValidating += gcnew System::Windows::Forms::DataGridViewCellValidatingEventHandler(this, &nhl94e::Form1::OnCellValidating);
+    dataGridView1->CellValueChanged += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &nhl94e::Form1::OnCellValueChanged);
 
     System::Windows::Forms::TabPage^ tabPage1;
 
@@ -606,7 +606,7 @@ std::string ManagedToNarrowASCIIString(System::String^ s)
     return result;
 }
 
-void CppCLRWinformsProjekt::Form1::OpenROM(std::wstring romFilename)
+void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
     s_romData = LoadBytesFromFile(romFilename.c_str());
 
@@ -635,7 +635,7 @@ void CppCLRWinformsProjekt::Form1::OpenROM(std::wstring romFilename)
     tabControl1->SelectedIndex = (int)Team::Montreal;
 }
 
-System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
+System::Void nhl94e::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     s_allTeams.clear();
     s_romData.clear();
@@ -655,7 +655,7 @@ System::Void CppCLRWinformsProjekt::Form1::openROMToolStripMenuItem_Click(System
     OpenROM(romFilename);
 }
 
-System::Void CppCLRWinformsProjekt::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
+System::Void nhl94e::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
 {
 #if _DEBUG
     OpenROM(L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc");
@@ -910,7 +910,7 @@ void InsertPlayerNameText()
     AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
 }
 
-System::Void CppCLRWinformsProjekt::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) 
+System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
 #if _DEBUG
@@ -969,7 +969,7 @@ bool IsValidPlayerName(System::String^ name)
     return true;
 }
 
-void CppCLRWinformsProjekt::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
+void nhl94e::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
 {
     WhichStat stat = (WhichStat)e->ColumnIndex;
     int r = 0;
@@ -1142,7 +1142,7 @@ void TryCommitPlayerNameChange(
     }
 }
 
-void CppCLRWinformsProjekt::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
+void nhl94e::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
     int teamIndex = tabControl1->SelectedIndex;
     int rowIndex = e->RowIndex;

@@ -169,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="app.ico" />
+    <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
