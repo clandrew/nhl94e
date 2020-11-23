@@ -4,7 +4,7 @@ This is a player name and statistics editor for the game "NHL '94" for the SNES.
 * Includes editing of player numbers
 * Your custom player names can be different length from original
 
-It works by mix of data and code modification. The stats changing is a dead simple data change, while custom player names involves some code change. Find more technical information about changing players' names here:
+It works by mix of data and code modification. The stats changing is a dead simple data change, while custom player names uses code change. Find more technical information about changing players' names here:
 [https://github.com/clandrew/nhl94e/blob/main/docs/PlayerNames.txt](https://github.com/clandrew/nhl94e/blob/main/docs/PlayerNames.txt)
 
 Changing of players' names involves ROM expansion. No worries, the program does the expansion for you automatically.
