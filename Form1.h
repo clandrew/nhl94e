@@ -1,13 +1,9 @@
 #pragma once
 #include "TeamData.h"
+#include "CustomUI.h"
 
-ref class DoubleBufferedDataGridView : public System::Windows::Forms::DataGridView
+namespace CppCLRWinformsProjekt 
 {
-public:
-	DoubleBufferedDataGridView() { DoubleBuffered = true; }
-};
-
-namespace CppCLRWinformsProjekt {
 
 	using namespace System;
 	using namespace System::ComponentModel;

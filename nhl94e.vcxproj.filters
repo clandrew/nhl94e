@@ -41,6 +41,9 @@
     <ClInclude Include="Optional.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="CustomUI.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
