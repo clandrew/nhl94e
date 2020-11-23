@@ -914,7 +914,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
 #if _DEBUG
-    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\Test\\nhl94em.sfc";
 #endif
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
