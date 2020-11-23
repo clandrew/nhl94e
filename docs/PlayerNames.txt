@@ -1,6 +1,4 @@
-Objective
-=========
-The objective: modify players' names in the game NHL '94 for Super Nintendo.
+This document describes a how to change players' names in the game NHL '94 for Super Nintendo by changing the ROM.
 
 Players' names are shown as text in the menus and in-game. 
 
@@ -159,7 +157,7 @@ Heads up that viable (e.g., a subsequent team's) game data can follow immediatel
 
 Side thing: stats stored affect the stats in-game although you'll notice they don't correlate to those stats exactly. That's because each game applies RNG. Try it yourself if you want. Boot the game, pick two teams and look at a player's stats. Reset the game, pick the exact same matchup and player to look at. The stats will be slightly different. If you play a lot of sports games maybe this is not surprising. There is this real-world idea that any team could potentially beat any other team.
 
-Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you'd need to either pad with spaces (could cause things to display weirdly) or also move their stats backwards since the game doesn't expect any padding. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
+Strings are stored with a length rather than being delimited, so that's nice. However, there's a bunch of player data parsing code that needs to skip over player's names to get to their stats. So if you make a player's name shorter and take care to update the length, you'd need to either pad with spaces (could cause things to display weirdly) or move that person's stats plus everyone else on the team's data backwards. I've listed all the stats out because you need to know how much to move if you do it that way, and it's also helpful to know what it is you're moving.
 
 And of course for making player's names longer, there isn't any extra space off the end, so you need something else entirely. This was the case I was more interested in.
 
@@ -170,9 +168,9 @@ This seemed like a swell idea at first. To get names as long as you want, just m
 Unfortunately that won't work. It is true the "main table" above is a table of long (four-byte) pointers. But, the upper two bytes of each entry are either
 - dead data, sometimes
 - dead data, always
-I mean "dead data" in the sense that the data isn't read and doesn't do anything.
+By "dead data" I mean the data isn't read and doesn't do anything.
 
-Instead of reading data from the table the game will use a hardcoded $9C. 
+Instead of reading data from the upper two byes, the game will use a hardcoded number which is $9C. 
 
 Here's an example of what I mean. This is from the code to figure out a player's first initial and last name for the team selection screen.
 
@@ -194,7 +192,7 @@ Why store long pointers in the table if they were gonna do it this way? They cou
 
 Anyway, it's hard to safely detect all the places that pull values out of this table so it's difficult to "fix" the table and reclaim the space. I didn't try. If you want to try it to be absolutely safe you might want to set a breakpoint in the debugger and play the game extensively. We don't have source code and you can't statically disassemble this platform.
 
-So suppose you begrugingly accept the fact that all table entries need to live in bank $9C. Can you make that work? Unfortunately that's not such a good idea either. You can adjust these table values to point someplace else in bank $9C, but there isn't all kinds of free space in that bank to put anything.
+So suppose you begrugingly accept the fact that all table entries need to live in bank $9C. Can you change lower bytes only and make that work? Unfortunately that's not such a good idea either. You can adjust these table values to point someplace else in bank $9C, but there isn't all kinds of free space in that bank to put anything.
 
 If we want to move player data (including player names' string data) to a different location in memory, a different bank- I prefer a safer option that is more targeted. Completely bypass the use of the "main pointer table" entry JUST when we are loading player names. This lets us be really confident in things working. We make a code change in a specific, testable place that we understand really well. 
 
@@ -250,9 +248,7 @@ $9F/C756 6B          RTL                     ;
   
 ...
 
-The idea is to detour this function. Use an "alternate main table" which actually does honor the long pointer, and shim LookupPlayerName() to use the "alternate main table" instead.
-
-There was this fear that there could be multiple code paths pulling names out of the player data. From testing I found there's just the one. LookupPlayerName() is a centralized place and changing it is sufficient.
+The idea is to detour this function. Use an "alternate main table" which actually does honor the long pointer, and shim LookupPlayerName() to use the "alternate main table" instead. From testing I found that LookupPlayerName() is a centralized place and changing it is sufficient.
 
 How the detouring goes is we chuck a payload someplace there's space (say, $A08100, in expanded ROM space). Then replace the code for LookupPlayerName() with
 
@@ -260,7 +256,7 @@ $9F/C732 5C 00 81 A0 JMP $A08100                ; Jump into expanded ROM space w
                      NOP
                      NOP
                      ...
-NOPs are not strictly needed but added for hygiene.
+NOPs are not strictly needed but added for hygiene. (Could use a BRK instead when you are getting things running)
 
 As for the payload itself, it's
 $A0/8100 DA          PHX                        ; Caller doesn't like it if X is scrambled                  
@@ -271,7 +267,7 @@ $A0/8100 DA          PHX                        ; Caller doesn't like it if X is
          0A          ASL                                               
                                                 
          AA          TAX                        ; Use the team index to look up into the "alternate main table".
-         BF 00 D0 A8 LDA 0xA8D000,x             ; Load the array element from 0xA8D000
+         BF 00 D0 A8 LDA 0xA8D000,x             ; Load the array element from 0xA8D000, store it in $89-$8C
          85 89       STA $89
          E8          INX
          E8          INX
@@ -294,10 +290,10 @@ PlayerIndexIncrement:
         80 F0        BRA $F0                    ; goto PlayerIndexIncrement
 
 DonePlayerIndex:
-                                                ; We have the element for the right player stored at $89-$8B.
+                                                ; We have the element for the right player stored at $89-$8C.
                                                 ; The element is a pointer. 
                                                 ; It'll be either $9Cxxxx if we're keeping the original names, or $A8xxxx/whatever if we're using new names.
-                                                ; Dereference it, and store the dereferenced result at $89-$8B.
+                                                ; Dereference it, and store the dereferenced result at $89-$8C.
         A7 89        LDA [$89]
         48           PHA
         E6 89        INC $89
@@ -310,20 +306,20 @@ DonePlayerIndex:
         FA           PLX                        ; Restore X and return.
         6B           RTL
         
- The "alternate main table" lives at 0xA8D000, chosen arbitrarily.
+The "alternate main table" lives at 0xA8D000, chosen arbitrarily. 
 
 If this code were a bit smaller it could actually be copied overtop the implementation of LookupPlayerName() with no jumping out. Original LookupPlayerName is 37 bytes, this routine is 55 bytes. Alas, it won't fit, so I put it at $A08100. Not a big deal since we are putting stuff in expanded ROM space anyway.
 
 Putting it all together, the full list of things to patch are
 * the JMP at the beginning of LookupPlayerName
 * code snippet above it's supposed to JMP to
-* the "alternate main table" at 0xA8D000
+* the "alternate main table" at 0xA8D000 and set of tables each of its entries points to
 * the strings that the "alternate main table" points to
 
 Not too bad.
 
 Could do all this manually. I suggest making a program to do it so that you don't make mistakes. And plus you can easily configure whatever new player names you want.
 
-My program, which does the above, is here
+The program, which does the above, is here
 https://github.com/clandrew/nhl94e
 Enjoy
