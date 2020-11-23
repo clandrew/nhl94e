@@ -612,11 +612,30 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
 
     // Check size
     size_t expectedSize = 0x400000;
-    if (s_romData.size() != expectedSize)
+
+    size_t originalSize = s_romData.size();
+    bool expanded = originalSize == expectedSize;
+
+    const int expansionIdLocation = 0x7FD7;
+
+    if (originalSize == 0x100000)
+    {
+        // Expand on-demand.
+        s_romData[expansionIdLocation] = 0x0C;
+        s_romData.resize(expectedSize);
+        for (int i = originalSize; i < expectedSize; ++i)
+        {
+            s_romData[i] = 0;
+        }
+    }
+    else if (originalSize == expectedSize)
+    {
+        // Nothing to do
+    }
+    else
     {
         std::wostringstream sstream;
-        sstream << "This program is designed to work on a Super Nintendo NHL '94 ROM which has been expanded to 32 Mbit (4MB).\n";
-        sstream << "Use Lunar Expand or other similar tools to perform expansion.\n";
+        sstream << "This program is designed to work on a Super Nintendo NHL '94 ROM. However, the input has an unexpected size.\n";
         sstream << "Unexpected size detected: found " << s_romData.size() << " bytes, expected " << expectedSize << " bytes.\n";
 
         System::String^ dialogString = gcnew System::String(sstream.str().c_str());
@@ -658,7 +677,7 @@ System::Void nhl94e::Form1::openROMToolStripMenuItem_Click(System::Object^ sende
 System::Void nhl94e::Form1::Form1_Load(System::Object^ sender, System::EventArgs^ e)
 {
 #if _DEBUG
-    OpenROM(L"E:\\Emulation\\SNES\\Images\\nhl94e.sfc");
+    OpenROM(L"E:\\Emulation\\SNES\\Images\\nhl94.sfc");
 #endif
 }
 
@@ -914,7 +933,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
 #if _DEBUG
-    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\Test\\nhl94em.sfc";
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
 #endif
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
