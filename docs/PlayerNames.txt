@@ -36,34 +36,34 @@ If you dump the raw data for the table it's
 
 Formatted nicely, the table is
 int mainTable[] = { 
-9CEB4F, // Anaheim
-9CABAC, // Boston
-9CAE32, // Buffalo
-9CB0C1, // Calgary
-9CB340, // Chicago
-9CC04F, // Dallas
-9CB5D7, // Detroit
-9CB89D, // Edmonton
-9CE94D, // Florida
-9CBB1D, // Hartford
-9CBDB2, // LA Kings
-9CC2DB, // Montreal
-9CC57E, // New Jersey
-9CC82B, // NY Islanders
-9CCA9C, // NY Rangers
-9CCD06, // Ottawa
-9CCFAC, // Philly
-9CD237, // Pittsburgh
-9CD4D2, // Quebec
-9CD760, // San Jose
-9CD9D4, // St Louis
-9CDC4A, // Tampa Bay
-9CDEDC, // Toronto
-9CE17E, // Vancouver
-9CE6AD, // Washington
-9CE405, // Winnepeg
-9CA657, // All Stars East
-9CA904  // All Stars West
+    9CEB4F, // Anaheim
+    9CABAC, // Boston
+    9CAE32, // Buffalo
+    9CB0C1, // Calgary
+    9CB340, // Chicago
+    9CC04F, // Dallas
+    9CB5D7, // Detroit
+    9CB89D, // Edmonton
+    9CE94D, // Florida
+    9CBB1D, // Hartford
+    9CBDB2, // LA Kings
+    9CC2DB, // Montreal
+    9CC57E, // New Jersey
+    9CC82B, // NY Islanders
+    9CCA9C, // NY Rangers
+    9CCD06, // Ottawa
+    9CCFAC, // Philly
+    9CD237, // Pittsburgh
+    9CD4D2, // Quebec
+    9CD760, // San Jose
+    9CD9D4, // St Louis
+    9CDC4A, // Tampa Bay
+    9CDEDC, // Toronto
+    9CE17E, // Vancouver
+    9CE6AD, // Washington
+    9CE405, // Winnepeg
+    9CA657, // All Stars East
+    9CA904  // All Stars West
 };
 
 There is 1 value per hockey team. 
