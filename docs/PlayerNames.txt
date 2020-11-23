@@ -1,4 +1,4 @@
-This document describes a how to change players' names in the game NHL '94 for Super Nintendo by changing the ROM.
+This document describes a how to change players' names arbitrarily (longer or shorter) in the game NHL '94 for Super Nintendo by changing the ROM.
 
 Players' names are shown as text in the menus and in-game. 
 

@@ -59,13 +59,14 @@ namespace CppCLRWinformsProjekt
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form1::typeid));
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->openROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
-			this->openROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->menuStrip1->SuspendLayout();
 			this->SuspendLayout();
 			// 
@@ -88,13 +89,13 @@ namespace CppCLRWinformsProjekt
 			this->fileToolStripMenuItem->Size = System::Drawing::Size(37, 20);
 			this->fileToolStripMenuItem->Text = L"File";
 			// 
-			// exitToolStripMenuItem
+			// openROMToolStripMenuItem
 			// 
-			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
-			this->exitToolStripMenuItem->Text = L"Exit";
-			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
+			this->openROMToolStripMenuItem->Name = L"openROMToolStripMenuItem";
+			this->openROMToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
+			this->openROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->openROMToolStripMenuItem->Text = L"Open ROM";
+			this->openROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::openROMToolStripMenuItem_Click);
 			// 
 			// saveROMToolStripMenuItem
 			// 
@@ -104,6 +105,14 @@ namespace CppCLRWinformsProjekt
 			this->saveROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
 			this->saveROMToolStripMenuItem->Text = L"Save ROM";
 			this->saveROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::saveROMToolStripMenuItem_Click);
+			// 
+			// exitToolStripMenuItem
+			// 
+			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+			this->exitToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Alt | System::Windows::Forms::Keys::F4));
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(200, 22);
+			this->exitToolStripMenuItem->Text = L"Exit";
+			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
 			// 
 			// panel1
 			// 
@@ -123,14 +132,6 @@ namespace CppCLRWinformsProjekt
 			this->tabControl1->Size = System::Drawing::Size(409, 522);
 			this->tabControl1->TabIndex = 2;
 			// 
-			// openROMToolStripMenuItem
-			// 
-			this->openROMToolStripMenuItem->Name = L"openROMToolStripMenuItem";
-			this->openROMToolStripMenuItem->ShortcutKeys = static_cast<System::Windows::Forms::Keys>((System::Windows::Forms::Keys::Control | System::Windows::Forms::Keys::O));
-			this->openROMToolStripMenuItem->Size = System::Drawing::Size(200, 22);
-			this->openROMToolStripMenuItem->Text = L"Open ROM";
-			this->openROMToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::openROMToolStripMenuItem_Click);
-			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -139,9 +140,10 @@ namespace CppCLRWinformsProjekt
 			this->Controls->Add(this->tabControl1);
 			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->menuStrip1);
+			this->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"Form1";
-			this->Text = L"Form1";
+			this->Text = L"nhl94e";
 			this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
