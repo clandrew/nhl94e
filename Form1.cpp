@@ -758,13 +758,16 @@ std::vector<unsigned char> LoadAsmFromDebuggerText(std::wstring fileName)
     return code;
 }
 
-void InsertDetour(
+bool InsertDetour(
     wchar_t const* codeToInsert,
     int detourSrcStartROMAddress,
     int detourSrcEndROMAddress,
     int detourDestROMAddress)
 {
     std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(codeToInsert);
+
+    if (decompressProfileMain.size() == 0)
+        return false;
 
     // Quick parameter checking
     int detourLength = detourSrcEndROMAddress - detourSrcStartROMAddress + 1; // Addresses are inclusive
@@ -799,6 +802,8 @@ void InsertDetour(
     s_romData[fileOffsetSrcStart + 1] = detourB2;
     s_romData[fileOffsetSrcStart + 2] = detourB1;
     s_romData[fileOffsetSrcStart + 3] = detourB0;
+
+    return true;
 }
 
 struct PlayerRename
@@ -899,7 +904,7 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
     }
 }
 
-void InsertPlayerNameText()
+bool InsertPlayerNameText()
 {
     std::vector<PlayerRename> renames;
 
@@ -922,11 +927,15 @@ void InsertPlayerNameText()
     }
 
     if (renames.size() == 0)
-        return; // Nothing to do
+        return true; // Nothing to do
 
-    InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
+    bool detourPatched = InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
+    if (!detourPatched)
+        return detourPatched;
 
     AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
+
+    return true;
 }
 
 System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -963,11 +972,17 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         }
     }
 
-    InsertPlayerNameText();
+    if (!InsertPlayerNameText())
+    {
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
+        MessageBox::Show(dialogString);
+    }
+    else
+    {
+        SaveBytesToFile(outputFilename.c_str(), s_romData);
 
-    SaveBytesToFile(outputFilename.c_str(), s_romData);
-
-    MessageBox::Show(L"Output file saved.", L"Info");
+        MessageBox::Show(L"Output file saved.", L"Info");
+    }
 }
 
 bool IsValidPlayerName(System::String^ name)
