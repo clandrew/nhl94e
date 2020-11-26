@@ -1,0 +1,123 @@
+
+2 registers control palette. These are $2121 and $2122.
+
+| w   |$2121   |Color # (or palette) selection register [CGDATA]
+|     |        |xxxxxxxx             x: address (color #).
+|     |        |
+|     |        |
+| wd  |$2122   |Color data register [CGDATA]
+|     |        |xxxxxxxx             x: Value of color. 
+|     |        |
+|     |        |SNES color is 15 bit; 5 bits for red, green, and blue. The order isn't RGB though: it's BGR (RGB reversed!).
+
+Format of the 2 bytes you need to write to $2122 
+
+?bbbbbgg gggrrrrr
+
+b: blue
+g: green
+r: red
+?: "The infamous bit-of-confusion." (just leave it 0 ;)
+
+
+Setting palette is a matter of setting $2122.
+
+Look for "22 21" in code
+There are a lot of results
+
+Most likely opcode STA
+
+8D 22 21
+
+4 instances of that:
+
+file offset FF4DF	9FF4DF
+file offset FF4E2	9FF4E2
+file offset FF9FA	9FF9FA
+file offset FF9FE	9FF9FE
+None of these.
+
+Do controlled corrupt
+Controlled corrupt of all xx22 21 doesn't help.
+
+Try VRAM instead
+
+Goes from 0 to FFFF
+
+5C0-700 - no
+
+60E - Clock timer graphic
+
+A00-B50 - top part of ice rink
+B50-C00 - middle part of ice rink
+
+2D00-3000- grandstands
+
+F6xx - no
+F7xx - no
+F8xx - no
+F9xx - no
+FAxx - no
+anything later - no
+
+You can "Dump palette" in geigers
+e.g.,
+
+1F1C18
+
+Palette:
+181c1f  1d1d1f  1a1d1f  1b1b1b  000000  
+161616  0d0d0d  090909  1b1616  1f1212  
+1b090d  0d121b  1b1604  12161f  040404  
+121b1f  181c1f  1b1b1b  121212  090909  
+040404  1b1200  160d00  000000  040412  
+00000d  040900  000400  160900  0d0000  
+160d0d  0d0904  121f1f  1b1b1b  000000  
+1d1d1d  00000c  1d1d1d  1a0000  181210  
+000010  1d1d1d  1a0000  141414  1d1d1d  
+1d1d1d  130e05  091216  121f1f  1b1b1b  
+000000  0a0a0a  000000  0a0a0a  0a0a0a  
+181210  131313  131313  1d1d1d  040404  
+0a0a0a  0a0a0a  130e05  091216  181c1f  
+001b00  1b1b00  1b0000  000000  000000  
+000000  000000  000000  000000  000000  
+000000  000000  000000  000000  000000  
+131919  090909  161616  090909  171717  
+140a08  191402  0d111d  1f150d  120909  
+19110c  11191b  10130d  160e0c  121010  
+170e10  0c1f00  181818  131313  090909  
+131313  150f04  151207  090909  0b0b0f  
+09090d  070b04  131418  160907  120a0a  
+1c0f07  17100d  181c1f  000000  000000 
+000000  000000  000000  000000  000000 
+000000  000000  000000  000000  000000  
+000000  000000  000000  181c1f  1d1d1f  
+1a1d1f  1b1b1b  000000  161616  0d0d0d  
+090909  1b1616  1f1212  1b090d  0d121b  
+1b1604  12161f  040404  121b1f  181c1f  
+1b1b1b  121212  090909  040404  1b1200  
+160d00  000000  040412  00000d  040900  
+000400  160900  0d0000  160d0d  0d0904  
+121f1f  040404  000000  1b1b1b  0d0000  
+120000  1b1212  160d0d  121212  1b1b1b  
+1b0400  001608  1f0a03  140002  1f1f05 
+0f131f  181c1f  001b00  001b09  001b0d  
+001b12  001b16  001b1b  001b1f  001f00  
+001f04  001f09  001f0d  001f12  001f16  
+001f1b  001f1f  121f1f  1b1b1b  000000  
+1d1d1d  00000c  1d1d1d  1a0000  181210  
+000010  1d1d1d  1a0000  141414  1d1d1d  
+1d1d1d  130e05  091216  121f1f  1b1b1b  
+000000  0a0a0a  000000  0a0a0a  0a0a0a  
+181210  131313  131313  1d1d1d  040404  
+0a0a0a  0a0a0a  130e05  091216  001801  
+070a07  0f061a  08031b  0c1311  061e00  
+030c00  010400  000000  000000  000800  
+010800  010800  010800  010800  1f1f1f  
+000000  070a07  000800  010800  010800  
+010800  010800  01000c  00081e  011b1f  
+131f07  1a1c1f  0b081f  19071f  180f03  
+1f1f1f  
+
+Player sprites are 0x7840-0x8560 in VRAM.
+Look for the same pattern in RAM- doesn't appear
