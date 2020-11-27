@@ -121,3 +121,75 @@ Palette:
 
 Player sprites are 0x7840-0x8560 in VRAM.
 Look for the same pattern in RAM- doesn't appear
+
+8D 22 21	sta $2122
+8E 22 21 	stx $2122
+8C 22 21 	sty $2122
+9C 22 21	stz $2122
+stz $2122
+
+Can use No$sns to look at palette data
+Palettes are stored in VRAM
+
+Could try stepping through things until you see a change in No$sns
+
+Got log of the palette change
+
+Random bp on splash screen confirm-
+
+$80/8587	FD 64 07	CMP A,[0764]
+$80/858A	F0 FB		BEQ $8587
+
+On stepping out..
+
+//void SplashScreenIter()
+ForEachFrame:
+$9F/9708	22 83 85 80	JSR $80/8583	; Draws and advances the next frame
+$9F/970C	AD D3 0A	MOV A,[0AD3]
+$9F/970F	D0 F7		BNE $9708
+DoneSplashScreen:
+$9F/9711	6B		RTS		; Done with splash screen
+
+////////////////////////////////////////////////
+
+$80/$86B2	22 F7 96 9F	JSR $9F96F7	; Call SplashScreenIter()
+$80/$86B6	22 84 86 80	JSR $808684
+$80/$86BA	4C D5 86	JMP $86D5	; goto AfterSplashScreenIter
+
+...
+
+AfterSplashScreenIter:
+$80/86D5	48		PHA
+
+$9D/B120	A9 00 60	MOV 6000	; Still no palette change. 
+						; It happens once you step out of here though.
+						
+					
+					
+Conclusion: pallete change happens not by setting 2122 directly but through DMA xfer.						
+						
+This is what does it
+// Common code to update palette
+$80/8736	8D 15 43	STA $4315	; A=0x200
+
+$80/8739	A9 00 22	LDA #2200	;
+$80/873C	8D 10 43	STA $4310	; Sets DMA register "Parameters for DMA Transfer" for channel 1
+						; 0010 0010
+						; 
+
+$80/873F	A5 0C		LDA $0C		; Loads 0
+$80/8741	8D 12 43	STA $4312	; Sets DMA register "A Address (low byte)" for channel 1
+
+$80/8744	A6 0E		LDX $0E		; Loads 7F
+$80/8746	8E 14 43	STX $4314	; Sets DMA register "A Address bank" for channel 1
+
+$80/8749	A2 02		LDX #02
+$80/874B	8E 0B 42	STX $420B	; Does the palette change
+						; This is DMA-channel enable.
+						; Setting "2" enables 1 channel
+
+
+
+
+						
+						
