@@ -187,9 +187,181 @@ $80/8749	A2 02		LDX #02
 $80/874B	8E 0B 42	STX $420B	; Does the palette change
 						; This is DMA-channel enable.
 						; Setting "2" enables 1 channel
-
-
-
-
 						
+
+DMA[1]: CPU->PPU Mode:0 0x7F0000->0x2122 Bytes:200 (inc) V:128 CGRAM: 00 (0)
+
+This DMA transfer is not used to assign pallettes always in the game, but it is used for assigning pallettes for players.
+
+The beginning of the game assigns palletes not through DMA transfer. It does it directly. E.g.,
 						
+$9F/F4DF 8D 22 21    STA $2122  [$80:2122]   A:00FF X:2100 Y:0017 P:eNvMxdizc	; Write pallete data to CGRAM
+$9F/F4E2 8D 22 21    STA $2122  [$80:2122]   A:00FF X:2100 Y:0017 P:eNvMxdizc
+$9F/F4E5 C2 20       REP #$20                A:00FF X:2100 Y:0017 P:eNvMxdizc
+$9F/F4E7 A9 1C EE    LDA #$EE1C              A:00FF X:2100 Y:0017 P:eNvmxdizc
+
+As for $80/2122, it falls into
+Bank $00-$3F offset $2100-$21FF contains "PPU1, APU, hardware registers" with no ROM mapping.
+It's also shadowed at $80-$BF.
+
+Try adjusting what's in RAM to change the color info
+
+Entering-gameplay DMA xfer to CGRAM
+DMA[1]: CPU->PPU Mode:0 0x7E35F4->0x2122 Bytes:100 (inc) V:210 CGRAM: 00 (0)
+
+Data copied:
+
+First half. Things to do with the rink
+98 7F BD 7F BA 7F 7B 6F 00 00 D6 5A AD 35 29 25
+DB 5A 5F 4A 3B 35 4D 6E DB 12 D2 7E 84 10 72 7F
+98 7F 7B 6F 52 4A 29 25 84 10 5B 02 B6 01 00 00
+84 48 00 34 24 01 80 00 36 01 0D 00 B6 35 2D 11
+F2 7F 7B 6F 00 00 BD 77 00 30 BD 77 1A 00 58 42
+00 40 BD 77 1A 00 94 52 BD 77 BD 77 D3 15 49 5A
+F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
+73 4E 73 4E BD 77 84 10 4A 29 4A 29 D3 15 49 5A
+98 7F 60 03 7B 03 1B 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+33 67 29 25 D6 5A 29 25 F7 5E 54 21 99 0A 2D 76
+BF 36 32 25 39 32 31 6F 70 36 D6 31 12 42 D7 41
+EC 03 18 63 73 4E 29 25 73 4E F5 11 55 1E 29 25
+6B 3D 29 35 67 11 93 62 36 1D 52 29 FC 1D 17 36
+98 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+Second half. Seemingly doesd nothing
+98 7F BD 7F BA 7F 7B 6F 00 00 D6 5A AD 35 29 25
+DB 5A 5F 4A 3B 35 4D 6E DB 12 D2 7E 84 10 72 7F
+98 7F 7B 6F 52 4A 29 25 84 10 5B 02 B6 01 00 00
+84 48 00 34 24 01 80 00 36 01 0D 00 B6 35 2D 11
+F2 7F 84 10 00 00 7B 6F 0D 00 12 00 5B 4A B6 35
+52 4A 7B 6F 9B 00 C0 22 5F 0D 14 08 FF 17 6F 7E
+98 7F 60 03 60 27 60 37 60 4B 60 5B 60 6F 60 7F
+E0 03 E0 13 E0 27 E0 37 E0 4B E0 5B E0 6F E0 7F
+F2 7F 7B 6F 00 00 BD 77 00 30 BD 77 1A 00 58 42
+00 40 BD 77 1A 00 94 52 BD 77 BD 77 D3 15 49 5A
+F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
+73 4E 73 4E BD 77 84 10 4A 29 4A 29 D3 15 49 5A
+EC 03 18 63 73 4E 29 25 73 4E F5 11 55 1E 29 25
+6B 3D 29 35 67 11 93 62 36 1D 52 29 FC 1D 17 36
+98 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+9F 02 9F 02 9F 02 9F 02 9F 02 9F 02 9F 02 9F 02
+
+What is likely here is that the transfer we need happens before the matchup screen.
+
+Xfer when you switch home teams on the game setup screen:
+
+DMA[0]: CPU->PPU Mode:0 0x7F7500->0x2122 Bytes:200 (inc) V:227 CGRAM: 00 (0)
+
+7F75E0-7F75FF keep changing every time you change teams and we know this is part of the range that gets DMA xfered. Also
+7F7660-7F767F same thing.
+
+What writes to these ranges?
+
+One write is from
+
+// void CopyPaletteDataToBuffer()
+// Preconditions: 
+//	X is 0x10
+//	$09-$0C stores an address (e.g., $9AF3FE)
+
+$9D/E0BD 86 16       STX $16    [$00:0016]   A:0000 X:00E2 Y:0002 P:envmxdizc	; Init loop counter
+$9D/E0BF 98          TYA                     A:0000 X:00E2 Y:0002 P:envmxdizc
+$9D/E0C0 0A          ASL A                   A:0000 X:00E2 Y:0002 P:envmxdizc
+$9D/E0C1 AA          TAX                     A:0000 X:00E2 Y:0002 P:envmxdizc
+$9D/E0C2 A0 00 00    LDY #$0000              A:0000 X:00E2 Y:0002 P:envmxdizc
+
+Iterate16:									; This loop iterates 16 times
+$9D/E0C5 B7 0C       LDA [$0C],y[$9A:F3FE]   A:0000 X:00E2 Y:0002 P:envmxdizc
+$9D/E0C7 9F 00 75 7F STA $7F7500,x[$7F:75E2] A:6F7B X:00E2 Y:0002 P:envmxdizc	; Write palette data to a range that will be 
+										; DMA'd to CGRAM
+										; X starts at E0
+$9D/E0CB C8          INY                     A:6F7B X:00E2 Y:0002 P:envmxdizc
+$9D/E0CC C8          INY                     A:6F7B X:00E2 Y:0003 P:envmxdizc
+$9D/E0CD E8          INX                     A:6F7B X:00E2 Y:0004 P:envmxdizc
+$9D/E0CE E8          INX                     A:6F7B X:00E3 Y:0004 P:envmxdizc
+$9D/E0CF C6 16       DEC $16    [$00:0016]   A:6F7B X:00E4 Y:0004 P:envmxdizc
+$9D/E0D1 D0 F2       BNE $F2    [$E0C5]      A:6F7B X:00E4 Y:0004 P:envmxdizc	; loop using Iterate16
+
+//////////////////////////////////////////////
+// This code is run twice every so often.
+// Once per home team, once per away team.
+
+
+Value of X depends on team. It's team index * 4
+Anaheim 	- 0x0
+Boston		- 0x4
+Buffalo 	- 0x8
+Calgary		- 0xC
+Chicago		- 0x10
+Dallas		- 0x14
+Detroit		- 0x18
+Edmonton	- 0x1C
+Florida		- 0x20
+Hartford	- 0x24
+LA		- 0x28
+Montreal	- 0x2C
+...
+$9F/BE70 BF 11 85 9C LDA $9C8511,x[$9C:8539] A:0028 X:0028 Y:0060 P:envmxdizc
+
+// Load an element from this table
+7C F1 9A 00 5C EF 9A 00 9C F1 9A 00 7C F5 9A 00
+3C F5 9A 00 FC F4 9A 00 5C F5 9A 00 DC F4 9A 00
+BC F4 9A 00 9C F4 9A 00 5C F4 9A 00 3C F4 9A 00
+1C F4 9A 00 FC F3 9A 00 DC F3 9A 00 BC F3 9A 00
+9C F3 9A 00 7C F3 9A 00 5C F3 9A 00 1C F3 9A 00
+DC F2 9A 00 BC F2 9A 00 9C F2 9A 00 5C F2 9A 00
+1C F2 9A 00 FC F1 9A 00 3C F2 9A 00 1C F5 9A 00
+
+Formatted nicely, it's
+int teamColorArray[] =
+{
+	9AF17C // Anaheim	X=0
+	9AEF5C // Boston	X=4
+	9AF19C // Buffalo	X=8
+	9AF57C // Calgary	X=C	
+	9AF53C // Chicago 	X=10
+	9AF4FC // Dallas 	X=14	
+	9AF55C // Detroit 	X=18
+	9AF4DC // Edmonton	X=1C		
+	9AF4BC // Florida 	X=20
+	9AF49C // Hartford	X=24	
+	9AF45C // LA Kings 	X=28
+	9AF43C // Montreal	X=2C
+	9AF41C // New Jersey   	X=30	
+	9AF3FC // NY Islanders 	X=34
+	9AF3DC // NY Rangers	X=38
+	9AF3BC // Ottawa	X=3C
+	9AF39C // Philly	X=40	
+	9AF37C // Pittsburgh	X=44
+	9AF35C // Quebec	X=48
+	9AF31C // San Jose	X=4C	
+	9AF2DC // St Louis 	X=50	
+	9AF2BC // Tampa Bay	X=54
+	9AF29C // Toronto	X=48
+	9AF25C // Vancouver	X=5C	
+	9AF21C // Washington	X=60
+	9AF1FC // Winnepeg	X=64
+	9AF23C // All Stars East X=68
+	9AF51C // All Stars West X=6C
+};
+
+$9F/BE74 85 0E       STA $0E    [$00:000E]   A:009A X:0028 Y:0060 P:envmxdizc	; Store the upper bytes
+$9F/BE76 BF 0F 85 9C LDA $9C850F,x[$9C:8537] A:009A X:0028 Y:0060 P:envmxdizc	; Load the lower bytes
+$9F/BE7A 85 0C       STA $0C    [$00:000C]   A:F45C X:0028 Y:0060 P:eNvmxdizc	; Store them into $0C-$0E
+$9F/BE7C A2 10 00    LDX #$0010              A:F45C X:0028 Y:0060 P:eNvmxdizc	; Init a counter
+$9F/BE7F 22 BD E0 9D JSL $9DE0BD[$9D:E0BD]   A:F45C X:0010 Y:0060 P:envmxdizc	; call CopyPaletteDataToBuffer()
+$9F/BE83 AD 98 1C    LDA $1C98  [$9F:1C98]   A:831A X:00E0 Y:0020 P:envmxdiZc
+$9F/BE86 CD 9A 1C    CMP $1C9A  [$9F:1C9A]   A:0010 X:00E0 Y:0020 P:envmxdizc
+$9F/BE89 D0 13       BNE $13    [$BE9E]      A:0010 X:00E0 Y:0020 P:envmxdizC
+$9F/BE9E A0 00 00    LDY #$0000              A:0010 X:00E0 Y:0020 P:envmxdizC
+$9F/BEA1 A9 9A 00    LDA #$009A              A:0010 X:00E0 Y:0000 P:envmxdiZC
+...
+
+Each element in teamColorArray points to a 16-byte set of color data. (pretty sure)
+
+E.g., for Montreal it's
+00 00 7B 6F 0A 00 0D 00 11 00 14 00 17 00 1B 00
+
+Caution: Updating these pointers changes the color for the GAME SETUP screen, which is good, but it doesn't change how they appear in the game. So it's only a partial solution.
