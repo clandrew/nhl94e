@@ -359,9 +359,26 @@ $9F/BE9E A0 00 00    LDY #$0000              A:0010 X:00E0 Y:0020 P:envmxdizC
 $9F/BEA1 A9 9A 00    LDA #$009A              A:0010 X:00E0 Y:0000 P:envmxdiZC
 ...
 
-Each element in teamColorArray points to a 16-byte set of color data. (pretty sure)
+Each element in teamColorArray points to a 32-byte (0x20) set of color data.
+                                                                           
+Hartford (9AF49C): 	
+		00 00 7B 6F 00 01 40 01 80 01 E0 81 20 82 60 02		
+		00 65 E0 58 C0 CC A0 C0 80 B8 60 AC 60 20 1A 03
 
-E.g., for Montreal it's
-00 00 7B 6F 0A 00 0D 00 11 00 14 00 17 00 1B 00
+Montreal:	unused	awaytxt	TL cor	TInner1	TInner2	TInner3		TInner4		TInner5
+(9AF43C) 	00 00 	7B 6F 	0A 00 	0D 00	11 00 	14 00 		17 00 		1B 00	
+
+		BInner5	BInner4	Binner3	Binner2	BInner1	BInner0		BR cor		border
+		00 6C 	00 60 	00 54 	00 48 	00 3C 	00 30 		00 28 		1A 03
+
+*awaytxt == all text on the screen, such as "Play Mode", "Reguar Season" is this color. The color is taken based on the "away" team.
 
 Caution: Updating these pointers changes the color for the GAME SETUP screen, which is good, but it doesn't change how they appear in the game. So it's only a partial solution.
+
+?bbbbbgg gggrrrrr
+
+Color examples
+Blue: 7C 00
+Green: 03 E0
+Red: 00 1F
+Magenta: 7C1F
