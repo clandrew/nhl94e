@@ -437,106 +437,110 @@ ltgrey		ltgrey		white	dkgrey	mdgrey	mdgrey	wood	iceshadow
 
 Skater-palette data for each team
 
-Anaheim
+Anaheim - file offset 0xB4D4E
 F2 7F 7B 6F 00 00 BD 77 00 00 80 29 BD 77 58 42
 00 00 80 29 7B 6F B5 56 BD 77 BD 77 D3 15 49 5A
 
-Boston
+Boston - file offset 0xB49EE
 F2 7F 7B 6F 00 00 4A 29 00 00 1B 03 4A 29 58 42
 BD 77 1B 03 4A 29 84 10 4A 29 4A 29 D3 15 49 5A
 
-Buffalo
+Buffalo - file offset 0xB4D8E
 F2 7F 7B 6F 00 00 BD 77 00 2C BD 77 80 60 58 42
 80 60 80 60 1B 03 94 52 BD 77 1F 03 D3 15 49 5A
 
-Calgary
+Calgary - file offset 0xB4A2E
 F2 7F 7B 6F 00 00 3B 01 10 00 3B 01 3B 01 58 42
 FC 02 FC 02 BD 77 93 00 3B 01 3B 01 D3 15 49 5A
 
-Chicago
+Chicago - file offset 0xB4DCE
 F2 7F 7B 6F 00 00 BD 77 00 00 BD 77 BD 77 58 42
 00 00 1B 00 BD 77 94 52 BD 77 BD 77 D3 15 49 5A
 
-Dallas
+Dallas - file offset 0xB4A6E
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
 40 02 40 02 BD 77 84 10 4A 29 4A 29 D3 15 49 5A
 
-Detroit
+Detroit - file offset 0xB4E0E
 F2 7F 7B 6F 00 00 1B 00 10 00 BD 77 BD 77 58 42
 1B 00 BD 77 1B 00 94 52 BD 77 BD 77 D3 15 49 5A
 
-Edmonton
+Edmonton - file offset 0xB4AAE
 F2 7F 7B 6F 00 00 00 75 00 28 00 75 5D 01 58 42
 BD 77 5D 01 00 75 00 30 00 75 BD 77 D3 15 49 5A
 
-Florida
+Florida - file offset 0xB4E4E
 F2 7F 7B 6F 00 00 BD 77 60 30 BD 77 B9 00 58 42
 54 02 54 02 B9 00 B5 56 BD 77 54 02 D3 15 49 5A
 
-Hartford
+Hartford - file offset 0xB4AEE
 F2 7F 7B 6F 00 00 49 60 00 2C 49 60 49 60 58 42
 9C 73 73 4E A0 02 00 24 49 60 49 60 D3 15 49 5A
 
-NewJersey
+NewJerseyd - file offset 0xB4ECE
 F2 7F 7B 6F 00 00 BD 77 00 00 BD 77 1C 00 58 42
 63 0C 63 0C 1C 00 94 52 BD 77 63 0C D3 15 49 5A
 
-NYIslanders
+NYIslanders - file offset 0xB4B6E
 F2 7F 7B 6F 00 00 80 70 00 24 80 70 80 70 58 42
 BD 77 D7 00 3B 01 00 28 80 70 80 70 D3 15 49 5A
 
-NYRangers
+NYRangers - file offset 0xB4F0E
 F2 7F 7B 6F 00 00 BD 77 0D 00 BD 77 00 50 58 42
 00 50 00 50 18 00 94 52 BD 77 18 00 D3 15 49 5A
 
-Ottawa
+Ottawa - file offset 0xB4BAE
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
 A5 14 16 00 1C 00 84 10 4A 29 4A 29 D3 15 49 5A
 
-Philly
+Philly - file offset 0xB4F4E
 F2 7F 7B 6F 00 00 BD 77 00 00 BD 77 7B 01 58 42
 7B 01 7B 01 E7 1C 94 52 BD 77 E7 1C D3 15 49 5A
 
-Pittsburgh
+Pittsburgh - file offset 0xB4BEE
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
 9C 73 BD 77 FF 1E 84 10 4A 29 4A 29 D3 15 49 5A
 
-Quebec
+Quebec - file offset 0xB4F8E
 F2 7F 7B 6F 00 00 BD 77 C2 38 BD 77 BD 77 58 42
 85 51 BD 77 85 51 94 52 BD 77 BD 77 D3 15 49 5A
 
-SanJose
+SanJose - file offset 0xB4C2E
 F2 7F 7B 6F 00 00 44 56 00 00 44 56 44 56 58 42
 BD 77 A5 14 52 4A 20 31 44 56 44 56 D3 15 49 5A
 
-StLouis
+StLouis - file offset 0xB4FCE
 F2 7F 7B 6F 00 00 BD 77 00 2C BD 77 BD 77 58 42
 FB 02 DA 02 63 7C 94 52 BD 77 BD 77 D3 15 49 5A
 
-TampaBay
+TampaBay - file offset 0xB4C6E
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 BD 77 58 42
 9C 73 00 6C BD 77 84 10 4A 29 4A 29 D3 15 49 5A
 
-Toronto
+Toronto - file offset 0xB500E
 F2 7F 7B 6F 00 00 BD 77 00 2C BD 77 BD 77 58 42
 00 58 00 58 BD 77 94 52 BD 77 BD 77 D3 15 49 5A
 
-Vancouver
+Vancouver - file offset 0xB4CAE
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 4A 29 58 42
 1A 00 A5 14 3C 03 84 10 4A 29 4A 29 D3 15 49 5A
 
-Washington
+Washington - file offset 0xB504E
 F2 7F 7B 6F 00 00 BD 77 00 30 BD 77 1A 00 58 42
 1A 00 BD 77 17 00 94 52 BD 77 BD 77 D3 15 49 5A
 
-Winnepeg
+Winnepeg - file offset 0xB4CEE
 F2 7F 7B 6F 00 00 09 74 0D 00 09 74 09 74 58 42
 BD 77 09 74 19 00 00 28 09 74 09 74 D3 15 49 5A
 
-AllStarsEast
+AllStarsEast 
+home - file offset 0xB508E
 F2 7F 7B 6F 00 00 BD 77 00 00 BD 77 A5 14 58 42
 1B 01 1B 01 A5 14 94 52 BD 77 1B 01 D3 15 49 5A
+away - file offset 0xB50AE
 
-AllStarsWest
+AllStarsWest - file offset 0xB
 F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 BD 77 58 42
 1B 01 1B 01 BD 77 84 10 4A 29 1B 01 D3 15 49 5A
+
+need to check- home and away colors appear to be in different locations so this list isn't complete
