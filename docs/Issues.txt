@@ -1,0 +1,3 @@
+White flicker when switching between tabs quickly
+	- Reproes in both debug and release
+	- Reproes even when you remove all rows
