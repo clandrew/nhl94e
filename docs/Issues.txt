@@ -1,3 +1,7 @@
 White flicker when switching between tabs quickly
 	- Reproes in both debug and release
 	- Reproes even when you remove all rows
+	- Reproes regardless of switching from double-buffered control to single (System::Windows::Forms::DataGridView)
+	- Reproes even if you have 1 column and no rows, but it is less obvious
+	- Reproes with 7 or more pages
+	- Doesn't seem to repro with only 3 teams (tab pages)
