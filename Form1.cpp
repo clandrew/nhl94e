@@ -606,6 +606,11 @@ std::string ManagedToNarrowASCIIString(System::String^ s)
     return result;
 }
 
+System::String^ NarrowASCIIStringToManaged(std::string const& s)
+{
+    return gcnew System::String(s.c_str());
+}
+
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
     s_romData = LoadBytesFromFile(romFilename.c_str());
@@ -652,6 +657,9 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
+
+    this->tabControl1->SelectedIndexChanged += gcnew System::EventHandler(this, &nhl94e::Form1::OnSelectedIndexChanged);
+    OnSelectedIndexChanged(nullptr, nullptr);
 }
 
 System::Void nhl94e::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -1204,4 +1212,15 @@ void nhl94e::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::
     {
         TryCommitPlayerNameChange(view, teamIndex, rowIndex);
     }
+}
+
+void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;    
+
+    // Refresh what's in the team data pane
+    locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity);
+    acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym);
+    teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName);
+    teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue);
 }
