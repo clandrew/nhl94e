@@ -112,9 +112,22 @@ For each player:
 
 [PassAccuracy, Aggression]    // A byte. Leftmost half-byte is player's pass accuracy rating. Rightmost half-byte is their aggression rating.
                               // Ratings are from 0 to 6.
+
+After all the players, there is
+[L0] [L1] [Location string]   // A two-byte low-endian length L, then a variable length string of length L-2 for the location the team 
+                              // represents. E.g., "Edmonton"
+
+[L0] [L1] [Location acronym]  // A two-byte low-endian length L, then a variable length string of length L-2 for acronym for the above.
+                              // E.g., "EDM" for Edmonton.
                               
-Then, at the end:
-[00] [00]		      // Two zero bytes mean that's the end of the player data for this team.
+[L0] [L1] [Team name]         // A two-byte low-endian length L, then a variable length string of length L-2 for the name of the team.
+                              // E.g., "Oilers".
+                              
+[L0] [L1] [Team venue]        // A two-byte low-endian length L, then a variable length string of length L-2 for the venue the team
+                              // plays at for home games. E.g., "Northlands Coliseum".
+
+And then subsequent team data can follow immediately after with no delimiter.
+                              
 
 For example, if we dereference and dump what's stored at 9CC2DB (Montreal), we get
 
