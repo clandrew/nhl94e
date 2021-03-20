@@ -116,6 +116,8 @@ For each player:
 After all the players, there is
 [L0] [L1] [Location string]   // A two-byte low-endian length L, then a variable length string of length L-2 for the location the team 
                               // represents. E.g., "Edmonton"
+                              // This string appears in the GAME SETUP string beside labels like "Home" and "Visitor".
+                              // Note that it's not the label that appears right below players' names, though.
 
 [L0] [L1] [Location acronym]  // A two-byte low-endian length L, then a variable length string of length L-2 for acronym for the above.
                               // E.g., "EDM" for Edmonton.

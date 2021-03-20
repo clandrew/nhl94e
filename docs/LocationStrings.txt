@@ -1,0 +1,74 @@
+// These are some code snippets related to loading strings like "Edmonton" or "Montreal" as they 
+// appear in the GAME SETUP screen beside "Home" and "Away".
+
+// Caller of ForEachCharacterInTeamName
+$9D/AA71 BC 34 85    LDY $8534,x[$9F:8538]   A:C02F X:0004 Y:000D P:envmxdizc
+$9D/AA74 8D B7 8D    STA $8DB7  [$9F:8DB7]   A:C02F X:0004 Y:000D P:envmxdizc
+$9D/AA77 85 B1       STA $B1    [$00:00B1]   A:C02F X:0004 Y:000D P:envmxdizc
+$9D/AA79 22 AB C5 9B JSL $9BC5AB[$9B:C5AB]   A:C02F X:0004 Y:000D P:envmxdizc
+$9D/AA7D 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:C02F X:0004 Y:000D P:envmxdizc	// Call ForEachCharacterInTeamName
+$9D/AA81 80 D1       BRA $D1    [$AA54]      A:C55E X:0002 Y:000A P:envmxdizc
+
+// Function: ForEachCharacterInTeamName()
+$9E/C7BE DA          PHX                     A:C554 X:0002 Y:0004 P:eNvmxdizc
+$9E/C7BF A0 02 00    LDY #$0002              A:C554 X:0002 Y:0004 P:eNvmxdizc
+$9E/C7C2 AD 11 0D    LDA $0D11  [$9F:0D11]   A:C554 X:0002 Y:0002 P:envmxdizc	// Load the length of the name I guess
+$9E/C7C5 0A          ASL A                   A:0010 X:0002 Y:0002 P:envmxdizc
+$9E/C7C6 0A          ASL A                   A:0020 X:0002 Y:0002 P:envmxdizc
+$9E/C7C7 0A          ASL A                   A:0040 X:0002 Y:0002 P:envmxdizc
+$9E/C7C8 0A          ASL A                   A:0080 X:0002 Y:0002 P:envmxdizc
+$9E/C7C9 0A          ASL A                   A:0100 X:0002 Y:0002 P:envmxdizc
+$9E/C7CA 6D 0F 0D    ADC $0D0F  [$9F:0D0F]   A:0200 X:0002 Y:0002 P:envmxdizc
+$9E/C7CD 0A          ASL A                   A:0211 X:0002 Y:0002 P:envmxdizc
+$9E/C7CE 6D D9 0C    ADC $0CD9  [$9F:0CD9]   A:0422 X:0002 Y:0002 P:envmxdizc
+$9E/C7D1 AA          TAX                     A:0422 X:0002 Y:0002 P:envmxdizc
+$9E/C7D2 AF B6 35 7E LDA $7E35B6[$7E:35B6]   A:0422 X:0422 Y:0002 P:envmxdizc
+$9E/C7D6 6F A8 35 7E ADC $7E35A8[$7E:35A8]   A:0201 X:0422 Y:0002 P:envmxdizc
+$9E/C7DA 0D 0D 0D    ORA $0D0D  [$9F:0D0D]   A:0101 X:0422 Y:0002 P:envmxdizC
+$9E/C7DD 85 14       STA $14    [$00:0014]   A:2101 X:0422 Y:0002 P:envmxdizC
+
+ForEachCharacterInTeamName:
+$9E/C7DF 98          TYA                     A:0212 X:0426 Y:0004 P:envmxdizc
+$9E/C7E0 C7 8D       CMP [$8D]  [$9C:C554]   A:0004 X:0426 Y:0004 P:envmxdizc
+$9E/C7E2 D0 03       BNE $03    [$C7E7]      A:0004 X:0426 Y:0004 P:eNvmxdizc // Skips over the below when not done
+
+ForEachCharacterInTeamName_WhenDone:
+$9E/C7E4 4C 81 C8    JMP $C881  [$9E:C881]   A:000A X:0432 Y:000A P:envmxdiZC	// goto ForEachCharacterInTeamName_Done
+
+ForEachCharacterInTeamName_NotDone:
+$9E/C7E7 B7 8D       LDA [$8D],y[$9C:C558]   A:0004 X:0426 Y:0004 P:eNvmxdizc
+$9E/C7E9 89 80 00    BIT #$0080              A:746E X:0426 Y:0004 P:envmxdizc
+$9E/C7EC D0 39       BNE $39    [$C827]      A:746E X:0426 Y:0004 P:envmxdiZc
+$9E/C7EE 29 FF 00    AND #$00FF              A:746E X:0426 Y:0004 P:envmxdiZc
+$9E/C7F1 C9 40 00    CMP #$0040              A:006E X:0426 Y:0004 P:envmxdizc
+$9E/C7F4 D0 03       BNE $03    [$C7F9]      A:006E X:0426 Y:0004 P:envmxdizC
+$9E/C7F9 DA          PHX                     A:006E X:0426 Y:0004 P:envmxdizC
+$9E/C7FA 0A          ASL A                   A:006E X:0426 Y:0004 P:envmxdizC
+$9E/C7FB AA          TAX                     A:00DC X:0426 Y:0004 P:envmxdizc
+$9E/C7FC BF B6 CD 9A LDA $9ACDB6,x[$9A:CE92] A:00DC X:00DC Y:0004 P:envmxdizc
+$9E/C800 65 14       ADC $14    [$00:0014]   A:005A X:00DC Y:0004 P:envmxdizc
+$9E/C802 FA          PLX                     A:395B X:00DC Y:0004 P:envmxdizc
+$9E/C803 DF F4 37 7E CMP $7E37F4,x[$7E:3C1A] A:395B X:0426 Y:0004 P:envmxdizc
+$9E/C807 F0 16       BEQ $16    [$C81F]      A:395B X:0426 Y:0004 P:envmxdizC
+$9E/C809 9F F4 37 7E STA $7E37F4,x[$7E:3C1A] A:395B X:0426 Y:0004 P:envmxdizC
+$9E/C80D 8A          TXA                     A:395B X:0426 Y:0004 P:envmxdizC
+$9E/C80E 4A          LSR A                   A:0426 X:0426 Y:0004 P:envmxdizC
+$9E/C80F CD D5 0C    CMP $0CD5  [$9F:0CD5]   A:0213 X:0426 Y:0004 P:envmxdizc
+$9E/C812 B0 03       BCS $03    [$C817]      A:0213 X:0426 Y:0004 P:envmxdizC
+
+$9E/C817 CD D7 0C    CMP $0CD7  [$9F:0CD7]   A:0213 X:0426 Y:0004 P:envmxdizC
+$9E/C81A 90 03       BCC $03    [$C81F]      A:0213 X:0426 Y:0004 P:eNvmxdizc
+$9E/C81F EE 0F 0D    INC $0D0F  [$9F:0D0F]   A:0213 X:0426 Y:0004 P:eNvmxdizc
+$9E/C822 E8          INX                     A:0213 X:0426 Y:0004 P:envmxdizc
+$9E/C823 E8          INX                     A:0213 X:0427 Y:0004 P:envmxdizc
+$9E/C824 C8          INY                     A:0213 X:0428 Y:0004 P:envmxdizc
+$9E/C825 80 B8       BRA $B8    [$C7DF]      A:0213 X:0428 Y:0005 P:envmxdizc // Loop ForEachCharacterInTeamName, e.g., 'M' then 'o' in Montreal
+
+ForEachCharacterInTeamName_Done:
+$9E/C881 18          CLC                     A:000A X:0432 Y:000A P:envmxdiZC
+$9E/C882 65 8D       ADC $8D    [$00:008D]   A:000A X:0432 Y:000A P:envmxdiZc
+$9E/C884 85 8D       STA $8D    [$00:008D]   A:C55E X:0432 Y:000A P:eNvmxdizc
+$9E/C886 FA          PLX                     A:C55E X:0432 Y:000A P:eNvmxdizc
+$9E/C887 6B          RTL                     A:C55E X:0002 Y:000A P:envmxdizc
+
+
