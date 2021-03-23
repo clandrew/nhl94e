@@ -25,7 +25,7 @@ BF 00 D0 A8          LDA 0xA8D000,x
 // $A0/8131
 //PlayerIndexIncrement:
 A5 A5                LDA $A5 ; Sets Z
-F0 0C				 BEQ __ ; goto DonePlayerIndex
+F0 0C                BEQ __ ; goto DonePlayerIndex
 
 E6 89                INC $89
 E6 89                INC $89
