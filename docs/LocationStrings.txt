@@ -6,9 +6,15 @@
 // Postcondition: address of that team's location string is stored at $8D
 // 		Don't worry if the string data is mixed-case. There's a routine that converts the result to upper case.
 $9B/C5AB C9 0D 00    CMP #$000D              A:000B X:0002 Y:0002 P:envmxdizC	// Check if team is NYIslanders
-$9B/C5AE F0 20       BEQ $20    [$C5D0]      A:000B X:0002 Y:0002 P:eNvmxdizc
-$9B/C5B0 C9 0E 00    CMP #$000E              A:000B X:0002 Y:0002 P:eNvmxdizc	// Check if team is NYRangers. I think these 2 teams may be special cased because they share a location (New York)
-$9B/C5B3 F0 27       BEQ $27    [$C5DC]      A:000B X:0002 Y:0002 P:eNvmxdizc
+$9B/C5AE F0 20       BEQ $20    [$C5D0]      A:000B X:0002 Y:0002 P:eNvmxdizc	// If so, goto LoadStringLocation_TeamIsNYIslanders
+
+$9B/C5B0 C9 0E 00    CMP #$000E              A:000B X:0002 Y:0002 P:eNvmxdizc	// Check if team is NYRangers. 
+
+										// Normally besides "Home" and "Visitor" it just shows a location like "Anaheim" or "Edmonton"
+										// however it wouldn't help to do that for these 2 teams because it would just show "New York" for both of them.
+										// So for these teams there's special logic to display the full name, either "NY Islanders" or "NY Rangers"
+										
+$9B/C5B3 F0 27       BEQ $27    [$C5DC]      A:000B X:0002 Y:0002 P:eNvmxdizc	// If so, goto LoadStringLocation_TeamIsNYRangers
 $9B/C5B5 0A          ASL A                   A:000B X:0002 Y:0002 P:eNvmxdizc
 $9B/C5B6 0A          ASL A                   A:0016 X:0002 Y:0002 P:envmxdizc
 $9B/C5B7 A8          TAY                     A:002C X:0002 Y:0002 P:envmxdizc	// Store teamIndex*4 in Y so that it can be used as an array index later.
@@ -34,9 +40,27 @@ $9B/C5CA 77 8D       ADC [$8D],y[$9C:C2DF]   A:C2DB X:0002 Y:0004 P:envmxdizc	//
 										// It's low endian as usual.
 										
 $9B/C5CC 85 8D       STA $8D    [$00:008D]   A:C554 X:0002 Y:0004 P:eNvmxdizc	// 9CC554 is the start of the location string. (with its length prefix)
-$9B/C5CE 80 16       BRA $16    [$C5E6]      A:C554 X:0002 Y:0004 P:eNvmxdizc
-// ...
+
+$9B/C5CE 80 16       BRA $16    [$C5E6]      A:C554 X:0002 Y:0004 P:eNvmxdizc	// goto LoadStringLocation_Done
+
+LoadStringLocation_TeamIsNYIslanders:
+$9B/C5D0 A9 9B 00    LDA #$009B              A:000D X:0002 Y:0002 P:envmxdiZC
+$9B/C5D3 85 8F       STA $8F    [$00:008F]   A:009B X:0002 Y:0002 P:envmxdizC
+$9B/C5D5 A9 E7 C5    LDA #$C5E7              A:009B X:0002 Y:0002 P:envmxdizC	// There is literally a hardcoded "NY Islanders" and "NY Rangers" copies of strings here, living outside the team data strings. lol ok.
+$9B/C5D8 85 8D       STA $8D    [$00:008D]   A:C5E7 X:0002 Y:0002 P:eNvmxdizC
+$9B/C5DA 80 0A       BRA $0A    [$C5E6]      A:C5E7 X:0002 Y:0002 P:eNvmxdizC	// goto LoadStringLocation_Done
+
+LoadStringLocation_TeamIsNYRangers:
+$9B/C5DC A9 9B 00    LDA #$009B              A:000E X:0004 Y:0004 P:envmxdiZC	// Hard-coded thingy
+$9B/C5DF 85 8F       STA $8F    [$00:008F]   A:009B X:0004 Y:0004 P:envmxdizC
+$9B/C5E1 A9 F5 C5    LDA #$C5F5              A:009B X:0004 Y:0004 P:envmxdizC
+$9B/C5E4 85 8D       STA $8D    [$00:008D]   A:C5F5 X:0004 Y:0004 P:eNvmxdizC	// fall thru
+
+LoadStringLocation_Done:
 $9B/C5E6 6B          RTL                     A:C554 X:0002 Y:0004 P:eNvmxdizc
+
+// Patching strategy
+// Just store an array of string addresses, and patch this function to look up into the array of addresses. It might even be an optimization.
 
 
 // Caller of ForEachCharacterInTeamName
@@ -95,7 +119,7 @@ $9E/C7F4 D0 03       BNE $03    [$C7F9]      A:006E X:0426 Y:0004 P:envmxdizC
 $9E/C7F9 DA          PHX                     A:006E X:0426 Y:0004 P:envmxdizC
 $9E/C7FA 0A          ASL A                   A:006E X:0426 Y:0004 P:envmxdizC
 $9E/C7FB AA          TAX                     A:00DC X:0426 Y:0004 P:envmxdizc
-$9E/C7FC BF B6 CD 9A LDA $9ACDB6,x[$9A:CE92] A:00DC X:00DC Y:0004 P:envmxdizc	// Convert to uppercase. Loads the uppercase letter for the corresponding lowercase letter
+$9E/C7FC BF B6 CD 9A LDA $9ACDB6,x[$9A:CE92] A:00DC X:00DC Y:0004 P:envmxdizc	// Convert to uppercase? Probably not but that's what it looks like
 $9E/C800 65 14       ADC $14    [$00:0014]   A:005A X:00DC Y:0004 P:envmxdizc
 $9E/C802 FA          PLX                     A:395B X:00DC Y:0004 P:envmxdizc
 $9E/C803 DF F4 37 7E CMP $7E37F4,x[$7E:3C1A] A:395B X:0426 Y:0004 P:envmxdizc
@@ -128,5 +152,31 @@ $9E/C886 FA          PLX                     A:C55E X:0432 Y:000A P:eNvmxdizc
 $9E/C887 6B          RTL                     A:C55E X:0002 Y:000A P:envmxdizc
 
 
-"Montreal" is stored at 9CC556.
-The actual read for 9CC556 is at
+    Anaheim = 0x0,	9CED2C
+    Boston = 0x1,	9CAE0E
+    Buffalo = 0x2,	9CB096
+    Calgary = 0x3,	9CB316
+    Chicago = 0x4,	9CB5AC
+    Dallas = 0x5,	9CC2B9
+    Detroit = 0x6,	9CB873
+    Edmonton = 0x7,	F1 BA 9C
+    Florida = 0x8,	2A EB 9C
+    Hartford = 0x9,	83 BD 9C
+    LAKings = 0xA,	22 C0 9C
+    Montreal = 0xB,	54 C5 9C
+    NewJersey = 0xC,	00 C8 9C
+    NYIslanders = 0xD,	E7 C5 9B
+    NYRangers = 0xE,	F5 C5 9B
+    Ottawa = 0xF,	80 CF 9C
+    Philly = 0x10,	12 D2 9C
+    Pittsburgh = 0x11,	AA D4 9C
+    Quebec = 0x12,	35 D7 9C
+    SanJose = 0x13,	AE D9 9C
+    StLouis = 0x14,	22 DC 9C
+    TampaBay = 0x15,	B7 DE 9C
+    Toronto = 0x16,	4F E1 9C
+    Vancouver = 0x17,	DA E3 9C
+    Washington = 0x18,	22 E9 9C
+    Winnepeg = 0x19,	88 E6 9C
+    AllStarsEast = 0x1A,	D6 A8 9C
+    AllStarsWest = 0x1B		7E AB 9C
