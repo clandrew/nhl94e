@@ -10,17 +10,21 @@ $9D/AA7D 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:C02F X:0004 Y:000D P:envmxdizc	//
 $9D/AA81 80 D1       BRA $D1    [$AA54]      A:C55E X:0002 Y:000A P:envmxdizc
 
 // Function: ForEachCharacterInTeamName()
-$9E/C7BE DA          PHX                     A:C554 X:0002 Y:0004 P:eNvmxdizc
-$9E/C7BF A0 02 00    LDY #$0002              A:C554 X:0002 Y:0004 P:eNvmxdizc
-$9E/C7C2 AD 11 0D    LDA $0D11  [$9F:0D11]   A:C554 X:0002 Y:0002 P:envmxdizc	// Load the length of the name I guess
+$9E/C7BE DA          PHX                     A:C554 X:0002 Y:0004 P:eNvmxdizc	// Back up X, restored on return
+$9E/C7BF A0 02 00    LDY #$0002              A:C554 X:0002 Y:0004 P:eNvmxdizc	// Y used later i guess
+
+$9E/C7C2 AD 11 0D    LDA $0D11  [$9F:0D11]   A:C554 X:0002 Y:0002 P:envmxdizc	// Load something- 0, 0, E, E, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18, 1A, 1A
+										// This is $7E/0D11 in RAM.
+										// The lower $2000 of $9F is just a shadow of $7E.
 $9E/C7C5 0A          ASL A                   A:0010 X:0002 Y:0002 P:envmxdizc
 $9E/C7C6 0A          ASL A                   A:0020 X:0002 Y:0002 P:envmxdizc
 $9E/C7C7 0A          ASL A                   A:0040 X:0002 Y:0002 P:envmxdizc
 $9E/C7C8 0A          ASL A                   A:0080 X:0002 Y:0002 P:envmxdizc
-$9E/C7C9 0A          ASL A                   A:0100 X:0002 Y:0002 P:envmxdizc
-$9E/C7CA 6D 0F 0D    ADC $0D0F  [$9F:0D0F]   A:0200 X:0002 Y:0002 P:envmxdizc
-$9E/C7CD 0A          ASL A                   A:0211 X:0002 Y:0002 P:envmxdizc
-$9E/C7CE 6D D9 0C    ADC $0CD9  [$9F:0CD9]   A:0422 X:0002 Y:0002 P:envmxdizc
+$9E/C7C9 0A          ASL A                   A:0100 X:0002 Y:0002 P:envmxdizc	// Multiply by 32 = 0x20
+
+$9E/C7CA 6D 0F 0D    ADC $0D0F  [$9F:0D0F]   A:0200 X:0002 Y:0002 P:envmxdizc	// Add - 0, 0, 03, 11, 03, 11, 03, 11, 03, 11, 03, 11, 03, 11, 03, 11
+$9E/C7CD 0A          ASL A                   A:0211 X:0002 Y:0002 P:envmxdizc	// Multiply by 2
+$9E/C7CE 6D D9 0C    ADC $0CD9  [$9F:0CD9]   A:0422 X:0002 Y:0002 P:envmxdizc	// Add - 
 $9E/C7D1 AA          TAX                     A:0422 X:0002 Y:0002 P:envmxdizc
 $9E/C7D2 AF B6 35 7E LDA $7E35B6[$7E:35B6]   A:0422 X:0422 Y:0002 P:envmxdizc
 $9E/C7D6 6F A8 35 7E ADC $7E35A8[$7E:35A8]   A:0201 X:0422 Y:0002 P:envmxdizc
@@ -63,6 +67,10 @@ $9E/C822 E8          INX                     A:0213 X:0426 Y:0004 P:envmxdizc
 $9E/C823 E8          INX                     A:0213 X:0427 Y:0004 P:envmxdizc
 $9E/C824 C8          INY                     A:0213 X:0428 Y:0004 P:envmxdizc
 $9E/C825 80 B8       BRA $B8    [$C7DF]      A:0213 X:0428 Y:0005 P:envmxdizc // Loop ForEachCharacterInTeamName, e.g., 'M' then 'o' in Montreal
+
+...
+$9E/C87A 8D 11 0D    STA $0D11  [$9F:0D11]   A:0000 X:0002 Y:0004 P:envmxdiZc // 
+...
 
 ForEachCharacterInTeamName_Done:
 $9E/C881 18          CLC                     A:000A X:0432 Y:000A P:envmxdiZC
