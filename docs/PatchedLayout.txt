@@ -22,7 +22,7 @@
 // (as needed)_|
 //
 // 0xA08200____
-//             |____Detoured LocationStrings
+//             |____LocationStrings table and string data
 //             |       
 // (as needed)_|
 //

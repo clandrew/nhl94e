@@ -156,7 +156,7 @@ struct TeamData
     int SourceDataROMAddress;
     int DestDataROMAddress;
     std::vector<unsigned char> Header;
-    std::string TeamCity;
+    ModifiableStat<std::string> TeamCity;
     std::string Acronym;
     std::string TeamName;
     std::string Venue;

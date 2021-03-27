@@ -172,9 +172,9 @@ namespace nhl94e
 			// 
 			this->locationTextBox->Location = System::Drawing::Point(73, 41);
 			this->locationTextBox->Name = L"locationTextBox";
-			this->locationTextBox->ReadOnly = true;
 			this->locationTextBox->Size = System::Drawing::Size(119, 20);
 			this->locationTextBox->TabIndex = 6;
+			this->locationTextBox->TextChanged += gcnew System::EventHandler(this, &Form1::locationTextBox_TextChanged);
 			// 
 			// label5
 			// 
@@ -272,5 +272,7 @@ namespace nhl94e
 		System::Void openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e);
 		void OpenROM(std::wstring romFilename);
 		void OnSelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+	private: 
+		System::Void locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 };
 }

@@ -318,7 +318,7 @@ TeamData GetTeamData(int playerDataAddress)
         result.Players.push_back(p);
     }
 
-    result.TeamCity = iter.LoadROMString();
+    result.TeamCity.Initialize(iter.LoadROMString());
     result.Acronym = iter.LoadROMString();
     result.TeamName = iter.LoadROMString();
     result.Venue = iter.LoadROMString();
@@ -814,20 +814,27 @@ bool InsertDetour(
     return true;
 }
 
-struct TeamRename
-{
-    Team WhichTeam;
-    std::string NewName;
-};
-
 bool InsertTeamLocationText()
 {
-    std::vector<TeamRename> renames;
+    struct TeamRename
+    {
+        Team WhichTeam;
+        std::string OriginalName;
+        std::string NewName;
+    };
 
-    //TeamRename r;
-    //r.WhichTeam = Team::Montreal;
-    //r.NewName = "Minnesota";
-    //renames.push_back(r);
+    std::vector<TeamRename> renames;
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    {
+        TeamData const& teamData = s_allTeams[teamIndex];
+        if (teamData.TeamCity.IsChanged())
+        {
+            TeamRename r;
+            r.WhichTeam = (Team)teamIndex;
+            r.NewName = teamData.TeamCity.Get();
+            renames.push_back(r);
+        }
+    }
 
     if (renames.size() == 0)
         return true; // Nothing to do
@@ -922,6 +929,8 @@ bool InsertTeamLocationText()
             }
         }
     }
+
+    return true;
 }
 
 
@@ -1335,8 +1344,15 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
     int teamIndex = this->tabControl1->SelectedIndex;    
 
     // Refresh what's in the team data pane
-    locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity);
+    locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity.Get());
     acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym);
     teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName);
     teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue);
+}
+
+void nhl94e::Form1::locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    std::string newName = ManagedToNarrowASCIIString(locationTextBox->Text);
+    s_allTeams[teamIndex].TeamCity.Set(newName);
 }
