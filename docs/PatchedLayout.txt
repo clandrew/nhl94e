@@ -1,0 +1,42 @@
+
+///////////////////////////////////////////////////////////
+//          Patched layout
+///////////////////////////////////////////////////////////
+//
+// 000000   ___     
+//             |
+//             |___ ROM data           
+//             |     (don't move this)
+// 0xA08000 ___|    
+//
+// 0xA08000____
+//             |
+//             |____Detoured DecompressProfileMain
+//             |       Custom stuff starting at A0806B
+// 0xA08100____|
+//
+// 0xA08100____
+//             |
+//             |____Detoured LookupPlayerNameDet
+//             |       
+// (as needed)_|
+//
+// 0xA08200____
+//             |____Detoured LocationStrings
+//             |       
+// (as needed)_|
+//
+// 0xA08700____   
+//             |___ PlayerGraphicsArray      
+// 0xA08768 ___|  
+//
+// 0xA08800____  
+//             |
+//             |___ Player graphics    
+//             | 
+// 0xA8C800____|
+// 
+// 0xA8D000____
+//             |___ Player-name-and-number pointer table. data stream of undetermined size at the bottom
+//             |    
+// 0xA8DA34____|

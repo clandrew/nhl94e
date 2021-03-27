@@ -814,6 +814,117 @@ bool InsertDetour(
     return true;
 }
 
+struct TeamRename
+{
+    Team WhichTeam;
+    std::string NewName;
+};
+
+bool InsertTeamLocationText()
+{
+    std::vector<TeamRename> renames;
+
+    //TeamRename r;
+    //r.WhichTeam = Team::Montreal;
+    //r.NewName = "Minnesota";
+    //renames.push_back(r);
+
+    if (renames.size() == 0)
+        return true; // Nothing to do
+
+    // Need to do code patching
+    std::vector<int> stringAddresses;
+    {
+        int addresses[] = {
+            /*Anaheim = 0x0*/	0x9CED2C,
+            /*Boston = 0x1*/	0x9CAE0E,
+            /*Buffalo = 0x2*/	0x9CB096,
+            /*Calgary = 0x3*/	0x9CB316,
+            /*Chicago = 0x4*/	0x9CB5AC,
+            /*Dallas = 0x5*/	0x9CC2B9,
+            /*Detroit = 0x6*/	0x9CB873,
+            /*Edmonton = 0x7*/	0x9CBAF1,
+            /*Florida = 0x8*/	0x9CEB2A,
+            /*Hartford = 0x9*/	0x9CBD83,
+            /*LAKings = 0xA*/	0x9CC022,
+            /*Montreal = 0xB*/	0x9CC554,
+            /*NewJersey = 0xC*/	0x9CC800,
+            /*NYIslanders = 0xD*/	0x9BC5E7,
+            /*NYRangers = 0xE*/	0x9BC5F5,
+            /*Ottawa = 0xF*/	0x9CCF80,
+            /*Philly = 0x10*/	0x9CD212,
+            /*Pittsburgh = 0x11*/	0x9CD4AA,
+            /*Quebec = 0x12*/	0x9CD735,
+            /*SanJose = 0x13*/	0x9CD9AE,
+            /*StLouis = 0x14*/	0x9CDC22,
+            /*TampaBay = 0x15*/	0x9CDEB7,
+            /*Toronto = 0x16*/	0x9CE14F,
+            /*Vancouver = 0x17*/	0x9CE3DA,
+            /*Washington = 0x18*/	0x9CE922,
+            /*Winnepeg = 0x19*/	0x9CE688,
+            /*AllStarsEast = 0x1A*/	0x9CA8D6,
+            /*AllStarsWest = 0x1B*/		0x9CAB7E
+        }; // 28 * 4 = 112 bytes
+
+        for (int i = 0; i < 28; ++i)
+        {
+            stringAddresses.push_back(addresses[i]);
+        }
+    }
+
+    int stringPtrTableStart = 0xA08200;
+    int stringAddressTableSize = stringAddresses.size() * 4;
+    int freeSpaceForStrings = stringPtrTableStart + stringAddressTableSize;
+
+    // Put string after the table
+    {
+        RomDataIterator datastreamIter(ROMAddressToFileOffset(freeSpaceForStrings));
+
+        for (int i = 0; i < renames.size(); ++i)
+        {
+            stringAddresses[(int)renames[i].WhichTeam] = datastreamIter.GetROMOffset();
+            datastreamIter.SaveROMString(renames[i].NewName);
+        }
+    }
+
+    // Put table at 0xA08200
+    {
+        assert(stringPtrTableStart == 0xA08200);
+        RomDataIterator datastreamIter(ROMAddressToFileOffset(0xA08200));
+
+        int dstROMAddress = stringPtrTableStart;
+        int dstFileOffset = ROMAddressToFileOffset(dstROMAddress);
+        unsigned char* dstData = &s_romData[dstFileOffset];
+        memcpy(dstData, stringAddresses.data(), stringAddressTableSize);
+    }
+
+    // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
+    {
+        std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
+
+        int dstStartROMAddress = 0x9BC5AB;
+        int dstEndROMAddress = 0x9BC5E6;
+        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
+        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
+
+        int patchIndex = 0;
+
+        for (int fileOffset = dstFileOffsetStart; fileOffset <= dstFileOffsetEnd; ++fileOffset)
+        {
+            if (patchIndex < decompressProfileMain.size())
+            {
+                s_romData[fileOffset] = decompressProfileMain[patchIndex];
+                patchIndex++;
+            }
+            else
+            {
+                s_romData[fileOffset] = 0xEA; // NOP
+            }
+        }
+    }
+}
+
+
 struct PlayerRename
 {
     Team WhichTeam;
@@ -821,7 +932,6 @@ struct PlayerRename
     ModifiableStat<std::string> Name;
     ModifiableStat<int> PlayerNumber;
 };
-
 void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
 {
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
@@ -950,7 +1060,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
 #if _DEBUG
-    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\nhl94em.sfc";
+    dialog->FileName = L"E:\\Emulation\\SNES\\Images\\Test\\nhl94em.sfc";
 #endif
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
@@ -978,6 +1088,12 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
             iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get());
             iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get());
         }
+    }
+
+    if (!InsertTeamLocationText())
+    {
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
+        MessageBox::Show(dialogString);
     }
 
     if (!InsertPlayerNameText())
