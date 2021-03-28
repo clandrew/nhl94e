@@ -915,13 +915,11 @@ std::vector<unsigned char> LoadAsmFromDebuggerText(std::wstring fileName)
 }
 
 bool InsertDetour(
-    wchar_t const* codeToInsert,
+    std::vector<unsigned char> const& decompressProfileMain,
     int detourSrcStartROMAddress,
     int detourSrcEndROMAddress,
     int detourDestROMAddress)
 {
-    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(codeToInsert);
-
     if (decompressProfileMain.size() == 0)
         return false;
 
@@ -960,6 +958,77 @@ bool InsertDetour(
     s_romData.SetROMData(fileOffsetSrcStart + 3, detourB0);
 
     return true;
+}
+
+void PatchLoadFromLongAddress_LookupPlayerNameDet(std::vector<unsigned char>& code, int expectedAddress)
+{
+    // Operates on this kind of sequence
+    /*
+    AA                   TAX
+    BF 00 D0 A8          LDA 0xA8D000,x
+    85 89                STA $89
+    E8                   INX
+    E8                   INX
+    BF 00 D0 A8          LDA 0xA8D000,x
+    85 8B                STA $8B
+    */
+
+    int sequenceFound = 0;
+    for (int i = 0; i < code.size() - 15; ++i)
+    {
+        if (code[i + 0] == 0xAA &&
+            code[i + 1] == 0xBF &&
+            code[i + 5] == 0x85 && code[i + 6] == 0x89 &&
+            code[i + 7] == 0xE8 &&
+            code[i + 8] == 0xE8 &&
+            code[i + 9] == 0xBF &&
+            code[i + 13] == 0x85 && code[i + 14] == 0x8B)
+        {
+            int address0 =
+                code[i + 4] << 16 |
+                code[i + 3] << 8 |
+                code[i + 2] << 0;
+
+            if (address0 != expectedAddress)
+            {
+                int temp = expectedAddress;
+                code[i + 2] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 3] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 4] = temp & 0xFF;
+                temp >>= 8;
+
+                int newAddress =
+                    code[i + 4] << 16 |
+                    code[i + 3] << 8 |
+                    code[i + 2] << 0;
+                assert(newAddress == expectedAddress);
+            }
+
+            int address1 =
+                code[i + 12] << 16 |
+                code[i + 11] << 8 |
+                code[i + 10] << 0;
+
+            if (address1 != expectedAddress)
+            {
+                int temp = expectedAddress;
+                code[i + 10] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 11] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 12] = temp & 0xFF;
+                temp >>= 8;
+
+                int newAddress =
+                    code[i + 12] << 16 |
+                    code[i + 11] << 8 |
+                    code[i + 10] << 0;
+                assert(newAddress == expectedAddress);
+            }
+        }
+    }
 }
 
 void PatchLoadLongAddressIn8D_Code(std::vector<unsigned char>& code, int expectedAddress)
@@ -1124,68 +1193,7 @@ bool InsertTeamAcronymText()
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    // Need to do code patching
-    std::vector<int> stringAddresses;
-    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
-    {
-        TeamData const& teamData = s_allTeams[teamIndex];
-        stringAddresses.push_back(teamData.Acronym.SourceROMAddress);
-    }
-
-    int stringPtrTableStart = 0xA08200;
-    int stringAddressTableSize = stringAddresses.size() * 4;
-    int freeSpaceForStrings = stringPtrTableStart + stringAddressTableSize;
-
-    // Put string after the table
-    {
-        RomDataIterator datastreamIter(ROMAddressToFileOffset(freeSpaceForStrings));
-
-        for (int i = 0; i < renames.size(); ++i)
-        {
-            stringAddresses[(int)renames[i].WhichTeam] = datastreamIter.GetROMOffset();
-            datastreamIter.SaveROMString(renames[i].NewAcronym);
-        }
-    }
-
-    // Put table at 0xA08200
-    {
-        assert(stringPtrTableStart == 0xA08200);
-        RomDataIterator datastreamIter(ROMAddressToFileOffset(0xA08200));
-
-        int dstROMAddress = stringPtrTableStart;
-        int dstFileOffset = ROMAddressToFileOffset(dstROMAddress);
-
-        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
-        for (int i = 0; i < stringAddressTableSize; ++i)
-        {
-            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
-        }
-    }
-
-    // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
-    {
-        std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
-
-        int dstStartROMAddress = 0x9BC5AB;
-        int dstEndROMAddress = 0x9BC5E6;
-        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
-        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
-
-        int patchIndex = 0;
-
-        for (int fileOffset = dstFileOffsetStart; fileOffset <= dstFileOffsetEnd; ++fileOffset)
-        {
-            if (patchIndex < decompressProfileMain.size())
-            {
-                s_romData.SetROMData(fileOffset, decompressProfileMain[patchIndex]);
-                patchIndex++;
-            }
-            else
-            {
-                s_romData.SetROMData(fileOffset, 0xEA); // NOP
-            }
-        }
-    }
+    // TODO: change
 
     return true;
 }
@@ -1287,7 +1295,7 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
     }
 }
 
-bool InsertPlayerNameText()
+bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
 {
     std::vector<PlayerRename> renames;
 
@@ -1312,7 +1320,13 @@ bool InsertPlayerNameText()
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    bool detourPatched = InsertDetour(L"LookupPlayerNameDet.asm", 0x9FC732, 0x9FC756, 0xA08100);
+    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupPlayerNameDet.asm");
+    if (decompressProfileMain.size() == 0)
+        return false;
+
+    PatchLoadFromLongAddress_LookupPlayerNameDet(decompressProfileMain, 0xA8D000);
+
+    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, 0xA08100);
     if (!detourPatched)
         return detourPatched;
 
@@ -1361,19 +1375,19 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
         MessageBox::Show(dialogString);
+        return;
     }
 
-    if (!InsertPlayerNameText())
+    if (!InsertPlayerNameText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
         MessageBox::Show(dialogString);
+        return;
     }
-    else
-    {
-        s_romData.SaveBytesToFile(outputFilename.c_str());
 
-        MessageBox::Show(L"Output file saved.", L"Info");
-    }
+    s_romData.SaveBytesToFile(outputFilename.c_str());
+
+    MessageBox::Show(L"Output file saved.", L"Info");
 }
 
 bool IsValidPlayerName(System::String^ name)
