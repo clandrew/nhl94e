@@ -10,7 +10,6 @@ static std::vector<TeamData> s_allTeams;
 class RomData
 {
     std::vector<unsigned char> m_data;
-    std::vector<bool> m_writeabilityMask;
 
 public:
     unsigned char Get(int index) const
@@ -71,34 +70,6 @@ public:
         }
     }
 
-    void InitializeWriteabilityMask()
-    {
-        // Called when you don't plan on resizing the rom data anymore.
-        // Sets up a mask that allows us to debug break if you accidentally try to write the same place twice.
-        // Or, if you try to overwrite ROM code by accident.
-
-        // This mask doesn't prevent us from being able to over-write ROM code at all.
-        // There are certain times we legitimately want to change ROM code.
-        // Rather, this is to prevent changing ROM code accidentally, outside of intended, well-defined reasons.
-
-        // If you need to change ROM code, use SetROMData.
-
-        m_writeabilityMask.resize(m_data.size());
-
-        for (size_t i = 0; i < m_writeabilityMask.size(); ++i)
-        {
-            if (i >= 0 && i < 0xA08000)
-            {
-                m_writeabilityMask[i] = false; // ROM data. For the most part, we don't over-write this
-            }
-            else
-            {
-                // Everywhere else can be written once.
-                m_writeabilityMask[i] = true;
-            }
-        }
-    }
-
     void SetROMData(int index, unsigned char data)
     {
         assert(index < 0xA08000);
@@ -108,7 +79,6 @@ public:
     void Set(int index, unsigned char data)
     {
         m_data[index] = data;
-        m_writeabilityMask[index] = false;
     }
 
     void SaveBytesToFile(const wchar_t* fileName)
@@ -231,33 +201,6 @@ public:
         m_fileOffset += headerLength;
     }
 
-    StringWithSourceROMAddress LoadROMStringWithSourceROMAddress()
-    {
-        StringWithSourceROMAddress result{};
-
-        result.SourceROMAddress = GetROMOffset();
-
-        unsigned char stringLength0 = s_romData.Get(m_fileOffset + 0);
-        unsigned char stringLength1 = s_romData.Get(m_fileOffset + 1);
-        m_fileOffset += 2;
-
-        // Special sentinel values are used to denote empty string
-        if (stringLength0 == 0x02 && stringLength1 == 0x0)
-            return result;
-
-        int stringLengthPlusLengthWord = (stringLength1 << 8) | (stringLength0);
-        assert(stringLengthPlusLengthWord > 2);
-        int stringLength = stringLengthPlusLengthWord - 2;
-
-        for (int i = 0; i < stringLength; ++i)
-        {
-            result.Str.push_back(s_romData.Get(m_fileOffset + i));
-        }
-        m_fileOffset += stringLength;
-
-        return result;
-    }
-
     std::string LoadROMString()
     {
         unsigned char stringLength0 = s_romData.Get(m_fileOffset + 0);
@@ -286,6 +229,9 @@ public:
     {
         int strLength = static_cast<int>(str.size());
         int strLengthPlusLengthWord = strLength + 2;
+
+        EnsureSpaceInBank(strLengthPlusLengthWord);
+
         unsigned char strLengthPlusLengthWord0 = strLengthPlusLengthWord & 0xFF;
         unsigned char strLengthPlusLengthWord1 = (strLengthPlusLengthWord >> 8) & 0xFF;
 
@@ -409,9 +355,22 @@ public:
 
     void SaveByte(int b)
     {
-        assert(b > 0 && b < 256);
+        assert(b >= 0 && b < 256);
         s_romData.Set(m_fileOffset, b);
         ++m_fileOffset;
+    }
+
+    void EnsureSpaceInBank(int bytes)
+    {
+        assert(bytes <= 0xFFFF); // Can't allocate that much
+
+        int thisBank = FileOffsetToROMAddress(m_fileOffset) >> 16;
+        int thatBank = FileOffsetToROMAddress(m_fileOffset + bytes) >> 16;
+        if (thisBank != thatBank)
+        {
+            int nextAddr = thatBank << 16;
+            m_fileOffset = ROMAddressToFileOffset(nextAddr);
+        }
     }
 };
 
@@ -795,8 +754,6 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     if (!s_romData.EnsureExpandedSize())
         return;
 
-    s_romData.InitializeWriteabilityMask();
-
     s_allTeams = LoadPlayerNamesAndStats();
 
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
@@ -1118,6 +1075,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
     int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
     int stringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->EnsureSpaceInBank(stringAddressTableSize);
     freeSpaceIter->SkipBytes(stringAddressTableSize);
 
     // Write the renamed strings
@@ -1207,7 +1165,7 @@ struct PlayerRename
     ModifiableStat<std::string> Name;
     ModifiableStat<int> PlayerNumber;
 };
-void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, RomDataIterator* freeSpaceIter)
+bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, RomDataIterator* freeSpaceIter)
 {
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
@@ -1244,30 +1202,41 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
 
     // First, plan out where each of the tables will be so that things are nice and compact.
 
-    const int firstTableLocation = 0xA8D000;
-    int firstPointerTableSize = static_cast<int>(allTeams.size()) * 4;
+    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupPlayerNameDet.asm");
+    if (decompressProfileMain.size() == 0)
+        return false;
 
-    const int secondTableLocation = 0xA8D070;
-    assert(secondTableLocation == firstTableLocation + firstPointerTableSize);
+    int codeSize = decompressProfileMain.size();
+    freeSpaceIter->EnsureSpaceInBank(codeSize);
+    const int codeROMLocation = freeSpaceIter->GetROMOffset();
+    freeSpaceIter->SkipBytes(codeSize);
+
+    int firstPointerTableSize = static_cast<int>(allTeams.size()) * 4;
+    freeSpaceIter->EnsureSpaceInBank(firstPointerTableSize);
+    const int firstTableLocation = freeSpaceIter->GetROMOffset();
+    freeSpaceIter->SkipBytes(firstPointerTableSize);
+
     const int totalPlayerCount = 653;
     const int secondTableTotalSizes = totalPlayerCount * 4;
+    freeSpaceIter->EnsureSpaceInBank(secondTableTotalSizes);
+    const int secondTableLocation = freeSpaceIter->GetROMOffset();
+    freeSpaceIter->SkipBytes(secondTableTotalSizes);
 
-    const int datastreamLocation = 0xa8daa4;
-    assert(datastreamLocation == secondTableLocation + secondTableTotalSizes);
 
     // Write the datastream
     {
-        RomDataIterator datastreamIter(ROMAddressToFileOffset(datastreamLocation));
         for (int i = 0; i < renames.size(); ++i)
         {
             // Look up the person being renamed
             TeamData* team = &allTeams[(int)renames[i].WhichTeam];
             PlayerData* playerData = &team->Players[renames[i].PlayerIndex];
 
-            playerData->ReplacedROMAddressForRename = datastreamIter.GetROMOffset();
+            // The string itself, its length prefix, and decimal player-number
+            freeSpaceIter->EnsureSpaceInBank(renames[i].Name.Get().size() + 2 + 1);
 
-            datastreamIter.SaveROMString(renames[i].Name.Get());
-            datastreamIter.SaveDecimalNumber(renames[i].PlayerNumber.Get(), false);
+            playerData->ReplacedROMAddressForRename = freeSpaceIter->GetROMOffset();
+            freeSpaceIter->SaveROMString(renames[i].Name.Get());
+            freeSpaceIter->SaveDecimalNumber(renames[i].PlayerNumber.Get(), false);
         }
     }
 
@@ -1295,6 +1264,15 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
             }
         }
     }
+
+    RomDataIterator codeIter(ROMAddressToFileOffset(codeROMLocation));
+
+    PatchLoadFromLongAddress_LookupPlayerNameDet(decompressProfileMain, firstTableLocation);
+
+    // Insert the detour code in free space
+    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, &codeIter);
+    if (!detourPatched)
+        return detourPatched;
 }
 
 bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
@@ -1321,17 +1299,6 @@ bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
 
     if (renames.size() == 0)
         return true; // Nothing to do
-
-    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupPlayerNameDet.asm");
-    if (decompressProfileMain.size() == 0)
-        return false;
-
-    PatchLoadFromLongAddress_LookupPlayerNameDet(decompressProfileMain, 0xA8D000);
-
-    // Insert the detour code in free space
-    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, freeSpaceIter);
-    if (!detourPatched)
-        return detourPatched;
 
     AddLookupPlayerNamePointerTables(renames, freeSpaceIter); // The above code depends on these tables.
 
