@@ -32,10 +32,11 @@ struct ModifiableStat
     int SourceROMAddress;
 
 public:
-    void Initialize(T n)
+    void Initialize(int srcAddr, T n)
     {
         OriginalValue = n;
         NewValue = n;
+        SourceROMAddress = srcAddr;
     }
 
     bool IsChanged() const
@@ -151,13 +152,19 @@ struct PlayerData
     }
 };
 
+struct StringWithSourceROMAddress
+{
+    std::string Str;
+    int SourceROMAddress;
+};
+
 struct TeamData
 {
     int SourceDataROMAddress;
     int DestDataROMAddress;
     std::vector<unsigned char> Header;
     ModifiableStat<std::string> TeamCity;
-    std::string Acronym;
+    ModifiableStat<std::string> Acronym;
     std::string TeamName;
     std::string Venue;
     std::vector<PlayerData> Players;

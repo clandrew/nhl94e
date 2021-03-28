@@ -7,10 +7,19 @@
 
 static std::vector<TeamData> s_allTeams;
 
+enum class AllocationPurpose
+{
+    ROM,
+    FreeSpace,
+    PlayerRenamingDetour,
+    PlayerRenamingLookupTable,
+    PlayerRenameStrings
+};
+
 class RomData
 {
     std::vector<unsigned char> m_data;
-    std::vector<bool> m_writeabilityMask;
+    std::vector<AllocationPurpose> m_allocationPurpose; // Coupled to m_data. Says what each byte is for
 
 public:
     unsigned char Get(int index) const
@@ -83,18 +92,17 @@ public:
 
         // If you need to change ROM code, use SetROMData.
 
-        m_writeabilityMask.resize(m_data.size());
+        m_allocationPurpose.resize(m_data.size());
 
-        for (size_t i = 0; i < m_writeabilityMask.size(); ++i)
+        for (size_t i = 0; i < m_allocationPurpose.size(); ++i)
         {
             if (i >= 0 && i < 0xA08000)
             {
-                m_writeabilityMask[i] = false; // ROM data. For the most part, we don't over-write this
+                m_allocationPurpose[i] = AllocationPurpose::ROM; // ROM data. For the most part, we don't over-write this
             }
             else
             {
-                // Everywhere else can be written once.
-                m_writeabilityMask[i] = true;
+                m_allocationPurpose[i] = AllocationPurpose::FreeSpace;
             }
         }
     }
@@ -105,15 +113,14 @@ public:
         m_data[index] = data;
     }
 
-    void Set(int index, unsigned char data)
+    void Set(int index, unsigned char data, AllocationPurpose purpose)
     {
-        if (!m_writeabilityMask[index])
+        if (m_allocationPurpose[index] != purpose)
         {
             __debugbreak();
         }
 
         m_data[index] = data;
-        m_writeabilityMask[index] = false;
     }
 
     void SaveBytesToFile(const wchar_t* fileName)
@@ -212,6 +219,8 @@ public:
         return result;
     }
 
+    // Unused
+    /*
     void SaveHeader(std::vector<unsigned char> const& header)
     {
         int headerLength = static_cast<int>(header.size());
@@ -228,6 +237,33 @@ public:
             s_romData.Set(m_fileOffset + i, header[i]);
         }
         m_fileOffset += headerLength;
+    }*/
+
+    StringWithSourceROMAddress LoadROMStringWithSourceROMAddress()
+    {
+        StringWithSourceROMAddress result{};
+
+        result.SourceROMAddress = GetROMOffset();
+
+        unsigned char stringLength0 = s_romData.Get(m_fileOffset + 0);
+        unsigned char stringLength1 = s_romData.Get(m_fileOffset + 1);
+        m_fileOffset += 2;
+
+        // Special sentinel values are used to denote empty string
+        if (stringLength0 == 0x02 && stringLength1 == 0x0)
+            return result;
+
+        int stringLengthPlusLengthWord = (stringLength1 << 8) | (stringLength0);
+        assert(stringLengthPlusLengthWord > 2);
+        int stringLength = stringLengthPlusLengthWord - 2;
+
+        for (int i = 0; i < stringLength; ++i)
+        {
+            result.Str.push_back(s_romData.Get(m_fileOffset + i));
+        }
+        m_fileOffset += stringLength;
+
+        return result;
     }
 
     std::string LoadROMString()
@@ -397,57 +433,67 @@ TeamData GetTeamData(int playerDataAddress)
         PlayerData p{};
         p.OriginalROMAddress = iter.GetROMOffset();
         p.ReplacedROMAddressForRename = 0;
-        p.Name.Initialize(iter.LoadROMString());
+
+        p.Name.Initialize(iter.GetROMOffset(), iter.LoadROMString());
 
         // Convention: empty name string means we reached the end.
         if (p.Name.Get().length() == 0)
             break;
 
-        p.PlayerNumber.Initialize(iter.LoadDecimalNumber());
+        p.PlayerNumber.Initialize(iter.GetROMOffset(), iter.LoadDecimalNumber());
+
+        int halfByteAddr{};
 
         int weightFactor, agility;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&weightFactor, &agility);
-        p.WeightFactor.Initialize(weightFactor);
-        p.BaseAgility.Initialize(agility);
+        p.WeightFactor.Initialize(halfByteAddr, weightFactor);
+        p.BaseAgility.Initialize(halfByteAddr, agility);
 
         p.WeightInPounds = 140 + (weightFactor * 8);
 
         int speed, offAware;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&speed, &offAware);
-        p.BaseSpeed.Initialize(speed);
-        p.BaseOffAware.Initialize(offAware);
+        p.BaseSpeed.Initialize(halfByteAddr, speed);
+        p.BaseOffAware.Initialize(halfByteAddr, offAware);
 
         int defAware, shotPower;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&defAware, &shotPower);
-        p.BaseDefAware.Initialize(defAware);
-        p.BaseShotPower.Initialize(shotPower);
+        p.BaseDefAware.Initialize(halfByteAddr, defAware);
+        p.BaseShotPower.Initialize(halfByteAddr, shotPower);
 
         int checking, handednessValue;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&checking, &handednessValue);
-        p.BaseChecking.Initialize(checking);
-        p.HandednessValue.Initialize(handednessValue);
+        p.BaseChecking.Initialize(halfByteAddr, checking);
+        p.HandednessValue.Initialize(halfByteAddr, handednessValue);
         p.WhichHandedness = handednessValue % 2 == 0 ? Handedness::Left : Handedness::Right;
 
         int stickHandling, shotAccuracy;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&stickHandling, &shotAccuracy);
-        p.BaseStickHandling.Initialize(stickHandling);
-        p.BaseShotAccuracy.Initialize(shotAccuracy);
+        p.BaseStickHandling.Initialize(halfByteAddr, stickHandling);
+        p.BaseShotAccuracy.Initialize(halfByteAddr, shotAccuracy);
 
         int endurance, roughnness;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&endurance, &roughnness);
-        p.BaseEndurance.Initialize(endurance);
-        p.Roughness.Initialize(roughnness);
+        p.BaseEndurance.Initialize(halfByteAddr, endurance);
+        p.Roughness.Initialize(halfByteAddr, roughnness);
 
         int passAcc, aggression;
+        halfByteAddr = iter.GetROMOffset();
         iter.LoadHalfByteNumbers(&passAcc, &aggression);
-        p.BasePassAccuracy.Initialize(passAcc);
-        p.BaseAggression.Initialize(aggression);
+        p.BasePassAccuracy.Initialize(halfByteAddr, passAcc);
+        p.BaseAggression.Initialize(halfByteAddr, aggression);
 
         result.Players.push_back(p);
     }
 
-    result.TeamCity.Initialize(iter.LoadROMString());
-    result.Acronym = iter.LoadROMString();
+    result.TeamCity.Initialize(iter.GetROMOffset(), iter.LoadROMString());
+    result.Acronym.Initialize(iter.GetROMOffset(), iter.LoadROMString());
     result.TeamName = iter.LoadROMString();
     result.Venue = iter.LoadROMString();
 
@@ -628,7 +674,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     tabPage1->Padding = System::Windows::Forms::Padding(3);
     tabPage1->Size = System::Drawing::Size(401, 496);
     tabPage1->TabIndex = 0;
-    System::String^ teamAcronym = gcnew System::String(team.Acronym.c_str());
+    System::String^ teamAcronym = gcnew System::String(team.Acronym.Get().c_str());
     tabPage1->Text = teamAcronym;
     tabPage1->UseVisualStyleBackColor = true;
 
@@ -940,42 +986,10 @@ bool InsertTeamLocationText()
 
     // Need to do code patching
     std::vector<int> stringAddresses;
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
-        int addresses[] = {
-            /*Anaheim = 0x0*/	0x9CED2C,
-            /*Boston = 0x1*/	0x9CAE0E,
-            /*Buffalo = 0x2*/	0x9CB096,
-            /*Calgary = 0x3*/	0x9CB316,
-            /*Chicago = 0x4*/	0x9CB5AC,
-            /*Dallas = 0x5*/	0x9CC2B9,
-            /*Detroit = 0x6*/	0x9CB873,
-            /*Edmonton = 0x7*/	0x9CBAF1,
-            /*Florida = 0x8*/	0x9CEB2A,
-            /*Hartford = 0x9*/	0x9CBD83,
-            /*LAKings = 0xA*/	0x9CC022,
-            /*Montreal = 0xB*/	0x9CC554,
-            /*NewJersey = 0xC*/	0x9CC800,
-            /*NYIslanders = 0xD*/	0x9BC5E7,
-            /*NYRangers = 0xE*/	0x9BC5F5,
-            /*Ottawa = 0xF*/	0x9CCF80,
-            /*Philly = 0x10*/	0x9CD212,
-            /*Pittsburgh = 0x11*/	0x9CD4AA,
-            /*Quebec = 0x12*/	0x9CD735,
-            /*SanJose = 0x13*/	0x9CD9AE,
-            /*StLouis = 0x14*/	0x9CDC22,
-            /*TampaBay = 0x15*/	0x9CDEB7,
-            /*Toronto = 0x16*/	0x9CE14F,
-            /*Vancouver = 0x17*/	0x9CE3DA,
-            /*Washington = 0x18*/	0x9CE922,
-            /*Winnepeg = 0x19*/	0x9CE688,
-            /*AllStarsEast = 0x1A*/	0x9CA8D6,
-            /*AllStarsWest = 0x1B*/		0x9CAB7E
-        }; // 28 * 4 = 112 bytes
-
-        for (int i = 0; i < 28; ++i)
-        {
-            stringAddresses.push_back(addresses[i]);
-        }
+        TeamData const& teamData = s_allTeams[teamIndex];
+        stringAddresses.push_back(teamData.TeamCity.SourceROMAddress);
     }
 
     int stringPtrTableStart = 0xA08200;
@@ -1036,6 +1050,97 @@ bool InsertTeamLocationText()
     return true;
 }
 
+
+bool InsertTeamAcronymText()
+{
+    struct TeamRename
+    {
+        Team WhichTeam;
+        std::string OriginalAcronym;
+        std::string NewAcronym;
+    };
+
+    std::vector<TeamRename> renames;
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    {
+        TeamData const& teamData = s_allTeams[teamIndex];
+        if (teamData.Acronym.IsChanged())
+        {
+            TeamRename r;
+            r.WhichTeam = (Team)teamIndex;
+            r.NewAcronym = teamData.Acronym.Get();
+            renames.push_back(r);
+        }
+    }
+
+    if (renames.size() == 0)
+        return true; // Nothing to do
+
+    // Need to do code patching
+    std::vector<int> stringAddresses;
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    {
+        TeamData const& teamData = s_allTeams[teamIndex];
+        stringAddresses.push_back(teamData.Acronym.SourceROMAddress);
+    }
+
+    int stringPtrTableStart = 0xA08200;
+    int stringAddressTableSize = stringAddresses.size() * 4;
+    int freeSpaceForStrings = stringPtrTableStart + stringAddressTableSize;
+
+    // Put string after the table
+    {
+        RomDataIterator datastreamIter(ROMAddressToFileOffset(freeSpaceForStrings));
+
+        for (int i = 0; i < renames.size(); ++i)
+        {
+            stringAddresses[(int)renames[i].WhichTeam] = datastreamIter.GetROMOffset();
+            datastreamIter.SaveROMString(renames[i].NewAcronym);
+        }
+    }
+
+    // Put table at 0xA08200
+    {
+        assert(stringPtrTableStart == 0xA08200);
+        RomDataIterator datastreamIter(ROMAddressToFileOffset(0xA08200));
+
+        int dstROMAddress = stringPtrTableStart;
+        int dstFileOffset = ROMAddressToFileOffset(dstROMAddress);
+
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
+        for (int i = 0; i < stringAddressTableSize; ++i)
+        {
+            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+        }
+    }
+
+    // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
+    {
+        std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
+
+        int dstStartROMAddress = 0x9BC5AB;
+        int dstEndROMAddress = 0x9BC5E6;
+        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
+        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
+
+        int patchIndex = 0;
+
+        for (int fileOffset = dstFileOffsetStart; fileOffset <= dstFileOffsetEnd; ++fileOffset)
+        {
+            if (patchIndex < decompressProfileMain.size())
+            {
+                s_romData.SetROMData(fileOffset, decompressProfileMain[patchIndex]);
+                patchIndex++;
+            }
+            else
+            {
+                s_romData.SetROMData(fileOffset, 0xEA); // NOP
+            }
+        }
+    }
+
+    return true;
+}
 
 struct PlayerRename
 {
@@ -1180,6 +1285,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
     std::wstring outputFilename = ManagedToWideString(dialog->FileName);
     
+    // Write stats
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData& team = s_allTeams[teamIndex];
@@ -1202,23 +1308,37 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         }
     }
 
+    PlayerRenamer playerRenamer;
+    TeamLocationRenamer teamLocationRenamer;
+    TeamAcronymRenamer teamAcronymRenamer;
+
+    playerRenamer.AllocateTable(); // Figures out whether it should detour code and add a table. 
+    teamLocationRenamer.AllocateTable();
+    teamAcronymRenamer.AllocateTable();
+
+    playerRenamer.WriteDynamicallySizedData();
+    teamLocationRenamer.WriteDynamicallySizedData();
+    teamAcronymRenamer.WriteDynamicallySizedData();
+
+    // Write renamed location strings
     if (!InsertTeamLocationText())
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
         MessageBox::Show(dialogString);
+        return;
     }
 
+    // Write renamed players' names
     if (!InsertPlayerNameText())
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
         MessageBox::Show(dialogString);
+        return;
     }
-    else
-    {
-        s_romData.SaveBytesToFile(outputFilename.c_str());
 
-        MessageBox::Show(L"Output file saved.", L"Info");
-    }
+    s_romData.SaveBytesToFile(outputFilename.c_str());
+
+    MessageBox::Show(L"Output file saved.", L"Info");
 }
 
 bool IsValidPlayerName(System::String^ name)
@@ -1448,7 +1568,7 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
 
     // Refresh what's in the team data pane
     locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity.Get());
-    acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym);
+    acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym.Get());
     teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName);
     teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue);
 }
