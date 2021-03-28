@@ -209,7 +209,67 @@ $9E/C884 85 8D       STA $8D    [$00:008D]   A:C563 X:063E Y:0005 P:eNvmxdizc
 $9E/C886 FA          PLX                     A:C563 X:063E Y:0005 P:eNvmxdizc
 $9E/C887 6B          RTL                     A:C563 X:0000 Y:0005 P:envmxdiZc
 
+    `Anaheim = 0x0,		9C
+    `Boston = 0x1,		9C
+    `Buffalo = 0x2,		9C
+    `Calgary = 0x3,		9C
+    `Chicago = 0x4,		9C
+    `Dallas = 0x5,		9C
+    `Detroit = 0x6,		9C
+    `Edmonton = 0x7,		9C
+    `Florida = 0x8,		9C
+    `Hartford = 0x9,		9C
+    `LAKings = 0xA,		9C
+    `Montreal = 0xB,		9CC55E
+    `NewJersey = 0xC,		9C
+    `NYIslanders = 0xD,		9C
+    `NYRangers = 0xE,		9C
+    `Ottawa = 0xF,		9C
+    `Philly = 0x10,		9C
+    `Pittsburgh = 0x11,		9C
+    `Quebec = 0x12,		9C
+    `SanJose = 0x13,		9C
+    `StLouis = 0x14,		9C
+    `TampaBay = 0x15,		9C
+    `Toronto = 0x16,		9C
+    `Vancouver = 0x17,		9C
+    `Washington = 0x18,		9C
+    `Winnepeg = 0x19,		9C
+    `AllStarsEast = 0x1A,	9C
+    `AllStarsWest = 0x1B	9C
+
+		[0x00000000]	0x009ced35	int
+		[0x00000001]	0x009cae16	int
+		[0x00000002]	0x009cb09f	int
+		[0x00000003]	0x009cb31f	int
+		[0x00000004]	0x009cb5b5	int
+		[0x00000005]	0x009cc2c1	int
+		[0x00000006]	0x009cb87c	int
+		[0x00000007]	0x009cbafb	int
+		[0x00000008]	0x009ceb33	int
+		[0x00000009]	0x009cbd8d	int
+		[0x0000000a]	0x009cc02f	int
+		[0x0000000b]	0x009cc55e	int
+		[0x0000000c]	0x009cc80c	int
+		[0x0000000d]	0x009cca7b	int
+		[0x0000000e]	0x009ccce1	int
+		[0x0000000f]	0x009ccf88	int
+		[0x00000010]	0x009cd220	int
+		[0x00000011]	0x009cd4b6	int
+		[0x00000012]	0x009cd73d	int
+		[0x00000013]	0x009cd9b8	int
+		[0x00000014]	0x009cdc2d	int
+		[0x00000015]	0x009cdec2	int
+		[0x00000016]	0x009ce158	int
+		[0x00000017]	0x009ce3e5	int
+		[0x00000018]	0x009ce92e	int
+		[0x00000019]	0x009ce692	int
+		[0x0000001a]	0x009ca8e6	int
+		[0x0000001b]	0x009cab8e	int
+
+
 Metadata format
+
 
                                  55 00 0E 00 79
                                  v0 v0 v1 v1 v2
