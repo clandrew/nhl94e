@@ -107,11 +107,6 @@ public:
 
     void Set(int index, unsigned char data)
     {
-        if (!m_writeabilityMask[index])
-        {
-            __debugbreak();
-        }
-
         m_data[index] = data;
         m_writeabilityMask[index] = false;
     }
@@ -157,7 +152,8 @@ enum class Team
     Washington = 0x18,
     Winnepeg = 0x19,
     AllStarsEast = 0x1A,
-    AllStarsWest = 0x1B
+    AllStarsWest = 0x1B,
+    Count
 };
 
 class RomDataIterator
@@ -170,7 +166,12 @@ public:
     {
     }
 
-    int GetROMOffset()
+    int GetFileOffset() const
+    {
+        return m_fileOffset;
+    }
+
+    int GetROMOffset() const
     {
         return FileOffsetToROMAddress(m_fileOffset);
     }
@@ -373,6 +374,11 @@ public:
         ++m_fileOffset;
     }
 
+    void SkipBytes(int count)
+    {
+        m_fileOffset += count;
+    }
+
     void SaveDelimiter()
     {
         s_romData.Set(m_fileOffset, 0x02);
@@ -483,8 +489,14 @@ TeamData GetTeamData(int playerDataAddress)
         result.Players.push_back(p);
     }
 
-    result.TeamCity.Initialize(iter.GetROMOffset(), iter.LoadROMString());
-    result.Acronym.Initialize(iter.GetROMOffset(), iter.LoadROMString());
+    {
+        int addr = iter.GetROMOffset();
+        result.TeamCity.Initialize(addr, iter.LoadROMString());
+    }
+    {
+        int addr = iter.GetROMOffset();
+        result.Acronym.Initialize(addr, iter.LoadROMString());
+    }
     result.TeamName = iter.LoadROMString();
     result.Venue = iter.LoadROMString();
 
@@ -950,7 +962,57 @@ bool InsertDetour(
     return true;
 }
 
-bool InsertTeamLocationText()
+void PatchLoadLongAddressIn8D_Code(std::vector<unsigned char>& code, int expectedAddress)
+{
+    // Operates on this kind of sequence
+    /*
+    A9 A0 00    LDA #$00A0  ; Upper short
+    85 8F       STA $8F
+    A9 00 82    LDA #$8200  ; Lower short
+    85 8D       STA $8D
+    */
+
+    int sequenceFound = 0;
+    for (int i = 0; i < code.size() - 9; ++i)
+    {
+        if (code[i + 0] == 0xA9 &&
+            code[i + 3] == 0x85 && code[i + 4] == 0x8F &&
+            code[i + 5] == 0xA9 &&
+            code[i + 8] == 0x85 &&
+            code[i + 9] == 0x8D)
+        {
+            int address =
+                code[i + 2] << 24 |
+                code[i + 1] << 16 |
+                code[i + 7] << 8 |
+                code[i + 6] << 0;
+            if (address != expectedAddress)
+            {
+                int temp = expectedAddress;
+                code[i + 6] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 7] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 1] = temp & 0xFF;
+                temp >>= 8;
+                code[i + 2] = temp & 0xFF;
+
+                int newAddress =
+                    code[i + 2] << 24 |
+                    code[i + 1] << 16 |
+                    code[i + 7] << 8 |
+                    code[i + 6] << 0;
+                assert(newAddress == expectedAddress);
+            }
+
+            ++sequenceFound;
+        }
+    }
+
+    assert(sequenceFound == 1);
+}
+
+bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 {
     struct TeamRename
     {
@@ -960,51 +1022,43 @@ bool InsertTeamLocationText()
     };
 
     std::vector<TeamRename> renames;
+    std::vector<int> stringAddresses;
     for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& teamData = s_allTeams[teamIndex];
+        int stringAddress = teamData.TeamCity.SourceROMAddress;
+
         if (teamData.TeamCity.IsChanged())
         {
             TeamRename r;
             r.WhichTeam = (Team)teamIndex;
             r.NewName = teamData.TeamCity.Get();
             renames.push_back(r);
+
+            stringAddress = 0; // Going to be changed
         }
+
+        stringAddresses.push_back(stringAddress);
     }
 
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    // Need to do code patching
-    std::vector<int> stringAddresses;
-    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
+    int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+    int stringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->SkipBytes(stringAddressTableSize);
+
+    // Write the renamed strings
+    for (int i = 0; i < renames.size(); ++i)
     {
-        TeamData const& teamData = s_allTeams[teamIndex];
-        stringAddresses.push_back(teamData.TeamCity.SourceROMAddress);
+        stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveROMString(renames[i].NewName);
     }
 
-    int stringPtrTableStart = 0xA08200;
-    int stringAddressTableSize = stringAddresses.size() * 4;
-    int freeSpaceForStrings = stringPtrTableStart + stringAddressTableSize;
-
-    // Put string after the table
+    // Write the string table
     {
-        RomDataIterator datastreamIter(ROMAddressToFileOffset(freeSpaceForStrings));
-
-        for (int i = 0; i < renames.size(); ++i)
-        {
-            stringAddresses[(int)renames[i].WhichTeam] = datastreamIter.GetROMOffset();
-            datastreamIter.SaveROMString(renames[i].NewName);
-        }
-    }
-
-    // Put table at 0xA08200
-    {
-        assert(stringPtrTableStart == 0xA08200);
-        RomDataIterator datastreamIter(ROMAddressToFileOffset(0xA08200));
-
-        int dstROMAddress = stringPtrTableStart;
-        int dstFileOffset = ROMAddressToFileOffset(dstROMAddress);
+        int dstFileOffset = stringTableStartFileAddress;
 
         unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
         for (int i = 0; i < stringAddressTableSize; ++i)
@@ -1013,9 +1067,12 @@ bool InsertTeamLocationText()
         }
     }
 
+    // Code patching
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
     {
         std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
+
+        PatchLoadLongAddressIn8D_Code(decompressProfileMain, FileOffsetToROMAddress(stringTableStartFileAddress));
 
         int dstStartROMAddress = 0x9BC5AB;
         int dstEndROMAddress = 0x9BC5E6;
@@ -1298,7 +1355,9 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         }
     }
 
-    if (!InsertTeamLocationText())
+    RomDataIterator freeSpaceIter(ROMAddressToFileOffset(0xA08000));
+
+    if (!InsertTeamLocationText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
         MessageBox::Show(dialogString);
