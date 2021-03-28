@@ -6,7 +6,127 @@
 #include "Optional.h"
 
 static std::vector<TeamData> s_allTeams;
-static std::vector<unsigned char> s_romData;
+
+class RomData
+{
+    std::vector<unsigned char> m_data;
+    std::vector<bool> m_writeabilityMask;
+
+public:
+    unsigned char Get(int index) const
+    {
+        return m_data[index];
+    }
+
+    void LoadBytesFromFile(const wchar_t* fileName)
+    {
+        m_data.clear();
+
+        std::wstring sourcePath = fileName;
+
+        FILE* file = {};
+        _wfopen_s(&file, sourcePath.c_str(), L"rb");
+        long retrievedFileSize = GetFileSize(file);
+
+        m_data.resize(retrievedFileSize);
+        fread(&m_data[0], 1, retrievedFileSize, file);
+        fclose(file);
+    }
+
+    bool EnsureExpandedSize()
+    {
+        // Check size
+        size_t expectedSize = 0x400000;
+
+        size_t originalSize = m_data.size();
+        bool expanded = originalSize == expectedSize;
+
+        const int expansionIdLocation = 0x7FD7;
+
+        if (originalSize == 0x100000)
+        {
+            // Expand on-demand.
+            m_data[expansionIdLocation] = 0x0C;
+            m_data.resize(expectedSize);
+            for (int i = originalSize; i < expectedSize; ++i)
+            {
+                m_data[i] = 0;
+            }
+            return true;
+        }
+        else if (originalSize == expectedSize)
+        {
+            // Nothing to do
+            return true;
+        }
+        else
+        {
+            std::wostringstream sstream;
+            sstream << "This program is designed to work on a Super Nintendo NHL '94 ROM. However, the input has an unexpected size.\n";
+            sstream << "Unexpected size detected: found " << m_data.size() << " bytes, expected " << expectedSize << " bytes.\n";
+
+            System::String^ dialogString = gcnew System::String(sstream.str().c_str());
+            System::Windows::Forms::MessageBox::Show(dialogString);
+            return false;
+        }
+    }
+
+    void InitializeWriteabilityMask()
+    {
+        // Called when you don't plan on resizing the rom data anymore.
+        // Sets up a mask that allows us to debug break if you accidentally try to write the same place twice.
+        // Or, if you try to overwrite ROM code by accident.
+
+        // This mask doesn't prevent us from being able to over-write ROM code at all.
+        // There are certain times we legitimately want to change ROM code.
+        // Rather, this is to prevent changing ROM code accidentally, outside of intended, well-defined reasons.
+
+        // If you need to change ROM code, use SetROMData.
+
+        m_writeabilityMask.resize(m_data.size());
+
+        for (size_t i = 0; i < m_writeabilityMask.size(); ++i)
+        {
+            if (i >= 0 && i < 0xA08000)
+            {
+                m_writeabilityMask[i] = false; // ROM data. For the most part, we don't over-write this
+            }
+            else
+            {
+                // Everywhere else can be written once.
+                m_writeabilityMask[i] = true;
+            }
+        }
+    }
+
+    void SetROMData(int index, unsigned char data)
+    {
+        assert(index < 0xA08000);
+        m_data[index] = data;
+    }
+
+    void Set(int index, unsigned char data)
+    {
+        if (!m_writeabilityMask[index])
+        {
+            __debugbreak();
+        }
+
+        m_data[index] = data;
+        m_writeabilityMask[index] = false;
+    }
+
+    void SaveBytesToFile(const wchar_t* fileName)
+    {
+        std::wstring path = fileName;
+
+        FILE* file;
+        _wfopen_s(&file, path.c_str(), L"wb");
+        fwrite(&m_data[0], 1, m_data.size(), file);
+        fclose(file);
+    }
+
+} s_romData;
 
 enum class Team
 {
@@ -57,8 +177,8 @@ public:
 
     void SkipHeader()
     {
-        unsigned char headerLength0 = s_romData[m_fileOffset + 0];
-        unsigned char headerLength1 = s_romData[m_fileOffset + 1];
+        unsigned char headerLength0 = s_romData.Get(m_fileOffset + 0);
+        unsigned char headerLength1 = s_romData.Get(m_fileOffset + 1);
         m_fileOffset += 2;
 
         assert(headerLength0 > 0x2 && headerLength1 == 0x0);
@@ -72,8 +192,8 @@ public:
 
     std::vector<unsigned char> LoadHeader()
     {
-        unsigned char headerLength0 = s_romData[m_fileOffset + 0];
-        unsigned char headerLength1 = s_romData[m_fileOffset + 1];
+        unsigned char headerLength0 = s_romData.Get(m_fileOffset + 0);
+        unsigned char headerLength1 = s_romData.Get(m_fileOffset + 1);
         m_fileOffset += 2;
 
         assert(headerLength0 > 0x2 && headerLength1 == 0x0);
@@ -85,7 +205,7 @@ public:
         std::vector<unsigned char> result;
         for (int i = 0; i < headerLength; ++i)
         {
-            result.push_back(s_romData[m_fileOffset + i]);
+            result.push_back(s_romData.Get(m_fileOffset + i));
         }
         m_fileOffset += headerLength;
 
@@ -99,21 +219,21 @@ public:
         unsigned char headerLengthPlusLengthWord0 = headerLengthPlusLengthWord & 0xFF;
         unsigned char headerLengthPlusLengthWord1 = (headerLengthPlusLengthWord >> 8) & 0xFF;
 
-        s_romData[m_fileOffset + 0] = headerLengthPlusLengthWord0;
-        s_romData[m_fileOffset + 1] = headerLengthPlusLengthWord1;
+        s_romData.Set(m_fileOffset + 0, headerLengthPlusLengthWord0);
+        s_romData.Set(m_fileOffset + 1, headerLengthPlusLengthWord1);
         m_fileOffset += 2;
 
         for (int i = 0; i < headerLength; ++i)
         {
-            s_romData[m_fileOffset + i] = header[i];
+            s_romData.Set(m_fileOffset + i, header[i]);
         }
         m_fileOffset += headerLength;
     }
 
     std::string LoadROMString()
     {
-        unsigned char stringLength0 = s_romData[m_fileOffset + 0];
-        unsigned char stringLength1 = s_romData[m_fileOffset + 1];
+        unsigned char stringLength0 = s_romData.Get(m_fileOffset + 0);
+        unsigned char stringLength1 = s_romData.Get(m_fileOffset + 1);
         m_fileOffset += 2;
 
         // Special sentinel values are used to denote empty string
@@ -127,7 +247,7 @@ public:
         std::string result;
         for (int i = 0; i < stringLength; ++i)
         {
-            result.push_back(s_romData[m_fileOffset + i]);
+            result.push_back(s_romData.Get(m_fileOffset + i));
         }
         m_fileOffset += stringLength;
 
@@ -141,21 +261,21 @@ public:
         unsigned char strLengthPlusLengthWord0 = strLengthPlusLengthWord & 0xFF;
         unsigned char strLengthPlusLengthWord1 = (strLengthPlusLengthWord >> 8) & 0xFF;
 
-        s_romData[m_fileOffset + 0] = strLengthPlusLengthWord0;
-        s_romData[m_fileOffset + 1] = strLengthPlusLengthWord1;
+        s_romData.Set(m_fileOffset + 0, strLengthPlusLengthWord0);
+        s_romData.Set(m_fileOffset + 1, strLengthPlusLengthWord1);
         m_fileOffset += 2;
 
         for (int i = 0; i < strLength; ++i)
         {
-            s_romData[m_fileOffset + i] = str[i];
+            s_romData.Set(m_fileOffset + i, str[i]);
         }
         m_fileOffset += strLength;
     }
 
     void SkipROMString()
     {
-        unsigned char stringLength0 = s_romData[m_fileOffset + 0];
-        unsigned char stringLength1 = s_romData[m_fileOffset + 1];
+        unsigned char stringLength0 = s_romData.Get(m_fileOffset + 0);
+        unsigned char stringLength1 = s_romData.Get(m_fileOffset + 1);
         m_fileOffset += 2;
 
         // Special sentinel values are used to denote empty string
@@ -171,19 +291,26 @@ public:
 
     int LoadDecimalNumber()
     {
-        unsigned char numberByte = s_romData[m_fileOffset];
+        unsigned char numberByte = s_romData.Get(m_fileOffset);
         unsigned char numberTens = (numberByte >> 4) & 0xF;
         unsigned char numberOnes = (numberByte & 0xF);
         ++m_fileOffset;
         return (numberTens * 10) + numberOnes;
     }
 
-    void SaveDecimalNumber(int n)
+    void SaveDecimalNumber(int n, bool isROMData)
     {
         unsigned char numberTens = n / 10;
         unsigned char numberOnes = n % 10;
         unsigned char resultByte = (numberTens << 4) | numberOnes;
-        s_romData[m_fileOffset] = resultByte;
+        if (isROMData)
+        {
+            s_romData.SetROMData(m_fileOffset, resultByte);
+        }
+        else
+        {
+            s_romData.Set(m_fileOffset, resultByte);
+        }
         ++m_fileOffset;
     }
 
@@ -194,7 +321,7 @@ public:
 
     void LoadHalfByteNumbers(int* a, int* b)
     {
-        unsigned char stat = s_romData[m_fileOffset];
+        unsigned char stat = s_romData.Get(m_fileOffset);
         unsigned char weightFactor = (stat >> 4) & 0xF;
         *a = weightFactor;
 
@@ -204,12 +331,13 @@ public:
         ++m_fileOffset;
     }
 
-    void SaveHalfByteNumbers(int a, int b)
+    void SaveHalfByteNumbers(int a, int b, bool isROMData)
     {
         assert(a <= 0xf);
         assert(b <= 0xf);
+        assert(isROMData); // non ROM not supported bc nothing needs it
         unsigned char resultByte = (a << 4) | b;
-        s_romData[m_fileOffset] = resultByte;
+        s_romData.SetROMData(m_fileOffset, resultByte);
         ++m_fileOffset;
     }
 
@@ -220,27 +348,27 @@ public:
 
     void SaveDelimiter()
     {
-        s_romData[m_fileOffset] = 0x02;
+        s_romData.Set(m_fileOffset, 0x02);
         ++m_fileOffset;
-        s_romData[m_fileOffset] = 0x00;
+        s_romData.Set(m_fileOffset, 0x00);
         ++m_fileOffset;
     }
 
     void SaveLongAddress4Bytes(int addr) // big endian-to-little-endian
     {
-        s_romData[m_fileOffset] = addr & 0xFF;
+        s_romData.Set(m_fileOffset, addr & 0xFF);
         addr >>= 8;
         ++m_fileOffset;
 
-        s_romData[m_fileOffset] = addr & 0xFF;
+        s_romData.Set(m_fileOffset, addr & 0xFF);
         addr >>= 8;
         ++m_fileOffset;
 
-        s_romData[m_fileOffset] = addr & 0xFF;
+        s_romData.Set(m_fileOffset, addr & 0xFF);
         addr >>= 8;
         ++m_fileOffset;
 
-        s_romData[m_fileOffset] = 0;
+        s_romData.Set(m_fileOffset, 0);
         ++m_fileOffset;
 
         assert(addr == 0); // 24-byte address expected
@@ -249,7 +377,7 @@ public:
     void SaveByte(int b)
     {
         assert(b > 0 && b < 256);
-        s_romData[m_fileOffset] = b;
+        s_romData.Set(m_fileOffset, b);
         ++m_fileOffset;
     }
 };
@@ -340,10 +468,10 @@ std::vector<TeamData> LoadPlayerNamesAndStats()
 
         for (int teamIndex = 0; teamIndex < 28; ++teamIndex)
         {
-            unsigned char b0 = s_romData[fileOffset + 0];
-            unsigned char b1 = s_romData[fileOffset + 1];
-            unsigned char b2 = s_romData[fileOffset + 2];
-            unsigned char b3 = s_romData[fileOffset + 3];
+            unsigned char b0 = s_romData.Get(fileOffset + 0);
+            unsigned char b1 = s_romData.Get(fileOffset + 1);
+            unsigned char b2 = s_romData.Get(fileOffset + 2);
+            unsigned char b3 = s_romData.Get(fileOffset + 3);
 
             int pointer = (b3 << 24) | (b2 << 16) | (b1 << 8) | (b0 << 0);
             playerDataPointers.push_back(pointer);
@@ -613,40 +741,12 @@ System::String^ NarrowASCIIStringToManaged(std::string const& s)
 
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
-    s_romData = LoadBytesFromFile(romFilename.c_str());
+    s_romData.LoadBytesFromFile(romFilename.c_str());
 
-    // Check size
-    size_t expectedSize = 0x400000;
-
-    size_t originalSize = s_romData.size();
-    bool expanded = originalSize == expectedSize;
-
-    const int expansionIdLocation = 0x7FD7;
-
-    if (originalSize == 0x100000)
-    {
-        // Expand on-demand.
-        s_romData[expansionIdLocation] = 0x0C;
-        s_romData.resize(expectedSize);
-        for (int i = originalSize; i < expectedSize; ++i)
-        {
-            s_romData[i] = 0;
-        }
-    }
-    else if (originalSize == expectedSize)
-    {
-        // Nothing to do
-    }
-    else
-    {
-        std::wostringstream sstream;
-        sstream << "This program is designed to work on a Super Nintendo NHL '94 ROM. However, the input has an unexpected size.\n";
-        sstream << "Unexpected size detected: found " << s_romData.size() << " bytes, expected " << expectedSize << " bytes.\n";
-
-        System::String^ dialogString = gcnew System::String(sstream.str().c_str());
-        MessageBox::Show(dialogString);
+    if (!s_romData.EnsureExpandedSize())
         return;
-    }
+
+    s_romData.InitializeWriteabilityMask();
 
     s_allTeams = LoadPlayerNamesAndStats();
 
@@ -665,7 +765,6 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
 System::Void nhl94e::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     s_allTeams.clear();
-    s_romData.clear();
     this->tabControl1->Controls->Clear();
 
     OpenFileDialog^ dialog = gcnew OpenFileDialog();
@@ -788,12 +887,12 @@ bool InsertDetour(
 
     for (size_t i = 0; i < decompressProfileMain.size(); ++i)
     {
-        s_romData[fileOffsetDst + i] = decompressProfileMain[i];
+        s_romData.SetROMData(fileOffsetDst + i, decompressProfileMain[i]);
     }
 
     for (int i = fileOffsetSrcStart; i <= fileOffsetSrcEnd; ++i) // Good hygiene
     {
-        s_romData[i] = 0xEA; // NOP
+        s_romData.SetROMData(i, 0xEA); // NOP
     }
 
     // Insert JMP to detour payload
@@ -806,10 +905,10 @@ bool InsertDetour(
     detourDestROMAddress >>= 8;
     assert(detourDestROMAddress == 0);
 
-    s_romData[fileOffsetSrcStart] = 0x5C; // JMP
-    s_romData[fileOffsetSrcStart + 1] = detourB2;
-    s_romData[fileOffsetSrcStart + 2] = detourB1;
-    s_romData[fileOffsetSrcStart + 3] = detourB0;
+    s_romData.SetROMData(fileOffsetSrcStart, 0x5C); // JMP
+    s_romData.SetROMData(fileOffsetSrcStart + 1, detourB2);
+    s_romData.SetROMData(fileOffsetSrcStart + 2, detourB1);
+    s_romData.SetROMData(fileOffsetSrcStart + 3, detourB0);
 
     return true;
 }
@@ -901,8 +1000,12 @@ bool InsertTeamLocationText()
 
         int dstROMAddress = stringPtrTableStart;
         int dstFileOffset = ROMAddressToFileOffset(dstROMAddress);
-        unsigned char* dstData = &s_romData[dstFileOffset];
-        memcpy(dstData, stringAddresses.data(), stringAddressTableSize);
+
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
+        for (int i = 0; i < stringAddressTableSize; ++i)
+        {
+            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+        }
     }
 
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
@@ -920,12 +1023,12 @@ bool InsertTeamLocationText()
         {
             if (patchIndex < decompressProfileMain.size())
             {
-                s_romData[fileOffset] = decompressProfileMain[patchIndex];
+                s_romData.SetROMData(fileOffset, decompressProfileMain[patchIndex]);
                 patchIndex++;
             }
             else
             {
-                s_romData[fileOffset] = 0xEA; // NOP
+                s_romData.SetROMData(fileOffset, 0xEA); // NOP
             }
         }
     }
@@ -1001,7 +1104,7 @@ void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
             playerData->ReplacedROMAddressForRename = datastreamIter.GetROMOffset();
 
             datastreamIter.SaveROMString(renames[i].Name.Get());
-            datastreamIter.SaveDecimalNumber(renames[i].PlayerNumber.Get());
+            datastreamIter.SaveDecimalNumber(renames[i].PlayerNumber.Get(), false);
         }
     }
 
@@ -1088,14 +1191,14 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
             iter.SkipROMString(); // player name
 
-            iter.SaveDecimalNumber(player.PlayerNumber.Get());
-            iter.SaveHalfByteNumbers(player.WeightFactor.Get(), player.BaseAgility.Get());
-            iter.SaveHalfByteNumbers(player.BaseSpeed.Get(), player.BaseOffAware.Get());
-            iter.SaveHalfByteNumbers(player.BaseDefAware.Get(), player.BaseShotPower.Get());
-            iter.SaveHalfByteNumbers(player.BaseChecking.Get(), player.HandednessValue.Get());
-            iter.SaveHalfByteNumbers(player.BaseStickHandling.Get(), player.BaseShotAccuracy.Get());
-            iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get());
-            iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get());
+            iter.SaveDecimalNumber(player.PlayerNumber.Get(), true);
+            iter.SaveHalfByteNumbers(player.WeightFactor.Get(), player.BaseAgility.Get(), true);
+            iter.SaveHalfByteNumbers(player.BaseSpeed.Get(), player.BaseOffAware.Get(), true);
+            iter.SaveHalfByteNumbers(player.BaseDefAware.Get(), player.BaseShotPower.Get(), true);
+            iter.SaveHalfByteNumbers(player.BaseChecking.Get(), player.HandednessValue.Get(), true);
+            iter.SaveHalfByteNumbers(player.BaseStickHandling.Get(), player.BaseShotAccuracy.Get(), true);
+            iter.SaveHalfByteNumbers(player.BaseEndurance.Get(), player.Roughness.Get(), true);
+            iter.SaveHalfByteNumbers(player.BasePassAccuracy.Get(), player.BaseAggression.Get(), true);
         }
     }
 
@@ -1112,7 +1215,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     }
     else
     {
-        SaveBytesToFile(outputFilename.c_str(), s_romData);
+        s_romData.SaveBytesToFile(outputFilename.c_str());
 
         MessageBox::Show(L"Output file saved.", L"Info");
     }

@@ -44,33 +44,6 @@ long GetFileSize(FILE* file)
     return fileSize;
 }
 
-std::vector<unsigned char> LoadBytesFromFile(const wchar_t* fileName)
-{
-    std::wstring sourcePath = fileName;
-
-    std::vector<unsigned char> destFile;
-
-    FILE* file = {};
-    _wfopen_s(&file, sourcePath.c_str(), L"rb");
-    long retrievedFileSize = GetFileSize(file);
-
-    destFile.resize(retrievedFileSize);
-    fread(&destFile[0], 1, retrievedFileSize, file);
-    fclose(file);
-
-    return destFile;
-}
-
-void SaveBytesToFile(const wchar_t* fileName, std::vector<unsigned char>& romData)
-{
-    std::wstring path = fileName;
-
-    FILE* file;
-    _wfopen_s(&file, path.c_str(), L"wb");
-    fwrite(&romData[0], 1, romData.size(), file);
-    fclose(file);
-}
-
 unsigned int GetByteIndexForRow(
     unsigned int cellNumber,
     unsigned int indexWithinCell,

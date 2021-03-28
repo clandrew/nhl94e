@@ -13,6 +13,8 @@ $9F/9DB0 22 66 BD 9F JSL $9FBD66[$9F:BD66]   A:001C X:0000 Y:0005 P:envmxdizc	; 
 // LoadAcronymString()
 // Precondition: 9F:1CDC contains low short of team's main pointer entry
 //		$91 contains choice of home/away.
+// Behavior: loads a string address into [$8D] and then calls LoadUtilityString().
+//
 // 		Could do something else here where we load based on team index from 9F1C98/9F1C9A for home/away.
 //		Also suggest only bothering with this if the new length is actually different.
 // 
@@ -24,34 +26,28 @@ $9F/BD6D 85 8D       STA $8D    [$00:008D]   A:C02F X:0000 Y:0004 P:eNvmxdizc
 $9F/BD6F A9 9C 00    LDA #$009C              A:C02F X:0000 Y:0004 P:eNvmxdizc
 $9F/BD72 85 8F       STA $8F    [$00:008F]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; [$8D] contains 9Cxxxx
 
-$9F/BD74 A5 B1       LDA $B1    [$00:00B1]   A:C02F X:0000 Y:0004 P:eNvmxdizc
-$9F/BD76 F0 05       BEQ $05    [$BD7D]      A:C02F X:0000 Y:0004 P:eNvmxdizc
-$9F/BD78 AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:C02F X:0000 Y:0004 P:eNvmxdizc
+$9F/BD74 A5 B1       LDA $B1    [$00:00B1]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; loads HomeOrAway from $B1
+$9F/BD76 F0 05       BEQ $05    [$BD7D]      A:C02F X:0000 Y:0004 P:eNvmxdizc	; goto B1IsZero as needed
+
+$9F/BD78 AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; I think this part is oddly done. Why did we write [$8D] above if we are just going to over-write it here?
 $9F/BD7B 85 8D       STA $8D    [$00:008D]   A:C02F X:0000 Y:0004 P:eNvmxdizc
-$9F/BD7D A0 04 00    LDY #$0004              A:C02F X:0000 Y:0004 P:eNvmxdizc
 
-$9F/BD80 B7 8D       LDA [$8D],y[$9C:BDB6]   A:BDB2 X:0000 Y:0004 P:envmxdizc	; $8D stores the start of team data,
-										; likely loaded from main pointer 
-										; table.
-										; E.g., 9CBDB6 points to the start 
-										; of team data for a particular 
-										; team.
+B1IsZero:
+$9F/BD7D A0 04 00    LDY #$0004              A:C02F X:0000 Y:0004 P:eNvmxdizc	; The offset to the start of the acronym string is at the 4th byte of the metadata.
+
+										
+$9F/BD80 B7 8D       LDA [$8D],y[$9C:BDB6]   A:BDB2 X:0000 Y:0004 P:envmxdizc	; [$8D] has been already set up to point to the start of the team data, (e.g., 9CC2DB) and we index into the 4th byte
+										; 4th byte is the offset to the team strings of the team. See bottom.
+.
 $9F/BD82 18          CLC                     A:0270 X:0000 Y:0004 P:envmxdizc
-$9F/BD83 65 8D       ADC $8D    [$00:008D]   A:0270 X:0000 Y:0004 P:envmxdizc
-$9F/BD85 85 8D       STA $8D    [$00:008D]   A:C022 X:0000 Y:0004 P:eNvmxdizc
+$9F/BD83 65 8D       ADC $8D    [$00:008D]   A:0270 X:0000 Y:0004 P:envmxdizc	
+$9F/BD85 85 8D       STA $8D    [$00:008D]   A:C022 X:0000 Y:0004 P:eNvmxdizc	; Update [$8D] to be now 9CC554. It now points to the start of the team strings.
 
-$9F/BD87 A7 8D       LDA [$8D]  [$9C:C022]   A:C022 X:0000 Y:0004 P:eNvmxdizc	; $8D points to the start of the
-										; team-related strings.
-										; The first string in the table is 
-										; the length-prefixed team location.
-										; We want to skip over that, so load
-										; the length value to get added
-										; E.g., length value is 0D
-
+$9F/BD87 A7 8D       LDA [$8D]  [$9C:C022]   A:C022 X:0000 Y:0004 P:eNvmxdizc	; Skip the first team string, which is the location string.
 $9F/BD89 65 8D       ADC $8D    [$00:008D]   A:000D X:0000 Y:0004 P:envmxdizc	; Use length value to advance the 
 										; index
 
-$9F/BD8B 85 8D       STA $8D    [$00:008D]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; store addr of string to load
+$9F/BD8B 85 8D       STA $8D    [$00:008D]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; Finally, we're pointing to the second team string, which is the acronym. 
 $9F/BD8D 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:C02F X:0000 Y:0004 P:eNvmxdizc	; Call LoadUtilityString()
 ...
 
@@ -212,3 +208,23 @@ $9E/C882 65 8D       ADC $8D    [$00:008D]   A:0005 X:063E Y:0005 P:envmxdiZc
 $9E/C884 85 8D       STA $8D    [$00:008D]   A:C563 X:063E Y:0005 P:eNvmxdizc
 $9E/C886 FA          PLX                     A:C563 X:063E Y:0005 P:eNvmxdizc
 $9E/C887 6B          RTL                     A:C563 X:0000 Y:0005 P:envmxdiZc
+
+Metadata format
+
+                                 55 00 0E 00 79
+                                 v0 v0 v1 v1 v2
+                                 
+02 1D 00 0E 00 13 00 15 00 52 11 21 E8 49 C5 00
+v2
+
+01 12 11 07 03 0C 04 00 01 17 12 07 03 0C 04 00
+01 16 11 08 04 0E 03 00 01 13 14 09 05 0D 03 00
+01 12 11 07 03 0C 05 00 01 13 14 08 04 05 03 00
+01 11 17 07 06 03 0D 00 01 16 13 03 0D 07 06 00
+0D 00 50 61 74 72 69 63 6B 20 52 6F 79 33 66 44
+       P  a  t  r  i  c  k     R  o  y  3  f  D  ...
+       
+v0: Offset to the string name of the first player
+v1: <dunno>
+v2: offset to the team strings of the team. City, acronym, etc. E.g., 0279
+
