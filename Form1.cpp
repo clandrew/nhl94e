@@ -7,19 +7,10 @@
 
 static std::vector<TeamData> s_allTeams;
 
-enum class AllocationPurpose
-{
-    ROM,
-    FreeSpace,
-    PlayerRenamingDetour,
-    PlayerRenamingLookupTable,
-    PlayerRenameStrings
-};
-
 class RomData
 {
     std::vector<unsigned char> m_data;
-    std::vector<AllocationPurpose> m_allocationPurpose; // Coupled to m_data. Says what each byte is for
+    std::vector<bool> m_writeabilityMask;
 
 public:
     unsigned char Get(int index) const
@@ -92,17 +83,18 @@ public:
 
         // If you need to change ROM code, use SetROMData.
 
-        m_allocationPurpose.resize(m_data.size());
+        m_writeabilityMask.resize(m_data.size());
 
-        for (size_t i = 0; i < m_allocationPurpose.size(); ++i)
+        for (size_t i = 0; i < m_writeabilityMask.size(); ++i)
         {
             if (i >= 0 && i < 0xA08000)
             {
-                m_allocationPurpose[i] = AllocationPurpose::ROM; // ROM data. For the most part, we don't over-write this
+                m_writeabilityMask[i] = false; // ROM data. For the most part, we don't over-write this
             }
             else
             {
-                m_allocationPurpose[i] = AllocationPurpose::FreeSpace;
+                // Everywhere else can be written once.
+                m_writeabilityMask[i] = true;
             }
         }
     }
@@ -113,14 +105,15 @@ public:
         m_data[index] = data;
     }
 
-    void Set(int index, unsigned char data, AllocationPurpose purpose)
+    void Set(int index, unsigned char data)
     {
-        if (m_allocationPurpose[index] != purpose)
+        if (!m_writeabilityMask[index])
         {
             __debugbreak();
         }
 
         m_data[index] = data;
+        m_writeabilityMask[index] = false;
     }
 
     void SaveBytesToFile(const wchar_t* fileName)
@@ -219,8 +212,6 @@ public:
         return result;
     }
 
-    // Unused
-    /*
     void SaveHeader(std::vector<unsigned char> const& header)
     {
         int headerLength = static_cast<int>(header.size());
@@ -237,7 +228,7 @@ public:
             s_romData.Set(m_fileOffset + i, header[i]);
         }
         m_fileOffset += headerLength;
-    }*/
+    }
 
     StringWithSourceROMAddress LoadROMStringWithSourceROMAddress()
     {
@@ -1285,7 +1276,6 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
     std::wstring outputFilename = ManagedToWideString(dialog->FileName);
     
-    // Write stats
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData& team = s_allTeams[teamIndex];
@@ -1308,37 +1298,23 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         }
     }
 
-    PlayerRenamer playerRenamer;
-    TeamLocationRenamer teamLocationRenamer;
-    TeamAcronymRenamer teamAcronymRenamer;
-
-    playerRenamer.AllocateTable(); // Figures out whether it should detour code and add a table. 
-    teamLocationRenamer.AllocateTable();
-    teamAcronymRenamer.AllocateTable();
-
-    playerRenamer.WriteDynamicallySizedData();
-    teamLocationRenamer.WriteDynamicallySizedData();
-    teamAcronymRenamer.WriteDynamicallySizedData();
-
-    // Write renamed location strings
     if (!InsertTeamLocationText())
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
         MessageBox::Show(dialogString);
-        return;
     }
 
-    // Write renamed players' names
     if (!InsertPlayerNameText())
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
         MessageBox::Show(dialogString);
-        return;
     }
+    else
+    {
+        s_romData.SaveBytesToFile(outputFilename.c_str());
 
-    s_romData.SaveBytesToFile(outputFilename.c_str());
-
-    MessageBox::Show(L"Output file saved.", L"Info");
+        MessageBox::Show(L"Output file saved.", L"Info");
+    }
 }
 
 bool IsValidPlayerName(System::String^ name)
