@@ -918,7 +918,7 @@ bool InsertDetour(
     std::vector<unsigned char> const& decompressProfileMain,
     int detourSrcStartROMAddress,
     int detourSrcEndROMAddress,
-    int detourDestROMAddress)
+    RomDataIterator* freeSpaceIter)
 {
     if (decompressProfileMain.size() == 0)
         return false;
@@ -930,11 +930,13 @@ bool InsertDetour(
     int fileOffsetSrcStart = ROMAddressToFileOffset(detourSrcStartROMAddress);
     int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Inclusive
 
-    int fileOffsetDst = ROMAddressToFileOffset(detourDestROMAddress);
+    // Save the start of free space so we know where to jump
+    int detourDestROMAddress = freeSpaceIter->GetROMOffset();
 
+    // Put detour payload in free space
     for (size_t i = 0; i < decompressProfileMain.size(); ++i)
     {
-        s_romData.SetROMData(fileOffsetDst + i, decompressProfileMain[i]);
+        freeSpaceIter->SaveByte(decompressProfileMain[i]);
     }
 
     for (int i = fileOffsetSrcStart; i <= fileOffsetSrcEnd; ++i) // Good hygiene
@@ -1205,7 +1207,7 @@ struct PlayerRename
     ModifiableStat<std::string> Name;
     ModifiableStat<int> PlayerNumber;
 };
-void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames)
+void AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, RomDataIterator* freeSpaceIter)
 {
     std::vector<TeamData> allTeams = LoadPlayerNamesAndStats();
 
@@ -1326,11 +1328,12 @@ bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
 
     PatchLoadFromLongAddress_LookupPlayerNameDet(decompressProfileMain, 0xA8D000);
 
-    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, 0xA08100);
+    // Insert the detour code in free space
+    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, freeSpaceIter);
     if (!detourPatched)
         return detourPatched;
 
-    AddLookupPlayerNamePointerTables(renames); // The above code depends on these tables.
+    AddLookupPlayerNamePointerTables(renames, freeSpaceIter); // The above code depends on these tables.
 
     return true;
 }
