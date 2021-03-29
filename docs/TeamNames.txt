@@ -1,0 +1,245 @@
+allow configuring of team names e.g., Canadiens
+what code loads them?
+Player cards screen loads this
+Data is at 9CC563
+
+// Caller
+$9D/BDF3 9B          TXY                     A:0200 X:0100 Y:0000 P:envmxdizc
+$9D/BDF4 1D AD 9B    ORA $9BAD,x[$9F:9CAD]   A:0200 X:0100 Y:0000 P:envmxdizc
+$9D/BDF7 1D 18 69    ORA $6918,x[$9F:6A18]   A:0200 X:0100 Y:0000 P:envmxdizc
+$9D/BDFA 07 00       ORA [$00]  [$02:0000]   A:0200 X:0100 Y:0000 P:envmxdizc
+$9D/BDFC 8D B9 1D    STA $1DB9  [$9F:1DB9]   A:0200 X:0100 Y:0000 P:envmxdizc
+$9D/BDFF 22 79 BE 9D JSL $9DBE79[$9D:BE79]   A:0200 X:0100 Y:0000 P:envmxdizc	; Call SpecialFunction()
+$9D/BE03 4C 7B BD    JMP $BD7B  [$9D:BD7B]   A:0200 X:0100 Y:0000 P:envmxdizc
+
+//////////////////////////////////
+
+SpecialFunction()
+Precondition: [$8D] points to 9CC563, the string 'Canadiens'
+
+$9D/BE79 22 7B AF 80 JSL $80AF7B[$80:AF7B]   A:FFF9 X:0000 Y:0400 P:eNvmxdizc
+$9D/BE7D A5 8F       LDA $8F    [$00:008F]   A:0001 X:FFFE Y:0022 P:eNvmxdizc
+$9D/BE7F 48          PHA                     A:009D X:FFFE Y:0022 P:envmxdizc
+$9D/BE80 A5 8D       LDA $8D    [$00:008D]   A:009D X:FFFE Y:0022 P:envmxdizc
+$9D/BE82 48          PHA                     A:D8E1 X:FFFE Y:0022 P:eNvmxdizc
+$9D/BE83 A9 9C 00    LDA #$009C              A:D8E1 X:FFFE Y:0022 P:eNvmxdizc
+$9D/BE86 85 8F       STA $8F    [$00:008F]   A:009C X:FFFE Y:0022 P:envmxdizc
+$9D/BE88 A9 B3 F6    LDA #$F6B3              A:009C X:FFFE Y:0022 P:envmxdizc
+$9D/BE8B 85 8D       STA $8D    [$00:008D]   A:F6B3 X:FFFE Y:0022 P:eNvmxdizc
+$9D/BE8D 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:F6B3 X:FFFE Y:0022 P:eNvmxdizc
+$9D/BE91 68          PLA                     A:F6B8 X:FFFE Y:0005 P:eNvmxdizc
+$9D/BE92 85 8D       STA $8D    [$00:008D]   A:D8E1 X:FFFE Y:0005 P:eNvmxdizc
+$9D/BE94 68          PLA                     A:D8E1 X:FFFE Y:0005 P:eNvmxdizc
+$9D/BE95 85 8F       STA $8F    [$00:008F]   A:009D X:FFFE Y:0005 P:envmxdizc
+$9D/BE97 A9 20 00    LDA #$0020              A:009D X:FFFE Y:0005 P:envmxdizc
+$9D/BE9A 85 A5       STA $A5    [$00:00A5]   A:0020 X:FFFE Y:0005 P:envmxdizc
+$9D/BE9C A9 14 00    LDA #$0014              A:0020 X:FFFE Y:0005 P:envmxdizc
+$9D/BE9F 85 A9       STA $A9    [$00:00A9]   A:0014 X:FFFE Y:0005 P:envmxdizc
+$9D/BEA1 AF D0 35 7E LDA $7E35D0[$7E:35D0]   A:0014 X:FFFE Y:0005 P:envmxdizc
+$9D/BEA5 85 AD       STA $AD    [$00:00AD]   A:039F X:FFFE Y:0005 P:envmxdizc
+$9D/BEA7 22 9C BD 9F JSL $9FBD9C[$9F:BD9C]   A:039F X:FFFE Y:0005 P:envmxdizc
+$9D/BEAB A4 91       LDY $91    [$00:0091]   A:02DF X:FFFE Y:0000 P:eNvmxdizc
+$9D/BEAD B9 98 1C    LDA $1C98,y[$9F:1C98]   A:02DF X:FFFE Y:0000 P:envmxdiZc
+$9D/BEB0 A2 C8 00    LDX #$00C8              A:000B X:FFFE Y:0000 P:envmxdizc
+$9D/BEB3 A0 10 00    LDY #$0010              A:000B X:00C8 Y:0000 P:envmxdizc
+$9D/BEB6 22 BF DF 9D JSL $9DDFBF[$9D:DFBF]   A:000B X:00C8 Y:0010 P:envmxdizc
+$9D/BEBA A4 91       LDY $91    [$00:0091]   A:2128 X:2128 Y:005C P:eNvmxdizc
+$9D/BEBC A9 9C 00    LDA #$009C              A:2128 X:2128 Y:0000 P:envmxdiZc
+$9D/BEBF 85 97       STA $97    [$00:0097]   A:009C X:2128 Y:0000 P:envmxdizc
+$9D/BEC1 B9 DC 1C    LDA $1CDC,y[$9F:1CDC]   A:009C X:2128 Y:0000 P:envmxdizc
+$9D/BEC4 85 95       STA $95    [$00:0095]   A:C2DB X:2128 Y:0000 P:eNvmxdizc
+$9D/BEC6 A0 0C 00    LDY #$000C              A:C2DB X:2128 Y:0000 P:eNvmxdizc
+$9D/BEC9 18          CLC                     A:C2DB X:2128 Y:000C P:envmxdizc
+$9D/BECA 77 95       ADC [$95],y[$9C:C2E7]   A:C2DB X:2128 Y:000C P:envmxdizc
+$9D/BECC 85 95       STA $95    [$00:0095]   A:C2F0 X:2128 Y:000C P:eNvmxdizc
+$9D/BECE AC B9 1D    LDY $1DB9  [$9F:1DB9]   A:C2F0 X:2128 Y:000C P:eNvmxdizc
+$9D/BED1 D0 03       BNE $03    [$BED6]      A:C2F0 X:2128 Y:0000 P:envmxdiZc
+$9D/BED3 4C EE C0    JMP $C0EE  [$9D:C0EE]   A:C2F0 X:2128 Y:0000 P:envmxdiZc
+$9D/C0EE A2 0D 00    LDX #$000D              A:C2F0 X:2128 Y:0000 P:envmxdiZc
+$9D/C0F1 A0 04 00    LDY #$0004              A:C2F0 X:000D Y:0000 P:envmxdizc
+$9D/C0F4 22 BA CC 9D JSL $9DCCBA[$9D:CCBA]   A:C2F0 X:000D Y:0004 P:envmxdizc
+$9D/C0F8 A9 01 00    LDA #$0001              A:3A8E X:000C Y:0000 P:envmxdiZc
+$9D/C0FB 8F 64 34 7E STA $7E3464[$7E:3464]   A:0001 X:000C Y:0000 P:envmxdizc
+$9D/C0FF A5 8F       LDA $8F    [$00:008F]   A:0001 X:000C Y:0000 P:envmxdizc
+$9D/C101 48          PHA                     A:009D X:000C Y:0000 P:envmxdizc
+$9D/C102 A5 8D       LDA $8D    [$00:008D]   A:009D X:000C Y:0000 P:envmxdizc
+$9D/C104 48          PHA                     A:D8E1 X:000C Y:0000 P:eNvmxdizc
+$9D/C105 A9 9C 00    LDA #$009C              A:D8E1 X:000C Y:0000 P:eNvmxdizc
+$9D/C108 85 8F       STA $8F    [$00:008F]   A:009C X:000C Y:0000 P:envmxdizc
+$9D/C10A A9 E0 F6    LDA #$F6E0              A:009C X:000C Y:0000 P:envmxdizc
+$9D/C10D 85 8D       STA $8D    [$00:008D]   A:F6E0 X:000C Y:0000 P:eNvmxdizc
+$9D/C10F 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:F6E0 X:000C Y:0000 P:eNvmxdizc
+$9D/C113 68          PLA                     A:F6E5 X:000C Y:0005 P:envmxdizc
+$9D/C114 85 8D       STA $8D    [$00:008D]   A:D8E1 X:000C Y:0005 P:eNvmxdizc
+$9D/C116 68          PLA                     A:D8E1 X:000C Y:0005 P:eNvmxdizc
+$9D/C117 85 8F       STA $8F    [$00:008F]   A:009D X:000C Y:0005 P:envmxdizc
+$9D/C119 A4 91       LDY $91    [$00:0091]   A:009D X:000C Y:0005 P:envmxdizc
+$9D/C11B B9 98 1C    LDA $1C98,y[$9F:1C98]   A:009D X:000C Y:0000 P:envmxdiZc
+$9D/C11E 85 A9       STA $A9    [$00:00A9]   A:000B X:000C Y:0000 P:envmxdizc
+$9D/C120 22 08 BE 9F JSL $9FBE08[$9F:BE08]   A:000B X:000C Y:0000 P:envmxdizc
+$9D/C124 A9 00 00    LDA #$0000              A:0000 X:000C Y:0024 P:envmxdiZc
+$9D/C127 8F 64 34 7E STA $7E3464[$7E:3464]   A:0000 X:000C Y:0024 P:envmxdiZc
+
+$9D/C12B A4 91       LDY $91    [$00:0091]   A:0000 X:000C Y:0024 P:envmxdiZc	; $91 == 0 for home, 2 for away. $91 is HomeOrAway
+$9D/C12D A9 9C 00    LDA #$009C              A:0000 X:000C Y:0000 P:envmxdiZc
+$9D/C130 85 8F       STA $8F    [$00:008F]   A:009C X:000C Y:0000 P:envmxdizc
+$9D/C132 B9 DC 1C    LDA $1CDC,y[$9F:1CDC]   A:009C X:000C Y:0000 P:envmxdizc	; Load main pointer table entry for the corresponding team
+$9D/C135 85 8D       STA $8D    [$00:008D]   A:C2DB X:000C Y:0000 P:eNvmxdizc	; E.g., [$8D] == 9CC2DB, the beginning of the team data for Montreal
+
+$9D/C137 A0 04 00    LDY #$0004              A:C2DB X:000C Y:0000 P:eNvmxdizc	; Seek to load the 4th+5th bytes of metadata, which can jump you to the team strings. E.g., for Montreal, 0279
+$9D/C13A 18          CLC                     A:C2DB X:000C Y:0004 P:envmxdizc
+$9D/C13B 77 8D       ADC [$8D],y[$9C:C2DF]   A:C2DB X:000C Y:0004 P:envmxdizc
+$9D/C13D 85 8D       STA $8D    [$00:008D]   A:C554 X:000C Y:0004 P:eNvmxdizc	; E.g., [$8D] == 9CC554, the beginning of the team strings
+
+$9D/C13F 18          CLC                     A:C554 X:000C Y:0004 P:eNvmxdizc
+$9D/C140 67 8D       ADC [$8D]  [$9C:C554]   A:C554 X:000C Y:0004 P:eNvmxdizc	; Get location string length so we can skip over it
+$9D/C142 85 8D       STA $8D    [$00:008D]   A:C55E X:000C Y:0004 P:eNvmxdizc
+$9D/C144 18          CLC                     A:C55E X:000C Y:0004 P:eNvmxdizc
+$9D/C145 67 8D       ADC [$8D]  [$9C:C55E]   A:C55E X:000C Y:0004 P:eNvmxdizc	; Get acronym string length so we can skip over it
+$9D/C147 85 8D       STA $8D    [$00:008D]   A:C563 X:000C Y:0004 P:eNvmxdizc
+
+										; Now we're at the team name string
+$9D/C149 A7 8D       LDA [$8D]  [$9C:C563]   A:C563 X:000C Y:0004 P:eNvmxdizc 	; Load first character of 'Canadiens'
+
+$9D/C14B 3A          DEC A                   A:000B X:000C Y:0004 P:envmxdizc
+$9D/C14C 3A          DEC A                   A:000A X:000C Y:0004 P:envmxdizc
+$9D/C14D 4A          LSR A                   A:0009 X:000C Y:0004 P:envmxdizc
+$9D/C14E 49 FF FF    EOR #$FFFF              A:0004 X:000C Y:0004 P:envmxdizC
+$9D/C151 1A          INC A                   A:FFFB X:000C Y:0004 P:eNvmxdizC
+$9D/C152 18          CLC                     A:FFFC X:000C Y:0004 P:eNvmxdizC
+$9D/C153 69 10 00    ADC #$0010              A:FFFC X:000C Y:0004 P:eNvmxdizc
+$9D/C156 8D 0F 0D    STA $0D0F  [$9F:0D0F]   A:000C X:000C Y:0004 P:envmxdizC
+$9D/C159 A9 07 00    LDA #$0007              A:000C X:000C Y:0004 P:envmxdizC
+$9D/C15C 8D 11 0D    STA $0D11  [$9F:0D11]   A:0007 X:000C Y:0004 P:envmxdizC
+$9D/C15F 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:0007 X:000C Y:0004 P:envmxdizC	; Call LookAtStringCharacters() that looks at the actual characters of the string
+$9D/C163 A7 8D       LDA [$8D]  [$9C:C56E]   A:C56E X:000C Y:000B P:envmxdizc
+$9D/C165 3A          DEC A                   A:0010 X:000C Y:000B P:envmxdizc
+$9D/C166 3A          DEC A                   A:000F X:000C Y:000B P:envmxdizc
+$9D/C167 4A          LSR A                   A:000E X:000C Y:000B P:envmxdizc
+$9D/C168 49 FF FF    EOR #$FFFF              A:0007 X:000C Y:000B P:envmxdizc
+$9D/C16B 1A          INC A                   A:FFF8 X:000C Y:000B P:eNvmxdizc
+$9D/C16C 18          CLC                     A:FFF9 X:000C Y:000B P:eNvmxdizc
+$9D/C16D 69 10 00    ADC #$0010              A:FFF9 X:000C Y:000B P:eNvmxdizc
+$9D/C170 8D 0F 0D    STA $0D0F  [$9F:0D0F]   A:0009 X:000C Y:000B P:envmxdizC
+$9D/C173 A9 09 00    LDA #$0009              A:0009 X:000C Y:000B P:envmxdizC
+$9D/C176 8D 11 0D    STA $0D11  [$9F:0D11]   A:0009 X:000C Y:000B P:envmxdizC
+$9D/C179 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:0009 X:000C Y:000B P:envmxdizC
+$9D/C17D A9 60 00    LDA #$0060              A:C57E X:000C Y:0010 P:envmxdizc
+$9D/C180 8D 11 0D    STA $0D11  [$9F:0D11]   A:0060 X:000C Y:0010 P:envmxdizc
+$9D/C183 A2 80 00    LDX #$0080              A:0060 X:000C Y:0010 P:envmxdizc
+$9D/C186 A0 04 00    LDY #$0004              A:0060 X:0080 Y:0010 P:envmxdizc
+$9D/C189 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0060 X:0080 Y:0004 P:envmxdizc
+$9D/C18D AD 11 0D    LDA $0D11  [$9F:0D11]   A:000E X:0011 Y:000E P:envmxdiZC
+$9D/C190 18          CLC                     A:0060 X:0011 Y:000E P:envmxdizC
+$9D/C191 69 08 00    ADC #$0008              A:0060 X:0011 Y:000E P:envmxdizc
+$9D/C194 8D 11 0D    STA $0D11  [$9F:0D11]   A:0068 X:0011 Y:000E P:envmxdizc
+$9D/C197 A2 40 00    LDX #$0040              A:0068 X:0011 Y:000E P:envmxdizc
+$9D/C19A A0 03 00    LDY #$0003              A:0068 X:0040 Y:000E P:envmxdizc
+$9D/C19D 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0068 X:0040 Y:0003 P:envmxdizc
+$9D/C1A1 A2 C0 00    LDX #$00C0              A:0012 X:0004 Y:0012 P:envmxdiZC
+$9D/C1A4 A0 05 00    LDY #$0005              A:0012 X:00C0 Y:0012 P:envmxdizC
+$9D/C1A7 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0012 X:00C0 Y:0005 P:envmxdizC
+$9D/C1AB AD 11 0D    LDA $0D11  [$9F:0D11]   A:000F X:0012 Y:000F P:envmxdiZC
+$9D/C1AE 18          CLC                     A:0068 X:0012 Y:000F P:envmxdizC
+$9D/C1AF 69 0E 00    ADC #$000E              A:0068 X:0012 Y:000F P:envmxdizc
+$9D/C1B2 8D 11 0D    STA $0D11  [$9F:0D11]   A:0076 X:0012 Y:000F P:envmxdizc
+$9D/C1B5 A2 58 00    LDX #$0058              A:0076 X:0012 Y:000F P:envmxdizc
+$9D/C1B8 A0 01 00    LDY #$0001              A:0076 X:0058 Y:000F P:envmxdizc
+$9D/C1BB 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0076 X:0058 Y:0001 P:envmxdizc
+$9D/C1BF A2 A8 00    LDX #$00A8              A:0011 X:0011 Y:0011 P:envmxdiZC
+$9D/C1C2 A0 02 00    LDY #$0002              A:0011 X:00A8 Y:0011 P:envmxdizC
+$9D/C1C5 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0011 X:00A8 Y:0002 P:envmxdizC
+$9D/C1C9 AD 11 0D    LDA $0D11  [$9F:0D11]   A:0012 X:0012 Y:0012 P:envmxdiZC
+$9D/C1CC 18          CLC                     A:0076 X:0012 Y:0012 P:envmxdizC
+$9D/C1CD 69 0E 00    ADC #$000E              A:0076 X:0012 Y:0012 P:envmxdizc
+$9D/C1D0 8D 11 0D    STA $0D11  [$9F:0D11]   A:0084 X:0012 Y:0012 P:envmxdizc
+$9D/C1D3 A2 80 00    LDX #$0080              A:0084 X:0012 Y:0012 P:envmxdizc
+$9D/C1D6 A0 00 00    LDY #$0000              A:0084 X:0080 Y:0012 P:envmxdizc
+$9D/C1D9 22 B8 C2 9D JSL $9DC2B8[$9D:C2B8]   A:0084 X:0080 Y:0000 P:envmxdiZc
+$9D/C1DD A2 66 00    LDX #$0066              A:000B X:0018 Y:000B P:envmxdiZC
+$9D/C1E0 A0 98 00    LDY #$0098              A:000B X:0066 Y:000B P:envmxdizC
+$9D/C1E3 A9 9C 00    LDA #$009C              A:000B X:0066 Y:0098 P:envmxdizC
+$9D/C1E6 85 8F       STA $8F    [$00:008F]   A:009C X:0066 Y:0098 P:envmxdizC
+$9D/C1E8 A9 E5 F6    LDA #$F6E5              A:009C X:0066 Y:0098 P:envmxdizC
+$9D/C1EB 85 8D       STA $8D    [$00:008D]   A:F6E5 X:0066 Y:0098 P:eNvmxdizC
+$9D/C1ED 22 90 95 9C JSL $9C9590[$9C:9590]   A:F6E5 X:0066 Y:0098 P:eNvmxdizC
+$9D/C1F1 22 B5 87 9D JSL $9D87B5[$9D:87B5]   A:000D X:0006 Y:000D P:envmxdiZC
+$9D/C1F5 A9 04 00    LDA #$0004              A:0049 X:0006 Y:0008 P:envmxdizc
+$9D/C1F8 85 A9       STA $A9    [$00:00A9]   A:0004 X:0006 Y:0008 P:envmxdizc
+$9D/C1FA 22 23 C6 9F JSL $9FC623[$9F:C623]   A:0004 X:0006 Y:0008 P:envmxdizc
+$9D/C1FE A2 70 00    LDX #$0070              A:0000 X:0006 Y:0004 P:envmxdiZc
+$9D/C201 A0 A2 00    LDY #$00A2              A:0000 X:0070 Y:0004 P:envmxdizc
+$9D/C204 22 90 95 9C JSL $9C9590[$9C:9590]   A:0000 X:0070 Y:00A2 P:envmxdizc
+$9D/C208 AD B9 1D    LDA $1DB9  [$9F:1DB9]   A:0006 X:001D Y:0006 P:envmxdiZC
+$9D/C20B F0 6F       BEQ $6F    [$C27C]      A:0000 X:001D Y:0006 P:envmxdiZC
+$9D/C27C 22 4D D9 9D JSL $9DD94D[$9D:D94D]   A:0000 X:001D Y:0006 P:envmxdiZC
+$9D/C280 22 DE C2 9D JSL $9DC2DE[$9D:C2DE]   A:F800 X:0030 Y:0800 P:eNvmxdizc
+$9D/C284 22 83 85 80 JSL $808583[$80:8583]   A:6C00 X:00F0 Y:0800 P:envmxdizc
+$9D/C288 22 DE AF 80 JSL $80AFDE[$80:AFDE]   A:6C00 X:00F0 Y:0800 P:envmxdizc
+$9D/C28C A9 68 35    LDA #$3568              A:2201 X:2100 Y:2320 P:eNvmxdizC
+$9D/C28F 8F 00 75 7F STA $7F7500[$7F:7500]   A:3568 X:2100 Y:2320 P:envmxdizC
+$9D/C293 22 D4 E0 9D JSL $9DE0D4[$9D:E0D4]   A:3568 X:2100 Y:2320 P:envmxdizC
+$9D/C297 6B          RTL                     A:0200 X:0100 Y:0000 P:envmxdizc
+
+
+LookAtStringCharacters()
+// Preconditions: [$8D] points to the start of the team name string e.g., 'Canadiens'
+$9E/C7BE DA          PHX                     A:0007 X:000C Y:0004 P:envmxdizC
+$9E/C7BF A0 02 00    LDY #$0002              A:0007 X:000C Y:0004 P:envmxdizC
+$9E/C7C2 AD 11 0D    LDA $0D11  [$9F:0D11]   A:0007 X:000C Y:0002 P:envmxdizC
+$9E/C7C5 0A          ASL A                   A:0007 X:000C Y:0002 P:envmxdizC
+$9E/C7C6 0A          ASL A                   A:000E X:000C Y:0002 P:envmxdizc
+$9E/C7C7 0A          ASL A                   A:001C X:000C Y:0002 P:envmxdizc
+$9E/C7C8 0A          ASL A                   A:0038 X:000C Y:0002 P:envmxdizc
+$9E/C7C9 0A          ASL A                   A:0070 X:000C Y:0002 P:envmxdizc
+$9E/C7CA 6D 0F 0D    ADC $0D0F  [$9F:0D0F]   A:00E0 X:000C Y:0002 P:envmxdizc
+$9E/C7CD 0A          ASL A                   A:00EC X:000C Y:0002 P:envmxdizc
+$9E/C7CE 6D D9 0C    ADC $0CD9  [$9F:0CD9]   A:01D8 X:000C Y:0002 P:envmxdizc
+$9E/C7D1 AA          TAX                     A:01D8 X:000C Y:0002 P:envmxdizc
+$9E/C7D2 AF B6 35 7E LDA $7E35B6[$7E:35B6]   A:01D8 X:01D8 Y:0002 P:envmxdizc
+$9E/C7D6 6F A8 35 7E ADC $7E35A8[$7E:35A8]   A:03A0 X:01D8 Y:0002 P:envmxdizc
+$9E/C7DA 0D 0D 0D    ORA $0D0D  [$9F:0D0D]   A:02A0 X:01D8 Y:0002 P:envmxdizC
+$9E/C7DD 85 14       STA $14    [$00:0014]   A:2AA0 X:01D8 Y:0002 P:envmxdizC
+
+$9E/C7DF 98          TYA                     A:00F4 X:01EA Y:000B P:envmxdizc
+$9E/C7E0 C7 8D       CMP [$8D]  [$9C:C563]   A:0002 X:01D8 Y:0002 P:envmxdizC	; If [$8D] points to null, exit
+										; [$8D] is initialized to 9CC563, which is the length prefix of the 'Canadiens' string
+
+$9E/C7E2 D0 03       BNE $03    [$C7E7]      A:0002 X:01D8 Y:0002 P:eNvmxdizc	; Check if done, goto LookAtStringCharacters_NotDone
+
+$9E/C7E4 4C 81 C8    JMP $C881  [$9E:C881]   A:000B X:01EA Y:000B P:envmxdiZC	; goto LookAtStringCharacters_Done
+
+LookAtStringCharacters_NotDone:
+$9E/C7E7 B7 8D       LDA [$8D],y[$9C:C565]   A:0002 X:01D8 Y:0002 P:eNvmxdizc	; Load characters in the actual string. E.g., the 'C' in Canadiens
+$9E/C7E9 89 80 00    BIT #$0080              A:6143 X:01D8 Y:0002 P:envmxdizc
+$9E/C7EC D0 39       BNE $39    [$C827]      A:6143 X:01D8 Y:0002 P:envmxdiZc
+$9E/C7EE 29 FF 00    AND #$00FF              A:6143 X:01D8 Y:0002 P:envmxdiZc
+$9E/C7F1 C9 40 00    CMP #$0040              A:0043 X:01D8 Y:0002 P:envmxdizc
+$9E/C7F4 D0 03       BNE $03    [$C7F9]      A:0043 X:01D8 Y:0002 P:envmxdizC
+$9E/C7F9 DA          PHX                     A:0043 X:01D8 Y:0002 P:envmxdizC
+$9E/C7FA 0A          ASL A                   A:0043 X:01D8 Y:0002 P:envmxdizC
+$9E/C7FB AA          TAX                     A:0086 X:01D8 Y:0002 P:envmxdizc
+$9E/C7FC BF B6 CD 9A LDA $9ACDB6,x[$9A:CE3C] A:0086 X:0086 Y:0002 P:envmxdizc
+$9E/C800 65 14       ADC $14    [$00:0014]   A:0030 X:0086 Y:0002 P:envmxdizc
+$9E/C802 FA          PLX                     A:2AD0 X:0086 Y:0002 P:envmxdizc
+$9E/C803 DF F4 37 7E CMP $7E37F4,x[$7E:39CC] A:2AD0 X:01D8 Y:0002 P:envmxdizc
+$9E/C807 F0 16       BEQ $16    [$C81F]      A:2AD0 X:01D8 Y:0002 P:envmxdizC
+$9E/C809 9F F4 37 7E STA $7E37F4,x[$7E:39CC] A:2AD0 X:01D8 Y:0002 P:envmxdizC
+$9E/C80D 8A          TXA                     A:2AD0 X:01D8 Y:0002 P:envmxdizC
+$9E/C80E 4A          LSR A                   A:01D8 X:01D8 Y:0002 P:envmxdizC
+$9E/C80F CD D5 0C    CMP $0CD5  [$9F:0CD5]   A:00EC X:01D8 Y:0002 P:envmxdizc
+$9E/C812 B0 03       BCS $03    [$C817]      A:00EC X:01D8 Y:0002 P:envmxdizC
+$9E/C817 CD D7 0C    CMP $0CD7  [$9F:0CD7]   A:00EC X:01D8 Y:0002 P:envmxdizC
+$9E/C81A 90 03       BCC $03    [$C81F]      A:00EC X:01D8 Y:0002 P:eNvmxdizc
+$9E/C81F EE 0F 0D    INC $0D0F  [$9F:0D0F]   A:00EC X:01D8 Y:0002 P:eNvmxdizc
+$9E/C822 E8          INX                     A:00EC X:01D8 Y:0002 P:envmxdizc
+$9E/C823 E8          INX                     A:00EC X:01D9 Y:0002 P:envmxdizc
+$9E/C824 C8          INY                     A:00EC X:01DA Y:0002 P:envmxdizc
+$9E/C825 80 B8       BRA $B8    [$C7DF]      A:00EC X:01DA Y:0003 P:envmxdizc
+
+LookAtStringCharacters_Done:
+$9E/C881 18          CLC                     A:000B X:01EA Y:000B P:envmxdiZC
+$9E/C882 65 8D       ADC $8D    [$00:008D]   A:000B X:01EA Y:000B P:envmxdiZc
+$9E/C884 85 8D       STA $8D    [$00:008D]   A:C56E X:01EA Y:000B P:eNvmxdizc
+$9E/C886 FA          PLX                     A:C56E X:01EA Y:000B P:eNvmxdizc
+$9E/C887 6B          RTL                     A:C56E X:000C Y:000B P:envmxdizc

@@ -165,7 +165,7 @@ struct TeamData
     std::vector<unsigned char> Header;
     ModifiableStat<std::string> TeamCity;
     ModifiableStat<std::string> Acronym;
-    std::string TeamName;
+    ModifiableStat<std::string> TeamName;
     std::string Venue;
     std::vector<PlayerData> Players;
 

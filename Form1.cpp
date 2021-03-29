@@ -456,7 +456,10 @@ TeamData GetTeamData(int playerDataAddress)
         int addr = iter.GetROMOffset();
         result.Acronym.Initialize(addr, iter.LoadROMString());
     }
-    result.TeamName = iter.LoadROMString();
+    {
+        int addr = iter.GetROMOffset();
+        result.TeamName.Initialize(addr, iter.LoadROMString());
+    }
     result.Venue = iter.LoadROMString();
 
     return result;
@@ -871,13 +874,13 @@ std::vector<unsigned char> LoadAsmFromDebuggerText(std::wstring fileName)
     return code;
 }
 
-bool InsertDetour(
-    std::vector<unsigned char> const& decompressProfileMain,
+bool InsertJumpOutDetour(
+    std::vector<unsigned char> const& detourCode,
     int detourSrcStartROMAddress,
     int detourSrcEndROMAddress,
     RomDataIterator* freeSpaceIter)
 {
-    if (decompressProfileMain.size() == 0)
+    if (detourCode.size() == 0)
         return false;
 
     // Quick parameter checking
@@ -885,18 +888,18 @@ bool InsertDetour(
     assert(detourLength >= 4); // Need enough room to insert a long jump
 
     int fileOffsetSrcStart = ROMAddressToFileOffset(detourSrcStartROMAddress);
-    int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Inclusive
+    int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Exclusive
 
     // Save the start of free space so we know where to jump
     int detourDestROMAddress = freeSpaceIter->GetROMOffset();
 
     // Put detour payload in free space
-    for (size_t i = 0; i < decompressProfileMain.size(); ++i)
+    for (size_t i = 0; i < detourCode.size(); ++i)
     {
-        freeSpaceIter->SaveByte(decompressProfileMain[i]);
+        freeSpaceIter->SaveByte(detourCode[i]);
     }
 
-    for (int i = fileOffsetSrcStart; i <= fileOffsetSrcEnd; ++i) // Good hygiene
+    for (int i = fileOffsetSrcStart; i < fileOffsetSrcEnd; ++i) // Good hygiene
     {
         s_romData.SetROMData(i, 0xEA); // NOP
     }
@@ -1045,7 +1048,6 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     struct TeamRename
     {
         Team WhichTeam;
-        std::string OriginalName;
         std::string NewName;
     };
 
@@ -1127,13 +1129,11 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     return true;
 }
 
-
 bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
 {
     struct TeamRename
     {
         Team WhichTeam;
-        std::string OriginalAcronym;
         std::string NewAcronym;
     };
 
@@ -1213,6 +1213,81 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
     }
 
     return true;
+}
+
+
+bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
+{
+    struct TeamRename
+    {
+        Team WhichTeam;
+        std::string OriginalName;
+        std::string NewName;
+    };
+
+    std::vector<TeamRename> renames;
+    std::vector<int> stringAddresses;
+    for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
+    {
+        TeamData const& teamData = s_allTeams[teamIndex];
+        int stringAddress = teamData.TeamName.SourceROMAddress;
+
+        if (teamData.TeamName.IsChanged())
+        {
+            TeamRename r;
+            r.WhichTeam = (Team)teamIndex;
+            r.NewName = teamData.TeamName.Get();
+            renames.push_back(r);
+
+            stringAddress = 0; // Going to be changed
+        }
+
+        stringAddresses.push_back(stringAddress);
+    }
+
+    if (renames.size() == 0)
+        return true; // Nothing to do
+
+    // Reserve space for code
+    std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamNameStringAddress.asm");
+    int codeSize = decompressProfileMain.size();
+    freeSpaceIter->EnsureSpaceInBank(codeSize);
+    const int codeROMLocationFileOffset = freeSpaceIter->GetFileOffset();
+    freeSpaceIter->SkipBytes(codeSize);
+
+    // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
+    int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+    int stringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->EnsureSpaceInBank(stringAddressTableSize);
+    freeSpaceIter->SkipBytes(stringAddressTableSize);
+
+    // Write the renamed strings
+    for (int i = 0; i < renames.size(); ++i)
+    {
+        stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveROMString(renames[i].NewName);
+    }
+
+    // Write the string table
+    {
+        int dstFileOffset = stringTableStartFileAddress;
+
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
+        for (int i = 0; i < stringAddressTableSize; ++i)
+        {
+            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+        }
+    }
+
+    // Code patching
+    // Insert code overtop 9D/C12B -> 9D/C12B by jumping out
+    PatchLoadLongAddressIn8D_Code(decompressProfileMain, FileOffsetToROMAddress(stringTableStartFileAddress));
+
+    RomDataIterator codeIter(codeROMLocationFileOffset);
+
+    // Insert the detour code in free space, and add the jmp
+    bool detourPatched = InsertJumpOutDetour(decompressProfileMain, 0x9DC12B, 0x9DC147 + 2, &codeIter);
+    return detourPatched;
 }
 
 struct PlayerRename
@@ -1326,10 +1401,9 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
 
     PatchLoadFromLongAddress_LookupPlayerNameDet(decompressProfileMain, firstTableLocation);
 
-    // Insert the detour code in free space
-    bool detourPatched = InsertDetour(decompressProfileMain, 0x9FC732, 0x9FC756, &codeIter);
-    if (!detourPatched)
-        return detourPatched;
+    // Insert the detour code in free space, and add the jmp
+    bool detourPatched = InsertJumpOutDetour(decompressProfileMain, 0x9FC732, 0x9FC756 + 1, &codeIter);
+    return detourPatched;
 }
 
 bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
@@ -1408,6 +1482,13 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     if (!InsertTeamAcronymText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupAcronymStringAddress.asm.");
+        MessageBox::Show(dialogString);
+        return;
+    }
+
+    if (!InsertTeamNameText(&freeSpaceIter))
+    {
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamNameStringAddress.asm.");
         MessageBox::Show(dialogString);
         return;
     }
@@ -1652,7 +1733,7 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
     // Refresh what's in the team data pane
     locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity.Get());
     acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym.Get());
-    teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName);
+    teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName.Get());
     teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue);
 }
 
@@ -1668,4 +1749,12 @@ void nhl94e::Form1::acronymTextBox_TextChanged(System::Object^ sender, System::E
     int teamIndex = this->tabControl1->SelectedIndex;
     std::string newName = ManagedToNarrowASCIIString(acronymTextBox->Text);
     s_allTeams[teamIndex].Acronym.Set(newName);
+}
+
+
+void nhl94e::Form1::teamNameTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    std::string newName = ManagedToNarrowASCIIString(teamNameTextBox->Text);
+    s_allTeams[teamIndex].TeamName.Set(newName);
 }
