@@ -3,7 +3,7 @@
 0A          ASL A
 A8          TAY
 
-// Put 0xA08200 into $8D
+// Put 0xA08200 (or whatever the string table address is) into $8D
 A9 A0 00    LDA #$00A0
 85 8F       STA $8F
 A9 00 82    LDA #$8200

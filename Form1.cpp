@@ -1128,7 +1128,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 }
 
 
-bool InsertTeamAcronymText()
+bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
 {
     struct TeamRename
     {
@@ -1138,22 +1138,85 @@ bool InsertTeamAcronymText()
     };
 
     std::vector<TeamRename> renames;
+    std::vector<int> stringAddresses;
     for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& teamData = s_allTeams[teamIndex];
+        int stringAddress = teamData.Acronym.SourceROMAddress;
+
         if (teamData.Acronym.IsChanged())
         {
             TeamRename r;
             r.WhichTeam = (Team)teamIndex;
             r.NewAcronym = teamData.Acronym.Get();
             renames.push_back(r);
+
+            stringAddress = 0; // Going to be changed
         }
+
+        stringAddresses.push_back(stringAddress);
     }
+
+    TeamRename r;
+    r.WhichTeam = Team::Montreal;
+    r.OriginalAcronym = "MTL";
+    r.NewAcronym = "ASD";
+    renames.push_back(r);
 
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    // TODO: change
+    // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
+    int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+    int stringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->EnsureSpaceInBank(stringAddressTableSize);
+    freeSpaceIter->SkipBytes(stringAddressTableSize);
+
+    // Write the renamed strings
+    for (int i = 0; i < renames.size(); ++i)
+    {
+        stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveROMString(renames[i].NewAcronym);
+    }
+
+    // Write the string table
+    {
+        int dstFileOffset = stringTableStartFileAddress;
+
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
+        for (int i = 0; i < stringAddressTableSize; ++i)
+        {
+            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+        }
+    }
+
+    // Code patching
+    // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
+    {
+        std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupAcronymStringAddress.asm");
+
+        PatchLoadLongAddressIn8D_Code(decompressProfileMain, FileOffsetToROMAddress(stringTableStartFileAddress));
+
+        int dstStartROMAddress = 0x9FBD66;
+        int dstEndROMAddress = 0x9FBD8D;
+        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
+        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
+
+        int patchIndex = 0;
+
+        for (int fileOffset = dstFileOffsetStart; fileOffset <= dstFileOffsetEnd; ++fileOffset)
+        {
+            if (patchIndex < decompressProfileMain.size())
+            {
+                s_romData.SetROMData(fileOffset, decompressProfileMain[patchIndex]);
+                patchIndex++;
+            }
+            else
+            {
+                s_romData.SetROMData(fileOffset, 0xEA); // NOP
+            }
+        }
+    }
 
     return true;
 }
@@ -1344,6 +1407,13 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     if (!InsertTeamLocationText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
+        MessageBox::Show(dialogString);
+        return;
+    }
+
+    if (!InsertTeamAcronymText(&freeSpaceIter))
+    {
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupAcronymStringAddress.asm.");
         MessageBox::Show(dialogString);
         return;
     }
