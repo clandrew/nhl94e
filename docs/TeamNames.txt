@@ -112,7 +112,8 @@ $9D/C156 8D 0F 0D    STA $0D0F  [$9F:0D0F]   A:000C X:000C Y:0004 P:envmxdizC
 $9D/C159 A9 07 00    LDA #$0007              A:000C X:000C Y:0004 P:envmxdizC
 $9D/C15C 8D 11 0D    STA $0D11  [$9F:0D11]   A:0007 X:000C Y:0004 P:envmxdizC
 $9D/C15F 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:0007 X:000C Y:0004 P:envmxdizC	; Call LookAtStringCharacters() that looks at the actual characters of the string
-$9D/C163 A7 8D       LDA [$8D]  [$9C:C56E]   A:C56E X:000C Y:000B P:envmxdizc
+
+$9D/C163 A7 8D       LDA [$8D]  [$9C:C56E]   A:C56E X:000C Y:000B P:envmxdizc	; Load the team venue name?
 $9D/C165 3A          DEC A                   A:0010 X:000C Y:000B P:envmxdizc
 $9D/C166 3A          DEC A                   A:000F X:000C Y:000B P:envmxdizc
 $9D/C167 4A          LSR A                   A:000E X:000C Y:000B P:envmxdizc

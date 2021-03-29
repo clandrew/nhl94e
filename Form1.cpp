@@ -460,7 +460,10 @@ TeamData GetTeamData(int playerDataAddress)
         int addr = iter.GetROMOffset();
         result.TeamName.Initialize(addr, iter.LoadROMString());
     }
-    result.Venue = iter.LoadROMString();
+    {
+        int addr = iter.GetROMOffset();
+        result.Venue.Initialize(addr, iter.LoadROMString());
+    }
 
     return result;
 }
@@ -1216,13 +1219,13 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
 }
 
 
-bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
+bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
 {
     struct TeamRename
     {
         Team WhichTeam;
-        std::string OriginalName;
         std::string NewName;
+        std::string NewVenue;
     };
 
     std::vector<TeamRename> renames;
@@ -1232,11 +1235,12 @@ bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
         TeamData const& teamData = s_allTeams[teamIndex];
         int stringAddress = teamData.TeamName.SourceROMAddress;
 
-        if (teamData.TeamName.IsChanged())
+        if (teamData.TeamName.IsChanged() || teamData.Venue.IsChanged())
         {
             TeamRename r;
             r.WhichTeam = (Team)teamIndex;
             r.NewName = teamData.TeamName.Get();
+            r.NewVenue = teamData.Venue.Get();
             renames.push_back(r);
 
             stringAddress = 0; // Going to be changed
@@ -1266,7 +1270,7 @@ bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
     {
         stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveROMString(renames[i].NewName);
-        freeSpaceIter->SaveROMString(renames[i].NewName);
+        freeSpaceIter->SaveROMString(renames[i].NewVenue);
     }
 
     // Write the string table
@@ -1281,7 +1285,6 @@ bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
     }
 
     // Code patching
-    // Insert code overtop 9D/C12B -> 9D/C12B by jumping out
     PatchLoadLongAddressIn8D_Code(decompressProfileMain, FileOffsetToROMAddress(stringTableStartFileAddress));
 
     RomDataIterator codeIter(codeROMLocationFileOffset);
@@ -1487,7 +1490,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         return;
     }
 
-    if (!InsertTeamNameText(&freeSpaceIter))
+    if (!InsertTeamNameOrVenueText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamNameStringAddress.asm.");
         MessageBox::Show(dialogString);
@@ -1735,7 +1738,7 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
     locationTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamCity.Get());
     acronymTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Acronym.Get());
     teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName.Get());
-    teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue);
+    teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue.Get());
 }
 
 void nhl94e::Form1::locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
@@ -1758,4 +1761,11 @@ void nhl94e::Form1::teamNameTextBox_TextChanged(System::Object^ sender, System::
     int teamIndex = this->tabControl1->SelectedIndex;
     std::string newName = ManagedToNarrowASCIIString(teamNameTextBox->Text);
     s_allTeams[teamIndex].TeamName.Set(newName);
+}
+
+void nhl94e::Form1::teamVenueTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    std::string newName = ManagedToNarrowASCIIString(teamVenueTextBox->Text);
+    s_allTeams[teamIndex].Venue.Set(newName);
 }

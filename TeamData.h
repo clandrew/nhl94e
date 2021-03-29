@@ -166,7 +166,7 @@ struct TeamData
     ModifiableStat<std::string> TeamCity;
     ModifiableStat<std::string> Acronym;
     ModifiableStat<std::string> TeamName;
-    std::string Venue;
+    ModifiableStat<std::string> Venue;
     std::vector<PlayerData> Players;
 
     PlayerData* GetPlayerByOriginalName(std::string name)

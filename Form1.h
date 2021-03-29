@@ -156,9 +156,9 @@ namespace nhl94e
 			// 
 			this->teamVenueTextBox->Location = System::Drawing::Point(73, 149);
 			this->teamVenueTextBox->Name = L"teamVenueTextBox";
-			this->teamVenueTextBox->ReadOnly = true;
 			this->teamVenueTextBox->Size = System::Drawing::Size(119, 20);
 			this->teamVenueTextBox->TabIndex = 8;
+			this->teamVenueTextBox->TextChanged += gcnew System::EventHandler(this, &Form1::teamVenueTextBox_TextChanged);
 			// 
 			// teamNameTextBox
 			// 
@@ -276,5 +276,6 @@ namespace nhl94e
 		System::Void locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void teamNameTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
+private: System::Void teamVenueTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 };
 }
