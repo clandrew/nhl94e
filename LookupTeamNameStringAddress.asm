@@ -29,26 +29,6 @@ B7 8D       LDA [$8D],y     // High short
 68          PLA
 85 8D       STA $8D
 
-//////////////////
-
-A4 91       LDY $91 
-A9 9C 00    LDA #$009C
-85 8F       STA $8F
-B9 DC 1C    LDA $1CDC,y[$9F:1CDC]
-85 8D       STA $8D
-
-A0 04 00    LDY #$0004 
-18          CLC
-77 8D       ADC [$8D],y[$9C:C2DF]
-85 8D       STA $8D    [$00:008D]
-
-18          CLC 
-67 8D       ADC [$8D]  [$9C:C554]
-85 8D       STA $8D    [$00:008D]
-18          CLC 
-67 8D       ADC [$8D]  [$9C:C55E]
-85 8D       STA $8D    [$00:008D]
-
 5C 49 C1 9D JMP 9DC149
 
 // 3A ED 9C

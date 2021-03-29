@@ -1266,6 +1266,7 @@ bool InsertTeamNameText(RomDataIterator* freeSpaceIter)
     {
         stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveROMString(renames[i].NewName);
+        freeSpaceIter->SaveROMString(renames[i].NewName);
     }
 
     // Write the string table
