@@ -207,9 +207,9 @@ namespace nhl94e
 			// 
 			this->acronymTextBox->Location = System::Drawing::Point(73, 77);
 			this->acronymTextBox->Name = L"acronymTextBox";
-			this->acronymTextBox->ReadOnly = true;
 			this->acronymTextBox->Size = System::Drawing::Size(119, 20);
 			this->acronymTextBox->TabIndex = 2;
+			this->acronymTextBox->TextChanged += gcnew System::EventHandler(this, &Form1::acronymTextBox_TextChanged);
 			// 
 			// label2
 			// 
@@ -274,5 +274,6 @@ namespace nhl94e
 		void OnSelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 	private: 
 		System::Void locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
+private: System::Void acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 };
 }

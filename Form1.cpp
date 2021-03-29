@@ -1157,12 +1157,6 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
         stringAddresses.push_back(stringAddress);
     }
 
-    TeamRename r;
-    r.WhichTeam = Team::Montreal;
-    r.OriginalAcronym = "MTL";
-    r.NewAcronym = "ASD";
-    renames.push_back(r);
-
     if (renames.size() == 0)
         return true; // Nothing to do
 
@@ -1667,4 +1661,11 @@ void nhl94e::Form1::locationTextBox_TextChanged(System::Object^ sender, System::
     int teamIndex = this->tabControl1->SelectedIndex;
     std::string newName = ManagedToNarrowASCIIString(locationTextBox->Text);
     s_allTeams[teamIndex].TeamCity.Set(newName);
+}
+
+void nhl94e::Form1::acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    std::string newName = ManagedToNarrowASCIIString(acronymTextBox->Text);
+    s_allTeams[teamIndex].Acronym.Set(newName);
 }
