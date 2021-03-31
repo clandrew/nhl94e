@@ -173,7 +173,7 @@ namespace nhl94e
 			this->locationTextBox->Location = System::Drawing::Point(73, 41);
 			this->locationTextBox->Name = L"locationTextBox";
 			this->locationTextBox->Size = System::Drawing::Size(119, 20);
-			this->locationTextBox->TabIndex = 6;
+			this->locationTextBox->TabIndex = 5;
 			this->locationTextBox->TextChanged += gcnew System::EventHandler(this, &Form1::locationTextBox_TextChanged);
 			// 
 			// label5
@@ -208,7 +208,7 @@ namespace nhl94e
 			this->acronymTextBox->Location = System::Drawing::Point(73, 77);
 			this->acronymTextBox->Name = L"acronymTextBox";
 			this->acronymTextBox->Size = System::Drawing::Size(119, 20);
-			this->acronymTextBox->TabIndex = 2;
+			this->acronymTextBox->TabIndex = 6;
 			this->acronymTextBox->TextChanged += gcnew System::EventHandler(this, &Form1::acronymTextBox_TextChanged);
 			// 
 			// label2
