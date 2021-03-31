@@ -54,6 +54,9 @@ namespace nhl94e
 	private: System::Windows::Forms::Label^ label4;
 	private: System::Windows::Forms::Label^ label3;
 	private: System::Windows::Forms::TextBox^ acronymTextBox;
+#if _DEBUG
+	DoubleBufferedDataGridView^ m_montrealDataGridView; // For programmatic access
+#endif
 
 	private:
 		/// <summary>

@@ -719,6 +719,13 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     }
 
     tabPage1->ResumeLayout(false);
+
+#if _DEBUG
+    if (team.TeamCity.Get() == "Montreal")
+    {
+        m_montrealDataGridView = dataGridView1;
+    }
+#endif
 }
 
 std::wstring ManagedToWideString(System::String^ s)
@@ -753,6 +760,86 @@ System::String^ NarrowASCIIStringToManaged(std::string const& s)
     return gcnew System::String(s.c_str());
 }
 
+bool IsValidPlayerName(System::String^ name)
+{
+    // Name must consist of alphanumeric letters, space and period
+    for (int i = 0; i < name->Length; ++i)
+    {
+        wchar_t ch = name[i];
+        bool valid =
+            (ch >= L'a' && ch <= L'z') ||
+            (ch >= L'A' && ch <= L'Z') ||
+            ch == L' ' ||
+            ch == L'.';
+        if (!valid)
+            return false;
+    }
+
+    return true;
+}
+
+void TryCommitPlayerNameChange(
+    System::Windows::Forms::DataGridView^ view,
+    int teamIndex,
+    int rowIndex)
+{
+    System::Windows::Forms::DataGridViewCell^ gridCell = view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerName];
+    System::Object^ value = gridCell->Value;
+    System::String^ stringValue = (System::String^)value;
+
+    if (!IsValidPlayerName(stringValue))
+        return;
+
+    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+    PlayerData* player = &s_allTeams[teamIndex].Players[playerIndex];
+
+    std::string s = ManagedToNarrowASCIIString(stringValue);
+    s_allTeams[teamIndex].Players[playerIndex].Name.Set(s);
+
+    if (player->Name.IsChanged())
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        gridCell->Style->BackColor = System::Drawing::Color::White;
+    }
+}
+
+
+void TryCommitStatChange(
+    System::Windows::Forms::DataGridView^ view,
+    int teamIndex,
+    int rowIndex,
+    int whichStatIndex,
+    int minAllowedValue,
+    int maxAllowedValue)
+{
+    System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
+
+    int n = 0;
+    if (!int::TryParse((System::String^)value, n))
+        return;
+
+    if (n < minAllowedValue || n > maxAllowedValue)
+        return;
+
+    // Commit new value to s_allTeams
+    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
+
+    s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
+
+    if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
+    {
+        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
+    }
+    else
+    {
+        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
+    }
+}
+
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
     int dbg = FileOffsetToROMAddress(0xB88D0);
@@ -774,6 +861,56 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
 
     this->tabControl1->SelectedIndexChanged += gcnew System::EventHandler(this, &nhl94e::Form1::OnSelectedIndexChanged);
     OnSelectedIndexChanged(nullptr, nullptr);
+
+#if _DEBUG
+    {
+        int playerIndex = 0;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Leveille";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "29";
+    }
+    {
+        int playerIndex = 2;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Meghan Pezon";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "15";
+    }
+    {
+        int playerIndex = 6;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Jonna Curtis";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "3";
+    }
+    {
+        int playerIndex = 11;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Allie Thunstrom";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "9";
+    }
+    {
+        int playerIndex = 16;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Boulier";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "8";
+    }
+    {
+        int playerIndex = 17;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Winnie Brodt Brown";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "5";
+    }
+    {
+        locationTextBox->Text = "Minnesota";
+        //acronymTextBox->Text = "MN"; // problem
+        //teamNameTextBox->Text = "Whitecaps"; // problem
+        //teamVenueTextBox->Text = "TRIA Rink"; // problem
+    }
+
+    /*
+    
+
+void nhl94e::Form1::acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    std::string newName = ManagedToNarrowASCIIString(acronymTextBox->Text);
+    s_allTeams[teamIndex].Acronym.Set(newName);
+}
+    */
+#endif
 }
 
 System::Void nhl94e::Form1::openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
@@ -800,6 +937,7 @@ System::Void nhl94e::Form1::Form1_Load(System::Object^ sender, System::EventArgs
 #if _DEBUG
     OpenROM(L"E:\\Emulation\\SNES\\Images\\nhl94.sfc");
 #endif
+
 }
 
 unsigned char ChrToHex(wchar_t ch)
@@ -957,10 +1095,8 @@ struct ObjectCode
         m_code.push_back(0x6B);
     }
 
-    void AppendLongJump(int addr)
+    void AppendLongAddress(int addr)
     {
-        m_code.push_back(0x5C);
-
         unsigned char c;
         c = addr & 0xFF;
         m_code.push_back(c);
@@ -975,6 +1111,19 @@ struct ObjectCode
         addr >>= 8;
 
         assert(addr == 0); // Needs to be 24 bits
+
+    }
+
+    void AppendLongJump(int addr)
+    {
+        m_code.push_back(0x5C);
+        AppendLongAddress(addr);
+    }
+
+    void AppendJumpSubroutineLong(int addr)
+    {
+        m_code.push_back(0x22);
+        AppendLongAddress(addr);
     }
 
     void PrependCode(unsigned char code[], int codeSize)
@@ -1209,7 +1358,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         }
         {
             ObjectCode code;
-            code.LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress2.asm");
+            code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
             code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
             code.AppendLongJump(0x9ECD19);
 
@@ -1280,7 +1429,7 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
     {
         ObjectCode code;
-        code.LoadAsmFromDebuggerText(L"LookupAcronymStringAddress.asm");
+        code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
 
         // AD 0F 0D    LDA $0D0F; Original code does this, we preserve it.
         // 48          PHA
@@ -1292,6 +1441,8 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
         code.PrependCode(prefix, _countof(prefix));
 
         code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+
+        code.AppendJumpSubroutineLong(0x9EC7BE);
 
         int dstStartROMAddress = 0x9FBD66;
         int dstEndROMAddress = 0x9FBD8D;
@@ -1353,7 +1504,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
 
     // Reserve space for code
     ObjectCode code;
-    code.LoadAsmFromDebuggerText(L"LookupTeamNameStringAddress.asm");
+    code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
 
     // Load the team index, which has been stored at 9F1C98/9F1C9A for home/away.
     // A4 91                LDY $91
@@ -1393,6 +1544,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
 
     // Code patching
     code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+    code.AppendLongJump(0x9DC149);
 
     RomDataIterator codeIter(codeROMLocationFileOffset);
 
@@ -1586,21 +1738,21 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
     if (!InsertTeamLocationText(&freeSpaceIter))
     {
-        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamLocationStringAddress.asm.");
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LoadLongAddress_ArrayElement_Into_8D.asm.");
         MessageBox::Show(dialogString);
         return;
     }
 
     if (!InsertTeamAcronymText(&freeSpaceIter))
     {
-        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupAcronymStringAddress.asm.");
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LoadLongAddress_ArrayElement_Into_8D.asm.");
         MessageBox::Show(dialogString);
         return;
     }
 
     if (!InsertTeamNameOrVenueText(&freeSpaceIter))
     {
-        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupTeamNameStringAddress.asm.");
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LoadLongAddress_ArrayElement_Into_8D.asm.");
         MessageBox::Show(dialogString);
         return;
     }
@@ -1615,24 +1767,6 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     s_romData.SaveBytesToFile(outputFilename.c_str());
 
     MessageBox::Show(L"Output file saved.", L"Info");
-}
-
-bool IsValidPlayerName(System::String^ name)
-{
-    // Name must consist of alphanumeric letters, space and period
-    for (int i = 0; i < name->Length; ++i)
-    {
-        wchar_t ch = name[i];
-        bool valid =
-            (ch >= L'a' && ch <= L'z') ||
-            (ch >= L'A' && ch <= L'Z') ||
-            ch == L' ' ||
-            ch == L'.';
-        if (!valid)
-            return false;
-    }
-
-    return true;
 }
 
 void nhl94e::Form1::OnCellValidating(System::Object^ sender, System::Windows::Forms::DataGridViewCellValidatingEventArgs^ e)
@@ -1707,39 +1841,6 @@ void nhl94e::Form1::OnCellValidating(System::Object^ sender, System::Windows::Fo
     }
 }
 
-
-void TryCommitStatChange(
-    System::Windows::Forms::DataGridView^ view,
-    int teamIndex,
-    int rowIndex,
-    int whichStatIndex,
-    int minAllowedValue,
-    int maxAllowedValue)
-{
-    System::Object^ value = view->Rows[rowIndex]->Cells[whichStatIndex]->Value;
-
-    int n = 0;
-    if (!int::TryParse((System::String^)value, n))
-        return;
-
-    if (n < minAllowedValue || n > maxAllowedValue)
-        return;
-
-    // Commit new value to s_allTeams
-    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
-
-    s_allTeams[teamIndex].Players[playerIndex].SetNumericalStat((WhichStat)whichStatIndex, n);
-
-    if (s_allTeams[teamIndex].Players[playerIndex].IsNumericalStatChanged((WhichStat)whichStatIndex))
-    {
-        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::LightBlue;
-    }
-    else
-    {
-        view->Rows[rowIndex]->Cells[whichStatIndex]->Style->BackColor = System::Drawing::Color::White;
-    }
-}
-
 void UpdateGridCellBackgroundColor(
     System::Windows::Forms::DataGridViewCell^ gridCell,
     PlayerData* player,
@@ -1779,34 +1880,6 @@ void TryCommitHandednessStatChange(
         WhichStat::Handedness);
 }
 
-void TryCommitPlayerNameChange(
-    System::Windows::Forms::DataGridView^ view,
-    int teamIndex,
-    int rowIndex)
-{
-    System::Windows::Forms::DataGridViewCell^ gridCell = view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerName];
-    System::Object^ value = gridCell->Value;
-    System::String^ stringValue = (System::String^)value;
-
-    if (!IsValidPlayerName(stringValue))
-        return;
-
-    unsigned __int64 playerIndex = (unsigned __int64)(view->Rows[rowIndex]->Cells[(int)WhichStat::PlayerIndex]->Value);
-
-    PlayerData* player = &s_allTeams[teamIndex].Players[playerIndex];
-
-    std::string s = ManagedToNarrowASCIIString(stringValue);
-    s_allTeams[teamIndex].Players[playerIndex].Name.Set(s);
-
-    if (player->Name.IsChanged())
-    {
-        gridCell->Style->BackColor = System::Drawing::Color::LightBlue;
-    }
-    else
-    {
-        gridCell->Style->BackColor = System::Drawing::Color::White;
-    }
-}
 
 void nhl94e::Form1::OnCellValueChanged(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
 {
