@@ -755,6 +755,8 @@ System::String^ NarrowASCIIStringToManaged(std::string const& s)
 
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
+    int dbg = FileOffsetToROMAddress(0xB88D0);
+
     s_romData.LoadBytesFromFile(romFilename.c_str());
 
     if (!s_romData.EnsureExpandedSize())
@@ -1102,11 +1104,17 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
 
     // Code patching
+    // There are 2 pieces of code patching :( two things try to load team location strings
+    // A) the game menu
+    // B) the 'Ron Barr commentary'
+    // They use completely different loader code. Terrific
+
+    // This part is for the game menu
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
     {
-        std::vector<unsigned char> decompressProfileMain = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
+        std::vector<unsigned char> code = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress.asm");
 
-        PatchLoadLongAddressIn8D_Code(decompressProfileMain, FileOffsetToROMAddress(stringTableStartFileAddress));
+        PatchLoadLongAddressIn8D_Code(code, FileOffsetToROMAddress(stringTableStartFileAddress));
 
         int dstStartROMAddress = 0x9BC5AB;
         int dstEndROMAddress = 0x9BC5E6;
@@ -1117,15 +1125,61 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         for (int fileOffset = dstFileOffsetStart; fileOffset <= dstFileOffsetEnd; ++fileOffset)
         {
-            if (patchIndex < decompressProfileMain.size())
+            if (patchIndex < code.size())
             {
-                s_romData.SetROMData(fileOffset, decompressProfileMain[patchIndex]);
+                s_romData.SetROMData(fileOffset, code[patchIndex]);
                 patchIndex++;
             }
             else
             {
                 s_romData.SetROMData(fileOffset, 0xEA); // NOP
             }
+        }
+    }
+
+    // This part is for the 'Ron Barr commentary'.
+    //
+    // The detoured payload is too big to fit on top, so we need a jump out.
+    // This is operating on $9E/CCFE - $9E/CD17
+    {
+
+        int dstStartROMAddress = 0x9ECCFE;
+        int dstEndROMAddress = 0x9ECD17 + 2;
+        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
+        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
+
+        for (int fileOffset = dstFileOffsetStart; fileOffset < dstFileOffsetEnd; ++fileOffset)
+        {
+            s_romData.SetROMData(fileOffset, 0xEA); // NOP so that I feel better about it
+        }
+        {
+            // At AwayTeamImpl we need
+            // $9E/CCFE AF E2 1C 9F LDA $9F1CE2
+            // $9E/CD02 80 06       BRA $06    [$CD0A]
+            int i = ROMAddressToFileOffset(0x9ECCFE);
+            s_romData.SetROMData(i + 0, 0xAF);
+            s_romData.SetROMData(i + 1, 0xE2);
+            s_romData.SetROMData(i + 2, 0x1C);
+            s_romData.SetROMData(i + 3, 0x9F);
+            s_romData.SetROMData(i + 4, 0x80);
+            s_romData.SetROMData(i + 5, 0x06);
+        }
+        {
+            // At HomeTeamImpl we need
+            // $9E/CD05 AF E0 1C 9F LDA $9F1CE0
+            int i = ROMAddressToFileOffset(0x9ECD05);
+            s_romData.SetROMData(i + 0, 0xAF);
+            s_romData.SetROMData(i + 1, 0xE0);
+            s_romData.SetROMData(i + 2, 0x1C);
+            s_romData.SetROMData(i + 3, 0x9F);
+        }
+        {
+            std::vector<unsigned char> code = LoadAsmFromDebuggerText(L"LookupTeamLocationStringAddress2.asm");
+
+            PatchLoadLongAddressIn8D_Code(code, FileOffsetToROMAddress(stringTableStartFileAddress));
+
+            freeSpaceIter->EnsureSpaceInBank(code.size());
+            InsertJumpOutDetour(code, 0x9ECD0A, 0x9ECD17 + 2, freeSpaceIter);
         }
     }
 
