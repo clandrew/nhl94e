@@ -4,7 +4,6 @@
 // LoadStringLocation()
 // Precondition: team index saved at $B1 and also in acc
 // Postcondition: address of that team's location string is stored at $8D
-// 		Don't worry if the string data is mixed-case. There's a routine that converts the result to upper case.
 $9B/C5AB C9 0D 00    CMP #$000D              A:000B X:0002 Y:0002 P:envmxdizC	// Check if team is NYIslanders
 $9B/C5AE F0 20       BEQ $20    [$C5D0]      A:000B X:0002 Y:0002 P:eNvmxdizc	// If so, goto LoadStringLocation_TeamIsNYIslanders
 

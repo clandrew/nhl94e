@@ -895,21 +895,10 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     }
     {
         locationTextBox->Text = "Minnesota";
-        //acronymTextBox->Text = "MN"; // problem
-        //teamNameTextBox->Text = "Whitecaps"; // problem
-        //teamVenueTextBox->Text = "TRIA Rink"; // problem
+        acronymTextBox->Text = "MN";
+        teamNameTextBox->Text = "Whitecaps"; 
+        teamVenueTextBox->Text = "TRIA Rink";
     }
-
-    /*
-    
-
-void nhl94e::Form1::acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
-{
-    int teamIndex = this->tabControl1->SelectedIndex;
-    std::string newName = ManagedToNarrowASCIIString(acronymTextBox->Text);
-    s_allTeams[teamIndex].Acronym.Set(newName);
-}
-    */
 #endif
 }
 
@@ -1130,7 +1119,7 @@ struct ObjectCode
     {
         for (int i = codeSize-1; i >= 0; --i)
         {
-            m_code.push_back(code[i]);
+            m_code.insert(m_code.begin(), code[i]);
         }
     }
 
@@ -1511,6 +1500,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     // B9 98 1C             LDA $1C98, y[$9F:1C98]
     unsigned char prefix[] = { 0xA4, 0x91, 0xB9, 0x98, 0x1C };
     code.PrependCode(prefix, _countof(prefix));
+    code.AppendLongJump(0x9DC149);
 
     int codeSize = code.m_code.size();
     freeSpaceIter->EnsureSpaceInBank(codeSize);
@@ -1542,11 +1532,8 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         }
     }
 
-    // Code patching
-    code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
-    code.AppendLongJump(0x9DC149);
-
     RomDataIterator codeIter(codeROMLocationFileOffset);
+    code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
 
     // Insert the detour code in free space, and add the jmp
     bool detourPatched = InsertJumpOutDetour(code.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
