@@ -22,7 +22,7 @@ You can also rename teams and team venues. This functionality is in 'Alpha'.
 What works:
 * Renames that show up beside the "Home" and "Visitor" labels of the GAME SETUP screen
 * Renames affecting player cards
-* 
+
 What doesn't work:
 * Renames that show up in Ron Barr's commentary
 
