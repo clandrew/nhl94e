@@ -1468,11 +1468,13 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     };
 
     std::vector<TeamRename> renames;
-    std::vector<int> stringAddresses;
+    std::vector<int> teamNameStringAddresses;
+    std::vector<int> venueStringAddresses;
     for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& teamData = s_allTeams[teamIndex];
-        int stringAddress = teamData.TeamName.SourceROMAddress;
+        int teamNameStringAddress = teamData.TeamName.SourceROMAddress;
+        int venueStringAddress = teamData.Venue.SourceROMAddress;
 
         if (teamData.TeamName.IsChanged() || teamData.Venue.IsChanged())
         {
@@ -1482,62 +1484,112 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
             r.NewVenue = teamData.Venue.Get();
             renames.push_back(r);
 
-            stringAddress = 0; // Going to be changed
+            teamNameStringAddress = 0; // Going to be changed
         }
 
-        stringAddresses.push_back(stringAddress);
+        teamNameStringAddresses.push_back(teamNameStringAddress);
+        venueStringAddresses.push_back(venueStringAddress);
     }
 
     if (renames.size() == 0)
         return true; // Nothing to do
 
     // Reserve space for code
-    ObjectCode code;
-    code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+    ObjectCode code1;
+    int codeROMLocationFileOffset1;
+    {
+        code1.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
 
-    // Load the team index, which has been stored at 9F1C98/9F1C9A for home/away.
-    // A4 91                LDY $91
-    // B9 98 1C             LDA $1C98, y[$9F:1C98]
-    unsigned char prefix[] = { 0xA4, 0x91, 0xB9, 0x98, 0x1C };
-    code.PrependCode(prefix, _countof(prefix));
-    code.AppendLongJump(0x9DC149);
+        // Load the team index, which has been stored at 9F1C98/9F1C9A for home/away.
+        // A4 91                LDY $91
+        // B9 98 1C             LDA $1C98, y[$9F:1C98]
+        unsigned char prefix[] = { 0xA4, 0x91, 0xB9, 0x98, 0x1C };
+        code1.PrependCode(prefix, _countof(prefix));
+        code1.AppendLongJump(0x9DC149);
 
-    int codeSize = code.m_code.size();
-    freeSpaceIter->EnsureSpaceInBank(codeSize);
-    const int codeROMLocationFileOffset = freeSpaceIter->GetFileOffset();
-    freeSpaceIter->SkipBytes(codeSize);
+        int codeSize = code1.m_code.size();
+        freeSpaceIter->EnsureSpaceInBank(codeSize);
+        codeROMLocationFileOffset1 = freeSpaceIter->GetFileOffset();
+        freeSpaceIter->SkipBytes(codeSize);
+    }
+
+    ObjectCode code2;
+    int codeROMLocationFileOffset2;
+    {
+        code2.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+
+        // AF E0 1C 9F LDA $9F1CE0
+        unsigned char prefix[] = { 0xAF, 0xE0, 0x1C, 0x9F };
+        code2.PrependCode(prefix, _countof(prefix));
+        code2.AppendLongJump(0x9ECD19);
+
+        int codeSize = code2.m_code.size();
+        freeSpaceIter->EnsureSpaceInBank(codeSize);
+        codeROMLocationFileOffset2 = freeSpaceIter->GetFileOffset();
+        freeSpaceIter->SkipBytes(codeSize);
+    }
 
     // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
-    int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
-    int stringAddressTableSize = (int)Team::Count * 4;
-    freeSpaceIter->EnsureSpaceInBank(stringAddressTableSize);
-    freeSpaceIter->SkipBytes(stringAddressTableSize);
+    int teamNameStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+    int teamNameStringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->EnsureSpaceInBank(teamNameStringAddressTableSize);
+    freeSpaceIter->SkipBytes(teamNameStringAddressTableSize);
+
+    int venueStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+    int venueStringAddressTableSize = (int)Team::Count * 4;
+    freeSpaceIter->EnsureSpaceInBank(venueStringAddressTableSize);
+    freeSpaceIter->SkipBytes(venueStringAddressTableSize);
 
     // Write the renamed strings
     for (int i = 0; i < renames.size(); ++i)
     {
-        stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        teamNameStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveROMString(renames[i].NewName);
+
+        venueStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveROMString(renames[i].NewVenue);
     }
 
-    // Write the string table
+    // Write the string tables
     {
-        int dstFileOffset = stringTableStartFileAddress;
+        int dstFileOffset = teamNameStringTableStartFileAddress;
 
-        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
-        for (int i = 0; i < stringAddressTableSize; ++i)
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(teamNameStringAddresses.data());
+        for (int i = 0; i < teamNameStringAddressTableSize; ++i)
+        {
+            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+        }
+    }
+    {
+        int dstFileOffset = venueStringTableStartFileAddress;
+
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(venueStringAddresses.data());
+        for (int i = 0; i < venueStringAddressTableSize; ++i)
         {
             s_romData.Set(dstFileOffset + i, stringAddressData[i]);
         }
     }
 
-    RomDataIterator codeIter(codeROMLocationFileOffset);
-    code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+    {
+        RomDataIterator codeIter(codeROMLocationFileOffset1);
 
-    // Insert the detour code in free space, and add the jmp
-    bool detourPatched = InsertJumpOutDetour(code.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
-    return detourPatched;
+        code1.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
+
+        // Insert the detour code in free space, and add the jmp
+        bool detourPatched = InsertJumpOutDetour(code1.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
+        if (!detourPatched) return false;
+
+    }
+    {
+        // Venue
+        RomDataIterator codeIter(codeROMLocationFileOffset2);
+        code2.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(venueStringTableStartFileAddress));
+
+        bool detourPatched = InsertJumpOutDetour(code2.m_code, 0x9ECC4B, 0x9ECC6C + 2, &codeIter);
+        if (!detourPatched) return false;
+
+    }
+    return true;
 }
 
 struct PlayerRename

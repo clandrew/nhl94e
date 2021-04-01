@@ -37,8 +37,13 @@ $9E/C986 10 5A       BPL $5A    [$C9E2]      A:0167 X:000A Y:0400 P:envmxdizc
 ...
 $9E/C9B0 6B          RTL                     A:0000 X:000A Y:0400 P:envmxdizc
 ...
-$9E/C9E2 A5 8D       LDA $8D    [$00:008D]   A:0167 X:000A Y:0400 P:envmxdizc
-$9E/C9E4 18          CLC                     A:88DC X:000A Y:0400 P:eNvmxdizc
+$9E/C9E2 A5 8D       LDA $8D    [$00:008D]   A:0167 X:000A Y:0400 P:envmxdizc	; Note: Ron Barr's dialogue strings are stored at 978A51
+$9E/C9E4 18          CLC                     A:88DC X:000A Y:0400 P:eNvmxdizc	; It contains placeholders like 
+										; %H (25 48) for home team location,
+										; %O (25 30) for home team name
+										; %V (25 56) for away team location
+										; %6 (25 36) for away team name
+										; %r (25 72) for venue
 $9E/C9E5 65 A5       ADC $A5    [$00:00A5]   A:88DC X:000A Y:0400 P:eNvmxdizc
 $9E/C9E7 85 91       STA $91    [$00:0091]   A:8A43 X:000A Y:0400 P:eNvmxdizc
 $9E/C9E9 A5 8F       LDA $8F    [$00:008F]   A:8A43 X:000A Y:0400 P:eNvmxdizc
@@ -47,33 +52,65 @@ $9E/C9ED A9 0A 00    LDA #$000A              A:0097 X:000A Y:0400 P:envmxdizc
 $9E/C9F0 8D 45 0D    STA $0D45  [$9F:0D45]   A:000A X:000A Y:0400 P:envmxdizc
 $9E/C9F3 AD 47 0D    LDA $0D47  [$9F:0D47]   A:000A X:000A Y:0400 P:envmxdizc
 $9E/C9F6 85 A5       STA $A5    [$00:00A5]   A:000D X:000A Y:0400 P:envmxdizc
-$9E/C9F8 A7 91       LDA [$91]  [$97:8A43]   A:000D X:000A Y:0400 P:envmxdizc
+$9E/C9F8 A7 91       LDA [$91]  [$97:8A43]   A:000D X:000A Y:0400 P:envmxdizc	; Load the start of a word (the game understands spaces as delimiters.)
 $9E/C9FA 29 FF 00    AND #$00FF              A:7625 X:000A Y:0400 P:envmxdizc
-$9E/C9FD C9 25 00    CMP #$0025              A:0025 X:000A Y:0400 P:envmxdizc
+$9E/C9FD C9 25 00    CMP #$0025              A:0025 X:000A Y:0400 P:envmxdizc	; Is it the placeholder character '%'?
 $9E/CA00 F0 03       BEQ $03    [$CA05]      A:0025 X:000A Y:0400 P:envmxdiZC
-$9E/CA05 E6 91       INC $91    [$00:0091]   A:0025 X:000A Y:0400 P:envmxdiZC
-$9E/CA07 A7 91       LDA [$91]  [$97:8A44]   A:0025 X:000A Y:0400 P:eNvmxdizC
-$9E/CA09 EE 3F 0D    INC $0D3F  [$9F:0D3F]   A:2076 X:000A Y:0400 P:envmxdizC
-$9E/CA0C 29 FF 00    AND #$00FF              A:2076 X:000A Y:0400 P:envmxdizC
-$9E/CA0F C9 72 00    CMP #$0072              A:0076 X:000A Y:0400 P:envmxdizC	;
-
-
-$9E/CA12 D0 03       BNE $03    [$CA17]      A:0076 X:000A Y:0400 P:envmxdizC
+$9E/CA02 4C B7 CA    JMP $CAB7  [$9E:CAB7]   A:0074 X:000A Y:0400 P:envmxdizC
 ...
+IsWildcardCharacter:
+$9E/CA05 E6 91       INC $91    [$00:0091]   A:0025 X:000A Y:0400 P:envmxdiZC
+$9E/CA07 A7 91       LDA [$91]  [$97:8A44]   A:0025 X:000A Y:0400 P:eNvmxdizC	; Load the wildcard character itself
+$9E/CA09 EE 3F 0D    INC $0D3F  [$9F:0D3F]   A:2076 X:000A Y:0400 P:envmxdizC
+$9E/CA0C 29 FF 00    AND #$00FF              A:2076 X:000A Y:0400 P:envmxdizC	; Pick out the low byte
+$9E/CA0F C9 72 00    CMP #$0072              A:0076 X:000A Y:0400 P:envmxdizC	; Is it the placeholder '%r' (venue)?
+$9E/CA12 D0 03       BNE $03    [$CA17]      A:0076 X:000A Y:0400 P:envmxdizC	; If so, fall through to VenueWildCard. Otherwise goto NotVenueWildCard
 
-$9E/CA17 C9 76 00    CMP #$0076              A:0076 X:000A Y:0400 P:envmxdizC	; 
-$9E/CA1A D0 03       BNE $03    [$CA1F]      A:0076 X:000A Y:0400 P:envmxdiZC	; Goto OnHomeTeam
+VenueWildCard:
+$9E/CA14 4C 4B CC    JMP $CC4B  [$9E:CC4B]   A:0072 X:000A Y:0400 P:envmxdiZC	; goto VenueWildCardImpl
 
-OnAwayTeam:
-$9E/CA1C 4C FE CC    JMP $CCFE  [$9E:CCFE]   A:0076 X:000A Y:0400 P:envmxdiZC	; Goto AwayTeamImpl
+NotVenueWildCard:
+$9E/CA17 C9 76 00    CMP #$0076              A:0076 X:000A Y:0400 P:envmxdizC	; Is it the placeholder %v? (away location possibly)
+$9E/CA1A D0 03       BNE $03    [$CA1F]      A:0076 X:000A Y:0400 P:envmxdiZC	; If so, fall thru to AwayTeamWildCard. Otherwise, goto HomeTeamWildCard.
 
-OnHomeTeam:
+AwayTeamWildCard:
+$9E/CA1C 4C FE CC    JMP $CCFE  [$9E:CCFE]   A:0076 X:000A Y:0400 P:envmxdiZC	; Goto AwayTeamWildCardImpl
+
+HomeTeamWildCard:
 $9E/CA1F C9 68 00    CMP #$0068              A:0068 X:000A Y:0400 P:eNvmxdizc
 $9E/CA22 D0 03       BNE $03    [$CA27]      A:0068 X:000A Y:0400 P:envmxdiZC
-$9E/CA24 4C 05 CD    JMP $CD05  [$9E:CD05]   A:0068 X:000A Y:0400 P:envmxdiZC	; Goto HomeTeamImpl
+$9E/CA24 4C 05 CD    JMP $CD05  [$9E:CD05]   A:0068 X:000A Y:0400 P:envmxdiZC	; Goto HomeTeamWildCardImpl
+
+$9E/CC41 22 23 D3 9E JSL $9ED323[$9E:D323]   A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC45 68          PLA                     A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC46 85 A5       STA $A5    [$00:00A5]   A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC48 4C 19 CD    JMP $CD19  [$9E:CD19]   A:C2DB X:000A Y:0004 P:eNvmxdizC
+
+VenueWildCardImpl:
+$9E/CC4B AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:C2DB X:000A Y:0004 P:eNvmxdizC	; Hard coded to use the home team's venue.
+$9E/CC4E 85 8D       STA $8D    [$00:008D]   A:C2DB X:000A Y:0004 P:eNvmxdizC
+
+$9E/CC50 A9 9C 00    LDA #$009C              A:0003 X:000A Y:0004 P:envmxdizc // NOTE xxx I think the detouring should be somewhere around here.
+$9E/CC53 85 8F       STA $8F    [$00:008F]   A:0003 X:000A Y:0004 P:envmxdizc
+$9E/CC55 A0 04 00    LDY #$0004              A:0003 X:000A Y:0004 P:envmxdizc // Seek to the team strings
+$9E/CC58 A5 8D       LDA $8D    [$00:008D]   A:0003 X:000A Y:0004 P:envmxdizc
+$9E/CC5A 18          CLC                     A:0003 X:000A Y:0004 P:envmxdizc
+$9E/CC5B 77 8D       ADC [$8D],y[$9C:C558]   A:0003 X:000A Y:0004 P:envmxdizc 
+$9E/CC5D 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc	[$8D] here points to the start of all the team strings, e.g., 9CC554.
+$9E/CC5F A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc ; Load 4?
+$9E/CC61 48          PHA                     A:0004 X:000A Y:0004 P:envmxdizc
+$9E/CC62 A9 03 00    LDA #$0003              A:0004 X:000A Y:0004 P:envmxdizc
+$9E/CC65 85 A5       STA $A5    [$00:00A5]   A:0003 X:000A Y:0004 P:envmxdizc	; update $A5 to 3?
+$9E/CC67 22 23 D3 9E JSL $9ED323[$9E:D323]   A:0003 X:000A Y:0004 P:envmxdizc	; Call GetStringAddressForRonBarr()
+										; This causes [$8D] to point to 9CC56E.
+$9E/CC6B 68          PLA                     A:C56E X:000A Y:0004 P:eNvmxdizc
+$9E/CC6C 85 A5       STA $A5    [$00:00A5]   A:0004 X:000A Y:0004 P:envmxdizc
+$9E/CC6E 4C 19 CD    JMP $CD19  [$9E:CD19]   A:0004 X:000A Y:0004 P:envmxdizc	; goto DoneVenueWildCardImpl
 
 $9E/CCB5 87 95       STA [$95]  [$00:0A2A]   A:0068 X:000A Y:0400 P:envmxdiZC
-$9E/CCB7 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:0068 X:000A Y:0400 P:envmxdiZC
+
+$9E/CCB7 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:0068 X:000A Y:0400 P:envmxdiZC	
+
 $9E/CCBB A9 9E 00    LDA #$009E              A:0068 X:000A Y:0400 P:envmxdiZC
 $9E/CCBE 85 8F       STA $8F    [$00:008F]   A:0068 X:000A Y:0400 P:envmxdiZC
 $9E/CCC0 A9 9A CC    LDA #$CC9A              A:0068 X:000A Y:0400 P:envmxdiZC
@@ -101,13 +138,13 @@ $9E/CCF5 AD 98 1C    LDA $1C98  [$9F:1C98]   A:0068 X:000A Y:0400 P:envmxdiZC	; 
 $9E/CCF8 22 AB C5 9B JSL $9BC5AB[$9B:C5AB]   A:0068 X:000A Y:0400 P:envmxdiZC	; Not reached
 $9E/CCFC 80 1B       BRA $1B    [$CD19]      A:0068 X:000A Y:0400 P:envmxdiZC	; Not reached
 
-AwayTeamImpl:
+AwayTeamWildCardImpl:
 $9E/CCFE AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:0068 X:000A Y:0400 P:envmxdiZC	; E.g., load BDB2, the low short of the team's player data.
 										; Observation: 9F1CE0-2 contain the home and away team indices, respectively.
 $9E/CD01 85 8D       STA $8D    [$00:008D]   A:0068 X:000A Y:0400 P:envmxdiZC
 $9E/CD03 80 05       BRA $05    [$CD0A]      A:0068 X:000A Y:0400 P:envmxdiZC	; goto DoneHomeOrAwaySelection
 
-HomeTeamImpl:
+HomeTeamWildCardImpl:
 $9E/CD05 AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:0000 X:000A Y:0004 P:envmxdiZc	; weird journey how we actually get here through a jump
 										; E.g., load C2DB, the low short of the home team's player data.
 										; 9ECCFE - 9ECD0D disasm. Need a branch 80 06
@@ -126,16 +163,16 @@ $9E/CD14 18          CLC                     A:0000 X:000A Y:0004 P:envmxdiZc
 $9E/CD15 77 8D       ADC [$8D],y[$9C:C558]   A:0000 X:000A Y:0004 P:envmxdiZc	; Add it to the 4th byte of metadata that gets us to the team strings
 $9E/CD17 85 8D       STA $8D    [$00:008D]   A:0000 X:000A Y:0004 P:envmxdiZc	; Responsible for setting [$8D] to C554
 
-// Lucky for us the first team string is the one we want to no extra seeking here.
-// Condition here: [$8D] stores the address of the team location string.
 
+DoneVenueWildCardImpl:
+// Condition here: [$8D] stores the address of a valid string
 $9E/CD19 A9 00 00    LDA #$0000              A:0000 X:000A Y:0004 P:envmxdiZc
 $9E/CD1C 85 97       STA $97    [$00:0097]   A:0000 X:000A Y:0004 P:envmxdiZc
 $9E/CD1E A9 2A 0A    LDA #$0A2A              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD21 85 95       STA $95    [$00:0095]   A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD23 A9 02 00    LDA #$0002              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD26 87 95       STA [$95]  [$00:0A2A]   A:000A X:000A Y:0009 P:envmxdizC
-$9E/CD28 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:000A X:000A Y:0009 P:envmxdizC	call GetLocationStringForRonBarr()
+$9E/CD28 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:000A X:000A Y:0009 P:envmxdizC	call ProcessStringForRonBarr(). This is also true when loading venue strings
 
 $9E/CD2C A9 00 00    LDA #$0000              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD2F 85 8F       STA $8F    [$00:008F]   A:0000 X:000A Y:0009 P:envmxdiZC
@@ -237,10 +274,36 @@ $9E/CB93 65 A9       ADC $A9    [$00:00A9]   A:0000 X:0028 Y:000A P:envmxdiZc
 $9E/CB95 8D 47 0D    STA $0D47  [$9F:0D47]   A:0008 X:0028 Y:000A P:envmxdizc
 $9E/CB98 6B          RTL                     A:0008 X:0028 Y:000A P:envmxdizc	; ret
 
+GetStringAddressForRonBarr()
+// Preconditions: [$8D] already points to the start of the current team's strings.
+//	9F1CDC-E contain the show short of main table entries for home and away teams
+//	9F1CE0-2 contain the indices of the home and away teams, respectively
+// $A5 tells you what string to look up.
+// If $A5 == 1, requesting the acronym.
+// If $A5 == 2, requesting the team name.
+// If $A5 == 3, requesting the venue string.
+// Seems like it could have also been used to look up the team location but the caller earlies that out.
+
+$9E/D323 80 07       BRA $07    [$D32C]      A:0003 X:000A Y:0004 P:envmxdizc	; goto GetStringAddressForRonBarr_Iter
+
+GetStringAddressForRonBarr_MoveToNextString
+$9E/D325 A5 8D       LDA $8D    [$00:008D]   A:0003 X:000A Y:0004 P:envmxdizc
+$9E/D327 18          CLC                     A:C554 X:000A Y:0004 P:eNvmxdizc
+$9E/D328 67 8D       ADC [$8D]  [$9C:C554]   A:C554 X:000A Y:0004 P:eNvmxdizc	
+$9E/D32A 85 8D       STA $8D    [$00:008D]   A:C55E X:000A Y:0004 P:eNvmxdizc ; Here: [$8D] points to start of acronym
+
+GetStringAddressForRonBarr_Iter:
+$9E/D32C C6 A5       DEC $A5    [$00:00A5]   A:0003 X:000A Y:0004 P:envmxdizc
+$9E/D32E 10 F5       BPL $F5    [$D325]      A:0003 X:000A Y:0004 P:envmxdizc	; goto GetStringAddressForRonBarr_MoveToNextString as nec
+// falls thru
+
+GetStringAddressForRonBarr_Done:
+$9E/D330 6B          RTL                     A:C56E X:000A Y:0004 P:eNvmxdizc
 
 
-GetLocationStringForRonBarr()
+ProcessStringForRonBarr()
 // Precondition: [$8D] initialized to the location string e.g., 9CC554
+// Could be a name or a venue string location like 9CC56E.
 $9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0002 X:000A Y:0004 P:envmxdizc
 $9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:0002 X:000A Y:0004 P:eNvmxdizc
 $9E/CFB4 A8          TAY                     A:0002 X:000A Y:0004 P:eNvmxdizc
@@ -261,7 +324,8 @@ $9E/CFBB E6 C5       INC $C5    [$00:00C5]   A:6E6F X:000A Y:0003 P:envmxdizc
 $9E/CFBD E6 C7       INC $C7    [$00:00C7]   A:6E6F X:000A Y:0003 P:envmxdizc
 $9E/CFBF 80 ED       BRA $ED    [$CFAE]      A:6E6F X:000A Y:0003 P:envmxdizc
 $9E/CFAE A5 C5       LDA $C5    [$00:00C5]   A:6E6F X:000A Y:0003 P:envmxdizc
-$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0004 X:000A Y:0003 P:envmxdizc
+
+$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0004 X:000A Y:0003 P:envmxdizc // Load the string length for "Montreal Forum"
 $9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:0004 X:000A Y:0003 P:eNvmxdizc
 $9E/CFB4 A8          TAY                     A:0004 X:000A Y:0003 P:eNvmxdizc
 $9E/CFB5 B7 8D       LDA [$8D],y[$9C:C558]   A:0004 X:000A Y:0004 P:envmxdizc
