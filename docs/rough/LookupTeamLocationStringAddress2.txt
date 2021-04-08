@@ -90,7 +90,7 @@ VenueWildCardImpl:
 $9E/CC4B AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:C2DB X:000A Y:0004 P:eNvmxdizC	; Hard coded to use the home team's venue.
 $9E/CC4E 85 8D       STA $8D    [$00:008D]   A:C2DB X:000A Y:0004 P:eNvmxdizC
 
-$9E/CC50 A9 9C 00    LDA #$009C              A:0003 X:000A Y:0004 P:envmxdizc // NOTE xxx I think the detouring should be somewhere around here.
+$9E/CC50 A9 9C 00    LDA #$009C              A:0003 X:000A Y:0004 P:envmxdizc 
 $9E/CC53 85 8F       STA $8F    [$00:008F]   A:0003 X:000A Y:0004 P:envmxdizc
 $9E/CC55 A0 04 00    LDY #$0004              A:0003 X:000A Y:0004 P:envmxdizc // Seek to the team strings
 $9E/CC58 A5 8D       LDA $8D    [$00:008D]   A:0003 X:000A Y:0004 P:envmxdizc

@@ -954,6 +954,8 @@ unsigned char StrToHex(std::wstring s)
     return (d0 * 16) + d1;
 }
 
+static std::vector<unsigned char> asm_LoadLongAddress_ArrayElement_Into_8D_txt;
+
 struct ObjectCode
 {
     std::vector<unsigned char> m_code;
@@ -1121,10 +1123,21 @@ struct ObjectCode
         {
             m_code.insert(m_code.begin(), code[i]);
         }
+    } 
+
+    void LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt()
+    {
+        if (asm_LoadLongAddress_ArrayElement_Into_8D_txt.size() == 0)
+        {
+            asm_LoadLongAddress_ArrayElement_Into_8D_txt = LoadAsmFromDebuggerTextImpl(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        }
+
+        m_code = asm_LoadLongAddress_ArrayElement_Into_8D_txt;
     }
 
-    void LoadAsmFromDebuggerText(std::wstring fileName)
+    static std::vector<unsigned char> LoadAsmFromDebuggerTextImpl(std::wstring fileName)
     {
+        std::vector<unsigned char> code;
         std::wifstream f(fileName);
         std::vector<std::wstring> lines;
         while (f.good())
@@ -1165,9 +1178,15 @@ struct ObjectCode
 
                 unsigned char b = StrToHex(tokens[i]);
 
-                m_code.push_back(b);
+                code.push_back(b);
             }
         }
+        return code;
+    }
+
+    void LoadAsmFromDebuggerText(std::wstring fileName)
+    {
+        m_code = LoadAsmFromDebuggerTextImpl(fileName);
     }
 };
 
@@ -1284,7 +1303,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
     {
         ObjectCode code;
-        code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
         code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
         code.AppendReturnLong();
 
@@ -1347,7 +1366,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         }
         {
             ObjectCode code;
-            code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+            code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
             code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
             code.AppendLongJump(0x9ECD19);
 
@@ -1418,7 +1437,7 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
     // Insert code overtop 9B/C5AB -> 9B/C5E6 with noops in the extra space
     {
         ObjectCode code;
-        code.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
 
         // AD 0F 0D    LDA $0D0F; Original code does this, we preserve it.
         // 48          PHA
@@ -1571,17 +1590,17 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     }
 
     {
+        // Team name and venue used by player card
         RomDataIterator codeIter(codeROMLocationFileOffset1);
 
         code1.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
 
-        // Insert the detour code in free space, and add the jmp
         bool detourPatched = InsertJumpOutDetour(code1.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
         if (!detourPatched) return false;
 
     }
     {
-        // Venue
+        // Venue used by Ron Barr
         RomDataIterator codeIter(codeROMLocationFileOffset2);
         code2.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(venueStringTableStartFileAddress));
 
