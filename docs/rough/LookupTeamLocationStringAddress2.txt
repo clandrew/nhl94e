@@ -120,7 +120,7 @@ $9E/CC2F A0 04 00    LDY #$0004              A:009C X:000A Y:0400 P:envmxdizC
 $9E/CC32 A5 8D       LDA $8D    [$00:008D]   A:009C X:000A Y:0004 P:envmxdizC
 $9E/CC34 18          CLC                     A:C2DB X:000A Y:0004 P:eNvmxdizC
 $9E/CC35 77 8D       ADC [$8D],y[$9C:C2DF]   A:C2DB X:000A Y:0004 P:eNvmxdizc	; [$8D] now points to 9CC554, start of the team strings
-$9E/CC37 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc
+$9E/CC37 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc	; xxx
 $9E/CC39 A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc
 $9E/CC3B 48          PHA                     A:000A X:000A Y:0004 P:envmxdizc
 
@@ -142,10 +142,10 @@ $9E/CC58 A5 8D       LDA $8D    [$00:008D]   A:0003 X:000A Y:0004 P:envmxdizc
 $9E/CC5A 18          CLC                     A:0003 X:000A Y:0004 P:envmxdizc
 $9E/CC5B 77 8D       ADC [$8D],y[$9C:C558]   A:0003 X:000A Y:0004 P:envmxdizc 
 $9E/CC5D 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc	[$8D] here points to the start of all the team strings, e.g., 9CC554.
-$9E/CC5F A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc ; Load 4?
+$9E/CC5F A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc ; 
 $9E/CC61 48          PHA                     A:0004 X:000A Y:0004 P:envmxdizc
 $9E/CC62 A9 03 00    LDA #$0003              A:0004 X:000A Y:0004 P:envmxdizc
-$9E/CC65 85 A5       STA $A5    [$00:00A5]   A:0003 X:000A Y:0004 P:envmxdizc	; update $A5 to 3?
+$9E/CC65 85 A5       STA $A5    [$00:00A5]   A:0003 X:000A Y:0004 P:envmxdizc	; update $A5 to 3 which means request the venue string.
 $9E/CC67 22 23 D3 9E JSL $9ED323[$9E:D323]   A:0003 X:000A Y:0004 P:envmxdizc	; Call GetStringAddressForRonBarr()
 																				; This causes [$8D] to point to 9CC56E.
 $9E/CC6B 68          PLA                     A:C56E X:000A Y:0004 P:eNvmxdizc
@@ -328,6 +328,8 @@ GetStringAddressForRonBarr()
 // If $A5 == 2, requesting the team name.
 // If $A5 == 3, requesting the venue string.
 // Seems like it could have also been used to look up the team location but the caller earlies that out.
+
+// Postcondition: $A5 == 0
 
 $9E/D323 80 07       BRA $07    [$D32C]      A:0003 X:000A Y:0004 P:envmxdizc	; goto GetStringAddressForRonBarr_Iter
 
