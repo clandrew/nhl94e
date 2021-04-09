@@ -225,7 +225,7 @@ public:
         return result;
     }
 
-    void SaveROMString(std::string const& str)
+    void SaveROMString_EnsureSpaceInBank(std::string const& str)
     {
         int strLength = static_cast<int>(str.size());
         int strLengthPlusLengthWord = strLength + 2;
@@ -244,6 +244,16 @@ public:
             s_romData.Set(m_fileOffset + i, str[i]);
         }
         m_fileOffset += strLength;
+    }
+
+    void SaveBytes_EnsureSpaceInBank(unsigned char* bytes, int count)
+    {
+        EnsureSpaceInBank(count);
+        for (int i = 0; i < count; ++i)
+        {
+            s_romData.Set(m_fileOffset, bytes[i]);
+            ++m_fileOffset;
+        }
     }
 
     void SkipROMString()
@@ -1279,7 +1289,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     for (int i = 0; i < renames.size(); ++i)
     {
         stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString(renames[i].NewName);
+        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewName);
     }
 
     // Write the string table
@@ -1434,7 +1444,7 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
     for (int i = 0; i < renames.size(); ++i)
     {
         stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString(renames[i].NewAcronym);
+        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewAcronym);
     }
 
     // Write the string table
@@ -1528,94 +1538,73 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    // Reserve space for code
-    ObjectCode code1;
-    int codeROMLocationFileOffset1;
+    // Write the renamed strings
+    for (int i = 0; i < renames.size(); ++i)
     {
-        code1.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        teamNameStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewName);
+
+        venueStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewVenue);
+    }
+    // Write the string tables
+    int teamNameStringTableStartFileAddress = 0;
+    {
+        teamNameStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+        int teamNameStringAddressTableSize = (int)Team::Count * 4;
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(teamNameStringAddresses.data());
+        freeSpaceIter->SaveBytes_EnsureSpaceInBank(stringAddressData, teamNameStringAddressTableSize);
+    }
+
+    int venueStringTableStartFileAddress = 0;
+    {
+        venueStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+        int venueStringAddressTableSize = (int)Team::Count * 4;
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(venueStringAddresses.data());
+        freeSpaceIter->SaveBytes_EnsureSpaceInBank(stringAddressData, venueStringAddressTableSize);
+    }
+
+    // Code for replacement of team name as used in player card
+    {
+        ObjectCode code_teamNameInPlayerCard;
+        code_teamNameInPlayerCard.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
 
         // Load the team index, which has been stored at 9F1C98/9F1C9A for home/away.
         // A4 91                LDY $91
         // B9 98 1C             LDA $1C98, y[$9F:1C98]
         unsigned char prefix[] = { 0xA4, 0x91, 0xB9, 0x98, 0x1C };
-        code1.PrependCode(prefix, _countof(prefix));
-        code1.AppendLongJump(0x9DC149);
+        code_teamNameInPlayerCard.PrependCode(prefix, _countof(prefix));
+        code_teamNameInPlayerCard.AppendLongJump(0x9DC149);
 
-        int codeSize = code1.m_code.size();
-        freeSpaceIter->EnsureSpaceInBank(codeSize);
-        codeROMLocationFileOffset1 = freeSpaceIter->GetFileOffset();
-        freeSpaceIter->SkipBytes(codeSize);
+        int codeSize = code_teamNameInPlayerCard.m_code.size();
+
+        // Team name and venue used by player card
+
+        code_teamNameInPlayerCard.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
+
+        bool detourPatched = InsertJumpOutDetour(code_teamNameInPlayerCard.m_code, 0x9DC12B, 0x9DC147 + 2, freeSpaceIter);
+        if (!detourPatched) return false;
     }
 
-    ObjectCode code2;
-    int codeROMLocationFileOffset2;
+    // Code for replacement of team venue as used in player card (?)
     {
-        code2.LoadAsmFromDebuggerText(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        ObjectCode code_teamVenueInPlayerCard;
+        code_teamVenueInPlayerCard.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
 
         // AF E0 1C 9F LDA $9F1CE0
         unsigned char prefix[] = { 0xAF, 0xE0, 0x1C, 0x9F };
-        code2.PrependCode(prefix, _countof(prefix));
-        code2.AppendLongJump(0x9ECD19);
+        code_teamVenueInPlayerCard.PrependCode(prefix, _countof(prefix));
+        code_teamVenueInPlayerCard.AppendLongJump(0x9ECD19);
 
-        int codeSize = code2.m_code.size();
-        freeSpaceIter->EnsureSpaceInBank(codeSize);
-        codeROMLocationFileOffset2 = freeSpaceIter->GetFileOffset();
-        freeSpaceIter->SkipBytes(codeSize);
-    }
-    ObjectCode code3;
-    int codeROMLocationFileOffset3;
-    {
-    }
+        code_teamVenueInPlayerCard.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(venueStringTableStartFileAddress));
 
-    // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
-    int teamNameStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
-    int teamNameStringAddressTableSize = (int)Team::Count * 4;
-    freeSpaceIter->EnsureSpaceInBank(teamNameStringAddressTableSize);
-    freeSpaceIter->SkipBytes(teamNameStringAddressTableSize);
-
-    int venueStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
-    int venueStringAddressTableSize = (int)Team::Count * 4;
-    freeSpaceIter->EnsureSpaceInBank(venueStringAddressTableSize);
-    freeSpaceIter->SkipBytes(venueStringAddressTableSize);
-
-    // Write the renamed strings
-    for (int i = 0; i < renames.size(); ++i)
-    {
-        teamNameStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString(renames[i].NewName);
-
-        venueStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString(renames[i].NewVenue);
-    }
-
-    // Write the string tables
-    {
-        int dstFileOffset = teamNameStringTableStartFileAddress;
-
-        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(teamNameStringAddresses.data());
-        for (int i = 0; i < teamNameStringAddressTableSize; ++i)
-        {
-            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
-        }
-    }
-    {
-        int dstFileOffset = venueStringTableStartFileAddress;
-
-        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(venueStringAddresses.data());
-        for (int i = 0; i < venueStringAddressTableSize; ++i)
-        {
-            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
-        }
-    }
-
-    {
-        // Team name and venue used by player card
-        RomDataIterator codeIter(codeROMLocationFileOffset1);
-
-        code1.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
-
-        bool detourPatched = InsertJumpOutDetour(code1.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
+        bool detourPatched = InsertJumpOutDetour(code_teamVenueInPlayerCard.m_code, 0x9ECC4B, 0x9ECC6C + 2, freeSpaceIter);
         if (!detourPatched) return false;
+
+    }
+
+
+    {
 
     }
     {
@@ -1690,11 +1679,6 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     }
     {
         // Venue used by Ron Barr
-        RomDataIterator codeIter(codeROMLocationFileOffset2);
-        code2.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(venueStringTableStartFileAddress));
-
-        bool detourPatched = InsertJumpOutDetour(code2.m_code, 0x9ECC4B, 0x9ECC6C + 2, &codeIter);
-        if (!detourPatched) return false;
 
     }
     return true;
@@ -1778,7 +1762,7 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
             freeSpaceIter->EnsureSpaceInBank(renames[i].Name.Get().size() + 2 + 1);
 
             playerData->ReplacedROMAddressForRename = freeSpaceIter->GetROMOffset();
-            freeSpaceIter->SaveROMString(renames[i].Name.Get());
+            freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].Name.Get());
             freeSpaceIter->SaveDecimalNumber(renames[i].PlayerNumber.Get(), false);
         }
     }
