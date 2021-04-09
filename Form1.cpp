@@ -1406,6 +1406,40 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
             InsertJumpOutDetour(code.m_code, 0x9ECD0A, 0x9ECD17 + 2, freeSpaceIter);
         }
     }
+    // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
+    {
+        ObjectCode code;
+
+        // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
+
+        // Store A9 to the low short
+        // Already done
+
+        // Store 9C to the high short
+        // A9 9C 00    LDA #$009C       ; TODO: Stop hardcoding this next xxx
+        // 85 AB       STA $AB
+        code.m_code.push_back(0xA9);
+        code.m_code.push_back(0x9C);
+        code.m_code.push_back(0x00);
+        code.m_code.push_back(0x85);
+        code.m_code.push_back(0xAB);
+
+        // Do the long load
+        // B7 A9       LDA [$A9],y
+        code.m_code.push_back(0xB7);
+        code.m_code.push_back(0xA9);
+
+        // Why not
+        // 29 FF 00    AND #$00FF
+        code.m_code.push_back(0x29);
+        code.m_code.push_back(0xFF);
+        code.m_code.push_back(0x00);
+
+        code.AppendLongJump(0x9C947E);
+
+        freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
+        InsertJumpOutDetour(code.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+    }
 
     return true;
 }

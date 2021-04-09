@@ -1,0 +1,197 @@
+Replace team name in game menu
+Need to find where it is
+
+Found it
+9C96DD
+Each string is null-terminated.
+
+Function: LoadGameMenuString() - 9C943E
+Precondition: Input parameters $8D and $A9.
+		If $A9 >= 0, then it's the index of the team whose location name to load. E.g., 0xB for Montreal.
+		If $A9 < 0, E.g., $A9==0xFFFF, then we load a player name string instead. That player name string is a short in $8D.
+		Note that player name was already moved from the team player data to here, an intermediate. So it's not necessary to shim.
+
+$9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/943F 4B          PHK                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9440 AB          PLB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+
+; Here, $8D points to 9CF5A8. That's the start of the strings like "Game Setup, Player select" and so on
+; $A9 points to 0E000A
+$9C/9441 8E 17 1E    STX $1E17  [$9C:1E17]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9444 8C 1B 1E    STY $1E1B  [$9C:1E1B]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9447 64 14       STZ $14    [$00:0014]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9449 64 16       STZ $16    [$00:0016]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/944B A5 A9       LDA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load team index. E.g., 0xA for L.A. Kings
+$9C/944D 48          PHA                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
+$9C/944E 30 0C       BMI $0C    [$945C]      A:96DD X:00D4 Y:0000 P:envmxdiZc	; If team index is negative, goto TeamIndexIsNegative_LoadPlayerNameString. E.g., A=0xFFFF
+
+$9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
+$9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
+$9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
+										; Load an array element. Team indices are in range 0-0x1B. Y is in range 0-0x36
+										; There's this table
+										; 81 96 89 96 90 96 98 96 A0 96 A8 96 AF 96 B7 96
+										; C0 96 C8 96 D1 96 DD 96 E6 96 F1 96 FA 96 03 97
+										; 0A 97 17 97 22 97 29 97 32 97 3C 97 46 97 4E 97
+										; 58 97 63 97 6C 97 79 97 41 6E 61 68 65 69 6D 00
+										; 42 6F 73 74 6F 6E 00 42
+										; Formatted nicely, it's
+										; Anaheim = 9681  
+										; Boston = 9689  
+										; Buffalo = 9690  
+										; Calgary = 9698  
+										; Chicago = 96A0  
+										; Dallas = 96A8  
+										; Detroit = 96AF  
+										; Edmonton = 96B7 
+										; Florida = 96C0 
+										; Hartford = 96C8  
+										; LAKings = 96D1  
+										; Montreal = 96DD  
+										; NewJersey = 96E6  
+										; NYIslanders = 96F1  
+										; NYRangers = 96FA  
+										; Ottawa = 9703 
+										; Philly = 970A  
+										; Pittsburgh = 9717  
+										; Quebec = 9722  
+										; SanJose = 9729  
+										; StLouis = 9732  
+										; TampaBay = 973C  
+										; Toronto = 9746  
+										; Vancouver = 974E 
+										; Washington = 9758  
+										; Winnepeg = 9763  
+										; AllStarsEast = 976C  
+										; AllStarsWest = 9779  
+							
+										
+$9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
+
+$9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
+
+$9C/945A 80 1D       BRA $1D    [$9479]      A:96DD X:00D4 Y:0000 P:envmxdiZc	; Goto ShortStringPointerSavedToA9 
+
+TeamIndexIsNegative_LoadPlayerNameString:
+; Here, e.g., A=0xFFFF
+; This is used to indicate we're supposed to load a player name string, not a team location string.
+$9C/945C E6 16       INC $16    [$00:0016]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
+$9C/945E E2 30       SEP #$30                A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9460 A5 8F       LDA $8F    [$00:008F]   A:96DD X:00D4 Y:0000 P:envMXdiZc
+$9C/9462 48          PHA                     A:96DD X:00D4 Y:0000 P:envMXdiZc
+$9C/9463 AB          PLB                     A:96DD X:00D4 Y:0000 P:envMXdiZc
+$9C/9464 C2 30       REP #$30                A:96DD X:00D4 Y:0000 P:envMXdiZc
+$9C/9466 B2 8D       LDA ($8D)  [$9C:F5A8]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; E.g., load 00:0A5C
+$9C/9468 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9469 88          DEY                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/946A 88          DEY                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+
+; Here, $8D points to a short address like 0A5C or 0A2A. Those are addresses of the player string for the player currently being displayed.
+; Yes, it's a location in RAM.
+$9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Not hit when loading team locations for menu
+$9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
+
+; Precondition: here, $A9 points to the appropriate team location string
+; 7E00A9 stores a short pointer. E.g., if it stores 99DD, we load from 9C96DD
+$9C/9471 A9 00 00    LDA #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9474 91 A9       STA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Save a zero-delimiter i guess
+$9C/9476 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
+
+ShortStringPointerSavedToA9:
+;  This is the common path for both player names and team location names.
+$9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
+
+$9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
+$9C/947E F0 52       BEQ $52    [$94D2]      A:004D X:00D4 Y:0000 P:envmxdizc	; goto NullChar if null char
+$9C/9480 C9 20 00    CMP #$0020              A:004D X:00D4 Y:0000 P:envmxdizc
+$9C/9483 D0 0A       BNE $0A    [$948F]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/948F C9 2E 00    CMP #$002E              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/9492 D0 05       BNE $05    [$9499]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/9499 C9 40 00    CMP #$0040              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/949C D0 09       BNE $09    [$94A7]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94A7 C9 30 00    CMP #$0030              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94AA 90 0F       BCC $0F    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94AC C9 3A 00    CMP #$003A              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94AF B0 0A       BCS $0A    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94BB 29 DF 00    AND #$00DF              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94BE 38          SEC                     A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94BF E9 41 00    SBC #$0041              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94C2 AA          TAX                     A:000C X:00D4 Y:0000 P:envmxdizC
+$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:000C X:000C Y:0000 P:envmxdizC
+$9C/94C7 29 FF 00    AND #$00FF              A:0708 X:000C Y:0000 P:envmxdizC
+$9C/94CA 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizC
+$9C/94CB 65 14       ADC $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc
+$9C/94CD 85 14       STA $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc
+$9C/94CF C8          INY                     A:0008 X:000C Y:0000 P:envmxdizc
+$9C/94D0 80 A7       BRA $A7    [$9479]      A:0008 X:000C Y:0001 P:envmxdizc	; Go to next character?
+
+NullChar:
+$9C/94D2 A0 00 00    LDY #$0000              A:0000 X:000B Y:0008 P:envmxdiZc
+$9C/94D5 A5 16       LDA $16    [$00:0016]   A:0000 X:000B Y:0000 P:envmxdiZc
+$9C/94D7 F0 11       BEQ $11    [$94EA]      A:0000 X:000B Y:0000 P:envmxdiZc
+$9C/94EA A5 14       LDA $14    [$00:0014]   A:0000 X:000B Y:0000 P:envmxdiZc
+$9C/94EC 4A          LSR A                   A:0035 X:000B Y:0000 P:envmxdizc
+$9C/94ED 49 FF FF    EOR #$FFFF              A:001A X:000B Y:0000 P:envmxdizC
+$9C/94F0 1A          INC A                   A:FFE5 X:000B Y:0000 P:eNvmxdizC
+$9C/94F1 18          CLC                     A:FFE6 X:000B Y:0000 P:eNvmxdizC
+$9C/94F2 6D 17 1E    ADC $1E17  [$9C:1E17]   A:FFE6 X:000B Y:0000 P:eNvmxdizc
+$9C/94F5 8D 17 1E    STA $1E17  [$9C:1E17]   A:00BA X:000B Y:0000 P:envmxdizC
+
+LoadChar:
+$9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC
+$9C/94FA 29 FF 00    AND #$00FF              A:6F4D X:000B Y:0000 P:envmxdizC
+$9C/94FD D0 03       BNE $03    [$9502]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/9502 C9 20 00    CMP #$0020              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9505 D0 0D       BNE $0D    [$9514]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/9514 C9 2E 00    CMP #$002E              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9517 D0 05       BNE $05    [$951E]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/951E C9 40 00    CMP #$0040              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9521 D0 05       BNE $05    [$9528]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/9528 C9 30 00    CMP #$0030              A:004D X:000B Y:0000 P:envmxdizC
+$9C/952B 90 10       BCC $10    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/952D C9 3A 00    CMP #$003A              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9530 B0 0B       BCS $0B    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
+$9C/953D 29 DF 00    AND #$00DF              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9540 38          SEC                     A:004D X:000B Y:0000 P:envmxdizC
+$9C/9541 E9 41 00    SBC #$0041              A:004D X:000B Y:0000 P:envmxdizC
+$9C/9544 AA          TAX                     A:000C X:000B Y:0000 P:envmxdizC
+$9C/9545 A9 82 00    LDA #$0082              A:000C X:000C Y:0000 P:envmxdizC
+$9C/9548 85 12       STA $12    [$00:0012]   A:0082 X:000C Y:0000 P:envmxdizC
+$9C/954A A9 00 80    LDA #$8000              A:0082 X:000C Y:0000 P:envmxdizC
+$9C/954D 85 10       STA $10    [$00:0010]   A:8000 X:000C Y:0000 P:eNvmxdizC
+$9C/954F 5A          PHY                     A:8000 X:000C Y:0000 P:eNvmxdizC
+$9C/9550 DA          PHX                     A:8000 X:000C Y:0000 P:eNvmxdizC
+$9C/9551 8A          TXA                     A:8000 X:000C Y:0000 P:eNvmxdizC
+$9C/9552 18          CLC                     A:000C X:000C Y:0000 P:envmxdizC
+$9C/9553 69 A0 03    ADC #$03A0              A:000C X:000C Y:0000 P:envmxdizc
+$9C/9556 85 00       STA $00    [$00:0000]   A:03AC X:000C Y:0000 P:envmxdizc
+$9C/9558 AF 62 34 7E LDA $7E3462[$7E:3462]   A:03AC X:000C Y:0000 P:envmxdizc
+$9C/955C D0 05       BNE $05    [$9563]      A:0000 X:000C Y:0000 P:envmxdiZc
+$9C/955E A9 00 38    LDA #$3800              A:0000 X:000C Y:0000 P:envmxdiZc
+$9C/9561 80 0A       BRA $0A    [$956D]      A:3800 X:000C Y:0000 P:envmxdizc
+$9C/956D AE 17 1E    LDX $1E17  [$9C:1E17]   A:3800 X:000C Y:0000 P:envmxdizc
+$9C/9570 AC 1B 1E    LDY $1E1B  [$9C:1E1B]   A:3800 X:00BA Y:0000 P:envmxdizc
+$9C/9573 22 8D B0 80 JSL $80B08D[$80:B08D]   A:3800 X:00BA Y:0053 P:envmxdizc
+$9C/9577 FA          PLX                     A:21B4 X:21B4 Y:0024 P:eNvmxdizc
+$9C/9578 7A          PLY                     A:21B4 X:000C Y:0024 P:envmxdizc
+$9C/9579 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:21B4 X:000C Y:0000 P:envmxdiZc
+$9C/957D 29 FF 00    AND #$00FF              A:0708 X:000C Y:0000 P:envmxdizc
+$9C/9580 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizc
+$9C/9581 6D 17 1E    ADC $1E17  [$9C:1E17]   A:0008 X:000C Y:0000 P:envmxdizc
+$9C/9584 8D 17 1E    STA $1E17  [$9C:1E17]   A:00C2 X:000C Y:0000 P:envmxdizc
+$9C/9587 C8          INY                     A:00C2 X:000C Y:0000 P:envmxdizc
+$9C/9588 4C F8 94    JMP $94F8  [$9C:94F8]   A:00C2 X:000C Y:0001 P:envmxdizc	;goto LoadChar
+
+$9C/94F8 B1 A9       LDA ($A9),y[$9C:96E5]   A:00EF X:000B Y:0008 P:envmxdizc
+$9C/94FA 29 FF 00    AND #$00FF              A:4E00 X:000B Y:0008 P:envmxdizc
+$9C/94FD D0 03       BNE $03    [$9502]      A:0000 X:000B Y:0008 P:envmxdiZc
+$9C/94FF 4C 8B 95    JMP $958B  [$9C:958B]   A:0000 X:000B Y:0008 P:envmxdiZc
+
+$9C/958B 68          PLA                     A:0000 X:000B Y:0008 P:envmxdiZc
+$9C/958C 85 A9       STA $A9    [$00:00A9]   A:000B X:000B Y:0008 P:envmxdizc
+$9C/958E AB          PLB                     A:000B X:000B Y:0008 P:envmxdizc
+$9C/958F 6B          RTL                     A:000B X:000B Y:0008 P:eNvmxdizc
+
+$9F/BE47 AF 62 34 7E LDA $7E3462[$7E:3462]   A:000B X:000B Y:0008 P:eNvmxdizc

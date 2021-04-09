@@ -1,0 +1,61 @@
+
+Replace the call to GetStringAddressForRonBarr as well. That function does a bunch of seeking we don't want to do.
+Write overtop the loading parameter into @A5 and so on.
+
+Ron Barr still says "Canadiens". Need to do the replacement.
+Break on read of Canadiens
+
+9C:C563
+
+$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C563]   A:0002 X:000A Y:0004 P:envmxdizc
+
+Need to change 8D before ProcessStringForRonBarr is called
+
+Caller:
+$9E/CD2C A9 00 00    LDA #$0000              A:000B X:000A Y:000A P:envmxdizC
+
+Is the caller Fn9EC95C?
+
+9788dc	- string table for cities plus ron barr's dialogue
+9Cf796	- strings like "Period Stats", "Highlight from game"
+9cf79b
+9C0a2a
+
+9CC2DB	- main table entry for montreal
+
+$9E/CC28 85 8D       STA $8D    [$00:008D]   A:C2DB X:000A Y:0400 P:eNvmxdizC
+$9E/CC2A A9 9C 00    LDA #$009C              A:C2DB X:000A Y:0400 P:eNvmxdizC
+$9E/CC2D 85 8F       STA $8F    [$00:008F]   A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC2F A0 04 00    LDY #$0004              A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC32 A5 8D       LDA $8D    [$00:008D]   A:009C X:000A Y:0004 P:envmxdizC
+
+9CC554
+
+7E008d
+
+
+
+$9E/CC1E AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC21 85 8D       STA $8D    [$00:008D]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC23 80 05       BRA $05    [$CC2A]      A:009C X:000A Y:0004 P:envmxdizC	; goto AfterChoosingHomeOrAway
+
+ForHomeTeam:
+$9E/CC25 AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:009C X:000A Y:0004 P:envmxdizC	; Load main table entry for home team
+$9E/CC28 85 8D       STA $8D    [$00:008D]   A:C2DB X:000A Y:0400 P:eNvmxdizC
+
+AfterChoosingHomeOrAway:
+$9E/CC2A A9 9C 00    LDA #$009C              A:C2DB X:000A Y:0400 P:eNvmxdizC
+$9E/CC2D 85 8F       STA $8F    [$00:008F]   A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC2F A0 04 00    LDY #$0004              A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC32 A5 8D       LDA $8D    [$00:008D]   A:009C X:000A Y:0004 P:envmxdizC
+$9E/CC34 18          CLC                     A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC35 77 8D       ADC [$8D],y[$9C:C2DF]   A:C2DB X:000A Y:0004 P:eNvmxdizc	; [$8D] now points to 9CC554, start of the team strings
+$9E/CC37 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc	; xxx
+$9E/CC39 A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc
+$9E/CC3B 48          PHA                     A:000A X:000A Y:0004 P:envmxdizc
+
+$9E/CC3C A9 02 00    LDA #$0002              A:000A X:000A Y:0004 P:envmxdizc
+$9E/CC3F 85 A5       STA $A5    [$00:00A5]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC41 22 23 D3 9E JSL $9ED323[$9E:D323]   A:C2DB X:000A Y:0004 P:eNvmxdizC	; Call GetStringAddressForRonBarr with arg $A5 == 2, meaning requesting the team name.
+$9E/CC45 68          PLA                     A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC6C 85 A5       STA $A5    [$00:00A5]   A:0004 X:000A Y:0004 P:envmxdizc
