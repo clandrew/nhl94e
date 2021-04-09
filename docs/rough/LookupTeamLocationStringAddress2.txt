@@ -16,7 +16,12 @@ Caller
 
 $9D/8203 22 5C C9 9E JSL $9EC95C[$9E:C95C]   A:2000 X:000A Y:0400 P:envmxdiZC
 
-Function: Fn9EC95C()
+Function: RonBarrDialogue()
+Precondition: 9788dc contains string table for all the cities plus Ron Barr's dialogue.
+
+Expected result: load the dialogue text for the commentator Ron Barr, and
+	perform string substitutions for wildcards.
+
 $9E/C95C AD 45 0D    LDA $0D45  [$9F:0D45]   A:2000 X:000A Y:0400 P:envmxdiZC
 $9E/C95F 38          SEC                     A:0000 X:000A Y:0400 P:envmxdiZC
 $9E/C960 E9 00 10    SBC #$1000              A:0000 X:000A Y:0400 P:envmxdiZC
@@ -26,12 +31,15 @@ $9E/C96B 70 43       BVS $43    [$C9B0]      A:F000 X:000A Y:0400 P:eNvmxdizc
 $9E/C96D AD 5E 1D    LDA $1D5E  [$9F:1D5E]   A:F000 X:000A Y:0400 P:eNvmxdizc
 $9E/C970 30 05       BMI $05    [$C977]      A:0000 X:000A Y:0400 P:envmxdiZc
 $9E/C972 CE 45 0D    DEC $0D45  [$9F:0D45]   A:0000 X:000A Y:0400 P:envmxdiZc
-$9E/C975 10 39       BPL $39    [$C9B0]      A:0000 X:000A Y:0400 P:eNvmxdizc
+$9E/C975 10 39       BPL $39    [$C9B0]      A:0000 X:000A Y:0400 P:eNvmxdizc	; Is wildcard? not sure. If zero, bail
+
+KeepGoing:
 $9E/C977 A9 97 00    LDA #$0097              A:0000 X:000A Y:0400 P:eNvmxdizc
 $9E/C97A 85 8F       STA $8F    [$00:008F]   A:0097 X:000A Y:0400 P:envmxdizc
 $9E/C97C A9 DC 88    LDA #$88DC              A:0097 X:000A Y:0400 P:envmxdizc
-$9E/C97F 85 8D       STA $8D    [$00:008D]   A:88DC X:000A Y:0400 P:eNvmxdizc
-$9E/C981 AD 3F 0D    LDA $0D3F  [$9F:0D3F]   A:88DC X:000A Y:0400 P:eNvmxdizc
+$9E/C97F 85 8D       STA $8D    [$00:008D]   A:88DC X:000A Y:0400 P:eNvmxdizc	; Here, [$8D] points to string table for all the cities plus Ron Barr's dialogue
+
+$9E/C981 AD 3F 0D    LDA $0D3F  [$9F:0D3F]   A:88DC X:000A Y:0400 P:eNvmxdizc	
 $9E/C984 85 A5       STA $A5    [$00:00A5]   A:0167 X:000A Y:0400 P:envmxdizc
 $9E/C986 10 5A       BPL $5A    [$C9E2]      A:0167 X:000A Y:0400 P:envmxdizc
 ...
@@ -81,7 +89,44 @@ $9E/CA1F C9 68 00    CMP #$0068              A:0068 X:000A Y:0400 P:eNvmxdizc
 $9E/CA22 D0 03       BNE $03    [$CA27]      A:0068 X:000A Y:0400 P:envmxdiZC
 $9E/CA24 4C 05 CD    JMP $CD05  [$9E:CD05]   A:0068 X:000A Y:0400 P:envmxdiZC	; Goto HomeTeamWildCardImpl
 
-$9E/CC41 22 23 D3 9E JSL $9ED323[$9E:D323]   A:C2DB X:000A Y:0004 P:eNvmxdizC
+LoadTeamName:
+$9E/CC00 85 95       STA $95    [$00:0095]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC02 A9 02 00    LDA #$0002              A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC05 87 95       STA [$95]  [$00:0A2A]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC07 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC0B A9 00 00    LDA #$0000              A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC0E 85 8F       STA $8F    [$00:008F]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC10 A9 2A 0A    LDA #$0A2A              A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC13 85 8D       STA $8D    [$00:008D]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC15 68          PLA                     A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC16 85 89       STA $89    [$00:0089]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC18 FA          PLX                     A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC19 86 A5       STX $A5    [$00:00A5]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC1B 4C 36 CD    JMP $CD36  [$9E:CD36]   A:0002 X:000A Y:0004 P:envmxdizc
+
+ForAwayTeam:
+$9E/CC1E AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC21 85 8D       STA $8D    [$00:008D]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC23 80 05       BRA $05    [$CC2A]      A:009C X:000A Y:0004 P:envmxdizC	; goto AfterChoosingHomeOrAway
+
+ForHomeTeam:
+$9E/CC25 AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:009C X:000A Y:0004 P:envmxdizC	; Load main table entry for home team
+$9E/CC28 85 8D       STA $8D    [$00:008D]   A:C2DB X:000A Y:0400 P:eNvmxdizC
+
+AfterChoosingHomeOrAway:
+$9E/CC2A A9 9C 00    LDA #$009C              A:C2DB X:000A Y:0400 P:eNvmxdizC
+$9E/CC2D 85 8F       STA $8F    [$00:008F]   A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC2F A0 04 00    LDY #$0004              A:009C X:000A Y:0400 P:envmxdizC
+$9E/CC32 A5 8D       LDA $8D    [$00:008D]   A:009C X:000A Y:0004 P:envmxdizC
+$9E/CC34 18          CLC                     A:C2DB X:000A Y:0004 P:eNvmxdizC
+$9E/CC35 77 8D       ADC [$8D],y[$9C:C2DF]   A:C2DB X:000A Y:0004 P:eNvmxdizc	; [$8D] now points to 9CC554, start of the team strings
+$9E/CC37 85 8D       STA $8D    [$00:008D]   A:C554 X:000A Y:0004 P:eNvmxdizc
+$9E/CC39 A5 A5       LDA $A5    [$00:00A5]   A:C554 X:000A Y:0004 P:eNvmxdizc
+$9E/CC3B 48          PHA                     A:000A X:000A Y:0004 P:envmxdizc
+
+$9E/CC3C A9 02 00    LDA #$0002              A:000A X:000A Y:0004 P:envmxdizc
+$9E/CC3F 85 A5       STA $A5    [$00:00A5]   A:0002 X:000A Y:0004 P:envmxdizc
+$9E/CC41 22 23 D3 9E JSL $9ED323[$9E:D323]   A:C2DB X:000A Y:0004 P:eNvmxdizC	; Call GetStringAddressForRonBarr with arg $A5 == 2, meaning requesting the team name.
 $9E/CC45 68          PLA                     A:C2DB X:000A Y:0004 P:eNvmxdizC
 $9E/CC46 85 A5       STA $A5    [$00:00A5]   A:C2DB X:000A Y:0004 P:eNvmxdizC
 $9E/CC48 4C 19 CD    JMP $CD19  [$9E:CD19]   A:C2DB X:000A Y:0004 P:eNvmxdizC
@@ -102,7 +147,7 @@ $9E/CC61 48          PHA                     A:0004 X:000A Y:0004 P:envmxdizc
 $9E/CC62 A9 03 00    LDA #$0003              A:0004 X:000A Y:0004 P:envmxdizc
 $9E/CC65 85 A5       STA $A5    [$00:00A5]   A:0003 X:000A Y:0004 P:envmxdizc	; update $A5 to 3?
 $9E/CC67 22 23 D3 9E JSL $9ED323[$9E:D323]   A:0003 X:000A Y:0004 P:envmxdizc	; Call GetStringAddressForRonBarr()
-										; This causes [$8D] to point to 9CC56E.
+																				; This causes [$8D] to point to 9CC56E.
 $9E/CC6B 68          PLA                     A:C56E X:000A Y:0004 P:eNvmxdizc
 $9E/CC6C 85 A5       STA $A5    [$00:00A5]   A:0004 X:000A Y:0004 P:envmxdizc
 $9E/CC6E 4C 19 CD    JMP $CD19  [$9E:CD19]   A:0004 X:000A Y:0004 P:envmxdizc	; goto DoneVenueWildCardImpl
@@ -172,7 +217,7 @@ $9E/CD1E A9 2A 0A    LDA #$0A2A              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD21 85 95       STA $95    [$00:0095]   A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD23 A9 02 00    LDA #$0002              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD26 87 95       STA [$95]  [$00:0A2A]   A:000A X:000A Y:0009 P:envmxdizC
-$9E/CD28 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:000A X:000A Y:0009 P:envmxdizC	call ProcessStringForRonBarr(). This is also true when loading venue strings
+$9E/CD28 22 A5 CF 9E JSL $9ECFA5[$9E:CFA5]   A:000A X:000A Y:0009 P:envmxdizC	call ProcessStringForRonBarr() with the string like 'Canadiens'. This is also used when loading venue strings
 
 $9E/CD2C A9 00 00    LDA #$0000              A:000A X:000A Y:0009 P:envmxdizC
 $9E/CD2F 85 8F       STA $8F    [$00:008F]   A:0000 X:000A Y:0009 P:envmxdiZC
@@ -304,8 +349,8 @@ $9E/D330 6B          RTL                     A:C56E X:000A Y:0004 P:eNvmxdizc
 ProcessStringForRonBarr()
 // Precondition: [$8D] initialized to the location string e.g., 9CC554
 // Could be a name or a venue string location like 9CC56E.
-$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0002 X:000A Y:0004 P:envmxdizc
-$9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:0002 X:000A Y:0004 P:eNvmxdizc
+$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0002 X:000A Y:0004 P:envmxdizc	; 
+$9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:0002 X:000A Y:0004 P:eNvmxdizc	;
 $9E/CFB4 A8          TAY                     A:0002 X:000A Y:0004 P:eNvmxdizc
 $9E/CFB5 B7 8D       LDA [$8D],y[$9C:C556]   A:0002 X:000A Y:0002 P:envmxdizc
 $9E/CFB7 A4 C7       LDY $C7    [$00:00C7]   A:6F4D X:000A Y:0002 P:envmxdizc
@@ -314,7 +359,7 @@ $9E/CFBB E6 C5       INC $C5    [$00:00C5]   A:6F4D X:000A Y:0002 P:envmxdizc
 $9E/CFBD E6 C7       INC $C7    [$00:00C7]   A:6F4D X:000A Y:0002 P:envmxdizc
 $9E/CFBF 80 ED       BRA $ED    [$CFAE]      A:6F4D X:000A Y:0002 P:envmxdizc
 $9E/CFAE A5 C5       LDA $C5    [$00:00C5]   A:6F4D X:000A Y:0002 P:envmxdizc
-$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0003 X:000A Y:0002 P:envmxdizc
+$9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:0003 X:000A Y:0002 P:envmxdizc	; Load e.g., the string length header in 'Canadiens'
 $9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:0003 X:000A Y:0002 P:eNvmxdizc
 $9E/CFB4 A8          TAY                     A:0003 X:000A Y:0002 P:eNvmxdizc
 $9E/CFB5 B7 8D       LDA [$8D],y[$9C:C557]   A:0003 X:000A Y:0003 P:envmxdizc
@@ -387,6 +432,8 @@ $9E/CFBF 80 ED       BRA $ED    [$CFAE]      A:056C X:000A Y:0009 P:envmxdizc
 $9E/CFAE A5 C5       LDA $C5    [$00:00C5]   A:056C X:000A Y:0009 P:envmxdizc
 $9E/CFB0 C7 8D       CMP [$8D]  [$9C:C554]   A:000A X:000A Y:0009 P:envmxdizc
 $9E/CFB2 F0 0D       BEQ $0D    [$CFC1]      A:000A X:000A Y:0009 P:envmxdiZC
+
+Done:
 $9E/CFC1 A5 C7       LDA $C7    [$00:00C7]   A:000A X:000A Y:0009 P:envmxdiZC
 $9E/CFC3 87 95       STA [$95]  [$00:0A2A]   A:000A X:000A Y:0009 P:envmxdizC
 $9E/CFC5 6B          RTL                     A:000A X:000A Y:0009 P:envmxdizC

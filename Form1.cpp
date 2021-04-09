@@ -1341,11 +1341,18 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         for (int fileOffset = dstFileOffsetStart; fileOffset < dstFileOffsetEnd; ++fileOffset)
         {
-            s_romData.SetROMData(fileOffset, 0xEA); // NOP so that I feel better about it
+            s_romData.SetROMData(fileOffset, 0xEA); // NOP for safety
         }
         {
-            // At AwayTeamImpl we need
-            // $9E/CCFE AF E2 1C 9F LDA $9F1CE2
+            // At AwayTeamWildCardImpl we change
+            // $9E/CCFE AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:0068 X:000A Y:0400 P:envmxdiZC	; E.g., load BDB2, the low short of the team's player data.
+			//                                                                                  ; Observation: 9F1CE0-2 contain the home and away team indices, respectively.
+            // $9E/CD01 85 8D       STA $8D    [$00:008D]   A:0068 X:000A Y:0400 P:envmxdiZC
+            // $9E/CD03 80 05       BRA $05    [$CD0A]      A:0068 X:000A Y:0400 P:envmxdiZC	; goto DoneHomeOrAwaySelection
+            
+            // into
+
+            // $9E/CCFE AF E2 1C 9F LDA $9F1CE2     ; This is the away team index
             // $9E/CD02 80 06       BRA $06    [$CD0A]
             int i = ROMAddressToFileOffset(0x9ECCFE);
             s_romData.SetROMData(i + 0, 0xAF);
@@ -1356,8 +1363,16 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
             s_romData.SetROMData(i + 5, 0x06);
         }
         {
-            // At HomeTeamImpl we need
-            // $9E/CD05 AF E0 1C 9F LDA $9F1CE0
+            // At HomeTeamImpl we need to change
+
+            // $9E/CD05 AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:0000 X:000A Y:0004 P:envmxdiZc	; weird journey how we actually get here through a jump
+            // 							                                                        ; E.g., load C2DB, the low short of the home team's player data.
+            // 							                                                        ; 9ECCFE - 9ECD0D disasm. Need a branch 80 06
+            // $9E/CD08 85 8D       STA $8D    [$00:008D]   A:0000 X:000A Y:0004 P:envmxdiZc
+
+            // into
+
+            // $9E/CD05 AF E0 1C 9F LDA $9F1CE0 ; this is the home team index
             int i = ROMAddressToFileOffset(0x9ECD05);
             s_romData.SetROMData(i + 0, 0xAF);
             s_romData.SetROMData(i + 1, 0xE0);
@@ -1547,6 +1562,10 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         codeROMLocationFileOffset2 = freeSpaceIter->GetFileOffset();
         freeSpaceIter->SkipBytes(codeSize);
     }
+    ObjectCode code3;
+    int codeROMLocationFileOffset3;
+    {
+    }
 
     // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
     int teamNameStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
@@ -1598,6 +1617,76 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         bool detourPatched = InsertJumpOutDetour(code1.m_code, 0x9DC12B, 0x9DC147 + 2, &codeIter);
         if (!detourPatched) return false;
 
+    }
+    {
+        /*
+        
+    // This part is for the 'Ron Barr commentary'.
+    //
+    // The detoured payload is too big to fit on top, so we need a jump out.
+    // This is operating on $9E/CCFE - $9E/CD17
+    {
+
+        int dstStartROMAddress = 0x9ECCFE;
+        int dstEndROMAddress = 0x9ECD17 + 2;
+        int dstFileOffsetStart = ROMAddressToFileOffset(dstStartROMAddress);
+        int dstFileOffsetEnd = ROMAddressToFileOffset(dstEndROMAddress);
+
+        for (int fileOffset = dstFileOffsetStart; fileOffset < dstFileOffsetEnd; ++fileOffset)
+        {
+            s_romData.SetROMData(fileOffset, 0xEA); // NOP for safety
+        }
+        {
+            // At AwayTeamWildCardImpl we change
+            // $9E/CCFE AD DE 1C    LDA $1CDE  [$9F:1CDE]   A:0068 X:000A Y:0400 P:envmxdiZC	; E.g., load BDB2, the low short of the team's player data.
+			//                                                                                  ; Observation: 9F1CE0-2 contain the home and away team indices, respectively.
+            // $9E/CD01 85 8D       STA $8D    [$00:008D]   A:0068 X:000A Y:0400 P:envmxdiZC
+            // $9E/CD03 80 05       BRA $05    [$CD0A]      A:0068 X:000A Y:0400 P:envmxdiZC	; goto DoneHomeOrAwaySelection
+            
+            // into
+
+            // $9E/CCFE AF E2 1C 9F LDA $9F1CE2     ; This is the away team index
+            // $9E/CD02 80 06       BRA $06    [$CD0A]
+            int i = ROMAddressToFileOffset(0x9ECCFE);
+            s_romData.SetROMData(i + 0, 0xAF);
+            s_romData.SetROMData(i + 1, 0xE2);
+            s_romData.SetROMData(i + 2, 0x1C);
+            s_romData.SetROMData(i + 3, 0x9F);
+            s_romData.SetROMData(i + 4, 0x80);
+            s_romData.SetROMData(i + 5, 0x06);
+        }
+        {
+            // At HomeTeamImpl we need to change
+
+            // $9E/CD05 AD DC 1C    LDA $1CDC  [$9F:1CDC]   A:0000 X:000A Y:0004 P:envmxdiZc	; weird journey how we actually get here through a jump
+            // 							                                                        ; E.g., load C2DB, the low short of the home team's player data.
+            // 							                                                        ; 9ECCFE - 9ECD0D disasm. Need a branch 80 06
+            // $9E/CD08 85 8D       STA $8D    [$00:008D]   A:0000 X:000A Y:0004 P:envmxdiZc
+
+            // into
+
+            // $9E/CD05 AF E0 1C 9F LDA $9F1CE0 ; this is the home team index
+            int i = ROMAddressToFileOffset(0x9ECD05);
+            s_romData.SetROMData(i + 0, 0xAF);
+            s_romData.SetROMData(i + 1, 0xE0);
+            s_romData.SetROMData(i + 2, 0x1C);
+            s_romData.SetROMData(i + 3, 0x9F);
+        }
+        {
+            ObjectCode code;
+            code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
+            code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+            code.AppendLongJump(0x9ECD19);
+
+            freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
+            InsertJumpOutDetour(code.m_code, 0x9ECD0A, 0x9ECD17 + 2, freeSpaceIter);
+        }
+        
+        */
+
+        // Team name used by Ron Barr
+
+        // Need code gardening
     }
     {
         // Venue used by Ron Barr
