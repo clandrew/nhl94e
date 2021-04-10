@@ -1408,7 +1408,50 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
     {
-        ObjectCode code;
+        ObjectCode code_LoadGameMenuString_LocationNamePath;
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x0A);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA8);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xB9);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x49);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x96);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA0);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+
+        // $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
+        // $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
+        // $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
+        // $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
+        // $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
+
+        code_LoadGameMenuString_LocationNamePath.AppendLongJump(0x9C9479);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_LocationNamePath.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_LocationNamePath.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_PlayerNamePath;
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA5);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8D);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
+
+        // ; Here, $8D points to a short address like 0A5C or 0A2A. Those are addresses of the player string for the player currently being displayed.
+        // ; Yes, it's a location in RAM.
+        // $9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Not hit when loading team locations for menu
+        // $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
+        // $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
+        // $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
+
+        code_LoadGameMenuString_PlayerNamePath.AppendLongJump(0x9C9471);
+        InsertJumpOutDetour(code_LoadGameMenuString_PlayerNamePath.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_CommonPath;
 
         // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
 
@@ -1418,27 +1461,27 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         // Store 9C to the high short
         // A9 9C 00    LDA #$009C       ; TODO: Stop hardcoding this next xxx
         // 85 AB       STA $AB
-        code.m_code.push_back(0xA9);
-        code.m_code.push_back(0x9C);
-        code.m_code.push_back(0x00);
-        code.m_code.push_back(0x85);
-        code.m_code.push_back(0xAB);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0x9C);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0x85);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0xAB);
 
         // Do the long load
         // B7 A9       LDA [$A9],y
-        code.m_code.push_back(0xB7);
-        code.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0xB7);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0xA9);
 
         // Why not
         // 29 FF 00    AND #$00FF
-        code.m_code.push_back(0x29);
-        code.m_code.push_back(0xFF);
-        code.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath.m_code.push_back(0x00);
 
-        code.AppendLongJump(0x9C947E);
+        code_LoadGameMenuString_CommonPath.AppendLongJump(0x9C947E);
 
-        freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
-        InsertJumpOutDetour(code.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
     }
 
     return true;

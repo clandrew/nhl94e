@@ -25,6 +25,7 @@ $9C/944B A5 A9       LDA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/944D 48          PHA                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/944E 30 0C       BMI $0C    [$945C]      A:96DD X:00D4 Y:0000 P:envmxdiZc	; If team index is negative, goto TeamIndexIsNegative_LoadPlayerNameString. E.g., A=0xFFFF
 
+TeamIndexIsPositive_LoadTeamLocationName:
 $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
 $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
 $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
@@ -70,6 +71,16 @@ $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 
 $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
 
+A9 points to
+; D1 96 9C
+9C96D1
+this looks fine
+
+A9 points to
+; DD 96 9C
+9C96DD
+this also looks fine
+
 $9C/945A 80 1D       BRA $1D    [$9479]      A:96DD X:00D4 Y:0000 P:envmxdiZc	; Goto ShortStringPointerSavedToA9 
 
 TeamIndexIsNegative_LoadPlayerNameString:
@@ -93,7 +104,6 @@ $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
 
-; Precondition: here, $A9 points to the appropriate team location string
 ; 7E00A9 stores a short pointer. E.g., if it stores 99DD, we load from 9C96DD
 $9C/9471 A9 00 00    LDA #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9474 91 A9       STA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Save a zero-delimiter i guess
