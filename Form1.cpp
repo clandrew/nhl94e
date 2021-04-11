@@ -389,7 +389,11 @@ public:
 
     void EnsureSpaceInBank(int bytes)
     {
-        assert(bytes <= 0xFFFF); // Can't allocate that much
+        // This checks bank boundaries not page boundaries.
+        // I haven't hit any bugs related to crossing of page boundaries seems this class of bugs existed on 6502 and were fixed in 65816.
+        // There can be a performance penalty crossing page boundaries. This patcher doesn't engage with anything super 
+        // down-to-the-clock-cycle performance critical.
+        assert(bytes <= 0xFFFF); // Sanity check
 
         int thisBank = FileOffsetToROMAddress(m_fileOffset) >> 16;
         int thatBank = FileOffsetToROMAddress(m_fileOffset + bytes) >> 16;
