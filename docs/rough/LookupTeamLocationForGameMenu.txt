@@ -65,21 +65,20 @@ $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 										; Winnepeg = 9763  
 										; AllStarsEast = 976C  
 										; AllStarsWest = 9779  
+										
+										Montreal 7B 80 A0 00
+										A0807b
+										RAM value looks good
+										M  i  n  n  e  s  o  t  a
+										4D 69 6E 6E 65 73 6F 74 61 00
+
+
+
 							
 										
 $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
 
 $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
-
-A9 points to
-; D1 96 9C
-9C96D1
-this looks fine
-
-A9 points to
-; DD 96 9C
-9C96DD
-this also looks fine
 
 $9C/945A 80 1D       BRA $1D    [$9479]      A:96DD X:00D4 Y:0000 P:envmxdiZc	; Goto ShortStringPointerSavedToA9 
 
@@ -109,11 +108,12 @@ $9C/9471 A9 00 00    LDA #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9474 91 A9       STA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Save a zero-delimiter i guess
 $9C/9476 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 
-ShortStringPointerSavedToA9:
+Common_ShortStringPointerSavedToA9:
 ;  This is the common path for both player names and team location names.
 $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
 
 $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
+
 $9C/947E F0 52       BEQ $52    [$94D2]      A:004D X:00D4 Y:0000 P:envmxdizc	; goto NullChar if null char
 $9C/9480 C9 20 00    CMP #$0020              A:004D X:00D4 Y:0000 P:envmxdizc
 $9C/9483 D0 0A       BNE $0A    [$948F]      A:004D X:00D4 Y:0000 P:envmxdizC
@@ -129,7 +129,11 @@ $9C/94BB 29 DF 00    AND #$00DF              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BE 38          SEC                     A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BF E9 41 00    SBC #$0041              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94C2 AA          TAX                     A:000C X:00D4 Y:0000 P:envmxdizC
-$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:000C X:000C Y:0000 P:envmxdizC
+
+$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:000C X:000C Y:0000 P:envmxdizC	// This is an array with one element per alphabet 
+										// character.
+										// A=7, B=7, C=6, i guess..
+										
 $9C/94C7 29 FF 00    AND #$00FF              A:0708 X:000C Y:0000 P:envmxdizC
 $9C/94CA 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizC
 $9C/94CB 65 14       ADC $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc
@@ -150,7 +154,10 @@ $9C/94F2 6D 17 1E    ADC $1E17  [$9C:1E17]   A:FFE6 X:000B Y:0000 P:eNvmxdizc
 $9C/94F5 8D 17 1E    STA $1E17  [$9C:1E17]   A:00BA X:000B Y:0000 P:envmxdizC
 
 LoadChar:
-$9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC
+$9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC	; This has a problem. Tries 9C807B, should be A0807B
+										; There is a broader problem where this code
+										; path is used by multiple places (one i havent 
+										; accounted for) where they assume it loads a short.
 $9C/94FA 29 FF 00    AND #$00FF              A:6F4D X:000B Y:0000 P:envmxdizC
 $9C/94FD D0 03       BNE $03    [$9502]      A:004D X:000B Y:0000 P:envmxdizC
 $9C/9502 C9 20 00    CMP #$0020              A:004D X:000B Y:0000 P:envmxdizC
