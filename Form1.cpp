@@ -225,7 +225,7 @@ public:
         return result;
     }
 
-    void SaveROMString_EnsureSpaceInBank(std::string const& str)
+    void SaveLengthDelimitedROMString_EnsureSpaceInBank(std::string const& str)
     {
         int strLength = static_cast<int>(str.size());
         int strLengthPlusLengthWord = strLength + 2;
@@ -244,6 +244,23 @@ public:
             s_romData.Set(m_fileOffset + i, str[i]);
         }
         m_fileOffset += strLength;
+    }
+
+    void SaveNullDelimitedROMString_EnsureSpaceInBank(std::string const& str)
+    {
+        int strLength = static_cast<int>(str.size());
+        int strLengthPlusNull = strLength + 1;
+
+        EnsureSpaceInBank(strLengthPlusNull);
+
+        for (int i = 0; i < strLength; ++i)
+        {
+            s_romData.Set(m_fileOffset + i, str[i]);
+        }
+        m_fileOffset += strLength;
+
+        s_romData.Set(m_fileOffset, 0);
+        ++m_fileOffset;
     }
 
     void SaveBytes_EnsureSpaceInBank(unsigned char* bytes, int count)
@@ -1264,11 +1281,12 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     };
 
     std::vector<TeamRename> renames;
-    std::vector<int> stringAddresses;
+    std::vector<int> lengthDelimitedStringAddresses;
+    std::vector<int> nullDelimitedStringAddresses;
     for (size_t teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& teamData = s_allTeams[teamIndex];
-        int stringAddress = teamData.TeamCity.SourceROMAddress;
+        int lengthDelimitedStringAddress = teamData.TeamCity.SourceROMAddress;
 
         if (teamData.TeamCity.IsChanged())
         {
@@ -1277,37 +1295,86 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
             r.NewName = teamData.TeamCity.Get();
             renames.push_back(r);
 
-            stringAddress = 0; // Going to be changed
+            lengthDelimitedStringAddress = 0; // Going to be changed
         }
 
-        stringAddresses.push_back(stringAddress);
+        lengthDelimitedStringAddresses.push_back(lengthDelimitedStringAddress);
     }
 
     if (renames.size() == 0)
         return true; // Nothing to do
 
-    // Reserve string table. Can't write the whole thing because we don't know the addresses of renamed strings yet.
-    int stringTableStartFileAddress = freeSpaceIter->GetFileOffset();
-    int stringAddressTableSize = (int)Team::Count * 4;
-    freeSpaceIter->EnsureSpaceInBank(stringAddressTableSize);
-    freeSpaceIter->SkipBytes(stringAddressTableSize);
-
-    // Write the renamed strings
-    for (int i = 0; i < renames.size(); ++i)
     {
-        stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewName);
+        int nullDelimitedTeamLocationStringAddresses[] = {
+            /* Anaheim */ 0x9C9681,
+            /* Boston */ 0x9C9689,
+            /* Buffalo */ 0x9C9690,
+            /* Calgary */ 0x9C9698,
+            /* Chicago */ 0x9C96A0,
+            /* Dallas */ 0x9C96A8,
+            /* Detroit */ 0x9C96AF,
+            /* Edmonton */ 0x9C96B7,
+            /* Florida */ 0x9C96C0,
+            /* Hartford */ 0x9C96C8,
+            /* LAKings */ 0x9C96D1,
+            /* Montreal */ 0x9C96DD,
+            /* NewJersey */ 0x9C96E6,
+            /* NYIslanders */ 0x9C96F1,
+            /* NYRangers */ 0x9C96FA,
+            /* Ottawa */ 0x9C9703,
+            /* Philly */ 0x9C970A,
+            /* Pittsburgh */ 0x9C9717,
+            /* Quebec */ 0x9C9722,
+            /* SanJose */ 0x9C9729,
+            /* StLouis */ 0x9C9732,
+            /* TampaBay */ 0x9C973C,
+            /* Toronto */ 0x9C9746,
+            /* Vancouver */ 0x9C974E,
+            /* Washington */ 0x9C9758,
+            /* Winnepeg */ 0x9C9763,
+            /* AllStarsEast */ 0x9C976C,
+            /* AllStarsWest */ 0x9C9779
+        };
+
+        for (int i = 0; i < _countof(nullDelimitedTeamLocationStringAddresses); ++i)
+        {
+            nullDelimitedStringAddresses.push_back(nullDelimitedTeamLocationStringAddresses[i]);
+        }
+
     }
 
-    // Write the string table
-    {
-        int dstFileOffset = stringTableStartFileAddress;
+    int lengthDelimitedStringTableStartFileAddress = 0;
+    int nullDelimitedStringTableStartFileAddress = 0;
+    int stringAddressTableSize = (int)Team::Count * 4;
 
-        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(stringAddresses.data());
-        for (int i = 0; i < stringAddressTableSize; ++i)
+    {
+        // Write the length-delimited renamed strings and update the table
+        for (int i = 0; i < renames.size(); ++i)
         {
-            s_romData.Set(dstFileOffset + i, stringAddressData[i]);
+            lengthDelimitedStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+            freeSpaceIter->SaveLengthDelimitedROMString_EnsureSpaceInBank(renames[i].NewName);
         }
+
+        lengthDelimitedStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+
+        // Write the length-delimited string table
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(lengthDelimitedStringAddresses.data());
+        freeSpaceIter->SaveBytes_EnsureSpaceInBank(stringAddressData, stringAddressTableSize);
+    }
+    {
+        // Write the null-delimited renamed strings and update the table
+        for (int i = 0; i < renames.size(); ++i)
+        {
+            nullDelimitedStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
+            freeSpaceIter->SaveNullDelimitedROMString_EnsureSpaceInBank(renames[i].NewName);
+        }
+
+        nullDelimitedStringTableStartFileAddress = freeSpaceIter->GetFileOffset();
+
+
+        // Write the length-delimited string table
+        unsigned char* stringAddressData = reinterpret_cast<unsigned char*>(nullDelimitedStringAddresses.data());
+        freeSpaceIter->SaveBytes_EnsureSpaceInBank(stringAddressData, stringAddressTableSize);
     }
 
     // Code patching
@@ -1321,7 +1388,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     {
         ObjectCode code;
         code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
-        code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+        code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(lengthDelimitedStringTableStartFileAddress));
         code.AppendReturnLong();
 
         int dstStartROMAddress = 0x9BC5AB;
@@ -1399,7 +1466,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         {
             ObjectCode code;
             code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
-            code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
+            code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(lengthDelimitedStringTableStartFileAddress));
             code.AppendLongJump(0x9ECD19);
 
             freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
@@ -1408,23 +1475,64 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
     {
+        // Save string pointer table for null-delimited team location names
+
         ObjectCode code_LoadGameMenuString_LocationNamePath;
+
+        // Turn
+        // $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
+        // $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
+        // $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; E.g., If y==0, load 9C9649
+        // $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
+        // $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
+
+        // Store 9C to the high short
+        // A9 9C 00    LDA #$009C       ; TODO: Stop hardcoding this next xxx
+        // 85 AB       STA $AB
+
+        // Into
+
+        // DA               PHX          ; Dunno if this is necessary but better safe than sorry. Maybe could delete if we want to super optimize.
+
+        // 0A               ASL A        ; Multiply team index by 4 to turn into an offset. each elem of this array is 4 bytes
+        // 0A               ASL A
+        // AA               TAX
+        // BF 00 00 00      LDA __ __ __, x ; load low short <--- fill in the null-delimited string address here
+        // 85 A9            STA $A9
+        // E8               INX  ; 
+        // E8               INX  ; X+=2
+        // BF 00 00 00      LDA __ __ __, x ; load high short
+        // 85 AB            STA $AB
+        // A0 00 00         LDY #$0000
+
+        // FA               PLX
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xDA);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x0A);
-        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA8);
-        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xB9);
-        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x49);
-        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x96);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x0A);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xAA);
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xBF);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress));
+
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x85);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA9);
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xE8);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xE8);
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xBF);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress));
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xAB);
+
+        // $9C/9457 A0 00 00    LDY #$0000
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA0);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
 
-        // $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
-        // $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
-        // $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
-        // $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
-        // $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xFA);
 
         code_LoadGameMenuString_LocationNamePath.AppendLongJump(0x9C9479);
 
@@ -1433,12 +1541,6 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     {
         ObjectCode code_LoadGameMenuString_PlayerNamePath;
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA5);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8D);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
 
         // ; Here, $8D points to a short address like 0A5C or 0A2A. Those are addresses of the player string for the player currently being displayed.
         // ; Yes, it's a location in RAM.
@@ -1446,42 +1548,75 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         // $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
         // $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
         // $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA5);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8D);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
+
+        // Store 9C to the high short
+        // A9 9C 00    LDA #$009C // ok to hardcode
+        // 85 AB       STA $AB
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x9C);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x00);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xAB);
 
         code_LoadGameMenuString_PlayerNamePath.AppendLongJump(0x9C9471);
         InsertJumpOutDetour(code_LoadGameMenuString_PlayerNamePath.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
     }
     {
-        ObjectCode code_LoadGameMenuString_CommonPath;
+        ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
         // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
-
-        // Store A9 to the low short
-        // Already done
-
-        // Store 9C to the high short
-        // A9 9C 00    LDA #$009C       ; TODO: Stop hardcoding this next xxx
-        // 85 AB       STA $AB
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0xA9);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0x9C);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0x00);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0x85);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0xAB);
-
+        // Precondition here: A9-AB stores a long pointer to the string
         // Do the long load
         // B7 A9       LDA [$A9],y
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0xB7);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
 
         // Why not
         // 29 FF 00    AND #$00FF
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0x29);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0xFF);
-        code_LoadGameMenuString_CommonPath.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
 
-        code_LoadGameMenuString_CommonPath.AppendLongJump(0x9C947E);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
 
-        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
+        // $9C/94F8 B1 A9       LDA ($A9),y[$9C:807B]   A:0010 X:0000 Y:0000 P:envmxdizC
+        // $9C/94FA 29 FF 00    AND #$00FF              A:0000 X:0000 Y:0000 P:envmxdiZC
+        
+        // Change this to load a long from A9 rather than a short.
+        // change to
+
+        // DA               PHX
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xDA);
+
+        // BB               TYX
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xBB);
+
+        // BF 00 00 00      LDA __ __ __, x
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xBF);
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongAddress(FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress));
+
+        // 29 FF 00         AND #$00FF
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x00);
+
+        // FA               PLX
+        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xFA);
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C94FD);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }
 
     return true;
@@ -1528,7 +1663,7 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
     for (int i = 0; i < renames.size(); ++i)
     {
         stringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewAcronym);
+        freeSpaceIter->SaveLengthDelimitedROMString_EnsureSpaceInBank(renames[i].NewAcronym);
     }
 
     // Write the string table
@@ -1626,10 +1761,10 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
     for (int i = 0; i < renames.size(); ++i)
     {
         teamNameStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewName);
+        freeSpaceIter->SaveLengthDelimitedROMString_EnsureSpaceInBank(renames[i].NewName);
 
         venueStringAddresses[(int)renames[i].WhichTeam] = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].NewVenue);
+        freeSpaceIter->SaveLengthDelimitedROMString_EnsureSpaceInBank(renames[i].NewVenue);
     }
     // Write the string tables
     int teamNameStringTableStartFileAddress = 0;
@@ -1820,7 +1955,7 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
             freeSpaceIter->EnsureSpaceInBank(renames[i].Name.Get().size() + 2 + 1);
 
             playerData->ReplacedROMAddressForRename = freeSpaceIter->GetROMOffset();
-            freeSpaceIter->SaveROMString_EnsureSpaceInBank(renames[i].Name.Get());
+            freeSpaceIter->SaveLengthDelimitedROMString_EnsureSpaceInBank(renames[i].Name.Get());
             freeSpaceIter->SaveDecimalNumber(renames[i].PlayerNumber.Get(), false);
         }
     }
