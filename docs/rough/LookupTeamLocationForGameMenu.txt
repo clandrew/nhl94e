@@ -12,6 +12,7 @@ Precondition: Input parameters $8D and $A9.
 		Note that player name was already moved from the team player data to here, an intermediate. So it's not necessary to shim.
 
 		Idea: Initialize $AB to 0x9C
+		Note that $AB's contents are initially undefined. Anecdotally seen it contain 0xE
 		
 		Function has 2 entrypoints?? 9C9415 and 9C943E
 

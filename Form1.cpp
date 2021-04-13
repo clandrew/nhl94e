@@ -1478,7 +1478,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         }
     }
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
-    {
+    { /*
         // This function has 2 entrypoints basically. So although we aren't modifying title screen text we have to modify both entrypoints.
 
         ObjectCode code_LoadGameMenuString_InitializeForTitleScreen;
@@ -1511,6 +1511,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         InsertJumpOutDetour(code_LoadGameMenuString_InitializeForTitleScreen.m_code, 0x9C9435, 0x9C9439 + 3, freeSpaceIter);
     }
     {
+       
         ObjectCode code_LoadGameMenuString_InitializeForGameMenu;
         // Hook this
         // $9C/9447 64 14       STZ $14    [$00:0014]   A:96DD X:00D4 Y:0000 P:envmxdiZc
@@ -1538,7 +1539,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_InitializeForGameMenu.AppendLongJump(0x9C944B);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_InitializeForGameMenu.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForGameMenu.m_code, 0x9C9447, 0x9C9449 + 2, freeSpaceIter);
+        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForGameMenu.m_code, 0x9C9447, 0x9C9449 + 2, freeSpaceIter);*/
     }
     /*
     {
@@ -1634,27 +1635,6 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_PlayerNamePath.AppendLongJump(0x9C9471);
         InsertJumpOutDetour(code_LoadGameMenuString_PlayerNamePath.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
     }
-    {
-        ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
-
-        // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
-        // Precondition here: A9-AB stores a long pointer to the string
-        // Do the long load
-        // B7 A9       LDA [$A9],y
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-
-        // Why not
-        // 29 FF 00    AND #$00FF
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
-
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
-
-        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
-    }
 
     {
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
@@ -1686,6 +1666,54 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }*/
+
+    {
+        ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
+
+        // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
+        // Precondition here: A9-AB stores a long pointer to the string
+        // Do the long load
+
+        // A5 AB       LDA $AB
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA5);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+
+        // C9 00 00    CMP 0000
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xC9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+
+        // D0 05       BNE __
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xD0);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x05);
+
+        // Prepare for long load
+        // A9 9C 00    LDA #$009C // ok to hardcode
+        // 85 AB       STA $AB
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x9C);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+
+        // Long load
+        // B7 A9       LDA [$A9],y
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+
+
+        // Why not
+        // 29 FF 00    AND #$00FF
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+    }
+
     return true;
 }
 
