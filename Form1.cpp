@@ -1477,17 +1477,22 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
             InsertJumpOutDetour(code.m_code, 0x9ECD0A, 0x9ECD17 + 2, freeSpaceIter);
         }
     }
-    // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
-    { /*
-        // This function has 2 entrypoints basically. So although we aren't modifying title screen text we have to modify both entrypoints.
 
+    // Idea: reserve an array in empty ROM space. Write the real string address there.
+    int scratchPointerSpaceFileOffset = freeSpaceIter->GetFileOffset();
+    int scratchPointerSpaceROMAddress = FileOffsetToROMAddress(scratchPointerSpaceFileOffset);
+    freeSpaceIter->EnsureSpaceInBank(4);
+
+    // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
+    /*{ 
+        // Write pointer to scratchPointerSpaceFileOffset
         ObjectCode code_LoadGameMenuString_InitializeForTitleScreen;
+        
         // Hook this
         // $9C/9435 48          PHA 
         // $9C/9436 AB          PLB  
         // $9C/9437 C2 30       REP #$30 
         // $9C/9439 A0 00 00    LDY #$0000
-
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x48);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xAB);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xC2);
@@ -1495,68 +1500,79 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xA0);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
-
+        
         // Store 9C to the high short
-        // A9 9C 00    LDA #$009C // ok to hardcode
-        // 85 AB       STA $AB
+        // A9 9C 00    LDA #$009C
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xA9);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x9C);
         code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
-        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x85);
-        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xAB);
+        // 8F __ __ __  STA scratch
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x8F);
+        code_LoadGameMenuString_InitializeForTitleScreen.AppendLongAddress(scratchPointerSpaceROMAddress);
 
+       
         code_LoadGameMenuString_InitializeForTitleScreen.AppendLongJump(0x9C943C);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_InitializeForTitleScreen.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_InitializeForTitleScreen.m_code, 0x9C9435, 0x9C9439 + 3, freeSpaceIter);
-    }
-    {
-       
+    } 
+    {       
         ObjectCode code_LoadGameMenuString_InitializeForGameMenu;
+
         // Hook this
         // $9C/9447 64 14       STZ $14    [$00:0014]   A:96DD X:00D4 Y:0000 P:envmxdiZc
         // $9C/9449 64 16       STZ $16    [$00:0016]   A:96DD X:00D4 Y:0000 P:envmxdiZc
-
-        // to add an initializing of $AB to store 009C. 
-
-        // It makes me feel not great adding these kinds of performance penalties but I'm not
-        // going to fix it unless I see some reason.
-
+        // Hook this
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x64);
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x14);
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x64);
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x16);
 
+
         // Store 9C to the high short
-        // A9 9C 00    LDA #$009C // ok to hardcode
-        // 85 AB       STA $AB
+        // A9 9C 00    LDA #$009C
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0xA9);
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x9C);
         code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x00);
-        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x85);
-        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0xAB);
+        // 8F __ __ __  STA scratch
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x8F);
+        code_LoadGameMenuString_InitializeForGameMenu.AppendLongAddress(scratchPointerSpaceROMAddress);
 
         code_LoadGameMenuString_InitializeForGameMenu.AppendLongJump(0x9C944B);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_InitializeForGameMenu.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForGameMenu.m_code, 0x9C9447, 0x9C9449 + 2, freeSpaceIter);*/
-    }
-    /*
+        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForGameMenu.m_code, 0x9C9447, 0x9C9449 + 2, freeSpaceIter);
+    }*/
+    
     {
         // Save string pointer table for null-delimited team location names
-
+        // Idea: store the long address somewhere.
         ObjectCode code_LoadGameMenuString_LocationNamePath;
 
-        // Turn
+        // Hook this
+        // TeamIndexIsPositive_LoadTeamLocationName:
         // $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Multiply team index by 2 to turn into an offset
         // $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
         // $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; E.g., If y==0, load 9C9649
         // $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
         // $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
 
-        // Store 9C to the high short
-        // A9 9C 00    LDA #$009C       ; TODO: Stop hardcoding this next xxx
-        // 85 AB       STA $AB
+        // Adding, this: also store a long pointer
+        //          8F __ __ __ STA scratch     
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(scratchPointerSpaceROMAddress);
+
+        // A9 9C 00    LDA #$009C  
+        // 8F __ __ __ STA scratch+2
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x9C);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(scratchPointerSpaceROMAddress+2);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_LocationNamePath.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_LocationNamePath.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
+
 
         // Into
 
@@ -1575,6 +1591,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         // FA               PLX
 
+        /*
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xDA);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x0A);
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x0A);
@@ -1602,20 +1619,20 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xFA);
 
-        code_LoadGameMenuString_LocationNamePath.AppendLongJump(0x9C9479);
+        code_LoadGameMenuString_LocationNamePath.AppendLongJump(0x9C9479);*/
 
-        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_LocationNamePath.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_LocationNamePath.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
+        //freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_LocationNamePath.m_code.size());
+        //InsertJumpOutDetour(code_LoadGameMenuString_LocationNamePath.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
     }
     {
         ObjectCode code_LoadGameMenuString_PlayerNamePath;
 
-        // ; Here, $8D points to a short address like 0A5C or 0A2A. Those are addresses of the player string for the player currently being displayed.
-        // ; Yes, it's a location in RAM.
-        // $9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Not hit when loading team locations for menu
+        // Hook this
+        // TeamIndexIsPositive_LoadTeamLocationName:
+        // $9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
         // $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
         // $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
-        // $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
+        // $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA5);
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8D);
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x1A);
@@ -1623,19 +1640,23 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
 
-        // Store 9C to the high short
-        // A9 9C 00    LDA #$009C // ok to hardcode
-        // 85 AB       STA $AB
+        // Adding, this: also store a long pointer
+        //          8F __ __ __ STA scratch
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_PlayerNamePath.AppendLongAddress(scratchPointerSpaceROMAddress);
+
+        // A9 9C 00    LDA #$009C
+        // 8F __ __ __ STA scratch+2
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xA9);
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x9C);
         code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x00);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x85);
-        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0xAB);
+        code_LoadGameMenuString_PlayerNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_PlayerNamePath.AppendLongAddress(scratchPointerSpaceROMAddress+2);
 
         code_LoadGameMenuString_PlayerNamePath.AppendLongJump(0x9C9471);
         InsertJumpOutDetour(code_LoadGameMenuString_PlayerNamePath.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
     }
-
+    /*
     {
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
         // $9C/94F8 B1 A9       LDA ($A9),y[$9C:807B]   A:0010 X:0000 Y:0000 P:envmxdizC
@@ -1646,6 +1667,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         // DA               PHX
         code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xDA);
+
 
         // BB               TYX
         code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xBB);
@@ -1668,6 +1690,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }*/
 
     {
+        /*
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
         // Idea: make ShortStringPointerSavedToA9 load a long ptr from A9,AA,AB instead
@@ -1711,7 +1734,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);*/
     }
 
     return true;
