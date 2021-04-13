@@ -1,6 +1,13 @@
 Replace team name in game menu
 Need to find where it is
 
+Locations:
+9C9415  Start
+9C9450  "Montreal"
+9C946B	"Allie Thunstrom"
+9C9479	LoadGameMenuString_CommonPath_FirstLoad	- can get executed EVEN without calling the above two places! uh oh
+9C94F8
+
 Found it
 9C96DD
 Each string is null-terminated.
@@ -36,7 +43,10 @@ $9C/9435 48          PHA                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
 $9C/9436 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
 $9C/9437 C2 30       REP #$30                A:FFFF X:0012 Y:0016 P:eNvMXdizc
 $9C/9439 A0 00 00    LDY #$0000              A:FFFF X:0012 Y:0016 P:eNvmxdizc
-$9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc	; If we have initialization type things, need to make sure they get done 
+										; before here
+										; Skip down to Common_ShortStringPointerSavedToA9
+										; Leaves some default stored in A9
 
 
 $9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
@@ -58,52 +68,7 @@ $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
 $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
 										; Load an array element. Team indices are in range 0-0x1B. Y is in range 0-0x36
-										; There's this table
-										; 81 96 89 96 90 96 98 96 A0 96 A8 96 AF 96 B7 96
-										; C0 96 C8 96 D1 96 DD 96 E6 96 F1 96 FA 96 03 97
-										; 0A 97 17 97 22 97 29 97 32 97 3C 97 46 97 4E 97
-										; 58 97 63 97 6C 97 79 97 41 6E 61 68 65 69 6D 00
-										; 42 6F 73 74 6F 6E 00 42
-										; Formatted nicely, it's
-										; Anaheim = 9681  
-										; Boston = 9689  
-										; Buffalo = 9690  
-										; Calgary = 9698  
-										; Chicago = 96A0  
-										; Dallas = 96A8  
-										; Detroit = 96AF  
-										; Edmonton = 96B7 
-										; Florida = 96C0 
-										; Hartford = 96C8  
-										; LAKings = 96D1  
-										; Montreal = 96DD  
-										; NewJersey = 96E6  
-										; NYIslanders = 96F1  
-										; NYRangers = 96FA  
-										; Ottawa = 9703 
-										; Philly = 970A  
-										; Pittsburgh = 9717  
-										; Quebec = 9722  
-										; SanJose = 9729  
-										; StLouis = 9732  
-										; TampaBay = 973C  
-										; Toronto = 9746  
-										; Vancouver = 974E 
-										; Washington = 9758  
-										; Winnepeg = 9763  
-										; AllStarsEast = 976C  
-										; AllStarsWest = 9779  
-										
-										Montreal 7B 80 A0 00
-										A0807b
-										RAM value looks good
-										M  i  n  n  e  s  o  t  a
-										4D 69 6E 6E 65 73 6F 74 61 00
-
-
-
-							
-										
+																
 $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
 
 $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0

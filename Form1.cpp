@@ -1484,12 +1484,125 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     freeSpaceIter->EnsureSpaceInBank(4);
     freeSpaceIter->SkipBytes(4);
 
-    int scratchResultFileOffset = freeSpaceIter->GetFileOffset();
-    int scratchResultROMAddress = FileOffsetToROMAddress(scratchResultFileOffset);
-    freeSpaceIter->EnsureSpaceInBank(2);
-    freeSpaceIter->SkipBytes(2);
-
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
+    {
+        ObjectCode code_LoadGameMenuString_Initialize;
+
+        // Hook this
+        // $9C/9435 48          PHA 
+        // $9C/9436 AB          PLB  
+        // $9C/9437 C2 30       REP #$30 
+        // $9C/9439 A0 00 00    LDY #$0000
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x48);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0xAB);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0xC2);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x30);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0xA0);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x00);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x00);
+
+        // null out scratch
+        //          A9 00 00    LDA #$0000
+        //          8F __ __ __ STA scratch
+        //          8F __ __ __ STA scratch+2
+        // would be nice to stz directly but we don't have that addressing mode.
+        code_LoadGameMenuString_Initialize.m_code.push_back(0xA9);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x00);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x00);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x8F);
+        code_LoadGameMenuString_Initialize.AppendLongAddress(scratchPointerSpaceROMAddress);
+        code_LoadGameMenuString_Initialize.m_code.push_back(0x8F);
+        code_LoadGameMenuString_Initialize.AppendLongAddress(scratchPointerSpaceROMAddress+2);
+
+        code_LoadGameMenuString_Initialize.AppendLongJump(0x9C9479);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_Initialize.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_Initialize.m_code, 0x9C9435, 0x9C9439 + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_LocationNamePath;
+
+        // Hook this
+        // TeamIndexIsPositive_LoadTeamLocationName:
+        // $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
+        // $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
+
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x85);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA0);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+
+        // Save long pointer to scratch
+        //          8F __ __ __ STA scratch     
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(scratchPointerSpaceROMAddress);
+
+        // A9 9C 00    LDA #$009C  
+        // 8F __ __ __ STA scratch+2
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0xA9);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x9C);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x00);
+        code_LoadGameMenuString_LocationNamePath.m_code.push_back(0x8F);
+        code_LoadGameMenuString_LocationNamePath.AppendLongAddress(scratchPointerSpaceROMAddress + 2);
+
+        code_LoadGameMenuString_LocationNamePath.AppendLongJump(0x9C9479);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_LocationNamePath.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_LocationNamePath.m_code, 0x9C9455, 0x9C9457 + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
+
+        // Hook this
+        // $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
+        // $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB1);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+
+        // Check scratch pointer
+        //         CF __ __ __ CMP scratch+2
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xCF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchPointerSpaceROMAddress + 2);
+
+        //         D0 0A       BNE __
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xD0);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x0A); 
+        
+        // if NULL, fall through to normal load
+        // A9 9C 00           LDA #$009C  
+        // 85 AB              STA $AB
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x9C);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+        // B7 A9              LDA [$A9], y
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+
+        // Remember mask
+        // 29 FF 00    AND #$00FF 
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
+
+        // Case: scratch is non null
+
+        // Remember mask
+        // 29 FF 00    AND #$00FF 
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
+
+    }
 
     return true;
 }
