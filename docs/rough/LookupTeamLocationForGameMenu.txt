@@ -139,60 +139,75 @@ $9C/9476 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 
 Common_ShortStringPointerSavedToA9:
 ;  This is the common path for both player names and team location names.
+; Precondition: $14 contains the X-position, which includes the display width of the previously displayed characters.
+
 $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
 
 $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
 
 $9C/947E F0 52       BEQ $52    [$94D2]      A:004D X:00D4 Y:0000 P:envmxdizc	; goto NullChar if null char
 
-$9C/9480 C9 20 00    CMP #$0020              A:004D X:00D4 Y:0000 P:envmxdizc
-$9C/9483 D0 0A       BNE $0A    [$948F]      A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/9480 C9 20 00    CMP #$0020              A:004D X:00D4 Y:0000 P:envmxdizc	; Check if ' '(space)
+$9C/9483 D0 0A       BNE $0A    [$948F]      A:004D X:00D4 Y:0000 P:envmxdizC	; If space, fall through to IsSpace, otherwise goto IsNotSpace
 
-$9C/9485 C0 00 00    CPY #$0000
-$9C/9488 F0 45       BEQ $45    [$94CF]
+IsSpace:
+$9C/9485 C0 00 00    CPY #$0000							;
+$9C/9488 F0 45       BEQ $45    [$94CF]						; Goto AfterPrintChar. don't need to draw anything for a space
 
 $9C/948A A9 05 00    LDA #$0005
 $9C/948D 80 3B       BRA $3B    [$94CA] 
 
-$9C/948F C9 2E 00    CMP #$002E              A:004D X:00D4 Y:0000 P:envmxdizC
+IsNotSpace:
+$9C/948F C9 2E 00    CMP #$002E              A:004D X:00D4 Y:0000 P:envmxdizC	; Check if '.' (period)
 $9C/9492 D0 05       BNE $05    [$9499]      A:004D X:00D4 Y:0000 P:envmxdizC
 
-$9C/9494 A9 03 00    LDA #$0003             
+IsPeriod:
+$9C/9494 A9 03 00    LDA #$0003             ; Load a hard-coded display width of 3.
 $9C/9497 80 31       BRA $31    [$94CA]     
 
-$9C/9499 C9 40 00    CMP #$0040              A:004D X:00D4 Y:0000 P:envmxdizC
+IsNotSpace:
+$9C/9499 C9 40 00    CMP #$0040              A:004D X:00D4 Y:0000 P:envmxdizC	; Check if '@' sign I guess. maybe a control character
 $9C/949C D0 09       BNE $09    [$94A7]      A:004D X:00D4 Y:0000 P:envmxdizC
 
 $9C/949E AF 3E 96 9C LDA $9C963E[$9C:963E]   
 $9C/94A2 29 FF 00    AND #$00FF              
 $9C/94A5 80 23       BRA $23    [$94CA]      
 
-$9C/94A7 C9 30 00    CMP #$0030              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94A7 C9 30 00    CMP #$0030              A:004D X:00D4 Y:0000 P:envmxdizC	; Check if '0'
 $9C/94AA 90 0F       BCC $0F    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
-$9C/94AC C9 3A 00    CMP #$003A              A:004D X:00D4 Y:0000 P:envmxdizC
+$9C/94AC C9 3A 00    CMP #$003A              A:004D X:00D4 Y:0000 P:envmxdizC	; Check against '9'
 $9C/94AF B0 0A       BCS $0A    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
 
+IsNumber:
 $9C/94B1 38          SEC                     
-$9C/94B2 E9 30 00    SBC #$0030              
+$9C/94B2 E9 30 00    SBC #$0030              ; Conversion from Ascii
 $9C/94B5 18          CLC                     
-$9C/94B6 69 1C 00    ADC #$001C              
+$9C/94B6 69 1C 00    ADC #$001C              ; Index off of 1C
 $9C/94B9 80 07       BRA $07    [$94C2]      
 
 $9C/94BB 29 DF 00    AND #$00DF              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BE 38          SEC                     A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BF E9 41 00    SBC #$0041              A:004D X:00D4 Y:0000 P:envmxdizC
+
+// Condition: A contains 0x1C + number, or some ASCII conversion
 $9C/94C2 AA          TAX                     A:000C X:00D4 Y:0000 P:envmxdizC
 
-$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:000C X:000C Y:0000 P:envmxdizC	// This is an array with one element per alphabet 
-										// character.
-										// A=7, B=7, C=6, i guess..
+$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:000C X:000C Y:0000 P:envmxdizC	// Load display with for this character
+										// 9C9623 is an array of display widths
+										// 
+										// X=0x0.. 0x25	(dec 37)
+										// 0x0..0x1A are Ascii characters. 0x1B..0x25 are numbers
+										// This is a variable-width font after all.
 										
 $9C/94C7 29 FF 00    AND #$00FF              A:0708 X:000C Y:0000 P:envmxdizC
-$9C/94CA 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizC
+
+$9C/94CA 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizC	; We skip here if there was a '.' (period)
 $9C/94CB 65 14       ADC $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc
-$9C/94CD 85 14       STA $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc
+$9C/94CD 85 14       STA $14    [$00:0014]   A:0008 X:000C Y:0000 P:envmxdizc	; Store display width
+
+AfterPrintChar:
 $9C/94CF C8          INY                     A:0008 X:000C Y:0000 P:envmxdizc
-$9C/94D0 80 A7       BRA $A7    [$9479]      A:0008 X:000C Y:0001 P:envmxdizc	; Go to next character?
+$9C/94D0 80 A7       BRA $A7    [$9479]      A:0008 X:000C Y:0001 P:envmxdizc	; goto Common_ShortStringPointerSavedToA9
 
 NullChar:
 $9C/94D2 A0 00 00    LDY #$0000              A:0000 X:000B Y:0008 P:envmxdiZc
@@ -207,10 +222,8 @@ $9C/94F2 6D 17 1E    ADC $1E17  [$9C:1E17]   A:FFE6 X:000B Y:0000 P:eNvmxdizc
 $9C/94F5 8D 17 1E    STA $1E17  [$9C:1E17]   A:00BA X:000B Y:0000 P:envmxdizC
 
 LoadChar:
-$9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC	; This has a problem. Tries 9C807B, should be A0807B
-										; There is a broader problem where this code
-										; path is used by multiple places (one i havent 
-										; accounted for) where they assume it loads a short.
+$9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC	; Once again, load the 'M' for Montreal as it appears in the GAME MENU	
+										; That makes 2 places where we load this string :S
 $9C/94FA 29 FF 00    AND #$00FF              A:6F4D X:000B Y:0000 P:envmxdizC
 $9C/94FD D0 03       BNE $03    [$9502]      A:004D X:000B Y:0000 P:envmxdizC
 
@@ -219,7 +232,7 @@ $9C/9505 D0 0D       BNE $0D    [$9514]      A:004D X:000B Y:0000 P:envmxdizC
 
 $9C/9507 C0 00 00    CPY #$0000              A:004C X:002C Y:0000 P:envmxdizc
 $9C/950A D0 03       BNE $03    [$950F]      A:004C X:002C Y:0000 P:envmxdizc
-$9C/950C 4C 87 95    JMP $9587  [$9C:9587]   A:004C X:002C Y:0000 P:envmxdizc	; non relocatable
+$9C/950C 4C 87 95    JMP $9587  [$9C:9587]   A:004C X:002C Y:0000 P:envmxdizc	; non relocatable, like a lot of the things here
 
 $9C/950F A9 05 00    LDA #$0005              A:004C X:002C Y:0000 P:envmxdizc
 $9C/9512 80 6C       BRA $6C    [$9580]      A:004C X:002C Y:0000 P:envmxdizc
@@ -227,18 +240,33 @@ $9C/9512 80 6C       BRA $6C    [$9580]      A:004C X:002C Y:0000 P:envmxdizc
 $9C/9514 C9 2E 00    CMP #$002E              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9517 D0 05       BNE $05    [$951E]      A:004D X:000B Y:0000 P:envmxdizC
 
+$9C/9519 A2 1A 00    LDX #$001A             
+$9C/951C 80 27       BRA $27    [$9545]   
+
 $9C/951E C9 40 00    CMP #$0040              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9521 D0 05       BNE $05    [$9528]      A:004D X:000B Y:0000 P:envmxdizC
+
+$9C/9523 A2 1B 00    LDX #$001B              
+$9C/9526 80 1D       BRA $1D    [$9545]     
 
 $9C/9528 C9 30 00    CMP #$0030              A:004D X:000B Y:0000 P:envmxdizC
 $9C/952B 90 10       BCC $10    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
 
 $9C/952D C9 3A 00    CMP #$003A              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9530 B0 0B       BCS $0B    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
+
+$9C/9532 38          SEC                     
+$9C/9533 E9 30 00    SBC #$0030             
+$9C/9536 18          CLC                     
+$9C/9537 69 1C 00    ADC #$001C              
+$9C/953A AA          TAX                     
+$9C/953B 80 08       BRA $08    [$9545]     
+
 $9C/953D 29 DF 00    AND #$00DF              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9540 38          SEC                     A:004D X:000B Y:0000 P:envmxdizC
 $9C/9541 E9 41 00    SBC #$0041              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9544 AA          TAX                     A:000C X:000B Y:0000 P:envmxdizC
+
 $9C/9545 A9 82 00    LDA #$0082              A:000C X:000C Y:0000 P:envmxdizC
 $9C/9548 85 12       STA $12    [$00:0012]   A:0082 X:000C Y:0000 P:envmxdizC
 $9C/954A A9 00 80    LDA #$8000              A:0082 X:000C Y:0000 P:envmxdizC
@@ -253,6 +281,11 @@ $9C/9558 AF 62 34 7E LDA $7E3462[$7E:3462]   A:03AC X:000C Y:0000 P:envmxdizc
 $9C/955C D0 05       BNE $05    [$9563]      A:0000 X:000C Y:0000 P:envmxdiZc
 $9C/955E A9 00 38    LDA #$3800              A:0000 X:000C Y:0000 P:envmxdiZc
 $9C/9561 80 0A       BRA $0A    [$956D]      A:3800 X:000C Y:0000 P:envmxdizc
+
+$9C/9563 A9 00 3C    LDA #$3C00             
+$9C/9566 A6 91       LDX $91    [$00:0091]   
+$9C/9568 D0 03       BNE $03    [$956D]      
+$9C/956A A9 00 3E    LDA #$3E00             
 
 $9C/956D AE 17 1E    LDX $1E17  [$9C:1E17]   A:3800 X:000C Y:0000 P:envmxdizc	// Computed sum from last iter.
 										// Initialized as 0x3800
@@ -275,12 +308,6 @@ $9C/9581 6D 17 1E    ADC $1E17  [$9C:1E17]   A:0008 X:000C Y:0000 P:envmxdizc
 $9C/9584 8D 17 1E    STA $1E17  [$9C:1E17]   A:00C2 X:000C Y:0000 P:envmxdizc
 $9C/9587 C8          INY                     A:00C2 X:000C Y:0000 P:envmxdizc
 $9C/9588 4C F8 94    JMP $94F8  [$9C:94F8]   A:00C2 X:000C Y:0001 P:envmxdizc	;goto LoadChar
-
-$9C/94F8 B1 A9       LDA ($A9),y[$9C:96E5]   A:00EF X:000B Y:0008 P:envmxdizc
-$9C/94FA 29 FF 00    AND #$00FF              A:4E00 X:000B Y:0008 P:envmxdizc
-$9C/94FD D0 03       BNE $03    [$9502]      A:0000 X:000B Y:0008 P:envmxdiZc
-$9C/94FF 4C 8B 95    JMP $958B  [$9C:958B]   A:0000 X:000B Y:0008 P:envmxdiZc
-
 
 $9C/958B 68          PLA                     A:0000 X:000B Y:0008 P:envmxdiZc
 $9C/958C 85 A9       STA $A9    [$00:00A9]   A:000B X:000B Y:0008 P:envmxdizc
