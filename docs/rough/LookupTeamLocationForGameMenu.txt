@@ -11,6 +11,8 @@ Precondition: Input parameters $8D and $A9.
 		If $A9 < 0, E.g., $A9==0xFFFF, then we load a player name string instead. That player name string is a short in $8D.
 		Note that player name was already moved from the team player data to here, an intermediate. So it's not necessary to shim.
 
+		Idea: Initialize $AB to 0x9C
+
 $9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/943F 4B          PHK                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9440 AB          PLB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
