@@ -5,13 +5,38 @@ Found it
 9C96DD
 Each string is null-terminated.
 
-Function: LoadGameMenuString() - 9C943E
+Function: LoadGameMenuString() - 9C9415
 Precondition: Input parameters $8D and $A9.
 		If $A9 >= 0, then it's the index of the team whose location name to load. E.g., 0xB for Montreal.
 		If $A9 < 0, E.g., $A9==0xFFFF, then we load a player name string instead. That player name string is a short in $8D.
 		Note that player name was already moved from the team player data to here, an intermediate. So it's not necessary to shim.
 
 		Idea: Initialize $AB to 0x9C
+		
+		Function has 2 entrypoints?? 9C9415 and 9C943E
+
+$9C/9415 8B          PHB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9416 4B          PHK                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9417 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9418 8E 17 1E    STX $1E17  [$80:1E17]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/941B 8C 1B 1E    STY $1E1B  [$80:1E1B]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/941E 64 14       STZ $14    [$00:0014]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9420 A9 01 00    LDA #$0001              A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9423 85 16       STA $16    [$00:0016]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9425 A5 8D       LDA $8D    [$00:008D]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9427 85 A9       STA $A9    [$00:00A9]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9429 A9 FF FF    LDA #$FFFF              A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/942C 85 91       STA $91    [$00:0091]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/942E 85 93       STA $93    [$00:0093]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9430 48          PHA                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9431 E2 30       SEP #$30                A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/9433 A5 8F       LDA $8F    [$00:008F]   A:FFFF X:0012 Y:0016 P:eNvMXdizc
+$9C/9435 48          PHA                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
+$9C/9436 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
+$9C/9437 C2 30       REP #$30                A:FFFF X:0012 Y:0016 P:eNvMXdizc
+$9C/9439 A0 00 00    LDY #$0000              A:FFFF X:0012 Y:0016 P:eNvmxdizc
+$9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc
+
 
 $9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/943F 4B          PHK                     A:96DD X:00D4 Y:0000 P:envmxdiZc
@@ -190,12 +215,22 @@ $9C/9558 AF 62 34 7E LDA $7E3462[$7E:3462]   A:03AC X:000C Y:0000 P:envmxdizc
 $9C/955C D0 05       BNE $05    [$9563]      A:0000 X:000C Y:0000 P:envmxdiZc
 $9C/955E A9 00 38    LDA #$3800              A:0000 X:000C Y:0000 P:envmxdiZc
 $9C/9561 80 0A       BRA $0A    [$956D]      A:3800 X:000C Y:0000 P:envmxdizc
-$9C/956D AE 17 1E    LDX $1E17  [$9C:1E17]   A:3800 X:000C Y:0000 P:envmxdizc
+
+$9C/956D AE 17 1E    LDX $1E17  [$9C:1E17]   A:3800 X:000C Y:0000 P:envmxdizc	// Computed sum from last iter.
+										// Initialized as 0x3800
 $9C/9570 AC 1B 1E    LDY $1E1B  [$9C:1E1B]   A:3800 X:00BA Y:0000 P:envmxdizc
-$9C/9573 22 8D B0 80 JSL $80B08D[$80:B08D]   A:3800 X:00BA Y:0053 P:envmxdizc
+
+$9C/9573 22 8D B0 80 JSL $80B08D[$80:B08D]   A:3800 X:00BA Y:0053 P:envmxdizc	// Presumably, this function expects some parameter
+										// in $1E17.
+
 $9C/9577 FA          PLX                     A:21B4 X:21B4 Y:0024 P:eNvmxdizc
 $9C/9578 7A          PLY                     A:21B4 X:000C Y:0024 P:envmxdizc
-$9C/9579 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:21B4 X:000C Y:0000 P:envmxdiZc
+
+$9C/9579 BF 23 96 9C LDA $9C9623,x[$9C:962F] A:21B4 X:000C Y:0000 P:envmxdiZc	// Check this... 9C9623 is this array of elements
+										// 07. 07, 06, etc...
+										// E.g., loads 5. Adds 80:1E17=0x43. 
+										// Total 0x48. 
+
 $9C/957D 29 FF 00    AND #$00FF              A:0708 X:000C Y:0000 P:envmxdizc
 $9C/9580 18          CLC                     A:0008 X:000C Y:0000 P:envmxdizc
 $9C/9581 6D 17 1E    ADC $1E17  [$9C:1E17]   A:0008 X:000C Y:0000 P:envmxdizc
@@ -207,6 +242,7 @@ $9C/94F8 B1 A9       LDA ($A9),y[$9C:96E5]   A:00EF X:000B Y:0008 P:envmxdizc
 $9C/94FA 29 FF 00    AND #$00FF              A:4E00 X:000B Y:0008 P:envmxdizc
 $9C/94FD D0 03       BNE $03    [$9502]      A:0000 X:000B Y:0008 P:envmxdiZc
 $9C/94FF 4C 8B 95    JMP $958B  [$9C:958B]   A:0000 X:000B Y:0008 P:envmxdiZc
+
 
 $9C/958B 68          PLA                     A:0000 X:000B Y:0008 P:envmxdiZc
 $9C/958C 85 A9       STA $A9    [$00:00A9]   A:000B X:000B Y:0008 P:envmxdizc

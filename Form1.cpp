@@ -1479,6 +1479,69 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
     {
+        // This function has 2 entrypoints basically. So although we aren't modifying title screen text we have to modify both entrypoints.
+
+        ObjectCode code_LoadGameMenuString_InitializeForTitleScreen;
+        // Hook this
+        // $9C/9435 48          PHA 
+        // $9C/9436 AB          PLB  
+        // $9C/9437 C2 30       REP #$30 
+        // $9C/9439 A0 00 00    LDY #$0000
+
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x48);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xAB);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xC2);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x30);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xA0);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
+
+        // Store 9C to the high short
+        // A9 9C 00    LDA #$009C // ok to hardcode
+        // 85 AB       STA $AB
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xA9);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x9C);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x00);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0x85);
+        code_LoadGameMenuString_InitializeForTitleScreen.m_code.push_back(0xAB);
+
+        code_LoadGameMenuString_InitializeForTitleScreen.AppendLongJump(0x9C943C);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_InitializeForTitleScreen.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForTitleScreen.m_code, 0x9C9435, 0x9C9439 + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString_InitializeForGameMenu;
+        // Hook this
+        // $9C/9447 64 14       STZ $14    [$00:0014]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+        // $9C/9449 64 16       STZ $16    [$00:0016]   A:96DD X:00D4 Y:0000 P:envmxdiZc
+
+        // to add an initializing of $AB to store 009C. 
+
+        // It makes me feel not great adding these kinds of performance penalties but I'm not
+        // going to fix it unless I see some reason.
+
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x64);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x14);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x64);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x16);
+
+        // Store 9C to the high short
+        // A9 9C 00    LDA #$009C // ok to hardcode
+        // 85 AB       STA $AB
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0xA9);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x9C);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x00);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0x85);
+        code_LoadGameMenuString_InitializeForGameMenu.m_code.push_back(0xAB);
+
+        code_LoadGameMenuString_InitializeForGameMenu.AppendLongJump(0x9C944B);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_InitializeForGameMenu.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString_InitializeForGameMenu.m_code, 0x9C9447, 0x9C9449 + 2, freeSpaceIter);
+    }
+    /*
+    {
         // Save string pointer table for null-delimited team location names
 
         ObjectCode code_LoadGameMenuString_LocationNamePath;
@@ -1621,7 +1684,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
-    }
+    }*/
 
     return true;
 }
