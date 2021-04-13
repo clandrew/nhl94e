@@ -1655,6 +1655,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
     }
+
     {
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
         // $9C/94F8 B1 A9       LDA ($A9),y[$9C:807B]   A:0010 X:0000 Y:0000 P:envmxdizC
@@ -1685,7 +1686,6 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }*/
-
     return true;
 }
 

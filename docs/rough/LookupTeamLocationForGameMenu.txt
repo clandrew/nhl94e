@@ -135,6 +135,8 @@ $9C/9471 A9 00 00    LDA #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9474 91 A9       STA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Save a zero-delimiter i guess
 $9C/9476 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc
 
+
+
 Common_ShortStringPointerSavedToA9:
 ;  This is the common path for both player names and team location names.
 $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
@@ -142,16 +144,40 @@ $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
 
 $9C/947E F0 52       BEQ $52    [$94D2]      A:004D X:00D4 Y:0000 P:envmxdizc	; goto NullChar if null char
+
 $9C/9480 C9 20 00    CMP #$0020              A:004D X:00D4 Y:0000 P:envmxdizc
 $9C/9483 D0 0A       BNE $0A    [$948F]      A:004D X:00D4 Y:0000 P:envmxdizC
+
+$9C/9485 C0 00 00    CPY #$0000
+$9C/9488 F0 45       BEQ $45    [$94CF]
+
+$9C/948A A9 05 00    LDA #$0005
+$9C/948D 80 3B       BRA $3B    [$94CA] 
+
 $9C/948F C9 2E 00    CMP #$002E              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/9492 D0 05       BNE $05    [$9499]      A:004D X:00D4 Y:0000 P:envmxdizC
+
+$9C/9494 A9 03 00    LDA #$0003             
+$9C/9497 80 31       BRA $31    [$94CA]     
+
 $9C/9499 C9 40 00    CMP #$0040              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/949C D0 09       BNE $09    [$94A7]      A:004D X:00D4 Y:0000 P:envmxdizC
+
+$9C/949E AF 3E 96 9C LDA $9C963E[$9C:963E]   
+$9C/94A2 29 FF 00    AND #$00FF              
+$9C/94A5 80 23       BRA $23    [$94CA]      
+
 $9C/94A7 C9 30 00    CMP #$0030              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94AA 90 0F       BCC $0F    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94AC C9 3A 00    CMP #$003A              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94AF B0 0A       BCS $0A    [$94BB]      A:004D X:00D4 Y:0000 P:envmxdizC
+
+$9C/94B1 38          SEC                     
+$9C/94B2 E9 30 00    SBC #$0030              
+$9C/94B5 18          CLC                     
+$9C/94B6 69 1C 00    ADC #$001C              
+$9C/94B9 80 07       BRA $07    [$94C2]      
+
 $9C/94BB 29 DF 00    AND #$00DF              A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BE 38          SEC                     A:004D X:00D4 Y:0000 P:envmxdizC
 $9C/94BF E9 41 00    SBC #$0041              A:004D X:00D4 Y:0000 P:envmxdizC
@@ -187,14 +213,26 @@ $9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC	; 
 										; accounted for) where they assume it loads a short.
 $9C/94FA 29 FF 00    AND #$00FF              A:6F4D X:000B Y:0000 P:envmxdizC
 $9C/94FD D0 03       BNE $03    [$9502]      A:004D X:000B Y:0000 P:envmxdizC
+
 $9C/9502 C9 20 00    CMP #$0020              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9505 D0 0D       BNE $0D    [$9514]      A:004D X:000B Y:0000 P:envmxdizC
+
+$9C/9507 C0 00 00    CPY #$0000              A:004C X:002C Y:0000 P:envmxdizc
+$9C/950A D0 03       BNE $03    [$950F]      A:004C X:002C Y:0000 P:envmxdizc
+$9C/950C 4C 87 95    JMP $9587  [$9C:9587]   A:004C X:002C Y:0000 P:envmxdizc	; non relocatable
+
+$9C/950F A9 05 00    LDA #$0005              A:004C X:002C Y:0000 P:envmxdizc
+$9C/9512 80 6C       BRA $6C    [$9580]      A:004C X:002C Y:0000 P:envmxdizc
+
 $9C/9514 C9 2E 00    CMP #$002E              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9517 D0 05       BNE $05    [$951E]      A:004D X:000B Y:0000 P:envmxdizC
+
 $9C/951E C9 40 00    CMP #$0040              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9521 D0 05       BNE $05    [$9528]      A:004D X:000B Y:0000 P:envmxdizC
+
 $9C/9528 C9 30 00    CMP #$0030              A:004D X:000B Y:0000 P:envmxdizC
 $9C/952B 90 10       BCC $10    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
+
 $9C/952D C9 3A 00    CMP #$003A              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9530 B0 0B       BCS $0B    [$953D]      A:004D X:000B Y:0000 P:envmxdizC
 $9C/953D 29 DF 00    AND #$00DF              A:004D X:000B Y:0000 P:envmxdizC
