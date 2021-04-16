@@ -1488,46 +1488,31 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
-        // Hook this
-        // $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
-        // $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
-        //code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB1);          ; No more short load
-        //code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-
-        // A5 AB                LDA $AB
-        // pha
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA5);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x48);
-
-
         // Store 9C in the upper byte. Shooould be safe to do
-        // A9 9C 00           LDA #$009C  
+        // A9 A0 00           LDA #$00A0  
         // 85 AB              STA $AB
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x9C);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA0);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
 
-        // Do the long load
-        // B7 A9              LDA [$A9], y
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
+        // A9 14 81           LDA #8114  
+        // 85 A9              STA $A9
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-        // Sta long
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8F);
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchROMAddress);
-
-        // pla
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x68);
-
-        // 85 AB              STA $AB
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x14);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x81);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
 
-        // Load long
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAF);
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchROMAddress);
+        // A9 34 12           LDA #1234  
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x34);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x12);
+
+        // Sta long
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x87);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
 
         // Remember mask
         // 29 FF 00    AND #$00FF 
