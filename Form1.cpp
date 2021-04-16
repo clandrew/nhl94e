@@ -1479,27 +1479,29 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
 
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
+    freeSpaceIter->EnsureSpaceInBank(2);
+    int scratchFileOffset = freeSpaceIter->GetFileOffset();
+    int scratchROMAddress = FileOffsetToROMAddress(scratchFileOffset);
+    freeSpaceIter->SkipBytes(4);
 
-    // For now: turn the short load into a long load.
+    // Turn the short load into a long load.
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
         // Hook this
         // $9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
         // $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB1);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        //code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB1);          ; No more short load
+        //code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
 
-        // Check scratch pointer
-        //         CF __ __ __ CMP scratch+2
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xCF);
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchPointerSpaceROMAddress + 2);
+        // A5 AB                LDA $AB
+        // pha
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA5);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x48);
 
-        //         D0 0A       BNE __
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xD0);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x0A); 
-        
-        // if NULL, fall through to normal load
+
+        // Store 9C in the upper byte. Shooould be safe to do
         // A9 9C 00           LDA #$009C  
         // 85 AB              STA $AB
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
@@ -1507,19 +1509,25 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+
+        // Do the long load
         // B7 A9              LDA [$A9], y
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xB7);
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        // Sta long
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8F);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchROMAddress);
 
-        // Remember mask
-        // 29 FF 00    AND #$00FF 
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+        // pla
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x68);
 
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
+        // 85 AB              STA $AB
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
 
-        // Case: scratch is non null
+        // Load long
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAF);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongAddress(scratchROMAddress);
 
         // Remember mask
         // 29 FF 00    AND #$00FF 
