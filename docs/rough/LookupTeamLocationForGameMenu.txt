@@ -51,7 +51,7 @@ $9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc	; 
 Entrypoint2:
 $9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/943F 4B          PHK                     A:96DD X:00D4 Y:0000 P:envmxdiZc
-$9C/9440 AB          PLB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
+$9C/9440 AB          PLB                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Same as above, basically set DBR to 0x9C.
 
 ; Here, $8D points to 9CF5A8. That's the start of the strings like "Game Setup, Player select" and so on
 ; $A9 points to 0E000A
@@ -194,6 +194,8 @@ $9C/94F8 B1 A9       LDA ($A9),y[$9C:96DD]   A:00BA X:000B Y:0000 P:envmxdizC	; 
 										; That makes 2 places where we load this string :S
 $9C/94FA 29 FF 00    AND #$00FF              A:6F4D X:000B Y:0000 P:envmxdizC
 $9C/94FD D0 03       BNE $03    [$9502]      A:004D X:000B Y:0000 P:envmxdizC
+
+$9C/94FF 4C 8B 95    JMP $958B  [$9C:958B]   A:FF71 X:003F Y:0000 P:eNvmxdizc
 
 $9C/9502 C9 20 00    CMP #$0020              A:004D X:000B Y:0000 P:envmxdizC
 $9C/9505 D0 0D       BNE $0D    [$9514]      A:004D X:000B Y:0000 P:envmxdizC
