@@ -1136,19 +1136,41 @@ struct ObjectCode
 
     }
 
-    void AppendLoadImmediate(int imm)
+    void AppendLoadImmediate_A9(int imm)
     {
         m_code.push_back(0xA9);
         AppendImmediate(imm);
     }
 
-    void AppendStoreDirectFromLongPointer(unsigned char c)
+    void AppendLoadDirectFromLongPointer_A7(unsigned char c)
+    {
+        m_code.push_back(0xA7);
+        m_code.push_back(c);
+    }
+
+    void AppendLoadDirectFromLongPointer_YIndexed_B7(unsigned char c)
+    {
+        m_code.push_back(0xB7);
+        m_code.push_back(c);
+    }
+
+    void AppendStoreDirectFromLongPointer_87(unsigned char c)
     {
         m_code.push_back(0x87);
         m_code.push_back(c);
     }
 
-    void AppendStoreDirect(unsigned char c)
+    void AppendPushAcc_48()
+    {
+        m_code.push_back(0x48);
+    }
+
+    void AppendPullAcc_68()
+    {
+        m_code.push_back(0x68);
+    }
+
+    void AppendStoreDirect_85(unsigned char c)
     {
         m_code.push_back(0x85);
         m_code.push_back(c);
@@ -1168,7 +1190,7 @@ struct ObjectCode
         assert(imm == 0); // Needs to be 16 bits
     }
 
-    void AppendAndImmediate(int imm)
+    void AppendAndImmediate_29(int imm)
     {
         m_code.push_back(0x29);
         AppendImmediate(imm);
@@ -1526,37 +1548,15 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
-        // Store 9C in the upper byte. Shooould be safe to do
-        // A9 A0 00           LDA #$00A0  
-        // 85 AB              STA $AB
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA0);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xAB);
+        // Store 80 in the upper byte. Shooould be safe to do
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadImmediate_A9(0x80);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendStoreDirect_85(0xAB);
 
-        // A9 14 81           LDA #8114  
-        // 85 A9              STA $A9
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x14);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x81);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x85);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-
-        // A9 34 12           LDA #1234  
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x34);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x12);
-
-        // Sta long
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x87);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xA9);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
 
         // Remember mask
         // 29 FF 00    AND #$00FF 
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x29);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0xFF);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x00);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF);
 
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
 

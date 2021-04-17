@@ -107,7 +107,9 @@ Common_ShortStringPointerSavedToA9:
 ;  This is the common path for both player names and team location names.
 ; Precondition: $14 contains the X-position, which includes the display width of the previously displayed characters.
 
-$9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU
+$9C/9479 B1 A9       LDA ($A9),y[$9C:96DD]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Load the 'M' for Montreal as it appears in the GAME MENU. 
+										; Afaict this is for laying out the string. We do another pass to copy out the string.
+										; You could return null here and it would still display a string, just an improperly laid out one.
 
 $9C/947B 29 FF 00    AND #$00FF              A:6F4D X:00D4 Y:0000 P:envmxdizc
 
