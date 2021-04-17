@@ -1676,6 +1676,44 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }
+    {
+
+        int tableROMAddress = FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress);
+        int tableLow = tableROMAddress & 0xFFFF;
+        tableROMAddress >>= 16;
+        int tableHigh = tableROMAddress & 0xFFFF;
+
+        ObjectCode code;
+
+        // Objective: load e.g., A0807B into $0C-$0E.
+        // Precondition: team index * 2 is stored in X
+
+        code.m_code.push_back(0x5A); // PHY
+        code.m_code.push_back(0x8A); // TXA
+        code.AppendArithmaticShiftAccLeft_0A();
+        code.m_code.push_back(0xA8); // TAY
+
+        code.AppendLoadAccImmediate_A9(tableHigh);
+        code.AppendStoreDirect_85(0x0E);
+        code.AppendLoadAccImmediate_A9(tableLow);
+        code.AppendStoreDirect_85(0x0C);
+
+        code.AppendLoadDirectFromLongPointer_YIndexed_B7(0x0C);
+        code.AppendPushAcc_48();
+        code.AppendIncY_C8();
+        code.AppendIncY_C8();
+        code.AppendLoadDirectFromLongPointer_YIndexed_B7(0x0C);
+        code.AppendStoreDirect_85(0x0E);
+        code.AppendPullAcc_68();
+        code.AppendStoreDirect_85(0x0C);
+
+        code.m_code.push_back(0x7A); // PLY
+
+        code.AppendLongJump(0x9DAF38);
+
+        freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
+        InsertJumpOutDetour(code.m_code, 0x9DAF2D, 0x9DAF36 + 2, freeSpaceIter);
+    }
 
     return true;
 }
