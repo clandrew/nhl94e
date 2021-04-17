@@ -1136,10 +1136,27 @@ struct ObjectCode
 
     }
 
-    void AppendLoadImmediate_A9(int imm)
+    void AppendLoadAccImmediate_A9(int imm)
     {
         m_code.push_back(0xA9);
-        AppendImmediate(imm);
+        AppendShortImmediate(imm);
+    }
+
+    void AppendLoadDirect_A5(unsigned char c)
+    {
+        m_code.push_back(0xA5);
+        m_code.push_back(c);
+    }
+
+    void AppendIncAcc_1A()
+    {
+        m_code.push_back(0x1A);
+    }
+
+    void AppendLoadYImmediate_A0(int imm)
+    {
+        m_code.push_back(0xA9);
+        AppendShortImmediate(imm);
     }
 
     void AppendLoadDirectFromLongPointer_A7(unsigned char c)
@@ -1176,7 +1193,7 @@ struct ObjectCode
         m_code.push_back(c);
     }
 
-    void AppendImmediate(int imm)
+    void AppendShortImmediate(int imm)
     {
         unsigned char c;
         c = imm & 0xFF;
@@ -1193,7 +1210,7 @@ struct ObjectCode
     void AppendAndImmediate_29(int imm)
     {
         m_code.push_back(0x29);
-        AppendImmediate(imm);
+        AppendShortImmediate(imm);
     }
 
     void AppendLongJump(int addr)
@@ -1541,6 +1558,64 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
     // The awkward thing here is we can't really bake the string table ahead of time. For the place that loads strings, the choice
     // of what bank to load from is dynamic.
+    // We somehow need to detect that we're trying to load a location string, and do the replacement.
+    // Location strings live at 9C96DD, etc, so that helps scope things down. E.g., when loading something at 80xxxx, no need to do replacement.
+    // Try setting up the long pointer earlier.
+    // There is one place to hook in Entrypoint1, and two places (branches) in Entrypoint2.
+    {
+        ObjectCode code_LoadGameMenuString;
+        code_LoadGameMenuString.AppendStoreDirect_85(0x16);
+        code_LoadGameMenuString.AppendLoadDirect_A5(0x8D);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
+
+        // Push DBR, pull acc, mask
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.AppendPullAcc_68();
+        code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+
+        code_LoadGameMenuString.AppendLongJump(0x9C9429);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9423, 0x9C9427 + 2, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString;
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
+        code_LoadGameMenuString.AppendLoadYImmediate_A0(0x0000);
+
+        // Push DBR, pull acc, mask
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.AppendPullAcc_68();
+        code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+
+        code_LoadGameMenuString.AppendLongJump(0x9C945A);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9455, 0x9C9457 + 3, freeSpaceIter);
+    }
+    {
+        ObjectCode code_LoadGameMenuString;
+        code_LoadGameMenuString.AppendLoadDirect_A5(0x8D);
+        code_LoadGameMenuString.AppendIncAcc_1A();
+        code_LoadGameMenuString.AppendIncAcc_1A();
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9); // store result
+
+        // Push DBR, pull acc, mask
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.m_code.push_back(0x8B);
+        code_LoadGameMenuString.AppendPullAcc_68();
+        code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+
+        code_LoadGameMenuString.AppendLongJump(0x9C9471);
+
+        freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
+        InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
+    }
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 

@@ -68,7 +68,8 @@ $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
 $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
 										; Load an array element. Team indices are in range 0-0x1B. Y is in range 0-0x36
-																
+
+// xxx																
 $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
 
 $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
@@ -94,6 +95,8 @@ $9C/946A 88          DEY                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Not hit when loading team locations for menu
 $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
+
+// xxx
 $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
 
 ; 7E00A9 stores a short pointer. E.g., if it stores 99DD, we load from 9C96DD
@@ -466,3 +469,44 @@ $9C/958C 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
 $9C/958E AB          PLB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
 $9C/958F 6B          RTL                     A:FF71 X:003F Y:0000 P:eNvmxdizc
 
+										; There's this table
+										; 81 96 89 96 90 96 98 96 A0 96 A8 96 AF 96 B7 96
+										; C0 96 C8 96 D1 96 DD 96 E6 96 F1 96 FA 96 03 97
+										; 0A 97 17 97 22 97 29 97 32 97 3C 97 46 97 4E 97
+										; 58 97 63 97 6C 97 79 97 41 6E 61 68 65 69 6D 00
+										; 42 6F 73 74 6F 6E 00 42
+										; Formatted nicely, it's
+										; Anaheim = 9681  
+										; Boston = 9689  
+										; Buffalo = 9690  
+										; Calgary = 9698  
+										; Chicago = 96A0  
+										; Dallas = 96A8  
+										; Detroit = 96AF  
+										; Edmonton = 96B7 
+										; Florida = 96C0 
+										; Hartford = 96C8  
+										; LAKings = 96D1  
+										; Montreal = 96DD  
+										; NewJersey = 96E6  
+										; NYIslanders = 96F1  
+										; NYRangers = 96FA  
+										; Ottawa = 9703 
+										; Philly = 970A  
+										; Pittsburgh = 9717  
+										; Quebec = 9722  
+										; SanJose = 9729  
+										; StLouis = 9732  
+										; TampaBay = 973C  
+										; Toronto = 9746  
+										; Vancouver = 974E 
+										; Washington = 9758  
+										; Winnepeg = 9763  
+										; AllStarsEast = 976C  
+										; AllStarsWest = 9779  
+										
+										Montreal 7B 80 A0 00
+										A0807b
+										RAM value looks good
+										M  i  n  n  e  s  o  t  a
+										4D 69 6E 6E 65 73 6F 74 61 00
