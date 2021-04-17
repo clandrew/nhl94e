@@ -22,10 +22,10 @@ Precondition: Input parameters $8D and $A9.
 		Note that $AB's contents are initially undefined. Anecdotally seen it contain 0xE
 		
 		Function has 2 entrypoints?? 9C9415 and 9C943E
-
-$9C/9415 8B          PHB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
-$9C/9416 4B          PHK                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
-$9C/9417 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
+Entrypoint1:
+$9C/9415 8B          PHB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push DBR (data bank register), which is a 1 byte register, to the stack. E.g., 0x80 at call site
+$9C/9416 4B          PHK                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push PBR (program bank register), which is a 1 byte register, to the stack. E.g., 0x9C at call site
+$9C/9417 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Pull DBR (data bank register). Basically, set the DBR to 0x9C.
 $9C/9418 8E 17 1E    STX $1E17  [$80:1E17]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/941B 8C 1B 1E    STY $1E1B  [$80:1E1B]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/941E 64 14       STZ $14    [$00:0014]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
@@ -40,7 +40,7 @@ $9C/9430 48          PHA                     A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/9431 E2 30       SEP #$30                A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/9433 A5 8F       LDA $8F    [$00:008F]   A:FFFF X:0012 Y:0016 P:eNvMXdizc
 $9C/9435 48          PHA                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
-$9C/9436 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvMXdizc
+$9C/9436 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvMXdizc	; Set data bank register to whatever was stored at $8F.
 $9C/9437 C2 30       REP #$30                A:FFFF X:0012 Y:0016 P:eNvMXdizc
 $9C/9439 A0 00 00    LDY #$0000              A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc	; If we have initialization type things, need to make sure they get done 
@@ -48,7 +48,7 @@ $9C/943C 80 3B       BRA $3B    [$9479]      A:FFFF X:0012 Y:0016 P:eNvmxdizc	; 
 										; Skip down to Common_ShortStringPointerSavedToA9
 										; Leaves some default stored in A9
 
-
+Entrypoint2:
 $9C/943E 8B          PHB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/943F 4B          PHK                     A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9440 AB          PLB                     A:96DD X:00D4 Y:0000 P:envmxdiZc
@@ -282,4 +282,185 @@ $9C/958C 85 A9       STA $A9    [$00:00A9]   A:000B X:000B Y:0008 P:envmxdizc
 $9C/958E AB          PLB                     A:000B X:000B Y:0008 P:envmxdizc
 $9C/958F 6B          RTL                     A:000B X:000B Y:0008 P:eNvmxdizc
 
-$9F/BE47 AF 62 34 7E LDA $7E3462[$7E:3462]   A:000B X:000B Y:0008 P:eNvmxdizc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+Disassembly:
+$9C/9415 8B          PHB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9416 4B          PHK                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9417 AB          PLB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9418 8E 17 1E    STX $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/941B 8C 1B 1E    STY $1E1B  [$9C:1E1B]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/941E 64 14       STZ $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9420 A9 01 00    LDA #$0001              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9423 85 16       STA $16    [$00:0016]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9425 A5 8D       LDA $8D    [$00:008D]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9427 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9429 A9 FF FF    LDA #$FFFF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/942C 85 91       STA $91    [$00:0091]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/942E 85 93       STA $93    [$00:0093]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9430 48          PHA                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9431 E2 30       SEP #$30                A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9433 A5 8F       LDA $8F    [$00:008F]   A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9435 48          PHA                     A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9436 AB          PLB                     A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9437 C2 30       REP #$30                A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9439 A0 00 00    LDY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/943C 80 3B       BRA $3B    [$9479]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/943E 8B          PHB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/943F 4B          PHK                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9440 AB          PLB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9441 8E 17 1E    STX $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9444 8C 1B 1E    STY $1E1B  [$9C:1E1B]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9447 64 14       STZ $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9449 64 16       STZ $16    [$00:0016]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/944B A5 A9       LDA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/944D 48          PHA                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/944E 30 0C       BMI $0C    [$945C]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9450 0A          ASL A                   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9451 A8          TAY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9455 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9457 A0 00 00    LDY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/945A 80 1D       BRA $1D    [$9479]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/945C E6 16       INC $16    [$00:0016]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/945E E2 30       SEP #$30                A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9460 A5 8F       LDA $8F    [$00:008F]   A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9462 48          PHA                     A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9463 AB          PLB                     A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9464 C2 30       REP #$30                A:FF71 X:003F Y:0000 P:eNvMXdizc
+$9C/9466 B2 8D       LDA ($8D)  [$9C:F5A8]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9468 A8          TAY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9469 88          DEY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/946A 88          DEY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/946B A5 8D       LDA $8D    [$00:008D]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/946D 1A          INC A                   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/946E 1A          INC A                   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/946F 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9471 A9 00 00    LDA #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9474 91 A9       STA ($A9),y[$9C:96D1]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9476 A0 00 00    LDY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9479 5C 14 81 A0 JMP $A08114[$A0:8114]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/947D EA          NOP                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/947E F0 52       BEQ $52    [$94D2]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9480 C9 20 00    CMP #$0020              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9483 D0 0A       BNE $0A    [$948F]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9485 C0 00 00    CPY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9488 F0 45       BEQ $45    [$94CF]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/948A A9 05 00    LDA #$0005              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/948D 80 3B       BRA $3B    [$94CA]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/948F C9 2E 00    CMP #$002E              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9492 D0 05       BNE $05    [$9499]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9494 A9 03 00    LDA #$0003              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9497 80 31       BRA $31    [$94CA]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9499 C9 40 00    CMP #$0040              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/949C D0 09       BNE $09    [$94A7]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/949E AF 3E 96 9C LDA $9C963E[$9C:963E]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94A2 29 FF 00    AND #$00FF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94A5 80 23       BRA $23    [$94CA]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94A7 C9 30 00    CMP #$0030              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94AA 90 0F       BCC $0F    [$94BB]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94AC C9 3A 00    CMP #$003A              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94AF B0 0A       BCS $0A    [$94BB]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94B1 38          SEC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94B2 E9 30 00    SBC #$0030              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94B5 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94B6 69 1C 00    ADC #$001C              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94B9 80 07       BRA $07    [$94C2]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94BB 29 DF 00    AND #$00DF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94BE 38          SEC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94BF E9 41 00    SBC #$0041              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94C2 AA          TAX                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94C3 BF 23 96 9C LDA $9C9623,x[$9C:9662] A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94C7 29 FF 00    AND #$00FF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94CA 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94CB 65 14       ADC $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94CD 85 14       STA $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94CF C8          INY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94D0 80 A7       BRA $A7    [$9479]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94D2 A0 00 00    LDY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94D5 A5 16       LDA $16    [$00:0016]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94D7 F0 11       BEQ $11    [$94EA]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94D9 A5 91       LDA $91    [$00:0091]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94DB 30 0D       BMI $0D    [$94EA]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94DD D0 19       BNE $19    [$94F8]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94DF A9 F8 00    LDA #$00F8              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94E2 38          SEC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94E3 E5 14       SBC $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94E5 8D 17 1E    STA $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94E8 80 0E       BRA $0E    [$94F8]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94EA A5 14       LDA $14    [$00:0014]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94EC 4A          LSR A                   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94ED 49 FF FF    EOR #$FFFF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94F0 1A          INC A                   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94F1 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94F2 6D 17 1E    ADC $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94F5 8D 17 1E    STA $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94F8 B1 A9       LDA ($A9),y[$9C:96D1]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94FA 29 FF 00    AND #$00FF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94FD D0 03       BNE $03    [$9502]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/94FF 4C 8B 95    JMP $958B  [$9C:958B]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9502 C9 20 00    CMP #$0020              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9505 D0 0D       BNE $0D    [$9514]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9507 C0 00 00    CPY #$0000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/950A D0 03       BNE $03    [$950F]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/950C 4C 87 95    JMP $9587  [$9C:9587]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/950F A9 05 00    LDA #$0005              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9512 80 6C       BRA $6C    [$9580]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9514 C9 2E 00    CMP #$002E              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9517 D0 05       BNE $05    [$951E]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9519 A2 1A 00    LDX #$001A              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/951C 80 27       BRA $27    [$9545]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/951E C9 40 00    CMP #$0040              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9521 D0 05       BNE $05    [$9528]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9523 A2 1B 00    LDX #$001B              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9526 80 1D       BRA $1D    [$9545]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9528 C9 30 00    CMP #$0030              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/952B 90 10       BCC $10    [$953D]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/952D C9 3A 00    CMP #$003A              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9530 B0 0B       BCS $0B    [$953D]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9532 38          SEC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9533 E9 30 00    SBC #$0030              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9536 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9537 69 1C 00    ADC #$001C              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/953A AA          TAX                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/953B 80 08       BRA $08    [$9545]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/953D 29 DF 00    AND #$00DF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9540 38          SEC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9541 E9 41 00    SBC #$0041              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9544 AA          TAX                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9545 A9 82 00    LDA #$0082              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9548 85 12       STA $12    [$00:0012]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/954A A9 00 80    LDA #$8000              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/954D 85 10       STA $10    [$00:0010]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/954F 5A          PHY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9550 DA          PHX                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9551 8A          TXA                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9552 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9553 69 A0 03    ADC #$03A0              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9556 85 00       STA $00    [$00:0000]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9558 AF 62 34 7E LDA $7E3462[$7E:3462]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/955C D0 05       BNE $05    [$9563]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/955E A9 00 38    LDA #$3800              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9561 80 0A       BRA $0A    [$956D]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9563 A9 00 3C    LDA #$3C00              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9566 A6 91       LDX $91    [$00:0091]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9568 D0 03       BNE $03    [$956D]      A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/956A A9 00 3E    LDA #$3E00              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/956D AE 17 1E    LDX $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9570 AC 1B 1E    LDY $1E1B  [$9C:1E1B]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9573 22 8D B0 80 JSL $80B08D[$80:B08D]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9577 FA          PLX                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9578 7A          PLY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9579 BF 23 96 9C LDA $9C9623,x[$9C:9662] A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/957D 29 FF 00    AND #$00FF              A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9580 18          CLC                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9581 6D 17 1E    ADC $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9584 8D 17 1E    STA $1E17  [$9C:1E17]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9587 C8          INY                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/9588 4C F8 94    JMP $94F8  [$9C:94F8]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/958B 68          PLA                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/958C 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/958E AB          PLB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/958F 6B          RTL                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+
