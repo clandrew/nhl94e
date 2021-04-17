@@ -1136,6 +1136,44 @@ struct ObjectCode
 
     }
 
+    void AppendLoadImmediate(int imm)
+    {
+        m_code.push_back(0xA9);
+        AppendImmediate(imm);
+    }
+
+    void AppendStoreDirectFromLongPointer(unsigned char c)
+    {
+        m_code.push_back(0x87);
+        m_code.push_back(c);
+    }
+
+    void AppendStoreDirect(unsigned char c)
+    {
+        m_code.push_back(0x85);
+        m_code.push_back(c);
+    }
+
+    void AppendImmediate(int imm)
+    {
+        unsigned char c;
+        c = imm & 0xFF;
+        m_code.push_back(c);
+        imm >>= 8;
+
+        c = imm & 0xFF;
+        m_code.push_back(c);
+        imm >>= 8;
+
+        assert(imm == 0); // Needs to be 16 bits
+    }
+
+    void AppendAndImmediate(int imm)
+    {
+        m_code.push_back(0x29);
+        AppendImmediate(imm);
+    }
+
     void AppendLongJump(int addr)
     {
         m_code.push_back(0x5C);
