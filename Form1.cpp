@@ -1604,22 +1604,23 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // For loading strings like "Montreal" etc
     {
         int tableROMAddress = FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress);
+        int tableLow = tableROMAddress & 0xFFFF;
+        tableROMAddress >>= 16;
+        int tableHigh = tableROMAddress & 0xFFFF;
 
         ObjectCode code_LoadGameMenuString;
-        code_LoadGameMenuString.AppendArithmaticShiftAccLeft_0A(); // Multiply team index by 2 to turn into an offset
+        code_LoadGameMenuString.AppendArithmaticShiftAccLeft_0A();
+        code_LoadGameMenuString.AppendArithmaticShiftAccLeft_0A(); // Multiply team index by 4 to turn into an offset
         code_LoadGameMenuString.m_code.push_back(0xA8); // TAY. Y == offset
 
-        // Load low short
-        code_LoadGameMenuString.AppendLoadLong_AF(tableROMAddress);
-        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
-
-        // Load high short
-        code_LoadGameMenuString.AppendLoadLong_AF(tableROMAddress+2);
+        code_LoadGameMenuString.AppendLoadAccImmediate_A9(tableHigh);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+        code_LoadGameMenuString.AppendLoadAccImmediate_A9(tableLow);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
 
         // Load pointer table address. Subsequent loader code is set up to understand a long
         code_LoadGameMenuString.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9);
-        code_LoadGameMenuString.AppendPushAcc_48();
+        code_LoadGameMenuString.AppendPushAcc_48(); 
         code_LoadGameMenuString.AppendIncY_C8();
         code_LoadGameMenuString.AppendIncY_C8();
         code_LoadGameMenuString.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9);
