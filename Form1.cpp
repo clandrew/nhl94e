@@ -1539,16 +1539,10 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
 
     // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
-    freeSpaceIter->EnsureSpaceInBank(2);
-    int scratchFileOffset = freeSpaceIter->GetFileOffset();
-    int scratchROMAddress = FileOffsetToROMAddress(scratchFileOffset);
-    freeSpaceIter->SkipBytes(4);
-
-    // Turn the short load into a long load.
+    // The awkward thing here is we can't really bake the string table ahead of time. For the place that loads strings, the choice
+    // of what bank to load from is dynamic.
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
-
-        // Store data bank reg in the upper byte. Shooould be safe to do
 
         // Push DBR, pull acc, mask
         code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8B);
