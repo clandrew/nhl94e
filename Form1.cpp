@@ -1555,15 +1555,20 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         }
     }
 
-    // This part is for the game menu strings with the colored background. They are actually stored in a different string table.
-    // The awkward thing here is we can't really bake the string table ahead of time. For the place that loads strings, the choice
-    // of what bank to load from is dynamic.
-    // We somehow need to detect that we're trying to load a location string, and do the replacement.
-    // Location strings live at 9C96DD, etc, so that helps scope things down. E.g., when loading something at 80xxxx, no need to do replacement.
-    // Try setting up the long pointer earlier.
-    // There is one place to hook in Entrypoint1, and two places (branches) in Entrypoint2.
+    // This part is for the game menu strings with the colored background. 
+    // Those are actually two copies of strings like "Montreal" and "Anaheim". Different string, different format too.
+    // Strings with colored background- all null delimited, preceeded by a short pointer table, 1 entry per team
+    // Strings beside "home" and "visitor"- stored with length, not null delimited, together with the team data beside players' names etc
+
+    // The awkward thing here is we can't really bake in a new string table right at the string load site because multiple 
+    // string-loading entrypoints funnel in to a common path that loads from a short address.
+    // And yes, one of those entrypoints uses a pointer table, but it's a pointer table of shorts.
+    // The approach here is to
+    //  1) Change the common path to load from a long instead of a short
+    //  2) Change the entrypoints to write the bank of the long. In most cases, the bank is DBR
 
     // Entrypoint1
+    // For developer credits, UI flavor text
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendStoreDirect_85(0x16);
@@ -1580,6 +1585,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9423, 0x9C9427 + 2, freeSpaceIter);
     }
     // Entrypoint2_BranchA
+    // For loading strings like "Montreal" etc
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
@@ -1598,6 +1604,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9455, 0x9C9457 + 3, freeSpaceIter);
     }
     // Entrypoint2_BranchB
+    // For loading buffered player name strings like "Kirk Muller"
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendLoadDirect_A5(0x8D);
@@ -1619,14 +1626,8 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
-
-
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
-
-        // Remember mask
-        // 29 FF 00    AND #$00FF 
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF);
-
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF); // Remember mask
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());

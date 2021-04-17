@@ -13,16 +13,16 @@ Found it
 Each string is null-terminated.
 
 Function: LoadGameMenuString() - 9C9415
-Precondition: Input parameters $8D and $A9.
-		If $A9 >= 0, then it's the index of the team whose location name to load. E.g., 0xB for Montreal.
+Precondition: Input parameters $8F, $8D and $A9.
+		If $A9 >= 0, then $A9 represents the index of the team whose location name to load. E.g., 0xB for Montreal.
 		If $A9 < 0, E.g., $A9==0xFFFF, then we load a player name string instead. That player name string is a short in $8D.
 		Note that player name was already moved from the team player data to here, an intermediate. So it's not necessary to shim.
 
-		Idea: Initialize $AB to 0x9C
-		Note that $AB's contents are initially undefined. Anecdotally seen it contain 0xE
+		$8F is the data bank to use.		
 		
 		Function has 2 entrypoints-- 9C9415 and 9C943E
 Entrypoint1:
+; For developer credits, UI flavor text
 $9C/9415 8B          PHB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push DBR (data bank register), which is a 1 byte register, to the stack. E.g., 0x80 at call site
 $9C/9416 4B          PHK                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push PBR (program bank register), which is a 1 byte register, to the stack. E.g., 0x9C at call site
 $9C/9417 AB          PLB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Pull DBR (data bank register). Basically, set the DBR to 0x9C.
