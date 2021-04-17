@@ -1546,10 +1546,16 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
     // Turn the short load into a long load.
     {
-        /*ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
+        ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
-        // Store 80 in the upper byte. Shooould be safe to do
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadImmediate_A9(0x80);
+        // Store data bank reg in the upper byte. Shooould be safe to do
+
+        // Push DBR, pull acc, mask
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8B);
+        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8B);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendPullAcc_68();
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF);
+
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendStoreDirect_85(0xAB);
 
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
@@ -1561,31 +1567,28 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);*/
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
     }
     {
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
 
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendPushAcc_48();
         code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x8B);
         code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x8B);
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendPullAcc_68();
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendPullAcc_68();
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF);
 
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendStoreDirect_85(0xAB);
+
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
+
+        // Remember mask
         // 29 FF 00    AND #$00FF 
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF);
 
-        // BNE __ __ To9502
-        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0xD0);
-        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x04);
-
-        // Fall through To 94FF
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C958B);
-
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C9502);
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C94FD);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94FA, 0x9C94FD + 2, freeSpaceIter);
+        InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }
 
     return true;
