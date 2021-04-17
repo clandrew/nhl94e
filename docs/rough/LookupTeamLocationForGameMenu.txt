@@ -70,8 +70,7 @@ $9C/9450 0A          ASL A                   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/9451 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc	; Y == offset
 $9C/9452 B9 49 96    LDA $9649,y[$9C:9649]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; If y==0, load 9C9649
 										; Load an array element. Team indices are in range 0-0x1B. Y is in range 0-0x36
-
-// xxx																
+															
 $9C/9455 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; Store the array element from above back into $A9
 
 $9C/9457 A0 00 00    LDY #$0000              A:96DD X:00D4 Y:0000 P:envmxdiZc	; We later add Y to the short pointer. There's nothing to add, so set Y to 0
@@ -98,7 +97,6 @@ $9C/946B A5 8D       LDA $8D    [$00:008D]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; 
 $9C/946D 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/946E 1A          INC A                   A:96DD X:00D4 Y:0000 P:envmxdiZc
 
-// xxx
 $9C/946F 85 A9       STA $A9    [$00:00A9]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
 
 ; 7E00A9 stores a short pointer. E.g., if it stores 99DD, we load from 9C96DD

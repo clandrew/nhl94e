@@ -1155,7 +1155,7 @@ struct ObjectCode
 
     void AppendLoadYImmediate_A0(int imm)
     {
-        m_code.push_back(0xA9);
+        m_code.push_back(0xA0);
         AppendShortImmediate(imm);
     }
 
@@ -1620,13 +1620,6 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     {
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
 
-        // Push DBR, pull acc, mask
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8B);
-        code_LoadGameMenuString_CommonPath_FirstLoad.m_code.push_back(0x8B);
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendPullAcc_68();
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF);
-
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendStoreDirect_85(0xAB);
 
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
 
