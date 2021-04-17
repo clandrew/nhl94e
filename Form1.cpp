@@ -1153,10 +1153,21 @@ struct ObjectCode
         m_code.push_back(0x1A);
     }
 
+    void AppendIncY_C8()
+    {
+        m_code.push_back(0xC8);
+    }
+
     void AppendLoadYImmediate_A0(int imm)
     {
         m_code.push_back(0xA0);
         AppendShortImmediate(imm);
+    }
+
+    void AppendLoadLong_AF(int addr)
+    {
+        m_code.push_back(0xAF);
+        AppendLongAddress(addr);
     }
 
     void AppendLoadDirectFromLongPointer_A7(unsigned char c)
@@ -1191,6 +1202,11 @@ struct ObjectCode
     {
         m_code.push_back(0x85);
         m_code.push_back(c);
+    }
+
+    void AppendArithmaticShiftAccLeft_0A()
+    {
+        m_code.push_back(0x0A);
     }
 
     void AppendShortImmediate(int imm)
@@ -1587,21 +1603,36 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // Entrypoint2_BranchA
     // For loading strings like "Montreal" etc
     {
-        ObjectCode code_LoadGameMenuString;
-        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
-        code_LoadGameMenuString.AppendLoadYImmediate_A0(0x0000);
+        int tableROMAddress = FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress);
 
-        // Push DBR, pull acc, mask
-        code_LoadGameMenuString.m_code.push_back(0x8B);
-        code_LoadGameMenuString.m_code.push_back(0x8B);
-        code_LoadGameMenuString.AppendPullAcc_68();
-        code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
+        ObjectCode code_LoadGameMenuString;
+        code_LoadGameMenuString.AppendArithmaticShiftAccLeft_0A(); // Multiply team index by 2 to turn into an offset
+        code_LoadGameMenuString.m_code.push_back(0xA8); // TAY. Y == offset
+
+        // Load low short
+        code_LoadGameMenuString.AppendLoadLong_AF(tableROMAddress);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
+
+        // Load high short
+        code_LoadGameMenuString.AppendLoadLong_AF(tableROMAddress+2);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+
+        // Load pointer table address. Subsequent loader code is set up to understand a long
+        code_LoadGameMenuString.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9);
+        code_LoadGameMenuString.AppendPushAcc_48();
+        code_LoadGameMenuString.AppendIncY_C8();
+        code_LoadGameMenuString.AppendIncY_C8();
+        code_LoadGameMenuString.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9);
+        code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
+        code_LoadGameMenuString.AppendPullAcc_68();
+        code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
+
+        code_LoadGameMenuString.AppendLoadYImmediate_A0(0x0000);
 
         code_LoadGameMenuString.AppendLongJump(0x9C945A);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
-        InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9455, 0x9C9457 + 3, freeSpaceIter);
+        InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
     }
     // Entrypoint2_BranchB
     // For loading buffered player name strings like "Kirk Muller"
@@ -1625,6 +1656,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
     }
     {
+        // 1st pass over the string for layout. That variable width font though
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF); // Remember mask
@@ -1634,6 +1666,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
     }
     {
+        // 2nd pass over the string to actually copy it
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF); // Remember mask
