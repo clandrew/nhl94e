@@ -1562,17 +1562,16 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     // Location strings live at 9C96DD, etc, so that helps scope things down. E.g., when loading something at 80xxxx, no need to do replacement.
     // Try setting up the long pointer earlier.
     // There is one place to hook in Entrypoint1, and two places (branches) in Entrypoint2.
+
+    // Entrypoint1
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendStoreDirect_85(0x16);
         code_LoadGameMenuString.AppendLoadDirect_A5(0x8D);
         code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
 
-        // Push DBR, pull acc, mask
-        code_LoadGameMenuString.m_code.push_back(0x8B);
-        code_LoadGameMenuString.m_code.push_back(0x8B);
-        code_LoadGameMenuString.AppendPullAcc_68();
-        code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
+        // Precondition of Entrypoint1 is that the requested data bank is in $8F.
+        code_LoadGameMenuString.AppendLoadDirect_A5(0x8F);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
 
         code_LoadGameMenuString.AppendLongJump(0x9C9429);
@@ -1580,6 +1579,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9423, 0x9C9427 + 2, freeSpaceIter);
     }
+    // Entrypoint2_BranchA
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
@@ -1597,6 +1597,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9455, 0x9C9457 + 3, freeSpaceIter);
     }
+    // Entrypoint2_BranchB
     {
         ObjectCode code_LoadGameMenuString;
         code_LoadGameMenuString.AppendLoadDirect_A5(0x8D);
@@ -1640,20 +1641,8 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
     }
     {
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
-
-        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x8B);
-        code_LoadGameMenuString_CommonPath_SecondLoad.m_code.push_back(0x8B);
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendPullAcc_68();
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF);
-
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendStoreDirect_85(0xAB);
-
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
-
-        // Remember mask
-        // 29 FF 00    AND #$00FF 
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF);
-
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF); // Remember mask
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C94FD);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());

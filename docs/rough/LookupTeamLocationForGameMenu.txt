@@ -21,7 +21,7 @@ Precondition: Input parameters $8D and $A9.
 		Idea: Initialize $AB to 0x9C
 		Note that $AB's contents are initially undefined. Anecdotally seen it contain 0xE
 		
-		Function has 2 entrypoints?? 9C9415 and 9C943E
+		Function has 2 entrypoints-- 9C9415 and 9C943E
 Entrypoint1:
 $9C/9415 8B          PHB                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push DBR (data bank register), which is a 1 byte register, to the stack. E.g., 0x80 at call site
 $9C/9416 4B          PHK                     A:FFFF X:0012 Y:0016 P:eNvmxdizc	; Push PBR (program bank register), which is a 1 byte register, to the stack. E.g., 0x9C at call site
@@ -30,9 +30,11 @@ $9C/9418 8E 17 1E    STX $1E17  [$80:1E17]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/941B 8C 1B 1E    STY $1E1B  [$80:1E1B]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/941E 64 14       STZ $14    [$00:0014]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/9420 A9 01 00    LDA #$0001              A:FFFF X:0012 Y:0016 P:eNvmxdizc
+
 $9C/9423 85 16       STA $16    [$00:0016]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/9425 A5 8D       LDA $8D    [$00:008D]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/9427 85 A9       STA $A9    [$00:00A9]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
+
 $9C/9429 A9 FF FF    LDA #$FFFF              A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/942C 85 91       STA $91    [$00:0091]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
 $9C/942E 85 93       STA $93    [$00:0093]   A:FFFF X:0012 Y:0016 P:eNvmxdizc
@@ -83,7 +85,7 @@ $9C/945C E6 16       INC $16    [$00:0016]   A:96DD X:00D4 Y:0000 P:envmxdiZc	;
 $9C/945E E2 30       SEP #$30                A:96DD X:00D4 Y:0000 P:envmxdiZc
 $9C/9460 A5 8F       LDA $8F    [$00:008F]   A:96DD X:00D4 Y:0000 P:envMXdiZc
 $9C/9462 48          PHA                     A:96DD X:00D4 Y:0000 P:envMXdiZc
-$9C/9463 AB          PLB                     A:96DD X:00D4 Y:0000 P:envMXdiZc
+$9C/9463 AB          PLB                     A:96DD X:00D4 Y:0000 P:envMXdiZc	; Set DBR to load from shorts
 $9C/9464 C2 30       REP #$30                A:96DD X:00D4 Y:0000 P:envMXdiZc
 $9C/9466 B2 8D       LDA ($8D)  [$9C:F5A8]   A:96DD X:00D4 Y:0000 P:envmxdiZc	; E.g., load 00:0A5C
 $9C/9468 A8          TAY                     A:96DD X:00D4 Y:0000 P:envmxdiZc
@@ -467,7 +469,7 @@ $9C/9588 4C F8 94    JMP $94F8  [$9C:94F8]   A:FF71 X:003F Y:0000 P:eNvmxdizc
 $9C/958B 68          PLA                     A:FF71 X:003F Y:0000 P:eNvmxdizc
 $9C/958C 85 A9       STA $A9    [$00:00A9]   A:FF71 X:003F Y:0000 P:eNvmxdizc
 $9C/958E AB          PLB                     A:FF71 X:003F Y:0000 P:eNvmxdizc
-$9C/958F 6B          RTL                     A:FF71 X:003F Y:0000 P:eNvmxdizc
+$9C/958F 6B          RTL                     A:FF71 X:003F Y:0000 P:eNvmxdizc	; 1 return location.
 
 										; There's this table
 										; 81 96 89 96 90 96 98 96 A0 96 A8 96 AF 96 B7 96
