@@ -620,25 +620,64 @@ Palettes are stored in weird order
 2	Buffalo
 
 3	Calgary
+Subheader color: Yellow/Orange
 Subheader ROM address 9AF57C
+Subheader color data:
+00 00 7B 6F F2 01 54 82 B7 02 3A 83 9C 03 FF 83
+5D 81 3A 01 18 01 F5 00 D2 80 AF 80 8D 80 1A 83
+
 
 4	Chicago
+Subheader color: Black/Red
 Subheader ROM address 9AF53C
+Subheader color data:
+00 00 7B 6F 21 04 42 08 84 10 A5 94 E7 9C 29 A5
+1B 00 18 00 16 00 13 00 10 00 0E 00 0B 00 1A 03
+
 
 5	Dallas
+Subheader color: Black/Green
 Subheader ROM address 9af4FC
+Subheader color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+A0 02 60 82 00 02 C0 01 80 81 20 81 E0 00 1A 83
+
+
 
 6	Detroit
+Subheader color: White/Red
 Subheader ROM address 9AF55C
+Subheader color data:
+00 00 7B 6F AD 35 EF BD 31 C6 52 4A 94 52 D6 DA
+1F 80 1C 00 19 00 16 00 13 00 10 00 0D 00 1A 03
+
 
 7	Edmonton
+Subheader color: Blue/Orange
 Subheader ROM address 9af4Dc
+Subheader color data:
+00 00 7B 6F 00 24 00 30 00 3C 00 4C 00 58 00 64
+7B 01 59 01 36 01 14 01 F1 00 CF 80 AD 80 1A 83
+
+
 
 8	Florida
+Subheader color: Blue/Orange
 Subheader ROM address 9af4Bc
+Subheader color data:
+00 00 7B 6F 00 18 00 24 00 34 00 40 00 50 00 60
+DF 00 BB 80 98 80 94 80 71 80 4D 00 4A 00 1A 03
+
+
 
 9	Hartford
+Subheader color: Green/Blue
 Subheader ROM address 9af49c
+Subheader color data:
+00 00 7B 6F 00 01 40 01 80 01 E0 81 20 82 60 02
+00 65 E0 58 C0 CC A0 C0 80 B8 60 AC 60 20 1A 03
+
+
 
 Logo palette ROM address 9AF2FC
 00 00 FF 7F 00 82 00 3C 00 2C 60 01 18 63 10 42
@@ -648,9 +687,11 @@ Logo palette ROM address 9AF2FC
 A	Los Angeles subheader palette is here:
 ROM address 9af45c
 This palette shares a color with text color
+Subheader color: Black/Gray
 Subheader color data:
 00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
 52 4A 10 42 CE 39 8C B1 6B AD 29 25 E7 1C 1A 83
+
 
 Los Angeles logo palette is here: 9AF33C
 Logo palette data: 
