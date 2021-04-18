@@ -2158,6 +2158,13 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
     RomDataIterator freeSpaceIter(ROMAddressToFileOffset(0xA08000));
 
+    {
+        unsigned char tampaBayblackBlue[] = { 0x00, 0x00, 0x7B, 0x6F, 0x00, 0x00, 0x21, 0x04, 0x63, 0x0C, 0xA5, 0x14, 0xE7, 0x9C, 0x29, 0xA5 };
+        int montrealSubheaderPaletteROMAddress = 0x9af43c;
+        RomDataIterator iter(ROMAddressToFileOffset(montrealSubheaderPaletteROMAddress));
+        iter.SaveBytes_EnsureSpaceInBank(tampaBayblackBlue, _countof(tampaBayblackBlue));
+    }
+
     if (!InsertTeamLocationText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LoadLongAddress_ArrayElement_Into_8D.asm.");

@@ -613,12 +613,139 @@ F					- ROM address 96CF2E
 1B All Stars West home player palette	- ROM address 96D0AE
 
 
-96D0F8? - corrupting here doesn't appear to do anything.
+Palettes are stored in weird order
 
-For the subheader bg, it is loaded in
-LA - indices 160-175
-{0, 0, 421, 1084, 18c6, 2108, 2d6b, 35ad, 3def, 4631, 5294, 5ad6, 6318, 6f7b, 77bd, 7fff}
+0	Anaheim
+1	Boston
+2	Buffalo
 
-Montreal - indices 176-191
-{0, 13, 17, 12, E, 7fff, 6b5a, 5294, 3def, 294a, 1084, 0, 6610, 6400, 4800, 3400 }
-Looka like a match at file offset D6DFC
+3	Calgary
+Subheader ROM address 9AF57C
+
+4	Chicago
+Subheader ROM address 9AF53C
+
+5	Dallas
+Subheader ROM address 9af4FC
+
+6	Detroit
+Subheader ROM address 9AF55C
+
+7	Edmonton
+Subheader ROM address 9af4Dc
+
+8	Florida
+Subheader ROM address 9af4Bc
+
+9	Hartford
+Subheader ROM address 9af49c
+
+Logo palette ROM address 9AF2FC
+00 00 FF 7F 00 82 00 3C 00 2C 60 01 18 63 10 42
+8C 31 08 A1 00 01 00 14 00 00 00 00 00 00 00 00
+
+
+A	Los Angeles subheader palette is here:
+ROM address 9af45c
+This palette shares a color with text color
+Subheader color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+52 4A 10 42 CE 39 8C B1 6B AD 29 25 E7 1C 1A 83
+
+Los Angeles logo palette is here: 9AF33C
+Logo palette data: 
+00 00 00 00 21 04 84 10 C6 98 08 A1 6B 2D AD 35
+EF BD 31 C6 94 52 D6 DA 18 E3 7B 6F BD 77 FF FF
+
+B	Montreal subheader palette is here:
+Subheader ROM address 9af43c
+Subheader color: Red/Blue
+Subheader color data:
+{0, 6f7b, a, d, 11, 14, 17, 1b, 6c00, 6000, 5400, 4800, 3c00, 3000, 2800, 31a
+00 00 7B 6F 0A 00 0D 00 11 00 14 00 17 00 1B 00
+00 6C 00 60 00 54 00 48 00 3C 00 30 00 28 1A 03
+
+Logo ROM address 9aedfc
+Logo color data:
+00 00 13 00 17 00 12 00 0E 00 FF 7F 5A EB 94 52
+EF BD 4A A9 84 10 00 80 10 66 00 64 00 48 00 34
+
+C	New jersey subheader palette is here:
+Subheader color: Black/Red
+Subheader ROM address 9af41c
+Subheader color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+1D 00 1A 00 17 00 13 00 10 00 0D 00 0A 00 1A 03
+
+D	New york islanders
+Subheader ROM address 9AF3FC
+Subheader color: Blue/Orange
+Subheader color data:
+00 00 7B 6F 40 20 60 2C A0 3C C0 C8 E0 D8 20 E5
+7E 01 5C 01 39 01 17 01 F5 00 D2 80 D0 80 1A 83
+
+
+E	New york rangers
+Subheader ROM address 9AF3DC
+Subheader color: Red/Blue
+Subheader color data:
+00 00 7B 6F 0A 00 0D 00 11 00 15 00 19 00 1D 00
+00 70 00 64 00 58 00 4C 00 40 00 34 00 28 1A 03
+
+
+F	Ottawa
+Subheader ROM address 9AF3BC
+Subheader color: Black/Red
+Subheader color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+18 00 15 00 13 00 10 00 0D 00 0B 00 08 00 1A 03
+
+
+10	Philadelphia
+Subheader ROM address 9AF39C
+Subheader color: Black/Orange
+Subheader color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+5E 01 3B 01 F8 00 D5 80 92 80 6F 80 2C 00 1A 03
+
+11	Pittsburgh
+Subheader ROM address 9AF37C
+Subheader color: Yellow/Brown
+Subheader color data:
+00 00 7B 6F B0 01 13 82 96 02 19 83 7C 03 FF 03
+29 A5 E7 1C C6 98 84 90 63 8C 21 04 00 00 1A 03
+
+
+12	Quebec
+Subheader color: LightBlue/White
+9AF35C
+subheader ROM address 9AF35C
+Subheader color data:
+00 00 7B 6F C0 34 E0 BC 20 C9 40 55 80 61 A0 ED
+D6 DA 94 D2 73 CE 31 46 10 42 CE 39 AD B5 1A 83
+
+
+13	San Jose 
+Subheader color ROM address: 9AF31C
+Subheader color: Black/Turquoise
+Color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+60 56 20 4E E0 45 C0 BD 80 B5 40 AD 00 25 1A 03
+
+14	St Louis 
+Subheader color ROM address: 9AF2DC
+Subheader color: Yellow/Blue
+Color data:
+00 00 7B 6F D1 09 34 86 B7 06 19 83 9C 03 FF 83
+00 F4 00 68 00 5C 00 54 00 48 00 3C 00 30 1A 03
+
+
+15	Tampa bay 
+Subheader color ROM address 9AF2BC
+Subheader Black/Blue
+Color data:
+00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
+00 7C 00 6C 00 60 00 54 00 48 00 38 00 2C 1A 03
+
+1B	All Stars West
+Subheader color ROM address 9AF51C
