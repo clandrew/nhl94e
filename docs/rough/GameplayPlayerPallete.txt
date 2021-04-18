@@ -616,8 +616,27 @@ F					- ROM address 96CF2E
 Palettes are stored in weird order
 
 0	Anaheim
+Subheader color: White/Green
+Subheader ROM address 9AF17C
+Subheader color data:
+00 00 7B 6F EF 3D 10 C2 52 4A 94 52 D6 DA 18 E3
+60 42 20 3A E0 31 A0 A9 60 A1 20 19 00 11 1A 03
+
 1	Boston
+Subheader color: Black/Yellow
+Subheader ROM address 9AEF5C
+Subheader color data:
+00 00 7B 6F 21 04 42 08 84 10 A5 94 E7 9C 29 A5
+9F 2F 3C A7 DA 1E 97 96 35 8E F2 05 90 81 1A 83
+
+
 2	Buffalo
+Subheader color: Yellow/Blue
+Subheader ROM address 9AF19C
+Subheader color data:
+00 00 7B 6F 8F 01 F2 81 75 82 D8 02 5B 83 DE 03
+00 FC 00 6C 00 5C 00 50 00 40 00 34 00 24 1A 03
+
 
 3	Calgary
 Subheader color: Yellow/Orange
@@ -667,6 +686,8 @@ Subheader ROM address 9af4Bc
 Subheader color data:
 00 00 7B 6F 00 18 00 24 00 34 00 40 00 50 00 60
 DF 00 BB 80 98 80 94 80 71 80 4D 00 4A 00 1A 03
+
+Logo ROM address: 9AF27C
 
 
 
@@ -783,10 +804,48 @@ Color data:
 
 15	Tampa bay 
 Subheader color ROM address 9AF2BC
-Subheader Black/Blue
+Subheader color: Black/Blue
 Color data:
 00 00 7B 6F 00 00 21 04 63 0C A5 14 E7 9C 29 A5
 00 7C 00 6C 00 60 00 54 00 48 00 38 00 2C 1A 03
 
+16	Toronto
+Subheader color: White/Blue
+Subheader color ROM address 9AF29C
+00 00 7B 6F 8C 31 CE B9 10 C2 52 4A 94 52 D6 DA
+00 F8 00 6C 00 5C 00 50 00 40 00 34 00 28 1A 03
+
+
+17	Vancouver
+Subheader color: Yellow/Orange
+Subheader color ROM address 9AF25C
+00 00 7B 6F AF 01 F1 81 54 82 B7 02 19 83 7C 03
+1C 00 19 00 15 00 12 00 0F 00 0B 00 08 00 1A 03
+
+
+18	Washington
+Subheader color: Blue/Red
+Subheader color ROM address 9AF21C
+00 00 7B 6F 00 28 00 38 00 48 00 58 00 6C 00 7C
+1F 00 1B 00 18 00 14 00 11 00 0D 00 0A 00 1A 03
+ 
+
+19	Winnipeg
+Subheader color ROM address 9AF1FC
+Subheader color: Red/Purple
+00 00 7B 6F 0A 00 0E 00 12 00 17 00 1B 00 1F 00
+0C 64 0B 58 09 50 08 44 06 3C 05 30 03 28 1A 03
+
+
+1A	All Stars East
+Subheader color ROM address  9AF23C
+Subheader color: Orange/White
+00 00 7B 6F 8B 00 AF 80 F3 80 17 81 3B 01 7F 01
+F7 5E B5 D6 73 CE 31 46 EF 3D AD B5 6B AD 1A 03
+
+
 1B	All Stars West
+Subheader color: Black/Orange
 Subheader color ROM address 9AF51C
+00 00 7B 6F 21 04 42 08 84 10 A5 94 E7 9C 29 A5
+9F 01 7C 81 5A 01 37 01 14 01 F2 00 CF 80 1A 83
