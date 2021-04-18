@@ -2122,6 +2122,12 @@ bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
     return true;
 }
 
+struct TeamSubheaderPaletteDescription
+{
+    int DataAddress;
+    unsigned char* Data;
+};
+
 System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
@@ -2188,42 +2194,43 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         unsigned char aseOrangeWhite[]          = { 0x00, 0x00, 0x7B, 0x6F, 0x8B, 0x00, 0xAF, 0x80, 0xF3, 0x80, 0x17, 0x81, 0x3B, 0x01, 0x7F, 0x01, 0xF7, 0x5E, 0xB5, 0xD6, 0x73, 0xCE, 0x31, 0x46, 0xEF, 0x3D, 0xAD, 0xB5, 0x6B, 0xAD, 0x1A, 0x03 };
         unsigned char aswBlackOrange[]          = { 0x00, 0x00, 0x7B, 0x6F, 0x21, 0x04, 0x42, 0x08, 0x84, 0x10, 0xA5, 0x94, 0xE7, 0x9C, 0x29, 0xA5, 0x9F, 0x01, 0x7C, 0x81, 0x5A, 0x01, 0x37, 0x01, 0x14, 0x01, 0xF2, 0x00, 0xCF, 0x80, 0x1A, 0x83 };
 
-        int paletteROMAddresses[(int)Team::Count] = 
+        TeamSubheaderPaletteDescription paletteROMAddresses[(int)Team::Count] =
         {
-            0x9AF17C,   // Anaheim
-            0x9AEF5C,   // Boston
-            0x9AF19C,   // Buffalo
-            0x9AF57C,   // Calgary
-            0x9AF53C,   // Chicago
-            0x9af4FC,   // Dallas
-            0x9AF55C,   // Detroit
-            0x9af4Dc,   // Edmonton
-            0x9af4Bc,   // Florida
-            0x9af49c,   // Hartford
-            0x9af45c,   // LA
-            0x9af43c,   // Montreal
-            0x9af41c,   // New Jersey
-            0x9AF3FC,   // NY Islanders
-            0x9AF3DC,   // NY Rangers
-            0x9AF3BC,   // Ottawa
-            0x9AF39C,   // Philly
-            0x9AF37C,   // Pittsburgh
-            0x9AF35C,   // Quebec
-            0x9AF31C,   // San Jose
-            0x9AF2DC,   // St Louis
-            0x9AF2BC,   // Tampa Bay
-            0x9AF29C,   // Toronto
-            0x9AF25C,   // Vancouver
-            0x9AF21C,   // Washington
-            0x9AF1FC,   // Winnipeg
-            0x9AF23C,   // All stars east
-            0x9AF51C,   // All stars west
+            { 0x9AF17C, anaheimWhiteGreen },   // Anaheim
+            { 0x9AEF5C, bostonBlackYellow },   // Boston
+            { 0x9AF19C, buffaloYellowBlue },   // Buffalo
+            { 0x9AF57C, calgaryYellowOrange },   // Calgary
+            { 0x9AF53C, chicagoBlackRed },   // Chicago
+            { 0x9af4FC, dallasBlackGreen },   // Dallas
+            { 0x9AF55C, detroitWhiteRed },   // Detroit
+            { 0x9af4Dc, edmontonBlueOrange },   // Edmonton
+            { 0x9af4Bc, floridaBlueOrange },   // Florida
+            { 0x9af49c, hartfordGreenBlue },   // Hartford
+            { 0x9af45c, losAngelesBlackGray },   // LA
+            { 0x9af43c, montrealRedBlue },   // Montreal
+            { 0x9af41c, newJerseyBlackRed },   // New Jersey
+            { 0x9AF3FC, nyIslandersBlueOrange },   // NY Islanders
+            { 0x9AF3DC, nyRangersRedBlue },   // NY Rangers
+            { 0x9AF3BC, ottawaBlackRed },   // Ottawa
+            { 0x9AF39C, phillyBlackOrange },   // Philly
+            { 0x9AF37C, pittsburghYellowBrown },   // Pittsburgh
+            { 0x9AF35C, quebecLightBlueWhite },   // Quebec
+            { 0x9AF31C, sanJoseBlackTurquoise },   // San Jose
+            { 0x9AF2DC, stLouisYellowBlue },   // St Louis
+            { 0x9AF2BC, tampaBayBlackBlue },   // Tampa Bay
+            { 0x9AF29C, torontoWhiteBlue },   // Toronto
+            { 0x9AF25C, vancouverYellowOrange },   // Vancouver
+            { 0x9AF21C, washingtonBlueRed },   // Washington
+            { 0x9AF1FC, winnipegRedPurple },   // Winnipeg
+            { 0x9AF23C, aseOrangeWhite },   // All stars east
+            { 0x9AF51C, aswBlackOrange },   // All stars west
         };
 
+        for (int i = 0; i < (int)Team::Count; ++i)
         {
-            int montrealSubheaderPaletteROMAddress = 0x9af43c;
-            RomDataIterator iter(ROMAddressToFileOffset(montrealSubheaderPaletteROMAddress));
-            iter.SaveBytes_EnsureSpaceInBank(montrealRedBlue, _countof(montrealRedBlue));
+            int subheaderPaletteROMAddress = paletteROMAddresses[i].DataAddress;
+            RomDataIterator iter(ROMAddressToFileOffset(subheaderPaletteROMAddress));
+            iter.SaveBytes_EnsureSpaceInBank(paletteROMAddresses[i].Data, _countof(montrealRedBlue));
         }
     }
 
