@@ -647,3 +647,20 @@ $9D/AF56 FA          PLX                     A:0002 X:0290 Y:000B P:envmxdizc
 $9D/AF57 68          PLA                     A:0002 X:0290 Y:000B P:envmxdizc
 $9D/AF58 85 91       STA $91    [$00:0091]   A:0002 X:0290 Y:000B P:envmxdizc
 $9D/AF5A 60          RTS                     A:0002 X:0290 Y:000B P:envmxdizc
+
+
+What's supposed to happen:
+
+Start of table is at A08085. We want the 0xA team.
+	0xA * 4 = index 0x28
+A08085 + 0x28 = A080AD
+Load 9C96D1 (the default LA string) from A080AD
+Store 9C96D1 into A9-AB.
+
+
+Start of table is at A08085. We want the 0xB team.
+	0xB * 4 = index 0x2C
+A08085 + 0x2C = A080B1
+Load A0807B (the replaced Montreal string) from A080B1
+Store A0807B into A9-AB.
+

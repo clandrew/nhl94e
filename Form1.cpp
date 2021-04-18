@@ -1676,6 +1676,8 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
     }
+    
+    // This is for the TEAM SETUP screen, which has different string loader code from the GAME SETUP screen
     {
 
         int tableROMAddress = FileOffsetToROMAddress(nullDelimitedStringTableStartFileAddress);

@@ -170,7 +170,7 @@ EC 03 18 63 73 4E 29 25 73 4E F5 11 55 1E 29 25
 98 7F 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Second half. Seemingly doesd nothing
+Second half. Seemingly does nothing
 98 7F BD 7F BA 7F 7B 6F 00 00 D6 5A AD 35 29 25
 DB 5A 5F 4A 3B 35 4D 6E DB 12 D2 7E 84 10 72 7F
 98 7F 7B 6F 52 4A 29 25 84 10 5B 02 B6 01 00 00
@@ -544,3 +544,81 @@ F2 7F 7B 6F 00 00 4A 29 00 00 4A 29 BD 77 58 42
 1B 01 1B 01 BD 77 84 10 4A 29 1B 01 D3 15 49 5A
 
 need to check- home and away colors appear to be in different locations so this list isn't complete
+
+Montreal home player pallette is stored at ROM address 96ceae.
+Just, this is NOT the palette for the multicolored subheader background.
+F2 7F 7B 6F 00 00 BD 77 00 30 BD 77 1A 00 58 42
+00 40 BD 77 1A 00 94 52 BD 77 BD 77 D3 15 49 5A
+
+The set of 'home' palette data is 0x360 bytes, so is the 'away' data.
+
+-- no more palette data higher up
+
+0 Anaheim away player palette		- ROM address 96C9CE
+1					- ROM address 96C9EE
+2					- ROM address 96CA0E
+3					- ROM address 96CA2E
+4					- ROM address 96CA4E
+5					- ROM address 96CA6E
+6					- ROM address 96CA8E
+7					- ROM address 96CAAE
+8					- ROM address 96CACE
+9					- ROM address 96CAEE
+A LA away player palette		- ROM address 96CB0E
+B Montreal away player palette		- ROM address 96CB2E
+C					- ROM address 96CB4E
+D					- ROM address 96CB6E
+E					- ROM address 96CB8E
+F					- ROM address 96CBAE
+10					- ROM address 96CBCE
+11					- ROM address 96CBEE
+12					- ROM address 96CC0E
+13					- ROM address 96CC2E
+14					- ROM address 96CC4E
+15					- ROM address 96CC6E
+16					- ROM address 96CC8E
+17					- ROM address 96CCAE
+18					- ROM address 96CCCE
+19					- ROM address 96CCEE
+1A All Stars East away player palette	- ROM address 96CD0E
+1B All Stars West away player palette	- ROM address 96CD2E
+
+0 Anaheim home player palette		- ROM address 96CD4E
+1					- ROM address 96CD6E
+2					- ROM address 96CD8E
+3					- ROM address 96CDAE
+4					- ROM address 96CDCE
+5					- ROM address 96CDEE
+6					- ROM address 96CE0E
+7 Edmonton				- ROM address 96CE2E
+8 Florida				- ROM address 96CE4E
+9 Hartford				- ROM address 96CE6E
+A LA home player pallette 		- ROM address 96CE8E
+B Montreal home player pallette 	- ROM address 96CEAE
+C					- ROM address 96CECE
+D					- ROM address 96CEEE
+E					- ROM address 96CF0E
+F					- ROM address 96CF2E
+10					- ROM address 96CF4E
+11					- ROM address 96CF6E
+12					- ROM address 96CF8E
+13					- ROM address 96CFAE
+14					- ROM address 96CFCE
+15					- ROM address 96CFEE
+16					- ROM address 96D00E
+17					- ROM address 96D02E
+18					- ROM address 96D04E
+19					- ROM address 96D06E
+1A					- ROM address 96D08E
+1B All Stars West home player palette	- ROM address 96D0AE
+
+
+96D0F8? - corrupting here doesn't appear to do anything.
+
+For the subheader bg, it is loaded in
+LA - indices 160-175
+{0, 0, 421, 1084, 18c6, 2108, 2d6b, 35ad, 3def, 4631, 5294, 5ad6, 6318, 6f7b, 77bd, 7fff}
+
+Montreal - indices 176-191
+{0, 13, 17, 12, E, 7fff, 6b5a, 5294, 3def, 294a, 1084, 0, 6610, 6400, 4800, 3400 }
+Looka like a match at file offset D6DFC
