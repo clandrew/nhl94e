@@ -168,6 +168,7 @@ struct TeamData
     ModifiableStat<std::string> TeamName;
     ModifiableStat<std::string> Venue;
     std::vector<PlayerData> Players;
+    int HeaderColorIndex;
 
     PlayerData* GetPlayerByOriginalName(std::string name)
     {
