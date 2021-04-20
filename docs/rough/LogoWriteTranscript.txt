@@ -420,4 +420,23 @@ $80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:06C7 X:0007 Y:006C P:envmXdizC
 $80/BD21 86 08       STX $08    [$00:0008]   A:06C7 X:0007 Y:006C P:envmXdizC
 $80/BD23 85 6C       STA $6C    [$00:006C]   A:06C7 X:0007 Y:006C P:envmXdizC
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; log of output to 7FA675
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; log of output to 7FA675;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; log of output to 7FA675
+
+Function: FigureOutSeriesOfSameNumbers()
+$80/C2DC 0A          ASL A                   A:A6C0 X:0008 Y:0007 P:envmXdizc
+$80/C2DD CA          DEX                     A:4D80 X:0008 Y:0007 P:envmXdizC
+$80/C2DE CA          DEX                     A:4D80 X:0007 Y:0007 P:envmXdizC
+$80/C2DF F0 04       BEQ $04    [$C2E5]      A:4D80 X:0006 Y:0007 P:envmXdizC
+$80/C2E1 88          DEY                     A:4D80 X:0006 Y:0007 P:envmXdizC
+$80/C2E2 D0 F8       BNE $F8    [$C2DC]      A:4D80 X:0006 Y:0006 P:envmXdizC
+
+$80/C2E4 60          RTS                     A:62C8 X:000A Y:0000 P:envmXdiZC
+
+$80/C2E5 E2 20       SEP #$20                A:6C00 X:0000 Y:0004 P:envmXdiZc
+$80/C2E7 B2 0C       LDA ($0C)  [$81:CDF3]   A:6C00 X:0000 Y:0004 P:envMXdiZc
+$80/C2E9 C2 20       REP #$20                A:6C59 X:0000 Y:0004 P:envMXdizc
+$80/C2EB E6 0C       INC $0C    [$00:000C]   A:6C59 X:0000 Y:0004 P:envmXdizc
+$80/C2ED A2 10       LDX #$10                A:6C59 X:0000 Y:0004 P:eNvmXdizc
+$80/C2EF 88          DEY                     A:6C59 X:0010 Y:0004 P:envmXdizc
+$80/C2F0 D0 EA       BNE $EA    [$C2DC]      A:6C59 X:0010 Y:0003 P:envmXdizc
+
