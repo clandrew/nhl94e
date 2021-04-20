@@ -16,32 +16,32 @@ RAM 7FA675
 What writes these values? Why does it write them?
 
 Here's a transcript
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0008 X:000E Y:0000 P:envmXdizc	; Write 0 to 7FA675, the WRAM vector previously set. 
+										; Write 0 to 7FA675, the WRAM vector previously set. 
 										; Acc == number of zeroes
 $80/C18D 3A          DEC A                   A:0008 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0007 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0007 X:000E Y:0000 P:envmXdizc	; Write 0 to 7FA676
-$80/C18D 3A          DEC A                   A:0008 X:000E Y:0000 P:envmXdizc	; Write the whole series of 0s
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0007 X:000E Y:0000 P:envmXdizc	; xxx out[0] = 0  ; Write 0 to 7FA676, Write the whole series of 0s
+$80/C18D 3A          DEC A                   A:0008 X:000E Y:0000 P:envmXdizc	
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0007 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0007 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0007 X:000E Y:0000 P:envmXdizc	; xxx out[1] = 0
 $80/C18D 3A          DEC A                   A:0007 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0006 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0006 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0006 X:000E Y:0000 P:envmXdizc	; xxx out[2] = 0
 $80/C18D 3A          DEC A                   A:0006 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0005 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0005 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0005 X:000E Y:0000 P:envmXdizc	; xxx out[3] = 0
 $80/C18D 3A          DEC A                   A:0005 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0004 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0004 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0004 X:000E Y:0000 P:envmXdizc	; xxx out[4] = 0
 $80/C18D 3A          DEC A                   A:0004 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0003 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0003 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0003 X:000E Y:0000 P:envmXdizc	; xxx out[5] = 0
 $80/C18D 3A          DEC A                   A:0003 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0002 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0002 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0002 X:000E Y:0000 P:envmXdizc	; xxx out[6] = 0
 $80/C18D 3A          DEC A                   A:0002 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0001 X:000E Y:0000 P:envmXdizc
-$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0001 X:000E Y:0000 P:envmXdizc
+$80/C18A 8C 80 21    STY $2180  [$81:2180]   A:0001 X:000E Y:0000 P:envmXdizc	; xxx out[7] = 0
 $80/C18D 3A          DEC A                   A:0001 X:000E Y:0000 P:envmXdizc
 $80/C18E D0 FA       BNE $FA    [$C18A]      A:0000 X:000E Y:0000 P:envmXdiZc
 
@@ -49,7 +49,7 @@ $80/C190 A5 6C       LDA $6C    [$00:006C]   A:0000 X:000E Y:0000 P:envmXdiZc	; 
 
 $80/C192 7C F9 BC    JMP ($BCF9,x)[$80:BD70] A:50C8 X:000E Y:0000 P:envmXdizc
 
-$80/BD70 85 6C       STA $6C    [$00:006C]   A:50C8 X:000E Y:0000 P:envmXdizc	; Update $6C = 0x50C8
+$80/BD70 85 6C       STA $6C    [$00:006C]   A:50C8 X:000E Y:0000 P:envmXdizc	; As a reminder, $6C = 0x50C8. This STA seems pointless but ok
 
 $80/BD72 A4 6D       LDY $6D    [$00:006D]   A:50C8 X:000E Y:0000 P:envmXdizc
 
@@ -95,7 +95,7 @@ $80/BEF7 0A          ASL A                   A:0C80 X:0008 Y:0050 P:envmXdizC	; 
 
 $80/BEF8 BE 00 05    LDX $0500,y[$81:0550]   A:1900 X:0008 Y:0050 P:envmXdizc	
 
-; Load indexed 0x50 from this array. Loads a 0x01
+; Load indexed 0x50 from this array.
 
 7E0500:
 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -132,7 +132,7 @@ FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10
 
 ; Writes the 0x1 to the result
-$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:1900 X:0001 Y:0050 P:envmXdizc
+$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:1900 X:0001 Y:0050 P:envmXdizc	; ; xxx out[8] = 1
 
 ; Store the 0x1 to $08
 $80/BEFE 86 08       STX $08    [$00:0008]   A:1900 X:0001 Y:0050 P:envmXdizc
@@ -173,7 +173,7 @@ $80/BD19 E6 0C       INC $0C    [$00:000C]   A:646C X:0002 Y:0019 P:envmXdizc	; 
 
 $80/BD1B BE 00 05    LDX $0500,y[$81:0519]   A:646C X:0002 Y:0019 P:eNvmXdizc	; Load the value we need to write from this array 7E0500 from earlier
 
-$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:646C X:0000 Y:0019 P:envmXdiZc	; write the 0
+$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:646C X:0000 Y:0019 P:envmXdiZc	; xxx out[9] = 0
 
 $80/BD21 86 08       STX $08    [$00:0008]   A:646C X:0000 Y:0019 P:envmXdiZc
 $80/BD23 85 6C       STA $6C    [$00:006C]   A:646C X:0000 Y:0019 P:envmXdiZc	; Save X and A
@@ -189,12 +189,14 @@ $80/BEF5 0A          ASL A                   A:2360 X:000A Y:0064 P:envmXdizC
 $80/BEF6 0A          ASL A                   A:46C0 X:000A Y:0064 P:envmXdizc
 $80/BEF7 0A          ASL A                   A:8D80 X:000A Y:0064 P:eNvmXdizc
 $80/BEF8 BE 00 05    LDX $0500,y[$81:0564]   A:1B00 X:000A Y:0064 P:envmXdizC
-$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:1B00 X:0003 Y:0064 P:envmXdizC
+$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:1B00 X:0003 Y:0064 P:envmXdizC	; xxx out[A] = 3
+
 $80/BEFE 86 08       STX $08    [$00:0008]   A:1B00 X:0003 Y:0064 P:envmXdizC
 $80/BF00 85 6C       STA $6C    [$00:006C]   A:1B00 X:0003 Y:0064 P:envmXdizC
 $80/BF02 A4 6D       LDY $6D    [$00:006D]   A:1B00 X:0003 Y:0064 P:envmXdizC
 $80/BF04 BE 00 06    LDX $0600,y[$81:061B]   A:1B00 X:0003 Y:001B P:envmXdizC
 $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:1B00 X:0002 Y:001B P:envmXdizC
+
 $80/BD11 0A          ASL A                   A:1B00 X:0002 Y:001B P:envmXdizC
 $80/BD12 0A          ASL A                   A:3600 X:0002 Y:001B P:envmXdizc
 $80/BD13 E2 20       SEP #$20                A:6C00 X:0002 Y:001B P:envmXdizc
@@ -202,12 +204,14 @@ $80/BD15 B2 0C       LDA ($0C)  [$81:CD9F]   A:6C00 X:0002 Y:001B P:envMXdizc
 $80/BD17 C2 20       REP #$20                A:6C98 X:0002 Y:001B P:eNvMXdizc
 $80/BD19 E6 0C       INC $0C    [$00:000C]   A:6C98 X:0002 Y:001B P:eNvmXdizc
 $80/BD1B BE 00 05    LDX $0500,y[$81:051B]   A:6C98 X:0002 Y:001B P:eNvmXdizc
-$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:6C98 X:0000 Y:001B P:envmXdiZc
+$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:6C98 X:0000 Y:001B P:envmXdiZc	; xxx out[B] = 0
+
 $80/BD21 86 08       STX $08    [$00:0008]   A:6C98 X:0000 Y:001B P:envmXdiZc
 $80/BD23 85 6C       STA $6C    [$00:006C]   A:6C98 X:0000 Y:001B P:envmXdiZc
 $80/BD25 A4 6D       LDY $6D    [$00:006D]   A:6C98 X:0000 Y:001B P:envmXdiZc
 $80/BD27 BE 00 06    LDX $0600,y[$81:066C]   A:6C98 X:0000 Y:006C P:envmXdizc
 $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BEF2] A:6C98 X:000A Y:006C P:envmXdizc
+
 $80/BEF2 0A          ASL A                   A:6C98 X:000A Y:006C P:envmXdizc
 $80/BEF3 0A          ASL A                   A:D930 X:000A Y:006C P:eNvmXdizc
 $80/BEF4 0A          ASL A                   A:B260 X:000A Y:006C P:eNvmXdizC
@@ -215,12 +219,14 @@ $80/BEF5 0A          ASL A                   A:64C0 X:000A Y:006C P:envmXdizC
 $80/BEF6 0A          ASL A                   A:C980 X:000A Y:006C P:eNvmXdizc
 $80/BEF7 0A          ASL A                   A:9300 X:000A Y:006C P:eNvmXdizC
 $80/BEF8 BE 00 05    LDX $0500,y[$81:056C]   A:2600 X:000A Y:006C P:envmXdizC
-$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:2600 X:0007 Y:006C P:envmXdizC
+$80/BEFB 8E 80 21    STX $2180  [$81:2180]   A:2600 X:0007 Y:006C P:envmXdizC	; xxx out[C] = 7
+
 $80/BEFE 86 08       STX $08    [$00:0008]   A:2600 X:0007 Y:006C P:envmXdizC
 $80/BF00 85 6C       STA $6C    [$00:006C]   A:2600 X:0007 Y:006C P:envmXdizC
 $80/BF02 A4 6D       LDY $6D    [$00:006D]   A:2600 X:0007 Y:006C P:envmXdizC
 $80/BF04 BE 00 06    LDX $0600,y[$81:0626]   A:2600 X:0007 Y:0026 P:envmXdizC
 $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2600 X:0002 Y:0026 P:envmXdizC
+
 $80/BD11 0A          ASL A                   A:2600 X:0002 Y:0026 P:envmXdizC
 $80/BD12 0A          ASL A                   A:4C00 X:0002 Y:0026 P:envmXdizc
 $80/BD13 E2 20       SEP #$20                A:9800 X:0002 Y:0026 P:eNvmXdizc
@@ -228,12 +234,14 @@ $80/BD15 B2 0C       LDA ($0C)  [$81:CDA0]   A:9800 X:0002 Y:0026 P:eNvMXdizc
 $80/BD17 C2 20       REP #$20                A:9853 X:0002 Y:0026 P:envMXdizc
 $80/BD19 E6 0C       INC $0C    [$00:000C]   A:9853 X:0002 Y:0026 P:envmXdizc
 $80/BD1B BE 00 05    LDX $0500,y[$81:0526]   A:9853 X:0002 Y:0026 P:eNvmXdizc
-$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:9853 X:0000 Y:0026 P:envmXdiZc
+$80/BD1E 8E 80 21    STX $2180  [$81:2180]   A:9853 X:0000 Y:0026 P:envmXdiZc	; xxx out[D] = 0
+
 $80/BD21 86 08       STX $08    [$00:0008]   A:9853 X:0000 Y:0026 P:envmXdiZc
 $80/BD23 85 6C       STA $6C    [$00:006C]   A:9853 X:0000 Y:0026 P:envmXdiZc
 $80/BD25 A4 6D       LDY $6D    [$00:006D]   A:9853 X:0000 Y:0026 P:envmXdiZc
 $80/BD27 BE 00 06    LDX $0600,y[$81:0698]   A:9853 X:0000 Y:0098 P:eNvmXdizc
 $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BF44] A:9853 X:000C Y:0098 P:envmXdizc
+
 $80/BF44 0A          ASL A                   A:9853 X:000C Y:0098 P:envmXdizc
 $80/BF45 0A          ASL A                   A:30A6 X:000C Y:0098 P:envmXdizC
 $80/BF46 0A          ASL A                   A:614C X:000C Y:0098 P:envmXdizc
@@ -242,12 +250,14 @@ $80/BF48 0A          ASL A                   A:8530 X:000C Y:0098 P:eNvmXdizC
 $80/BF49 0A          ASL A                   A:0A60 X:000C Y:0098 P:envmXdizC
 $80/BF4A 0A          ASL A                   A:14C0 X:000C Y:0098 P:envmXdizc
 $80/BF4B BE 00 05    LDX $0500,y[$81:0598]   A:2980 X:000C Y:0098 P:envmXdizc
-$80/BF4E 8E 80 21    STX $2180  [$81:2180]   A:2980 X:000F Y:0098 P:envmXdizc
+$80/BF4E 8E 80 21    STX $2180  [$81:2180]   A:2980 X:000F Y:0098 P:envmXdizc	; xxx out[E] = 0F
+
 $80/BF51 86 08       STX $08    [$00:0008]   A:2980 X:000F Y:0098 P:envmXdizc
 $80/BF53 85 6C       STA $6C    [$00:006C]   A:2980 X:000F Y:0098 P:envmXdizc
 $80/BF55 A4 6D       LDY $6D    [$00:006D]   A:2980 X:000F Y:0098 P:envmXdizc
 $80/BF57 BE 00 06    LDX $0600,y[$81:0629]   A:2980 X:000F Y:0029 P:envmXdizc
 $80/BF5A 7C 5D BF    JMP ($BF5D,x)[$80:BD5E] A:2980 X:0002 Y:0029 P:envmXdizc
+
 $80/BD5E 0A          ASL A                   A:2980 X:0002 Y:0029 P:envmXdizc
 $80/BD5F E2 20       SEP #$20                A:5300 X:0002 Y:0029 P:envmXdizc
 $80/BD61 B2 0C       LDA ($0C)  [$81:CDA1]   A:5300 X:0002 Y:0029 P:envMXdizc
@@ -256,13 +266,16 @@ $80/BD65 E6 0C       INC $0C    [$00:000C]   A:5362 X:0002 Y:0029 P:envmXdizc
 $80/BD67 0A          ASL A                   A:5362 X:0002 Y:0029 P:eNvmXdizc
 $80/BD68 BE 00 05    LDX $0500,y[$81:0529]   A:A6C4 X:0002 Y:0029 P:eNvmXdizc
 $80/BD6B 8E 80 21    STX $2180  [$81:2180]   A:A6C4 X:0000 Y:0029 P:envmXdiZc
+
 $80/BD6E 86 08       STX $08    [$00:0008]   A:A6C4 X:0000 Y:0029 P:envmXdiZc
 $80/BD70 85 6C       STA $6C    [$00:006C]   A:A6C4 X:0000 Y:0029 P:envmXdiZc
 $80/BD72 A4 6D       LDY $6D    [$00:006D]   A:A6C4 X:0000 Y:0029 P:envmXdiZc
 $80/BD74 BE 00 06    LDX $0600,y[$81:06A6]   A:A6C4 X:0000 Y:00A6 P:eNvmXdizc
 $80/BD77 7C 7A BD    JMP ($BD7A,x)[$80:BD8E] A:A6C4 X:0012 Y:00A6 P:envmXdizc
+
 $80/BD8E A2 0E       LDX #$0E                A:A6C4 X:0012 Y:00A6 P:envmXdizc
 $80/BD90 4C 7C C1    JMP $C17C  [$80:C17C]   A:A6C4 X:000E Y:00A6 P:envmXdizc
+
 $80/C17C A4 74       LDY $74    [$00:0074]   A:A6C4 X:000E Y:00A6 P:envmXdizc
 $80/C17E 20 DC C2    JSR $C2DC  [$80:C2DC]   A:A6C4 X:000E Y:0007 P:envmXdizc
 $80/C181 85 6C       STA $6C    [$00:006C]   A:6286 X:0010 Y:0000 P:envmXdiZC
