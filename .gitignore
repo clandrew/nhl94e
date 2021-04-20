@@ -2,3 +2,6 @@
 x64/*
 Release/*
 local/*
+
+/DecompressLogo/.vs/*
+/DecompressLogo/Debug/
