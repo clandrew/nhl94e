@@ -13,6 +13,13 @@ In RAM file 1A675
 RAM 7FA675
 00 00 00 00 00 00 00 00 01 00 03 00 07 00 0F 00 00 00 00 00 00 00 00 00 01 00 03 01 07 03 0F 07
 
+RAM 7FA671 marks the beginning of the series.
+RAM 7FA671:
+00 1D 00 00 00 00 00 00 00 00 00 00 01 00 03 00
+07 00 0F 00 00 00 00 00 00 00 00 00 01 00 03 01
+07 03 0F 07 00 00 07 00 1F 00 7C 00 F7 00 DB 04
+
+
 What writes these values? Why does it write them?
 
 Here's a transcript
