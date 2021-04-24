@@ -273,7 +273,8 @@ $80/BDC0 A4 6D       LDY $6D    [$00:006D]   A:314C X:0010 Y:0000 P:envmXdiZc
 $80/BDC2 BE 00 06    LDX $0600,y[$81:0631]   A:314C X:0010 Y:0031 P:envmXdizc
 $80/BDC5 7C C8 BD    JMP ($BDC8,x)[$80:BE53] A:314C X:0002 Y:0031 P:envmXdizc	; Can go to BDE1, BD59
 
-$80/BDC8 04 BE 53 BE A3 BE F4 BE 46 BF 0D BD 59 BD A6 BD E1 BD DC BD A2 0C 4C 7C C1 A2
+$80/BDC8 04 BE 53 BE A3 BE F4 BE 46 BF 0D BD 59 BD A6 BD E1 BD DC BD 
+$80/BDDC A2 0C 4C 7C C1 A2
 
 x$80/BDE1 A2 0C       LDX #$0C                A:E358 X:0010 Y:00E3 P:envmXdizC
 x$80/BDE3 64 6A       STZ $6A    [$00:006A]   A:E358 X:000C Y:00E3 P:envmXdizC
@@ -344,14 +345,7 @@ $80/BE5F A4 6D       LDY $6D    [$00:006D]   A:3140 X:00EF Y:00C5 P:eNvmXdizC
 $80/BE61 BE 00 06    LDX $0600,y[$81:0631]   A:3140 X:00EF Y:0031 P:envmXdizC
 $80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BEF6] A:3140 X:0002 Y:0031 P:envmXdizC	; Can go to BDF6
 
-$80/BE67 A5 BE       LDA $BE    [$00:00BE]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE69 F6 BE       INC $BE,x  [$00:00CA]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE6B 48          PHA                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE6C BF 0F BD 5B LDA $5BBD0F,x[$5B:BD1B] A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE70 BD A8 BD    LDA $BDA8,x[$97:BDB4]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE73 F6 BD       INC $BD,x  [$00:00C9]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE75 45 BE       EOR $BE    [$00:00BE]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BE77 80 BE       BRA $BE    [$BE37]      A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BE67 A5 BE F6 BE 48 BF 0F BD 5B BD A8 BD F6 BD 45 BE 80 BE
 
 $80/BE79 7B          TDC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BE7A BE A2 08    LDX $08A2,y[$97:08A2]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -452,6 +446,7 @@ $80/BF3C E2 20       SEP #$20                A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF3E B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvMXdizc
 $80/BF40 C2 20       REP #$20                A:8004 X:000C Y:0000 P:eNvMXdizc
 $80/BF42 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BF44 0A          ASL A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF45 0A          ASL A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF46 0A          ASL A                   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -467,7 +462,8 @@ $80/BF55 A4 6D       LDY $6D    [$00:006D]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF57 BE 00 06    LDX $0600,y[$97:0600]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF5A 7C 5D BF    JMP ($BF5D,x)[$80:BEE9] A:8004 X:000C Y:0000 P:eNvmXdizc
 
-$80/BF5D 12 BD 5E BD AB BD F9 BD 48 BE 98 BE E9 BE 3B BF 76 BF 71 BF A2 02 4C 7C C1 A2 02 64
+$80/BF5D 12 BD 5E BD AB BD F9 BD 48 BE 98 BE E9 BE 3B BF 76 BF 71 BF 
+$80/BF71 A2 02 4C 7C C1 A2 02 64
 
 $80/BF79 6A          ROR A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF7A B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -872,3 +868,9 @@ $80/C3AA C9 30 FB    CMP #$FB30              A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/C3AD D0 05       BNE $05    [$C3B4]      A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/C3AF 20 B3 BB    JSR $BBB3  [$80:BBB3]   A:8004 X:000C Y:0000 P:eNvmXdizc	; call GameMenuLoad()
 $80/C3B2 80 11       BRA $11    [$C3C5]      A:8004 X:000C Y:0000 P:eNvmXdizc
+
+1D 00 00 00 00 00 00 00 00 00 00 01 00 03 00 07
+00 0F 00 00 00 00 00 00 00 00 00 01 00 03 01 07
+
+1d  0  0  0  0  0  0  0  0  0  0  1  0  3  0  7
+ 0  f  0  0  0  0  0  0  0  0  0

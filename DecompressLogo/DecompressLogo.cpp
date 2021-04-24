@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <assert.h>
 
@@ -139,10 +140,16 @@ int jumpElements_BD2D[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BEF2, 0, 0x80BF44 
 
 int jumpElements_BD7A[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0x80BEF3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BD8E };
 
+int jumpElements_BDC8[] = { 0x80BE04, 0x0, 0x80BE53, 0x0, 0x80BEA3, 0x0, 0x80BEF4, 0x0, 0x80BF46, 0x0, 0x80BD0D, 0x0, 0x80BD59, 0x0, 0x80BDA6, 0x0, 0x80BDE1, 0x0, 0x80BDDC };
+
+int jumpElements_BE67[] = { 0x80BEA5, 0x0, 0x80BEF6, 0x0, 0x80BF48, 0x0, 0x80BD0F, 0x0, 0x80BD5B, 0x0, 0x80BDA8, 0x0, 0x80BDF6, 0x0, 0x80BE45, 0x0, 0x80BE80 };
+
 int jumpElements_BEB8[] = { 0x80BEF7, 0x0, 0x80BF49, 0x0, 0x80BD10, 0x0, 0x80BD5C, 0x0, 0x80BDA9, 0x0, 0x80BDF7, 0x0, 0x80BE46, 0x0, 0x80BE96, 0x0, 0x80BED1, 0x0, 0x80BECC }; 
 
 int jumpElements_BF0A[] = { 0, 0, 0x80BD11 };
-int jumpElements_BF5D[] = { 0, 0, 0x80BD5E};
+
+int jumpElements_BF5D[] = { 0x80BD12, 0x0, 0x80BD5E, 0x0, 0x80BDAB, 0x0, 0x80BDF9, 0x0, 0x80BE48, 0x0, 0x80BE98, 0x0, 0x80BEE9, 0x0, 0x80BF3B, 0x0, 0x80BF76, 0x0, 0x80BF71 };
+
 int jumpValue = 0;
 int previousJumpValue = 0;
 
@@ -183,6 +190,14 @@ void SetJumpValue(int newValue)
 {
     previousJumpValue = jumpValue;
     jumpValue = newValue;
+}
+
+
+void Impl_BC02()
+{
+    assert(false); // incomplete impl
+    regs.A = wram.GetShort(0x75);
+    wram.SetShort(0x0, regs.A);
 }
 
 void Impl_BD11()
@@ -259,9 +274,37 @@ void Impl_BD8E()
     SetJumpValue(0x80C17C);
 }
 
-void Impl_BDA9()
+void Impl_BDA6(int multiplier)
 {
+    regs.A *= multiplier;
 
+    // Set 8-bit acc for just this part
+    unsigned char low = GetROMDataShort(wram.GetLongPointer_0C());
+    regs.A &= 0xFF00;
+    regs.A |= low;
+
+    wram.IncrementPointer_0C();
+
+    regs.A *= 4;
+
+    unsigned short x = wram.GetShort(0x500 + regs.Y);
+    x &= 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= x;
+
+    unsigned char decompressed = x & 0xFF;
+    out.push_back(decompressed);
+    wram.LastWrittenValue_08() = decompressed;
+
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
+
+    x = wram.GetShort(0x600 + regs.Y);
+    x &= 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= x;
+
+    SetJumpValue(jumpElements_BDC8[regs.X]);
 }
 
 void Impl_BDE1()
@@ -296,6 +339,45 @@ void Impl_BE0D()
     SetJumpValue(0x80BEA4);
 }
 
+void Impl_BE53()
+{
+    regs.A *= 4;
+
+    regs.X = wram.GetShort(0x500 + regs.Y);
+    out.push_back(regs.X);
+    wram.LastWrittenValue_08() = regs.X;
+
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
+    wram.GetLowByteOfShort(0x600 + regs.Y, &regs.X);
+
+    SetJumpValue(jumpElements_BE67[regs.X]);
+}
+
+void Impl_BE96(int multiplier)
+{
+    regs.A *= multiplier;
+
+    unsigned char low = GetROMDataShort(wram.GetLongPointer_0C());
+    regs.A &= 0xFF00;
+    regs.A |= low;
+
+    wram.IncrementPointer_0C();
+
+    regs.A *= 32;
+
+    wram.GetLowByteOfShort(0x500 + regs.Y, &regs.X);
+    out.push_back(regs.X);
+    wram.LastWrittenValue_08() = regs.X;
+
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
+
+    wram.GetLowByteOfShort(0x600 + regs.Y, &regs.X);
+
+    SetJumpValue(jumpElements_BEB8[regs.X]);
+}
+
 void Impl_BEA4()
 {
     // Jump to ($BE17, x) meaning we look at address 80BE17+2 which contains short address BEA4
@@ -308,12 +390,9 @@ void Impl_BEA4()
     wram.LastWrittenValue_08() = regs.X;
 
     wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
 
-    regs.Y = wram.GetShort(0x6D);
-    regs.Y &= 0xFF;
-
-    regs.X = wram.GetShort(0x600 + regs.Y);
-    regs.X &= 0xFF; // This is in 8-bit index mode
+    wram.GetLowByteOfShort(0x600 + regs.Y, &regs.X);
 
     SetJumpValue(jumpElements_BEB8[regs.X]);
 }
@@ -333,14 +412,14 @@ void Impl_BEAE() // Could merge with last part of Impl_BEA4
 
 void Impl_BEB5()
 {
-    SetJumpValue(0x80C17C);
     regs.X = 0x6;
+    SetJumpValue(0x80C17C);
 }
 
 void Impl_BECC()
 {
-    SetJumpValue(0x80C17C);
     regs.X = 0x6;
+    SetJumpValue(0x80C17C);
 }
 
 void Impl_BEF2(int multiplier)
@@ -362,9 +441,9 @@ void Impl_BEF2(int multiplier)
     SetJumpValue(jumpElements_BF0A[regs.X]);
 }
 
-void Impl_BF44()
+void Impl_BF44(int multiplier)
 {
-    regs.A *= 128;
+    regs.A *= multiplier;
 
     unsigned char decompressed = decompressedValueDictionary_7E0500[regs.Y];
     out.push_back(decompressed);
@@ -614,7 +693,7 @@ int main()
     regs.X = 0X10;
     regs.Y = 0xCE;
 
-    for (int i = 0; i < 32; ++i)
+    for (int i = 0; i < 37; ++i)
     {
         switch (jumpValue)
         {
@@ -622,16 +701,38 @@ int main()
             case 0x80BD5E: Impl_BD5E(); break;
             case 0x80BD70: Impl_BD70(); break;
             case 0x80BD8E: Impl_BD8E(); break;
-            case 0x80BDA9: Impl_BDA9(); break;
+
+            case 0x80BDA6: Impl_BDA6(64); break;
+            case 0x80BDA7: Impl_BDA6(32); break;
+            case 0x80BDA8: Impl_BDA6(16); break;
+            case 0x80BDA9: Impl_BDA6(8); break;
+            case 0x80BDAA: Impl_BDA6(4); break;
+            case 0x80BDAB: Impl_BDA6(2); break;
+            case 0x80BDAC: Impl_BDA6(1); break;
+
             case 0x80BDE1: Impl_BDE1(); break;
             case 0x80BE0D: Impl_BE0D(); break;
+            case 0x80BE53: Impl_BE53(); break;
+
+            case 0x80BE98: Impl_BE96(2); break;
+
             case 0x80BEA4: Impl_BEA4(); break;
             case 0x80BEAE: Impl_BEAE(); break;
             case 0x80BEB5: Impl_BEB5(); break;
             case 0x80BECC: Impl_BECC(); break;
+
             case 0x80BEF2: Impl_BEF2(64); break;
             case 0x80BEF3: Impl_BEF2(32); break;
-            case 0x80BF44: Impl_BF44(); break;
+
+            case 0x80BF44: Impl_BF44(128); break;
+            case 0x80BF45: Impl_BF44(64); break;
+            case 0x80BF46: Impl_BF44(32); break;
+            case 0x80BF47: Impl_BF44(16); break;
+            case 0x80BF48: Impl_BF44(8); break;
+            case 0x80BF49: Impl_BF44(4); break;
+            case 0x80BF4A: Impl_BF44(2); break;
+            case 0x80BF4B: Impl_BF44(1); break;
+
             case 0x80BFDD: Impl_BFDD(); break;
             case 0x80C10E: Impl_C10E(); break;
             case 0x80C17C: Impl_C17C(); break;
@@ -640,6 +741,16 @@ int main()
     }
 
     unsigned char expected[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x00, 0x07, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x03, 0x01, 0x07, 0x03, 0x0F, 0x07 };
+
+    for (int i = 0; i < out.size(); ++i)
+    {
+        int val = out[i];
+        std::cout << std::hex << std::setw(2) << val << " ";
+        if (i % 16 == 15)
+        {
+            std::cout << "\n";
+        }
+    }
 }
 
 // SEP #$20 - Use 8-bit accumulator mode
