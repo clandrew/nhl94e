@@ -133,10 +133,13 @@ struct Wram
 } wram;
 
 
-int jumpElements_BF0A[] = { 0, 0, 0x80BD11 };
-int jumpElements_BD7A[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0x80BEF3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BD8E };
-int jumpElements_BCF9[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BD70 };
+int jumpElements_BCF9[] = { 0, 0, 0, 0, 0, 0, 0x80BEAE, 0, 0, 0, 0, 0, 0, 0, 0x80BD70 };
 int jumpElements_BD2D[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BEF2, 0, 0x80BF44 };
+int jumpElements_BD7A[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0x80BEF3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x80BD8E };
+
+int jumpElements_BEB8[] = { 0x80BEF7, 0x0, 0x80BF49, 0x0, 0x80BD10, 0x0, 0x80BD5C, 0x0, 0x80BDA9, 0x0, 0x80BDF7, 0x0, 0x80BE46, 0x0, 0x80BE96, 0x0, 0x80BED1, 0x0, 0x80BECC }; 
+
+int jumpElements_BF0A[] = { 0, 0, 0x80BD11 };
 int jumpElements_BF5D[] = { 0, 0, 0x80BD5E};
 int jumpValue = 0;
 int previousJumpValue = 0;
@@ -182,49 +185,60 @@ void SetJumpValue(int newValue)
 
 void Impl_BD11()
 {
-    unsigned char arrayIndex_6D = wram.ArrayIndex_6D();
+    regs.A *= 4;
 
-    unsigned char decompressed = decompressedValueDictionary_7E0500[arrayIndex_6D];
-    out.push_back(decompressed);
-    wram.LastWrittenValue_08() = decompressed;
-
-    wram.ShiftLeft_Key_6C();
-    wram.ShiftLeft_Key_6C();
-
-    unsigned short high = wram.Key_Byte_6C();
     unsigned char low = GetROMDataShort(wram.GetLongPointer_0C());
+    regs.A &= 0xFF00;
+    regs.A |= low;
+
     wram.IncrementPointer_0C();
 
-    unsigned short combinedKey = high | low;
-    wram.SetShort_6C(combinedKey);
+    regs.X = decompressedValueDictionary_7E0500[regs.Y];
+    out.push_back(regs.X);
+    wram.LastWrittenValue_08() = regs.X;
 
-    arrayIndex_6D = wram.ArrayIndex_6D();
-    int jumpElement = array_7E0600[arrayIndex_6D];
-    SetJumpValue(jumpElements_BD2D[jumpElement]);
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
+
+    unsigned short x = wram.GetShort(0x600 + regs.Y);
+    x &= 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= x;
+
+    SetJumpValue(jumpElements_BD2D[regs.X]);
 }
 
 void Impl_BD5E()
 {
-    int arrayIndex_6D = wram.ArrayIndex_6D(); // Might not be safe, we're technically supposed to save this before the jump.
+    regs.A *= 2;
 
-    unsigned char decompressed = decompressedValueDictionary_7E0500[arrayIndex_6D];
+    unsigned char low = GetROMDataShort(wram.GetLongPointer_0C());
+    regs.A &= 0xFF00;
+    regs.A |= low;
+
+    wram.IncrementPointer_0C();
+
+    regs.A *= 2;
+
+    unsigned short x = wram.GetShort(0x500 + regs.Y);
+    x &= 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= x;
+
+    unsigned char decompressed = x & 0xFF;
     out.push_back(decompressed);
     wram.LastWrittenValue_08() = decompressed;
 
-    wram.ShiftLeft_Key_6C();
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
 
-    unsigned short high = wram.Key_Byte_6C();
-    unsigned char low = GetROMDataShort(wram.GetLongPointer_0C());
-    wram.IncrementPointer_0C();
+    x = wram.GetShort(0x600 + regs.Y);
+    x &= 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= x;
 
-    unsigned short combinedKey = high | low;
-    wram.SetShort_6C(combinedKey);
 
-    wram.ShiftLeft_Key_6C();
-
-    arrayIndex_6D = wram.ArrayIndex_6D();
-    int jumpElement = array_7E0600[arrayIndex_6D];
-    SetJumpValue(jumpElements_BD7A[jumpElement]);
+    SetJumpValue(jumpElements_BD7A[regs.X]);
 
 }
 
@@ -239,8 +253,13 @@ void Impl_BD70()
 
 void Impl_BD8E()
 {
-    SetJumpValue(0x80C17C);
     regs.X = 0xE;
+    SetJumpValue(0x80C17C);
+}
+
+void Impl_BDA9()
+{
+
 }
 
 void Impl_BDE1()
@@ -287,14 +306,27 @@ void Impl_BEA4()
     wram.LastWrittenValue_08() = regs.X;
 
     wram.SetShort_6C(regs.A);
+
     regs.Y = wram.GetShort(0x6D);
     regs.Y &= 0xFF;
 
     regs.X = wram.GetShort(0x600 + regs.Y);
     regs.X &= 0xFF; // This is in 8-bit index mode
-    assert(regs.X == 0x12); // other values untested
 
-    SetJumpValue(0x80BECC);
+    SetJumpValue(jumpElements_BEB8[regs.X]);
+}
+
+void Impl_BEAE() // Could merge with last part of Impl_BEA4
+{
+    wram.SetShort_6C(regs.A);
+
+    regs.Y = wram.GetShort(0x6D);
+    regs.Y &= 0xFF;
+
+    regs.X = wram.GetShort(0x600 + regs.Y);
+    regs.X &= 0xFF; // This is in 8-bit index mode
+
+    SetJumpValue(jumpElements_BEB8[regs.X]);
 }
 
 void Impl_BEB5()
@@ -311,35 +343,40 @@ void Impl_BECC()
 
 void Impl_BEF2(int multiplier)
 {
-    int arrayIndex_6D = wram.ArrayIndex_6D();
-    unsigned char decompressed = decompressedValueDictionary_7E0500[arrayIndex_6D];
+    regs.A *= multiplier;
+
+    unsigned char decompressed = decompressedValueDictionary_7E0500[regs.Y];
     out.push_back(decompressed);
     wram.LastWrittenValue_08() = decompressed;
 
-    unsigned short key_6C = wram.GetShort(0x6C);
-    key_6C = key_6C * multiplier; // OK to overflow
-    wram.SetShort_6C(key_6C);
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
 
-    arrayIndex_6D = wram.ArrayIndex_6D();
-    int jumpElement = array_7E0600[arrayIndex_6D];
-    SetJumpValue(jumpElements_BF0A[jumpElement]);
+    unsigned short x = wram.GetShort(0x600 + regs.Y);
+    unsigned char xLow = x & 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= xLow;
+
+    SetJumpValue(jumpElements_BF0A[regs.X]);
 }
 
 void Impl_BF44()
 {
-    int arrayIndex_6D = wram.ArrayIndex_6D(); // Might not be safe, we're technically supposed to save this before the jump.
+    regs.A *= 128;
 
-    unsigned char decompressed = decompressedValueDictionary_7E0500[arrayIndex_6D];
+    unsigned char decompressed = decompressedValueDictionary_7E0500[regs.Y];
     out.push_back(decompressed);
     wram.LastWrittenValue_08() = decompressed;
 
-    unsigned short key_6C = wram.GetShort(0x6C);
-    key_6C = key_6C * 128; // OK to overflow
-    wram.SetShort_6C(key_6C);
+    wram.SetShort_6C(regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
 
-    arrayIndex_6D = wram.ArrayIndex_6D();
-    int jumpElement = array_7E0600[arrayIndex_6D];
-    SetJumpValue(jumpElements_BF5D[jumpElement]);
+    unsigned short x = wram.GetShort(0x600 + regs.Y);
+    unsigned char xLow = x & 0xFF;
+    regs.X &= 0xFF00;
+    regs.X |= xLow;
+
+    SetJumpValue(jumpElements_BF5D[regs.X]);
 }
 
 void Impl_BFDD()
@@ -531,16 +568,15 @@ void Impl_C10E()
 
 void Impl_C17C()
 {
-    unsigned char repeatingValue = 0;
-    int repeatCount = 0;
+    wram.GetLowByteOfShort(0x74, &regs.Y);
 
     Fn_C2DC();
     wram.SetShort_6C(regs.A);
 
     Fn_C232();
 
-    repeatingValue = wram.LastWrittenValue_08();
-    repeatCount = regs.A;
+    unsigned char repeatingValue = wram.LastWrittenValue_08();
+    int repeatCount = regs.A;
 
     if (repeatCount == 0)
     {
@@ -584,9 +620,11 @@ int main()
             case 0x80BD5E: Impl_BD5E(); break;
             case 0x80BD70: Impl_BD70(); break;
             case 0x80BD8E: Impl_BD8E(); break;
+            case 0x80BDA9: Impl_BDA9(); break;
             case 0x80BDE1: Impl_BDE1(); break;
             case 0x80BE0D: Impl_BE0D(); break;
             case 0x80BEA4: Impl_BEA4(); break;
+            case 0x80BEAE: Impl_BEAE(); break;
             case 0x80BEB5: Impl_BEB5(); break;
             case 0x80BECC: Impl_BECC(); break;
             case 0x80BEF2: Impl_BEF2(64); break;
