@@ -1,5 +1,4 @@
 
-
 > This lives in RAM dump offset 1A760, RAM address 7FA770
 
 To view in yychar, you have to seek to an odd number.
@@ -8,7 +7,7 @@ Function: LoadGameSetupScreen() - $80BBB3
 	; When this function returns, the setup screen is faded back in and displaying normally.
 	; This function takes care of the work of decompressing the logo graphics into RAM then transferring them into VRAM.
 
-$80/BBB3 E2 10       SEP #$10                A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBB3 E2 10       SEP #$10                A:8004 X:000C Y:0000 P:eNvmXdizc	; Use 8-bit indexing mode
 $80/BBB5 A5 0C       LDA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBB7 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBB8 69 05 00    ADC #$0005              A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -48,6 +47,7 @@ $80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBFB D0 05       BNE $05    [$BC02]      A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBFD 9E 40 07    STZ $0740,x[$97:074C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC00 80 D7       BRA $D7    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BC02 A5 75       LDA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC04 85 00       STA $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC06 A5 14       LDA $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -88,6 +88,7 @@ $80/BC47 D0 F7       BNE $F7    [$BC40]      A:8004 X:000C Y:0000 P:eNvMXdizc
 $80/BC49 DE 00 05    DEC $0500,x[$97:050C]   A:8004 X:000C Y:0000 P:eNvMXdizc
 $80/BC4C C2 20       REP #$20                A:8004 X:000C Y:0000 P:eNvMXdizc
 $80/BC4E 8E 80 21    STX $2180  [$97:2180]   A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BC51 C6 77       DEC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC53 D0 E5       BNE $E5    [$BC3A]      A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC55 98          TYA                     A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -173,13 +174,9 @@ $80/BCEC BF D0 BF DD LDA $DDBFD0,x[$DD:BFDC] A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BCF0 BF EF BF 06 LDA $06BFEF,x[$06:BFFB] A:8004 X:000C Y:0000 P:eNvmXdizc
 
 Data:
-$80/BCF4 C0 22 C0 43 C0 00 00 53
+$80/BCF4 C0 22 C0 43 C0 
 
-$80/BCFC BF 00 BF AE LDA $AEBF00,x[$AE:BF0C] A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD00 BE 5D BE    LDX $BE5D,y[$97:BE5D]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD03 0D BE BE    ORA $BEBE  [$97:BEBE]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD06 BD 70 BD    LDA $BD70,x[$97:BD7C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD09 23 BD       AND $BD,s  [$00:20AB]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BCF9 00 00 53 BF 00 BF AE BE 5D BE 0D BE BE BD 70 BD 23 BD 
 
 $80/BD0B 0A          ASL A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BD0C 0A          ASL A                   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -202,6 +199,7 @@ $80/BD25 A4 6D       LDY $6D    [$00:006D]   A:F68F X:0000 Y:003D P:envmXdiZc
 $80/BD27 BE 00 06    LDX $0600,y[$81:06F6]   A:F68F X:0000 Y:00F6 P:eNvmXdizc
 $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD46] A:F68F X:0010 Y:00F6 P:envmXdizc	; can go to BD46 or BD41
 
+; This is an array of short pointers, jumpable locations
 $80/BD2D 67 BD B4 BD 02 BE 51 BE A1 BE F2 BE 44 BF 0B BD 46 BD 41 BD
 
 $80/BD41 A2 10       LDX #$10                A:A655 X:0012 Y:00A6 P:envmXdizc
@@ -237,15 +235,8 @@ $80/BD72 A4 6D       LDY $6D    [$00:006D]   A:CBF0 X:0002 Y:0000 P:envmXdiZc
 $80/BD74 BE 00 06    LDX $0600,y[$81:06CB]   A:CBF0 X:0002 Y:00CB P:eNvmXdizc
 $80/BD77 7C 7A BD    JMP ($BD7A,x)[$80:BD93] A:CBF0 X:0010 Y:00CB P:envmXdizc	; Can go to 80BD8E
 
-$80/BD7A B5 BD       LDA $BD,x  [$00:00C9]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Likely not real code. Taken from disassembly of range
-$80/BD7C 03 BE       ORA $BE,s  [$00:20AC]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD7E 52 BE       EOR ($BE)  [$97:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD80 A2 BE       LDX #$BE                A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD82 F3 BE       SBC ($BE,s),y[$97:1616] A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD84 45 BF       EOR $BF    [$00:00BF]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD86 0C BD 58    TSB $58BD  [$97:58BD]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD89 BD 93 BD    LDA $BD93,x[$97:BD9F]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BD8C 8E BD A2    STX $A2BD  [$97:A2BD]   A:8004 X:000C Y:0000 P:eNvmXdizc	; End non code. Note how the last op steals a byte from the first real next op
+; Array of short pointers, jumpable
+$80/BD7A B5 BD 03 BE 52 BE A2 BE F3 BE 45 BF 0C BD 58 BD 93 BD 8E BD A2
 
 $80/BD8E A2 0E       LDX #$0E                A:B640 X:0012 Y:00B6 P:envmXdizc
 $80/BD90 4C 7C C1    JMP $C17C  [$80:C17C]   A:B640 X:000E Y:00B6 P:envmXdizc
@@ -439,17 +430,7 @@ $80/BF02 A4 6D       LDY $6D    [$00:006D]   A:3D80 X:00EF Y:00C5 P:eNvmXdizC
 $80/BF04 BE 00 06    LDX $0600,y[$81:063D]   A:3D80 X:00EF Y:003D P:envmXdizC
 $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:3D80 X:0002 Y:003D P:envmXdizC	; Can go to BE47
 
-$80/BF0A 4A          LSR A                   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF0B BF 11 BD 5D LDA $5DBD11,x[$5D:BD1D] A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF0F BD AA BD    LDA $BDAA,x[$97:BDB6]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF12 F8          SED                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF13 BD 47 BE    LDA $BE47,x[$97:BE53]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF16 97 BE       STA [$BE],y[$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF18 E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF19 BE 23 BF    LDX $BF23,y[$97:BF23]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF1C 1E BF A2    ASL $A2BF,x[$97:A2CB]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF1F 04 4C       TSB $4C    [$00:004C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BF21 7C C1 A2    JMP ($A2C1,x)[$80:ABC7] A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BF0A 4A BF 11 BD 5D BD AA BD F8 BD 47 BE 97 BE E8 BE 23 BF 1E BF A2 04 4C 7C C1 A2
 
 $80/BF24 04 64       TSB $64    [$00:0064]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BF26 6A          ROR A                   A:8004 X:000C Y:0000 P:eNvmXdizc
