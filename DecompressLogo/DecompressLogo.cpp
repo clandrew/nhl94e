@@ -60,6 +60,12 @@ struct Wram
         SetShort(0x6C, val);
     }
 
+    void SetLowByteOfShort(int addr, unsigned short val)
+    {
+        unsigned char ch0 = val & 0xFF;
+        Data[addr] = ch0;
+    }
+
     void SetShort(int addr, unsigned short val)
     {
         unsigned char ch0 = val & 0xFF;
@@ -82,6 +88,13 @@ struct Wram
     {
         unsigned char ch0 = Data[addr];
         return ch0;
+    }
+
+    void GetLowByteOfShort(int addr, unsigned short* result)
+    {
+        unsigned char ch0 = Data[addr];
+        *result &= 0xFF00;
+        *result |= ch0;
     }
 
     unsigned short GetShort(int addr)
@@ -217,10 +230,11 @@ void Impl_BD5E()
 
 void Impl_BD70()
 {
-    unsigned short key_6C = wram.GetShort_6C();
-    unsigned char jumpSeek = key_6C >> 8;
-    int jumpElement = array_7E0600[jumpSeek];
-    SetJumpValue(jumpElements_BD7A[jumpElement]);
+    wram.SetLowByteOfShort(0x6C, regs.A);
+    wram.GetLowByteOfShort(0x6D, &regs.Y);
+
+    regs.X = array_7E0600[regs.Y];
+    SetJumpValue(jumpElements_BD7A[regs.X]);
 }
 
 void Impl_BD8E()
@@ -392,14 +406,15 @@ void Fn_C2DC()
     } while (regs.Y > 0);
 }
 
-unsigned short RotateLeft(unsigned short v)
+unsigned short RotateLeft(unsigned short v, bool& carry)
 {
     bool high = v >= 0x8000;
     v = v << 1;
-    if (high)
+    if (carry)
     {
         v |= 1;
     }
+    carry = high;
     return v;
 }
 
@@ -407,8 +422,10 @@ void Fn_C232()
 {
     // Postconditions: Result1_08 contains the repeated value and Result0_A contains the repeat count.
 
+    wram.SetShort(0x6F, 0);
+
     regs.A = wram.GetShort_6C();
-    bool shift = regs.A > 0x7FFF;
+    bool carry = regs.A > 0x7FFF;
     regs.A = regs.A * 2;
 
     regs.X-=2;
@@ -420,10 +437,10 @@ void Fn_C232()
     }
     else
     {
-        if (!shift) // went to C277
+        if (!carry) // went to C277
         {
             regs.Y = 2;
-            bool shift = regs.A > 0x7FFF;
+            bool carry = regs.A > 0x7FFF;
             regs.A = regs.A * 2;
             regs.X -= 2;
             if (regs.X == 0)
@@ -432,7 +449,7 @@ void Fn_C232()
                 assert(false);
             }
             regs.Y++;
-            if (!shift)
+            if (!carry)
             {
                 // goto c279
                 assert(false);
@@ -443,8 +460,13 @@ void Fn_C232()
 
                 while (1) // C283
                 {
+                    carry = regs.A > 0x7FFF;
                     regs.A = regs.A * 2;
-                    wram.SetShort(0x6F, RotateLeft(wram.GetShort(0x6F)));
+
+                    unsigned short val1 = wram.GetShort(0x6f);
+                    unsigned short val2 = RotateLeft(val1, carry);
+                    wram.SetShort(0x6F, val2);
+
                     regs.X -= 2;
                     if (regs.X == 0)
                     {
@@ -517,8 +539,6 @@ void Impl_C17C()
 
     Fn_C232();
 
-    // Supposed to return 9, E, E
-
     repeatingValue = wram.LastWrittenValue_08();
     repeatCount = regs.A;
 
@@ -532,6 +552,8 @@ void Impl_C17C()
     {
         out.push_back(repeatingValue);
     }
+
+    regs.A = wram.GetShort_6C();
 
     SetJumpValue(jumpElements_BCF9[regs.X]);
 }
