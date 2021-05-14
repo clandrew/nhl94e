@@ -962,6 +962,9 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         teamVenueTextBox->Text = "TRIA Rink";
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
     }
+
+    // Here: set a change to the logo
+
 #endif
 }
 
