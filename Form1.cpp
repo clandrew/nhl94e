@@ -2177,10 +2177,28 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
     {
         ObjectCode code;        
 
+        code.m_code.push_back(0xC2); // REP 10
+        code.m_code.push_back(0x10);
+
         // Write all 0s to 0x7FA675 thru 0x7FA675 + 0x380
+        // LDX 0380
+        code.m_code.push_back(0xA2);
+        code.m_code.push_back(0x80);
+        code.m_code.push_back(0x03);
 
         code.AppendLoadAccImmediate_A9_16bit(0);
-        code.AppendStoreLong_8F(0x7FA675);
+        
+        // STA long,X
+        code.m_code.push_back(0x9F);
+        code.AppendLongAddress(0x7FA675);
+
+        code.m_code.push_back(0xCA);// DEX
+
+        code.m_code.push_back(0xD0);// BNE loop
+        code.m_code.push_back(0xF9);
+
+        code.m_code.push_back(0xE2); // SEP 10
+        code.m_code.push_back(0x10);
         code.AppendReturnLong();
 
         freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
