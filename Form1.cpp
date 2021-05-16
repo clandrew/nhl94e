@@ -126,6 +126,373 @@ enum class Team
     Count
 };
 
+unsigned char ChrToHex(wchar_t ch)
+{
+    if (ch >= L'0' && ch <= L'9')
+    {
+        return ch - L'0';
+    }
+    else if (ch >= L'A' && ch <= L'F')
+    {
+        return ch - L'A' + 10;
+    }
+    else
+    {
+        assert(false); //Unexpected value
+        return 0;
+    }
+}
+
+unsigned char StrToHex(std::wstring s)
+{
+    assert(s.length() == 2);
+    unsigned char d0 = ChrToHex(s[0]);
+    unsigned char d1 = ChrToHex(s[1]);
+    return (d0 * 16) + d1;
+}
+
+static std::vector<unsigned char> asm_LoadLongAddress_ArrayElement_Into_8D_txt;
+
+struct ObjectCode
+{
+    std::vector<unsigned char> m_code;
+
+    void PatchLoadLongAddressIn8D_Code(int expectedAddress)
+    {
+        // Operates on this kind of sequence
+        /*
+        A9 A0 00    LDA #$00A0  ; Upper short
+        85 8F       STA $8F
+        A9 00 82    LDA #$8200  ; Lower short
+        85 8D       STA $8D
+        */
+
+        int sequenceFound = 0;
+        for (int i = 0; i < m_code.size() - 9; ++i)
+        {
+            if (m_code[i + 0] == 0xA9 &&
+                m_code[i + 3] == 0x85 && m_code[i + 4] == 0x8F &&
+                m_code[i + 5] == 0xA9 &&
+                m_code[i + 8] == 0x85 &&
+                m_code[i + 9] == 0x8D)
+            {
+                int address =
+                    m_code[i + 2] << 24 |
+                    m_code[i + 1] << 16 |
+                    m_code[i + 7] << 8 |
+                    m_code[i + 6] << 0;
+                if (address != expectedAddress)
+                {
+                    int temp = expectedAddress;
+                    m_code[i + 6] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 7] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 1] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 2] = temp & 0xFF;
+
+                    int newAddress =
+                        m_code[i + 2] << 24 |
+                        m_code[i + 1] << 16 |
+                        m_code[i + 7] << 8 |
+                        m_code[i + 6] << 0;
+                    assert(newAddress == expectedAddress);
+                }
+
+                ++sequenceFound;
+            }
+        }
+
+        assert(sequenceFound == 1);
+    }
+
+    void PatchLoadFromLongAddress_LookupPlayerNameDet(int expectedAddress)
+    {
+        // Operates on this kind of sequence
+        /*
+        AA                   TAX
+        BF 00 D0 A8          LDA 0xA8D000,x
+        85 89                STA $89
+        E8                   INX
+        E8                   INX
+        BF 00 D0 A8          LDA 0xA8D000,x
+        85 8B                STA $8B
+        */
+
+        int sequenceFound = 0;
+        for (int i = 0; i < m_code.size() - 15; ++i)
+        {
+            if (m_code[i + 0] == 0xAA &&
+                m_code[i + 1] == 0xBF &&
+                m_code[i + 5] == 0x85 && m_code[i + 6] == 0x89 &&
+                m_code[i + 7] == 0xE8 &&
+                m_code[i + 8] == 0xE8 &&
+                m_code[i + 9] == 0xBF &&
+                m_code[i + 13] == 0x85 && m_code[i + 14] == 0x8B)
+            {
+                int address0 =
+                    m_code[i + 4] << 16 |
+                    m_code[i + 3] << 8 |
+                    m_code[i + 2] << 0;
+
+                if (address0 != expectedAddress)
+                {
+                    int temp = expectedAddress;
+                    m_code[i + 2] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 3] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 4] = temp & 0xFF;
+                    temp >>= 8;
+
+                    int newAddress =
+                        m_code[i + 4] << 16 |
+                        m_code[i + 3] << 8 |
+                        m_code[i + 2] << 0;
+                    assert(newAddress == expectedAddress);
+                }
+
+                int address1 =
+                    m_code[i + 12] << 16 |
+                    m_code[i + 11] << 8 |
+                    m_code[i + 10] << 0;
+
+                if (address1 != expectedAddress)
+                {
+                    int temp = expectedAddress;
+                    m_code[i + 10] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 11] = temp & 0xFF;
+                    temp >>= 8;
+                    m_code[i + 12] = temp & 0xFF;
+                    temp >>= 8;
+
+                    int newAddress =
+                        m_code[i + 12] << 16 |
+                        m_code[i + 11] << 8 |
+                        m_code[i + 10] << 0;
+                    assert(newAddress == expectedAddress);
+                }
+            }
+        }
+    }
+
+    void AppendReturnLong()
+    {
+        m_code.push_back(0x6B);
+    }
+
+    void AppendLongAddress(int addr)
+    {
+        unsigned char c;
+        c = addr & 0xFF;
+        m_code.push_back(c);
+        addr >>= 8;
+
+        c = addr & 0xFF;
+        m_code.push_back(c);
+        addr >>= 8;
+
+        c = addr & 0xFF;
+        m_code.push_back(c);
+        addr >>= 8;
+
+        assert(addr == 0); // Needs to be 24 bits
+
+    }
+
+    void AppendLoadAccImmediate_A9_16bit(int imm)
+    {
+        m_code.push_back(0xA9);
+        AppendShortImmediate(imm);
+    }
+
+    void AppendStoreLong_8F(int addr)
+    {
+        m_code.push_back(0x8F);
+        AppendLongAddress(addr);
+    }
+
+    void AppendLoadDirect_A5(unsigned char c)
+    {
+        m_code.push_back(0xA5);
+        m_code.push_back(c);
+    }
+
+    void AppendIncAcc_1A()
+    {
+        m_code.push_back(0x1A);
+    }
+
+    void AppendIncY_C8()
+    {
+        m_code.push_back(0xC8);
+    }
+
+    void AppendLoadYImmediate_A0(int imm)
+    {
+        m_code.push_back(0xA0);
+        AppendShortImmediate(imm);
+    }
+
+    void AppendLoadLong_AF(int addr)
+    {
+        m_code.push_back(0xAF);
+        AppendLongAddress(addr);
+    }
+
+    void AppendLoadDirectFromLongPointer_A7(unsigned char c)
+    {
+        m_code.push_back(0xA7);
+        m_code.push_back(c);
+    }
+
+    void AppendLoadDirectFromLongPointer_YIndexed_B7(unsigned char c)
+    {
+        m_code.push_back(0xB7);
+        m_code.push_back(c);
+    }
+
+    void AppendStoreDirectFromLongPointer_87(unsigned char c)
+    {
+        m_code.push_back(0x87);
+        m_code.push_back(c);
+    }
+
+    void AppendPushAcc_48()
+    {
+        m_code.push_back(0x48);
+    }
+
+    void AppendPullAcc_68()
+    {
+        m_code.push_back(0x68);
+    }
+
+    void AppendStoreDirect_85(unsigned char c)
+    {
+        m_code.push_back(0x85);
+        m_code.push_back(c);
+    }
+
+    void AppendArithmaticShiftAccLeft_0A()
+    {
+        m_code.push_back(0x0A);
+    }
+
+    void AppendShortImmediate(int imm)
+    {
+        unsigned char c;
+        c = imm & 0xFF;
+        m_code.push_back(c);
+        imm >>= 8;
+
+        c = imm & 0xFF;
+        m_code.push_back(c);
+        imm >>= 8;
+
+        assert(imm == 0); // Needs to be 16 bits
+    }
+
+    void AppendAndImmediate_29(int imm)
+    {
+        m_code.push_back(0x29);
+        AppendShortImmediate(imm);
+    }
+
+    void AppendLongJump(int addr)
+    {
+        m_code.push_back(0x5C);
+        AppendLongAddress(addr);
+    }
+
+    void AppendStoreZeroA5()
+    {
+        // 64 A5                STZ $A5
+        m_code.push_back(0x64);
+        m_code.push_back(0xA5);
+    }
+
+    void AppendJumpSubroutineLong(int addr)
+    {
+        m_code.push_back(0x22);
+        AppendLongAddress(addr);
+    }
+
+    void PrependCode(unsigned char code[], int codeSize)
+    {
+        for (int i = codeSize - 1; i >= 0; --i)
+        {
+            m_code.insert(m_code.begin(), code[i]);
+        }
+    }
+
+    void LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt()
+    {
+        if (asm_LoadLongAddress_ArrayElement_Into_8D_txt.size() == 0)
+        {
+            asm_LoadLongAddress_ArrayElement_Into_8D_txt = LoadAsmFromDebuggerTextImpl(L"LoadLongAddress_ArrayElement_Into_8D.asm");
+        }
+
+        m_code = asm_LoadLongAddress_ArrayElement_Into_8D_txt;
+    }
+
+    static std::vector<unsigned char> LoadAsmFromDebuggerTextImpl(std::wstring fileName)
+    {
+        std::vector<unsigned char> code;
+        std::wifstream f(fileName);
+        std::vector<std::wstring> lines;
+        while (f.good())
+        {
+            std::wstring line;
+            std::getline(f, line);
+
+            size_t commentIndex = line.find(L"//");
+            std::wstring uncomment = line.substr(0, commentIndex);
+            if (uncomment.length() == 0)
+                continue;
+
+            std::wstring removeAddress;
+            if (uncomment[0] == L'$')
+            {
+                removeAddress = uncomment.substr(9);
+            }
+            else
+            {
+                removeAddress = uncomment;
+            }
+
+            if (removeAddress[0] == L'\t' || removeAddress[0] == L' ')
+                continue;
+
+            std::wistringstream strm(removeAddress);
+            std::wstring tokens[4];
+
+            strm >> tokens[0];
+            strm >> tokens[1];
+            strm >> tokens[2];
+            strm >> tokens[3];
+
+            for (int i = 0; i < 4; ++i)
+            {
+                if (tokens[i].length() > 2)
+                    break;
+
+                unsigned char b = StrToHex(tokens[i]);
+
+                code.push_back(b);
+            }
+        }
+        return code;
+    }
+
+    void LoadAsmFromDebuggerText(std::wstring fileName)
+    {
+        m_code = LoadAsmFromDebuggerTextImpl(fileName);
+    }
+};
+
 class RomDataIterator
 {
     int m_fileOffset;
@@ -271,6 +638,16 @@ public:
             s_romData.Set(m_fileOffset, bytes[i]);
             ++m_fileOffset;
         }
+    }
+
+    void SaveObjectCode(ObjectCode* code)
+    {
+        for (int i = 0; i < code->m_code.size(); ++i)
+        {
+            s_romData.Set(m_fileOffset, code->m_code[i]);
+            ++m_fileOffset;
+        }
+
     }
 
     void SkipROMString()
@@ -963,8 +1340,6 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
     }
 
-    // Here: set a change to the logo
-
 #endif
 }
 
@@ -994,367 +1369,6 @@ System::Void nhl94e::Form1::Form1_Load(System::Object^ sender, System::EventArgs
 #endif
 
 }
-
-unsigned char ChrToHex(wchar_t ch)
-{
-    if (ch >= L'0' && ch <= L'9')
-    {
-        return ch - L'0';
-    }
-    else if (ch >= L'A' && ch <= L'F')
-    {
-        return ch - L'A' + 10;
-    }
-    else
-    {
-        assert(false); //Unexpected value
-        return 0;
-    }
-}
-
-unsigned char StrToHex(std::wstring s)
-{
-    assert(s.length() == 2);
-    unsigned char d0 = ChrToHex(s[0]);
-    unsigned char d1 = ChrToHex(s[1]);
-    return (d0 * 16) + d1;
-}
-
-static std::vector<unsigned char> asm_LoadLongAddress_ArrayElement_Into_8D_txt;
-
-struct ObjectCode
-{
-    std::vector<unsigned char> m_code;
-
-    void PatchLoadLongAddressIn8D_Code(int expectedAddress)
-    {
-        // Operates on this kind of sequence
-        /*
-        A9 A0 00    LDA #$00A0  ; Upper short
-        85 8F       STA $8F
-        A9 00 82    LDA #$8200  ; Lower short
-        85 8D       STA $8D
-        */
-
-        int sequenceFound = 0;
-        for (int i = 0; i < m_code.size() - 9; ++i)
-        {
-            if (m_code[i + 0] == 0xA9 &&
-                m_code[i + 3] == 0x85 && m_code[i + 4] == 0x8F &&
-                m_code[i + 5] == 0xA9 &&
-                m_code[i + 8] == 0x85 &&
-                m_code[i + 9] == 0x8D)
-            {
-                int address =
-                    m_code[i + 2] << 24 |
-                    m_code[i + 1] << 16 |
-                    m_code[i + 7] << 8 |
-                    m_code[i + 6] << 0;
-                if (address != expectedAddress)
-                {
-                    int temp = expectedAddress;
-                    m_code[i + 6] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 7] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 1] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 2] = temp & 0xFF;
-
-                    int newAddress =
-                        m_code[i + 2] << 24 |
-                        m_code[i + 1] << 16 |
-                        m_code[i + 7] << 8 |
-                        m_code[i + 6] << 0;
-                    assert(newAddress == expectedAddress);
-                }
-
-                ++sequenceFound;
-            }
-        }
-
-        assert(sequenceFound == 1);
-    }
-
-    void PatchLoadFromLongAddress_LookupPlayerNameDet(int expectedAddress)
-    {
-        // Operates on this kind of sequence
-        /*
-        AA                   TAX
-        BF 00 D0 A8          LDA 0xA8D000,x
-        85 89                STA $89
-        E8                   INX
-        E8                   INX
-        BF 00 D0 A8          LDA 0xA8D000,x
-        85 8B                STA $8B
-        */
-
-        int sequenceFound = 0;
-        for (int i = 0; i < m_code.size() - 15; ++i)
-        {
-            if (m_code[i + 0] == 0xAA &&
-                m_code[i + 1] == 0xBF &&
-                m_code[i + 5] == 0x85 && m_code[i + 6] == 0x89 &&
-                m_code[i + 7] == 0xE8 &&
-                m_code[i + 8] == 0xE8 &&
-                m_code[i + 9] == 0xBF &&
-                m_code[i + 13] == 0x85 && m_code[i + 14] == 0x8B)
-            {
-                int address0 =
-                    m_code[i + 4] << 16 |
-                    m_code[i + 3] << 8 |
-                    m_code[i + 2] << 0;
-
-                if (address0 != expectedAddress)
-                {
-                    int temp = expectedAddress;
-                    m_code[i + 2] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 3] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 4] = temp & 0xFF;
-                    temp >>= 8;
-
-                    int newAddress =
-                        m_code[i + 4] << 16 |
-                        m_code[i + 3] << 8 |
-                        m_code[i + 2] << 0;
-                    assert(newAddress == expectedAddress);
-                }
-
-                int address1 =
-                    m_code[i + 12] << 16 |
-                    m_code[i + 11] << 8 |
-                    m_code[i + 10] << 0;
-
-                if (address1 != expectedAddress)
-                {
-                    int temp = expectedAddress;
-                    m_code[i + 10] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 11] = temp & 0xFF;
-                    temp >>= 8;
-                    m_code[i + 12] = temp & 0xFF;
-                    temp >>= 8;
-
-                    int newAddress =
-                        m_code[i + 12] << 16 |
-                        m_code[i + 11] << 8 |
-                        m_code[i + 10] << 0;
-                    assert(newAddress == expectedAddress);
-                }
-            }
-        }
-    }
-
-    void AppendReturnLong()
-    {
-        m_code.push_back(0x6B);
-    }
-
-    void AppendLongAddress(int addr)
-    {
-        unsigned char c;
-        c = addr & 0xFF;
-        m_code.push_back(c);
-        addr >>= 8;
-
-        c = addr & 0xFF;
-        m_code.push_back(c);
-        addr >>= 8;
-
-        c = addr & 0xFF;
-        m_code.push_back(c);
-        addr >>= 8;
-
-        assert(addr == 0); // Needs to be 24 bits
-
-    }
-
-    void AppendLoadAccImmediate_A9(int imm)
-    {
-        m_code.push_back(0xA9);
-        AppendShortImmediate(imm);
-    }
-
-    void AppendLoadDirect_A5(unsigned char c)
-    {
-        m_code.push_back(0xA5);
-        m_code.push_back(c);
-    }
-
-    void AppendIncAcc_1A()
-    {
-        m_code.push_back(0x1A);
-    }
-
-    void AppendIncY_C8()
-    {
-        m_code.push_back(0xC8);
-    }
-
-    void AppendLoadYImmediate_A0(int imm)
-    {
-        m_code.push_back(0xA0);
-        AppendShortImmediate(imm);
-    }
-
-    void AppendLoadLong_AF(int addr)
-    {
-        m_code.push_back(0xAF);
-        AppendLongAddress(addr);
-    }
-
-    void AppendLoadDirectFromLongPointer_A7(unsigned char c)
-    {
-        m_code.push_back(0xA7);
-        m_code.push_back(c);
-    }
-
-    void AppendLoadDirectFromLongPointer_YIndexed_B7(unsigned char c)
-    {
-        m_code.push_back(0xB7);
-        m_code.push_back(c);
-    }
-
-    void AppendStoreDirectFromLongPointer_87(unsigned char c)
-    {
-        m_code.push_back(0x87);
-        m_code.push_back(c);
-    }
-
-    void AppendPushAcc_48()
-    {
-        m_code.push_back(0x48);
-    }
-
-    void AppendPullAcc_68()
-    {
-        m_code.push_back(0x68);
-    }
-
-    void AppendStoreDirect_85(unsigned char c)
-    {
-        m_code.push_back(0x85);
-        m_code.push_back(c);
-    }
-
-    void AppendArithmaticShiftAccLeft_0A()
-    {
-        m_code.push_back(0x0A);
-    }
-
-    void AppendShortImmediate(int imm)
-    {
-        unsigned char c;
-        c = imm & 0xFF;
-        m_code.push_back(c);
-        imm >>= 8;
-
-        c = imm & 0xFF;
-        m_code.push_back(c);
-        imm >>= 8;
-
-        assert(imm == 0); // Needs to be 16 bits
-    }
-
-    void AppendAndImmediate_29(int imm)
-    {
-        m_code.push_back(0x29);
-        AppendShortImmediate(imm);
-    }
-
-    void AppendLongJump(int addr)
-    {
-        m_code.push_back(0x5C);
-        AppendLongAddress(addr);
-    }
-
-    void AppendStoreZeroA5()
-    {
-        // 64 A5                STZ $A5
-        m_code.push_back(0x64);
-        m_code.push_back(0xA5);
-    }
-
-    void AppendJumpSubroutineLong(int addr)
-    {
-        m_code.push_back(0x22);
-        AppendLongAddress(addr);
-    }
-
-    void PrependCode(unsigned char code[], int codeSize)
-    {
-        for (int i = codeSize-1; i >= 0; --i)
-        {
-            m_code.insert(m_code.begin(), code[i]);
-        }
-    } 
-
-    void LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt()
-    {
-        if (asm_LoadLongAddress_ArrayElement_Into_8D_txt.size() == 0)
-        {
-            asm_LoadLongAddress_ArrayElement_Into_8D_txt = LoadAsmFromDebuggerTextImpl(L"LoadLongAddress_ArrayElement_Into_8D.asm");
-        }
-
-        m_code = asm_LoadLongAddress_ArrayElement_Into_8D_txt;
-    }
-
-    static std::vector<unsigned char> LoadAsmFromDebuggerTextImpl(std::wstring fileName)
-    {
-        std::vector<unsigned char> code;
-        std::wifstream f(fileName);
-        std::vector<std::wstring> lines;
-        while (f.good())
-        {
-            std::wstring line;
-            std::getline(f, line);
-
-            size_t commentIndex = line.find(L"//");
-            std::wstring uncomment = line.substr(0, commentIndex);
-            if (uncomment.length() == 0)
-                continue;
-
-            std::wstring removeAddress;
-            if (uncomment[0] == L'$')
-            {
-                removeAddress = uncomment.substr(9);
-            }
-            else
-            {
-                removeAddress = uncomment;
-            }
-
-            if (removeAddress[0] == L'\t' || removeAddress[0] == L' ')
-                continue;
-
-            std::wistringstream strm(removeAddress);
-            std::wstring tokens[4];
-
-            strm >> tokens[0];
-            strm >> tokens[1];
-            strm >> tokens[2];
-            strm >> tokens[3];
-
-            for (int i = 0; i < 4; ++i)
-            {
-                if (tokens[i].length() > 2)
-                    break;
-
-                unsigned char b = StrToHex(tokens[i]);
-
-                code.push_back(b);
-            }
-        }
-        return code;
-    }
-
-    void LoadAsmFromDebuggerText(std::wstring fileName)
-    {
-        m_code = LoadAsmFromDebuggerTextImpl(fileName);
-    }
-};
 
 bool InsertJumpOutDetour(
     std::vector<unsigned char> const& detourCode,
@@ -1648,9 +1662,9 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString.AppendArithmaticShiftAccLeft_0A(); // Multiply team index by 4 to turn into an offset
         code_LoadGameMenuString.m_code.push_back(0xA8); // TAY. Y == offset
 
-        code_LoadGameMenuString.AppendLoadAccImmediate_A9(tableHigh);
+        code_LoadGameMenuString.AppendLoadAccImmediate_A9_16bit(tableHigh);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
-        code_LoadGameMenuString.AppendLoadAccImmediate_A9(tableLow);
+        code_LoadGameMenuString.AppendLoadAccImmediate_A9_16bit(tableLow);
         code_LoadGameMenuString.AppendStoreDirect_85(0xA9);
 
         // Load pointer table address. Subsequent loader code is set up to understand a long
@@ -1730,9 +1744,9 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code.AppendArithmaticShiftAccLeft_0A();
         code.m_code.push_back(0xA8); // TAY
 
-        code.AppendLoadAccImmediate_A9(tableHigh);
+        code.AppendLoadAccImmediate_A9_16bit(tableHigh);
         code.AppendStoreDirect_85(0x0E);
-        code.AppendLoadAccImmediate_A9(tableLow);
+        code.AppendLoadAccImmediate_A9_16bit(tableLow);
         code.AppendStoreDirect_85(0x0C);
 
         code.AppendLoadDirectFromLongPointer_YIndexed_B7(0x0C);
@@ -2157,6 +2171,53 @@ bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)
     return true;
 }
 
+bool InsertLogo(RomDataIterator* freeSpaceIter)
+{
+    int montrealRoutineROMAddress = 0;
+    {
+        ObjectCode code;        
+
+        // Write all 0s to 0x7FA675 thru 0x7FA675 + 0x380
+
+        code.AppendLoadAccImmediate_A9_16bit(0);
+        code.AppendStoreLong_8F(0x7FA675);
+        code.AppendReturnLong();
+
+        freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
+        montrealRoutineROMAddress = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveObjectCode(&code);
+    }
+    {
+        ObjectCode code;
+
+        // If 0C-0E contains 9AE99E, that's the montreal logo.
+        code.AppendLoadDirect_A5(0x0D);
+        code.m_code.push_back(0xC9);    // CMP
+        code.m_code.push_back(0xE9);
+        code.m_code.push_back(0x9A);
+
+        code.m_code.push_back(0xD0); // BNE
+        code.m_code.push_back(0x04); 
+        code.AppendJumpSubroutineLong(montrealRoutineROMAddress);
+
+        // Required payload. Keep this last.
+        //              LDA 6C
+        // 30 04        BMI 04
+        // __ __ __ __  JMP 80C199
+        // __ __ __ __  JMP 80C1AF
+        code.AppendLoadDirect_A5(0x6C);
+        code.m_code.push_back(0x30);
+        code.m_code.push_back(0x04);
+        code.AppendLongJump(0x80C199);
+        code.AppendLongJump(0x80C1AF);
+
+        freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
+        InsertJumpOutDetour(code.m_code, 0x80C195, 0x80C197 + 2, freeSpaceIter);
+    }
+
+    return true;
+}
+
 struct TeamSubheaderPaletteDescription
 {
     int DataAddress;
@@ -2302,6 +2363,11 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
         MessageBox::Show(dialogString);
+        return;
+    }
+
+    if (!InsertLogo(&freeSpaceIter))
+    {
         return;
     }
 
