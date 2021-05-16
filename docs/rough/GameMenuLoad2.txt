@@ -15,6 +15,61 @@ Function: LoadCompressedGraphics() - $80BBB3
 		9AD88C - Title screen, 2
 		91B188 - Title screen, 3
 		
+		9AC1F3 - Game Setup screen, 1
+						DMA[1]: CPU->PPU Mode:1 0x7F0000->0x2118 Bytes:2A0 (inc) V:195 VRAM: 36F0 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x9C8098->0x2118 Bytes:140 (inc) V:200 VRAM: 3840 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x9C81F0->0x2118 Bytes:120 (inc) V:203 VRAM: 38E0 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x7F0000->0x2118 Bytes:D00 (inc) V:011 VRAM: 1000 (1,0) word
+						
+		938000 - Game Setup screen, 2	DMA[1]: CPU->PPU Mode:1 0x7F0000->0x2118 Bytes:1880 (inc) V:252 VRAM: 1680 (1,0) word
+		9AB7A1 - Game Setup screen, 3
+		9AE972 - Game Setup screen, 4
+						DMA[1]: CPU->PPU Mode:1 0x7E3FF4->0x2118 Bytes:800 (inc) V:154 VRAM: 0400 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x7FA299->0x2118 Bytes:1C0 (inc) V:227 VRAM: 6000 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x7FA459->0x2118 Bytes:1C0 (inc) V:231 VRAM: 6100 (1,0) word
+						
+						DMA[0]: CPU->PPU Mode:1 0x7FA675->0x2118 Bytes:1C0 (inc) V:234 VRAM: 6200 (1,0) word	Montreal0						
+						DMA[0]: CPU->PPU Mode:1 0x7FA835->0x2118 Bytes:1C0 (inc) V:238 VRAM: 6300 (1,0) word	Montreal1
+						DMA[0]: CPU->PPU Mode:0 0x7E2100->0x2104 Bytes:220 (inc) V:241 OBJADDR: 0000
+						
+						DMA[1]: CPU->PPU Mode:1 0x7E3834->0x2118 Bytes:300 (inc) V:261 VRAM: 0020 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x7E4034->0x2118 Bytes:300 (inc) V:005 VRAM: 0420 (1,0) word
+						DMA[1]: CPU->PPU Mode:0 0x7F7500->0x2122 Bytes:200 (inc) V:111 CGRAM: 00 (0)
+						DMA[1]: CPU->PPU Mode:1 0x7E37F4->0x2118 Bytes:800 (inc) V:129 VRAM: 0000 (1,0) word
+						
+						DMA[0]: CPU->PPU Mode:1 0x92AC6B->0x2118 Bytes:60 (inc) V:227 VRAM: 6400 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92ACCB->0x2118 Bytes:40 (inc) V:229 VRAM: 6500 (1,0) word	Montreal
+						DMA[0]: CPU->PPU Mode:1 0x92A845->0x2118 Bytes:60 (inc) V:230 VRAM: 6440 (1,0) word	Montreal
+						DMA[0]: CPU->PPU Mode:1 0x92A8A5->0x2118 Bytes:40 (inc) V:231 VRAM: 6540 (1,0) word	Montreal
+						DMA[0]: CPU->PPU Mode:1 0x92B098->0x2118 Bytes:80 (inc) V:232 VRAM: 6480 (1,0) word	Montreal
+						DMA[0]: CPU->PPU Mode:1 0x92B118->0x2118 Bytes:40 (inc) V:233 VRAM: 6580 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92AB5C->0x2118 Bytes:60 (inc) V:235 VRAM: 7A00 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x92B550->0x2118 Bytes:60 (inc) V:236 VRAM: 64C0 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92B5B0->0x2118 Bytes:40 (inc) V:237 VRAM: 65C0 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92B622->0x2118 Bytes:80 (inc) V:238 VRAM: 7A30 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x92B6C6->0x2118 Bytes:60 (inc) V:240 VRAM: 6600 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92B726->0x2118 Bytes:40 (inc) V:241 VRAM: 6700 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92B304->0x2118 Bytes:60 (inc) V:242 VRAM: 6640 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:1 0x92B364->0x2118 Bytes:40 (inc) V:243 VRAM: 6740 (1,0) word	Montreal2
+						DMA[0]: CPU->PPU Mode:0 0x7E2320->0x2104 Bytes:220 (inc) V:244 OBJADDR: 0000
+						DMA[0]: CPU->PPU Mode:1 0x8ECBF4->0x2118 Bytes:40 (inc) V:227 VRAM: 7A70 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECD20->0x2118 Bytes:40 (inc) V:228 VRAM: 7A90 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECEB0->0x2118 Bytes:40 (inc) V:229 VRAM: 7AB0 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8EC7A8->0x2118 Bytes:40 (inc) V:231 VRAM: 7AD0 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECCBC->0x2118 Bytes:40 (inc) V:232 VRAM: 7AF0 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECA00->0x2118 Bytes:40 (inc) V:233 VRAM: 7B10 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8EC938->0x2118 Bytes:40 (inc) V:234 VRAM: 7B30 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECC58->0x2118 Bytes:40 (inc) V:235 VRAM: 7B50 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECF14->0x2118 Bytes:40 (inc) V:236 VRAM: 7B70 (1,0) word
+						DMA[0]: CPU->PPU Mode:1 0x8ECE4C->0x2118 Bytes:40 (inc) V:237 VRAM: 7B90 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x7E3834->0x2118 Bytes:300 (inc) V:253 VRAM: 0020 (1,0) word
+						DMA[1]: CPU->PPU Mode:1 0x7E4034->0x2118 Bytes:300 (inc) V:258 VRAM: 0420 (1,0) word
+						DMA[1]: CPU->PPU Mode:0 0x7F7500->0x2122 Bytes:200 (inc) V:002 CGRAM: 00 (0)
+						DMA[0]: CPU->PPU Mode:0 0x7E2100->0x2104 Bytes:220 (inc) V:227 OBJADDR: 0000
+						DMA[0]: CPU->PPU Mode:1 0x7E37F4->0x2118 Bytes:800 (inc) V:227 VRAM: 0000 (1,0) word
+						
+						These DMA xfers take place after the method has returned.
+		
 	Precondition: $0C-$0E contains a long ptr to a ROM address. E.g., 94F8EC. (This is compressed data)
 		There are other preconditions too. You can't simply change the input pointer and expect this function to work.
 		
