@@ -39,8 +39,7 @@ Function: LoadCompressedGraphics() - $80BBB3
 			9AB932 on return
 		
 		9AE972 - Game Setup screen, 4
-			9AE99E on return
-		
+			9AE99E on return		
 						DMA[1]: CPU->PPU Mode:1 0x7E3FF4->0x2118 Bytes:800 (inc) V:154 VRAM: 0400 (1,0) word
 						DMA[0]: CPU->PPU Mode:1 0x7FA299->0x2118 Bytes:1C0 (inc) V:227 VRAM: 6000 (1,0) word
 						DMA[0]: CPU->PPU Mode:1 0x7FA459->0x2118 Bytes:1C0 (inc) V:231 VRAM: 6100 (1,0) word
@@ -1016,6 +1015,8 @@ $80/C3C7 FA          PLX                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C8 AB          PLB                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C9 28          PLP                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3CA 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
+
+380
 
 1D 00 00 00 00 00 00 00 00 00 00 01 00 03 00 07
 00 0F 00 00 00 00 00 00 00 00 00 01 00 03 01 07

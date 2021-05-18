@@ -2204,6 +2204,8 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
         freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
         montrealRoutineROMAddress = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveObjectCode(&code);
+
+        // Need to investigate why this change is not sufficient.
     }
     {
         ObjectCode code;
