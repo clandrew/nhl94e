@@ -33,3 +33,5 @@ What doesn't work:
 The source code is organized as a Visual Studio 2019 built for x86-64 architecture. It's a C++/CLI Windows Forms application. Normally I don't use C++/CLI but it started out as a command-line tool written in C++. When I wanted to add GUI this made the most sense.
 
 The program reads a source code file "LookupPlayerNameDet.asm" when doing code patching. This source code file lists out machine code with assembly in comments. The assembly doesn't do anything and is there for descriptive purposes. The project is set up this way to make it compatible with some general-purpose 65816 detouring code I wrote a while ago and used for this.
+
+I wrote another wrapper for code in a class called 'ObjectCode' which makes it easier to programmatically form a code patch. Most stuff uses this wrapper now rather than the above source file.
