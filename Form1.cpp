@@ -2206,6 +2206,9 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
         freeSpaceIter->SaveObjectCode(&code);
 
         // Need to investigate why this change is not sufficient.
+
+        // Logo still shows in Ron Barr screen. In Ron Barr screen, it's stored at CC00.
+        // For Ron Barr, though, the logo is still stored at 0x7FA675.
     }
     {
         ObjectCode code;
