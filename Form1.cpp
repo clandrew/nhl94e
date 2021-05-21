@@ -2235,7 +2235,6 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
             42 DA 97
             77 D8 98
             9C E1 97
-
         */
     }
     {
