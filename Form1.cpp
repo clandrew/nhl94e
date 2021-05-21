@@ -2209,8 +2209,7 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
 
         // Logo still shows in Ron Barr screen. In Ron Barr screen, it's stored at CC00.
         // For Ron Barr, though, the logo is still stored at 0x7FA675.
-        /*
-        
+        /*        
             Full list of decompress args for Ron Barr:
             64 B6 81
             75 B6 81
