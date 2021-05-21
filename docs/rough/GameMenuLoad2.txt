@@ -8,7 +8,7 @@ Function: LoadCompressedGraphics() - $80BBB3
 	; This function takes care of the work of decompressing the logo graphics into RAM then transferring them into VRAM.
 	
 	; Write overtop 7FA675 at the end of the decompress routine.
-	
+		
 	Argument: $0C-$0E 
 		9ADC8D - EA splash screen, 1
 			9ADD34 on return
@@ -85,6 +85,8 @@ Function: LoadCompressedGraphics() - $80BBB3
 						DMA[0]: CPU->PPU Mode:1 0x7E37F4->0x2118 Bytes:800 (inc) V:227 VRAM: 0000 (1,0) word
 						
 						These DMA xfers take place after the method has returned.
+	Argument: $75
+	Argument: $77
 		
 	Precondition: $0C-$0E contains a long ptr to a ROM address. E.g., 94F8EC. (This is compressed data)
 		There are other preconditions too. You can't simply change the input pointer and expect this function to work.
@@ -94,12 +96,18 @@ Function: LoadCompressedGraphics() - $80BBB3
 	Postcondition: Decompressed graphics are stored in RAM starting at ~7E0100.
 		A, X and Y get scrambled and doesn't matter.
 		Commenting out this function (by earlying out) will cause the game to stop working.
+		
+		Scrambles $14.
+		Scrambles $6C.
+		Scrambles $6F.
 
+LoadCompressedGraphics_Begin:
 $80/BBB3 E2 10       SEP #$10                A:8004 X:000C Y:0000 P:eNvmXdizc	; Use 8-bit indexing mode
 $80/BBB5 A5 0C       LDA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load low byte of addr
 $80/BBB7 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBB8 69 05 00    ADC #$0005              A:8004 X:000C Y:0000 P:eNvmXdizc	; Basically increment arg address by 5. E.g., 9ADC8D->9ADC92
+$80/BBB8 69 05 00    ADC #$0005              A:8004 X:000C Y:0000 P:eNvmXdizc	; increment arg address by 5. E.g., 9ADC8D->9ADC92
 $80/BBBB 85 0C       STA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BBBD B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Dereference e.g., 9ADC92. Get e.g., 9211
 $80/BBBF 85 73       STA $73    [$00:0073]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash it
@@ -116,7 +124,7 @@ $80/BBD2 A9 10 00    LDA #$0010              A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD5 85 14       STA $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD7 A2 FE       LDX #$FE                A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD9 E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBDA E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBDA E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc	; Why? For X=0 plus flag?
 $80/BBDB C6 14       DEC $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBDD 06 75       ASL $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBDF A5 75       LDA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -125,16 +133,18 @@ $80/BBE2 E5 77       SBC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 
 $80/BBE4 9D 20 07    STA $0720,x[$97:072C]   A:8004 X:000C Y:0000 P:eNvmXdizc	970720 contains some intermediate thing
 
-$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:8004 X:000C Y:0000 P:eNvmXdizc	Call PreDecompress()
+$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:8004 X:000C Y:0000 P:eNvmXdizc	Call PreDecompress(). Eats $6F
 $80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBED 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBEE 65 77       ADC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBF0 85 77       STA $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BBF2 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBF4 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBF5 65 75       ADC $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBF7 85 75       STA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load arg
+
 $80/BBFB D0 05       BNE $05    [$BC02]      A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBFD 9E 40 07    STZ $0740,x[$97:074C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC00 80 D7       BRA $D7    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -1015,11 +1025,3 @@ $80/C3C7 FA          PLX                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C8 AB          PLB                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C9 28          PLP                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3CA 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
-
-380
-
-1D 00 00 00 00 00 00 00 00 00 00 01 00 03 00 07
-00 0F 00 00 00 00 00 00 00 00 00 01 00 03 01 07
-
-1d  0  0  0  0  0  0  0  0  0  0  1  0  3  0  7
- 0  f  0  0  0  0  0  0  0  0  0
