@@ -6,3 +6,4 @@ local/*
 /DecompressLogo/.vs/*
 /DecompressLogo/Debug/
 DecompressLogo/x64/*
+docs/rough/*.bin
