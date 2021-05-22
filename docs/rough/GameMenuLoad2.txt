@@ -984,9 +984,46 @@ $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmXdiZc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Caller:
-Precondition: Acc = one of { FB10, FB46, FB30, FB7A } typically
-	If Acc==FB30, we load compressed graphics.
+$80/859A 48          PHA                     A:007F X:4000 Y:0010 P:envmxdizC
+$80/859B A5 3A       LDA $3A    [$00:003A]   A:007F X:4000 Y:0010 P:envmxdizC
+$80/859D C5 3C       CMP $3C    [$00:003C]   A:0000 X:4000 Y:0010 P:envmxdiZC
+$80/859F D0 FA       BNE $FA    [$859B]      A:0000 X:4000 Y:0010 P:envmxdiZC
+$80/85A1 68          PLA                     A:0000 X:4000 Y:0010 P:envmxdiZC
+$80/85A2 6B          RTL                     A:007F X:4000 Y:0010 P:envmxdizC
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+Function: Decompress() at 80C373
+
+Precondition: 
+	$11-$13 are a long pointer to where the transfer address should be.
+	$0D contains the data bank.
+	$0C contains an offset
+
+$80/C373 08          PHP                     A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C374 8B          PHB                     A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C375 C2 30       REP #$30                A:80C0 X:4006 Y:0000 P:envmxdizC
+
+$80/C377 22 9A 85 80 JSL $80859A[$80:859A]   A:80C0 X:4006 Y:0000 P:envmxdizC
+
+$80/C37B A5 11       LDA $11    [$00:0011]   A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C37D 8D 82 21    STA $2182  [$80:2182]   A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C380 A5 10       LDA $10    [$00:0010]   A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C382 8D 81 21    STA $2181  [$80:2181]   A:80C0 X:4006 Y:0000 P:envmxdizC
+
+$80/C385 A5 0D       LDA $0D    [$00:000D]   A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C387 48          PHA                     A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C388 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C389 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
+
+$80/C38A A4 0C       LDY $0C    [$00:000C]   A:949A X:4000 Y:0010 P:eNvmxdizC
+$80/C38C B9 03 00    LDA $0003,y[$94:9A03]   A:949A X:4000 Y:9A00 P:eNvmxdizC
+
+$80/C38F EB          XBA                     A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C390 48          PHA                     A:80C0 X:4006 Y:0000 P:envmxdizC
+
+$80/C391 B9 00 00    LDA $0000,y[$9A:DC8D]   A:4006 X:2E40 Y:DC8D P:envmxdizC	; Load the first short of decompressed data.
+										; For montreal's logo, it's $FB30.
 
 $80/C394 C8          INY                     A:80C0 X:000C Y:0000 P:eNvmXdizc
 $80/C395 C8          INY                     A:80C0 X:000C Y:0000 P:eNvmXdizc
