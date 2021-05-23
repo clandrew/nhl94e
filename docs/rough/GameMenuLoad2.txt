@@ -1002,6 +1002,9 @@ Precondition:
 
 	Decompressed data format:
 		- The first token is one of {FB10, FB30, $FB46, $FB7A}, indicating what kind of decompression it is
+			- E.g., 9AE972 = 0xFB30 for Montreal
+		After that, e.g., 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6
+			- E.g., at 9AE974 onward for Montreal
 
 
 $80/C373 08          PHP                     A:80C0 X:4006 Y:0000 P:envmxdizC
