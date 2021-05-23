@@ -998,7 +998,11 @@ Function: Decompress() at 80C373
 Precondition: 
 	$11-$13 are a long pointer to where the transfer address should be.
 	$0D contains the data bank.
-	$0C contains an offset
+	$0C contains an offset.
+
+	Decompressed data format:
+		- The first token is one of {FB10, FB30, $FB46, $FB7A}, indicating what kind of decompression it is
+
 
 $80/C373 08          PHP                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C374 8B          PHB                     A:80C0 X:4006 Y:0000 P:envmxdizC
