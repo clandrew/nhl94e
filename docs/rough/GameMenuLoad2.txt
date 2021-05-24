@@ -111,18 +111,21 @@ $80/BBBB 85 0C       STA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBBD B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Dereference e.g., 9ADC92. Get e.g., 9211
 $80/BBBF 85 73       STA $73    [$00:0073]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash it
-$80/BBC3 B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load the next number. E.g., DA92
-$80/BBC5 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBC3 B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load a token. E.g., E293 for Montreal
+$80/BBC5 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; 
 $80/BBC7 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBC9 EB          XBA                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBCA 85 6C       STA $6C    [$00:006C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBCC A0 08       LDY #$08                A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBC9 EB          XBA                     A:8004 X:000C Y:0000 P:eNvmXdizc	; -> 93E2
+$80/BBCA 85 6C       STA $6C    [$00:006C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash
+
+$80/BBCC A0 08       LDY #$08                A:8004 X:000C Y:0000 P:eNvmXdizc	; Set counter. This causes PreDecompress to get called three times
 $80/BBCE 64 77       STZ $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD0 64 75       STZ $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD2 A9 10 00    LDA #$0010              A:8004 X:000C Y:0000 P:eNvmXdizc
 
 $80/BBD5 85 14       STA $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD7 A2 FE       LDX #$FE                A:8004 X:000C Y:0000 P:eNvmXdizc
+
+BeforeDecompressLoop:
 $80/BBD9 E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBDA E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc	; Why? For X=0 plus flag?
 $80/BBDB C6 14       DEC $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -134,6 +137,7 @@ $80/BBE2 E5 77       SBC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBE4 9D 20 07    STA $0720,x[$97:072C]   A:8004 X:000C Y:0000 P:eNvmXdizc	970720 contains some intermediate thing
 
 $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:8004 X:000C Y:0000 P:eNvmXdizc	Call PreDecompress(). Eats $6F
+
 $80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBED 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBEE 65 77       ADC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -147,19 +151,22 @@ $80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc	; 
 
 $80/BBFB D0 05       BNE $05    [$BC02]      A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBFD 9E 40 07    STZ $0740,x[$97:074C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BC00 80 D7       BRA $D7    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BC00 80 D7       BRA $D7    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc	; goto BeforeDecompressLoop
 
 $80/BC02 A5 75       LDA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC04 85 00       STA $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC06 A5 14       LDA $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC08 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC09 F0 05       BEQ $05    [$BC10]      A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BC0B 06 00       ASL $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC0D 3A          DEC A                   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BC0E D0 FB       BNE $FB    [$BC0B]      A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BC0E D0 FB       BNE $FB    [$BC0B]      A:8004 X:000C Y:0000 P:eNvmXdizc	; Tight loop. $14 -= A
+
 $80/BC10 A5 00       LDA $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
+
 $80/BC12 9D 40 07    STA $0740,x[$97:074C]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BC15 90 C2       BCC $C2    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BC15 90 C2       BCC $C2    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc	; conditional branch to BeforeDecompressLoop
 $80/BC17 8A          TXA                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC18 4A          LSR A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC19 85 79       STA $79    [$00:0079]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -964,22 +971,24 @@ $80/C1AF 60          RTS                     A:8004 X:000C Y:0000 P:eNvmXdizc
 
 Function: PreDecompress()
 
+	Postcondition: $6C *= 8 with overflow
+
 $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
-$80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC
-$80/C1B4 0A          ASL A                   A:92DA X:0000 Y:0008 P:eNvmXdizC
+$80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Load the swapped-bytes of token
+$80/C1B4 0A          ASL A                   A:92DA X:0000 Y:0008 P:eNvmXdizC	; *= 2 with overflow. E.g., 27C4 for Montreal
 $80/C1B5 88          DEY                     A:25B4 X:0000 Y:0008 P:envmXdizC
 $80/C1B6 F0 13       BEQ $13    [$C1CB]      A:25B4 X:0000 Y:0007 P:envmXdizC
 $80/C1B8 90 38       BCC $38    [$C1F2]      A:25B4 X:0000 Y:0007 P:envmXdizC
-$80/C1BA 0A          ASL A                   A:25B4 X:0000 Y:0007 P:envmXdizC
+$80/C1BA 0A          ASL A                   A:25B4 X:0000 Y:0007 P:envmXdizC	; *= 2 with overflow. E.g., 4F88 for Montreal
 $80/C1BB 26 6F       ROL $6F    [$00:006F]   A:4B68 X:0000 Y:0007 P:envmXdizc
 $80/C1BD 88          DEY                     A:4B68 X:0000 Y:0007 P:envmXdiZc
 $80/C1BE F0 17       BEQ $17    [$C1D7]      A:4B68 X:0000 Y:0006 P:envmXdizc
-$80/C1C0 0A          ASL A                   A:4B68 X:0000 Y:0006 P:envmXdizc
+$80/C1C0 0A          ASL A                   A:4B68 X:0000 Y:0006 P:envmXdizc	; *= 2 with overflow. E.g., 9F10 for Montreal
 $80/C1C1 26 6F       ROL $6F    [$00:006F]   A:96D0 X:0000 Y:0006 P:eNvmXdizc
 $80/C1C3 88          DEY                     A:96D0 X:0000 Y:0006 P:envmXdiZc
 $80/C1C4 F0 1D       BEQ $1D    [$C1E3]      A:96D0 X:0000 Y:0005 P:envmXdizc
-$80/C1C6 85 6C       STA $6C    [$00:006C]   A:96D0 X:0000 Y:0005 P:envmXdizc
-$80/C1C8 A5 6F       LDA $6F    [$00:006F]   A:96D0 X:0000 Y:0005 P:envmXdizc
+$80/C1C6 85 6C       STA $6C    [$00:006C]   A:96D0 X:0000 Y:0005 P:envmXdizc	; Stash
+$80/C1C8 A5 6F       LDA $6F    [$00:006F]   A:96D0 X:0000 Y:0005 P:envmXdizc	; load 0?
 $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmXdiZc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1005,7 +1014,15 @@ Precondition:
 			- E.g., 9AE972 = 0xFB30 for Montreal
 		After that, e.g., 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6
 			- E.g., at 9AE974 onward for Montreal
-			- 
+
+;  decompr
+;   type              token
+;    _|_               _|_
+;	|   |             |   |
+;	30 FB 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6 
+;	AF FF FD AB 7F 82 20 07 0E FD AE B7 D9 65 61 5C 
+;	D8 D5 51 4D 48 C1 44 38 38 83 C8 09 00
+		
 
 
 $80/C373 08          PHP                     A:80C0 X:4006 Y:0000 P:envmxdizC
