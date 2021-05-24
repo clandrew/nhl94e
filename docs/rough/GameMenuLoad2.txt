@@ -1005,6 +1005,7 @@ Precondition:
 			- E.g., 9AE972 = 0xFB30 for Montreal
 		After that, e.g., 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6
 			- E.g., at 9AE974 onward for Montreal
+			- 
 
 
 $80/C373 08          PHP                     A:80C0 X:4006 Y:0000 P:envmxdizC
@@ -1069,3 +1070,10 @@ $80/C3C7 FA          PLX                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C8 AB          PLB                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C9 28          PLP                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3CA 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
+
+;;;;;;;;;;;;;;;;;;;;;;
+
+Transcript of Montreal accesses
+$80/C391 B9 00 00    LDA $0000,y[$9A:E972]   A:0100 X:0040 Y:E972 P:envmxdiZC
+$80/BBC3 B2 0C       LDA ($0C)  [$9A:E978]   A:93A1 X:0040 Y:0074 P:eNvmXdizc
+$80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc
