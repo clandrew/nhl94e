@@ -977,13 +977,18 @@ Function: PreDecompress()
 $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
 $80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Load the swapped-bytes of token
 $80/C1B4 0A          ASL A                   A:92DA X:0000 Y:0008 P:eNvmXdizC	; *= 2 with overflow. E.g., 27C4 for Montreal
+
 $80/C1B5 88          DEY                     A:25B4 X:0000 Y:0008 P:envmXdizC
-$80/C1B6 F0 13       BEQ $13    [$C1CB]      A:25B4 X:0000 Y:0007 P:envmXdizC
+$80/C1B6 F0 13       BEQ $13    [$C1CB]      A:25B4 X:0000 Y:0007 P:envmXdizC	; If Y==0, goto C1CB
+
 $80/C1B8 90 38       BCC $38    [$C1F2]      A:25B4 X:0000 Y:0007 P:envmXdizC
+
 $80/C1BA 0A          ASL A                   A:25B4 X:0000 Y:0007 P:envmXdizC	; *= 2 with overflow. E.g., 4F88 for Montreal
 $80/C1BB 26 6F       ROL $6F    [$00:006F]   A:4B68 X:0000 Y:0007 P:envmXdizc
+
 $80/C1BD 88          DEY                     A:4B68 X:0000 Y:0007 P:envmXdiZc
-$80/C1BE F0 17       BEQ $17    [$C1D7]      A:4B68 X:0000 Y:0006 P:envmXdizc
+$80/C1BE F0 17       BEQ $17    [$C1D7]      A:4B68 X:0000 Y:0006 P:envmXdizc	; If Y==0, goto LoadCompressedByte
+
 $80/C1C0 0A          ASL A                   A:4B68 X:0000 Y:0006 P:envmXdizc	; *= 2 with overflow. E.g., 9F10 for Montreal
 $80/C1C1 26 6F       ROL $6F    [$00:006F]   A:96D0 X:0000 Y:0006 P:eNvmXdizc
 $80/C1C3 88          DEY                     A:96D0 X:0000 Y:0006 P:envmXdiZc
@@ -991,6 +996,13 @@ $80/C1C4 F0 1D       BEQ $1D    [$C1E3]      A:96D0 X:0000 Y:0005 P:envmXdizc
 $80/C1C6 85 6C       STA $6C    [$00:006C]   A:96D0 X:0000 Y:0005 P:envmXdizc	; Stash
 $80/C1C8 A5 6F       LDA $6F    [$00:006F]   A:96D0 X:0000 Y:0005 P:envmXdizc	; load 0?
 $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmXdiZc
+
+LoadCompressedByte:
+$80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc	; Load a byte of decompressed data
+$80/C1DB C2 20       REP #$20                A:E290 X:0004 Y:0000 P:eNvMXdizc
+$80/C1DD E6 0C       INC $0C    [$00:000C]   A:E290 X:0004 Y:0000 P:eNvmXdizc
+$80/C1DF A0 08       LDY #$08                A:E290 X:0004 Y:0000 P:eNvmXdizc
+$80/C1E1 80 DD       BRA $DD    [$C1C0]      A:E290 X:0004 Y:0008 P:envmXdizc
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
