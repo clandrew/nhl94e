@@ -111,6 +111,7 @@ $80/BBBB 85 0C       STA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBBD B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Dereference e.g., 9ADC92. Get e.g., 9211
 $80/BBBF 85 73       STA $73    [$00:0073]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash it
+
 $80/BBC3 B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load a token. E.g., E293 for Montreal
 $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; 
 $80/BBC7 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -1014,14 +1015,30 @@ Precondition:
 			- E.g., 9AE972 = 0xFB30 for Montreal
 		After that, e.g., 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6
 			- E.g., at 9AE974 onward for Montreal
-
-;       decompr
-;        type             token
-;        _|_               _|_
-;	|   |             |   |
+			
+;                     lim       blend?
+;       decompr   xx   |         | 
+;        type    flag  |   token |     
+;        _|_  xx  _|_  |\  _|_  /|
+;	|   | || |   | || |   | ||  
 ;	30 FB 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6 
 ;	AF FF FD AB 7F 82 20 07 0E FD AE B7 D9 65 61 5C 
 ;	D8 D5 51 4D 48 C1 44 38 38 83 C8 09 00
+;
+; 9AE972-3 - Decompr type
+; 9AE974 - unused
+; 9AE975-6 - Unused flag. The code loads the flag, switches the bytes around, pushes it to the stack, calls Decompress, 
+;            pulls it to X, but X is overwitten immediately afterward. 
+;            Therefore it would appear that this data doesn't do anything.
+; 9AE977 - limiter. loaded at $80/BBBD B2 0C  stashed away at $73. Gets compared with a bunch of literals
+; 
+; 9AE978-9 - token. This gets shifted a bunch of times
+; 
+; 9AE97A - blend? used in uncharted area. $80/C228 B2 0C       $80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc
+;          if set to FF, it causes the background goalie image to blend incorrectly
+; 9AE97B - used in uncharted area. $80/C228 B2 0C       LDA ($0C)  [$9A:E97B]   A:9000 X:0004 Y:0000 P:envMXdiZc
+; 9AE97C - used in uncharted area. $80/C21C B2 0C       LDA ($0C)  [$9A:E97C]   A:2100 X:0002 Y:0000 P:envMXdiZc
+; 9AE97D - used in uncharted area. $80/C228 B2 0C       LDA ($0C)  [$9A:E97D]   A:8800 X:0002 Y:0000 P:envMXdiZc
 		
 
 
@@ -1042,8 +1059,7 @@ $80/C388 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C389 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
 
 $80/C38A A4 0C       LDY $0C    [$00:000C]   A:949A X:4000 Y:0010 P:eNvmxdizC
-$80/C38C B9 03 00    LDA $0003,y[$94:9A03]   A:949A X:4000 Y:9A00 P:eNvmxdizC
-
+$80/C38C B9 03 00    LDA $0003,y[$94:9A03]   A:949A X:4000 Y:9A00 P:eNvmxdizC	; Load a short 3 bytes in. Switch the byte order and push it to stack.
 $80/C38F EB          XBA                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C390 48          PHA                     A:80C0 X:4006 Y:0000 P:envmxdizC
 
@@ -1083,7 +1099,7 @@ $80/C3C3 28          PLP                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C4 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 
 $80/C3C5 C2 30       REP #$30                A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
-$80/C3C7 FA          PLX                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
+$80/C3C7 FA          PLX                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc	; 
 $80/C3C8 AB          PLB                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3C9 28          PLP                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 $80/C3CA 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
@@ -1093,4 +1109,4 @@ $80/C3CA 6B          RTL                     A:FB30 X:2E40 Y:DC8F P:eNvmxdizc
 Transcript of Montreal accesses
 $80/C391 B9 00 00    LDA $0000,y[$9A:E972]   A:0100 X:0040 Y:E972 P:envmxdiZC
 $80/BBC3 B2 0C       LDA ($0C)  [$9A:E978]   A:93A1 X:0040 Y:0074 P:eNvmXdizc
-$80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc
+$80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc	; unmarked
