@@ -88,7 +88,7 @@ Function: LoadCompressedGraphics() - $80BBB3
 	Argument: $75
 	Argument: $77
 		
-	Precondition: $0C-$0E contains a long ptr to a ROM address. E.g., 94F8EC. (This is compressed data)
+	Precondition: $0C-$0E contains a long ptr to the compressed data. It's a ROM address. E.g., 94F8EC. (This is compressed data)
 		There are other preconditions too. You can't simply change the input pointer and expect this function to work.
 		
 		$75 contains some mask. E.g., 00 00 or 00 08
@@ -103,22 +103,23 @@ Function: LoadCompressedGraphics() - $80BBB3
 
 LoadCompressedGraphics_Begin:
 $80/BBB3 E2 10       SEP #$10                A:8004 X:000C Y:0000 P:eNvmXdizc	; Use 8-bit indexing mode
-$80/BBB5 A5 0C       LDA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load low byte of addr
+$80/BBB5 A5 0C       LDA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; 
 $80/BBB7 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBB8 69 05 00    ADC #$0005              A:8004 X:000C Y:0000 P:eNvmXdizc	; increment arg address by 5. E.g., 9ADC8D->9ADC92
+$80/BBB8 69 05 00    ADC #$0005              A:8004 X:000C Y:0000 P:eNvmXdizc	; Seek to the 5th byte of the compressed data
 $80/BBBB 85 0C       STA $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 
 $80/BBBD B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Dereference e.g., 9ADC92. Get e.g., 9211
 $80/BBBF 85 73       STA $73    [$00:0073]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBC1 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash it
+$80/BBC1 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; save it, the "lim", to $73
 
-$80/BBC3 B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load a token. E.g., E293 for Montreal
+$80/BBC3 B2 0C       LDA ($0C)  [$97:E19C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load the 2-byte "token". E.g., E293 for Montreal
 $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; 
 $80/BBC7 E6 0C       INC $0C    [$00:000C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBC9 EB          XBA                     A:8004 X:000C Y:0000 P:eNvmXdizc	; -> 93E2
-$80/BBCA 85 6C       STA $6C    [$00:006C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; stash
+$80/BBCA 85 6C       STA $6C    [$00:006C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Save the 2-byte "token" to $6C
 
-$80/BBCC A0 08       LDY #$08                A:8004 X:000C Y:0000 P:eNvmXdizc	; Set counter. This causes PreDecompress to get called three times
+$80/BBCC A0 08       LDY #$08                A:8004 X:000C Y:0000 P:eNvmXdizc	; Set counter. This controls how many bytes of compressed data
+                                                                                ; PreDecompress will read
 $80/BBCE 64 77       STZ $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD0 64 75       STZ $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBD2 A9 10 00    LDA #$0010              A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -128,8 +129,8 @@ $80/BBD7 A2 FE       LDX #$FE                A:8004 X:000C Y:0000 P:eNvmXdizc
 
 BeforeDecompressLoop:
 $80/BBD9 E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBDA E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc	; Why? For X=0 plus flag?
-$80/BBDB C6 14       DEC $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBDA E8          INX                     A:8004 X:000C Y:0000 P:eNvmXdizc	; I guess, X starts at 1 and is incremented by 2 each iteration
+$80/BBDB C6 14       DEC $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc   ; $14 starts at 0x10 and is decremented by 1 each iteration
 $80/BBDD 06 75       ASL $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBDF A5 75       LDA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBE1 38          SEC                     A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -972,7 +973,7 @@ $80/C1AF 60          RTS                     A:8004 X:000C Y:0000 P:eNvmXdizc
 
 Function: PreDecompress()
 
-	Postcondition: $6C *= 8 with overflow
+	Postcondition: compressed data gets loaded into an intermediate buffer
 
 $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
 $80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Load the swapped-bytes of token
@@ -998,9 +999,10 @@ $80/C1C8 A5 6F       LDA $6F    [$00:006F]   A:96D0 X:0000 Y:0005 P:envmXdizc	; 
 $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmXdiZc
 
 LoadCompressedByte:
+$80/C1D7 ?
 $80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc	; Load a byte of decompressed data
 $80/C1DB C2 20       REP #$20                A:E290 X:0004 Y:0000 P:eNvMXdizc
-$80/C1DD E6 0C       INC $0C    [$00:000C]   A:E290 X:0004 Y:0000 P:eNvmXdizc
+$80/C1DD E6 0C       INC $0C    [$00:000C]   A:E290 X:0004 Y:0000 P:eNvmXdizc	; Move ptr to the next
 $80/C1DF A0 08       LDY #$08                A:E290 X:0004 Y:0000 P:eNvmXdizc
 $80/C1E1 80 DD       BRA $DD    [$C1C0]      A:E290 X:0004 Y:0008 P:envmXdizc
 
@@ -1018,9 +1020,8 @@ $80/85A2 6B          RTL                     A:007F X:4000 Y:0010 P:envmxdizC
 Function: Decompress() at 80C373
 
 Precondition: 
-	$11-$13 are a long pointer to where the transfer address should be.
-	$0D contains the data bank.
-	$0C contains an offset.
+	$11-$13 are a long pointer to where the destination transfer address should be.
+	$0C-E contains a long pointer to compressed data. So the bank is at $0E.
 
 	Decompressed data format:
 		- The first token is one of {FB10, FB30, $FB46, $FB7A}, indicating what kind of decompression it is
@@ -1065,17 +1066,17 @@ $80/C37D 8D 82 21    STA $2182  [$80:2182]   A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C380 A5 10       LDA $10    [$00:0010]   A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C382 8D 81 21    STA $2181  [$80:2181]   A:80C0 X:4006 Y:0000 P:envmxdizC
 
-$80/C385 A5 0D       LDA $0D    [$00:000D]   A:80C0 X:4006 Y:0000 P:envmxdizC
+$80/C385 A5 0D       LDA $0D    [$00:000D]   A:80C0 X:4006 Y:0000 P:envmxdizC   ; Set DBR to the bank of the dest long pointer.
 $80/C387 48          PHA                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C388 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C389 AB          PLB                     A:80C0 X:4006 Y:0000 P:envmxdizC
 
 $80/C38A A4 0C       LDY $0C    [$00:000C]   A:949A X:4000 Y:0010 P:eNvmxdizC
-$80/C38C B9 03 00    LDA $0003,y[$94:9A03]   A:949A X:4000 Y:9A00 P:eNvmxdizC	; Load a short 3 bytes in. Switch the byte order and push it to stack.
+$80/C38C B9 03 00    LDA $0003,y[$94:9A03]   A:949A X:4000 Y:9A00 P:eNvmxdizC	; Load the 'unused flag' 3 bytes in. Switch the byte order and push it to stack.
 $80/C38F EB          XBA                     A:80C0 X:4006 Y:0000 P:envmxdizC
 $80/C390 48          PHA                     A:80C0 X:4006 Y:0000 P:envmxdizC
 
-$80/C391 B9 00 00    LDA $0000,y[$9A:DC8D]   A:4006 X:2E40 Y:DC8D P:envmxdizC	; Load the first short of decompressed data.
+$80/C391 B9 00 00    LDA $0000,y[$9A:DC8D]   A:4006 X:2E40 Y:DC8D P:envmxdizC	; Load the first short, 'compression type' of compressed data.
 										; For montreal's logo, it's $FB30.
 
 $80/C394 C8          INY                     A:80C0 X:000C Y:0000 P:eNvmXdizc
