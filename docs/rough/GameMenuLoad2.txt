@@ -67,6 +67,7 @@ $80/BBE4 9D 20 07    STA $0720,x[$9A:0720]   A:0000 X:0000 Y:0008 P:envmXdiZC	; 
 
 																				; For first iter for montreal, $0C = 9AE97A
 $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Call PreDecompress(). Eats $6F
+																				; Result gets stored in $6C
 																		
 $80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBED 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
@@ -902,7 +903,7 @@ $80/C1AF 60          RTS                     A:8004 X:000C Y:0000 P:eNvmXdizc
 Function: PreDecompress()
 
 	Postcondition: compressed data gets loaded into an intermediate buffer
-		The long ptr $0C-$0E might get incremented by 1 or it might not, depending.
+		The long ptr $0C-$0E gets incremented depending on how much gets loaded.
 		$6C contains compression intermediate
 
 $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
