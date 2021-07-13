@@ -69,29 +69,34 @@ $80/BBE4 9D 20 07    STA $0720,x[$9A:0720]   A:0000 X:0000 Y:0008 P:envmXdiZC	; 
 
 																				; For first iter for montreal, $0C = 9AE97A
 $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Call PreDecompress(). Eats $6F
-																				; Result gets stored in $6C
+																				; Part of result gets stored in $6C
 																		
-$80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Store result. For Montreal, these are {0, 0, 3, 2, 0x10}
+
 $80/BBED 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBEE 65 77       ADC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBF0 85 77       STA $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBF0 85 77       STA $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc	
 
-$80/BBF2 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc
+$80/BBF2 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc	
 $80/BBF4 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBF5 65 75       ADC $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBF7 85 75       STA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
-$80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load arg
+$80/BBF5 65 75       ADC $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc	
+$80/BBF7 85 75       STA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc	; $75 += decompressed intermediate
 
+$80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Load arg. If arg==0, PreDecompress gets called again.
 $80/BBFB D0 05       BNE $05    [$BC02]      A:8004 X:000C Y:0000 P:eNvmXdizc
+
+PreDecompressYieldedZero:
 $80/BBFD 9E 40 07    STZ $0740,x[$97:074C]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC00 80 D7       BRA $D7    [$BBD9]      A:8004 X:000C Y:0000 P:eNvmXdizc	; goto BeforeDecompressLoop
 
+PreDecompressYieldedNonZero:
 $80/BC02 A5 75       LDA $75    [$00:0075]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC04 85 00       STA $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC06 A5 14       LDA $14    [$00:0014]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC08 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC09 F0 05       BEQ $05    [$BC10]      A:8004 X:000C Y:0000 P:eNvmXdizc
 
+DecrementLoop:
 $80/BC0B 06 00       ASL $00    [$00:0000]   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC0D 3A          DEC A                   A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BC0E D0 FB       BNE $FB    [$BC0B]      A:8004 X:000C Y:0000 P:eNvmXdizc	; Tight loop. $14 -= A

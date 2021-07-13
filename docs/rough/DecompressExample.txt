@@ -47,6 +47,7 @@ $6C-$6F after
 
 PreDecompress is called just 5 times for Montreal.
 You can identify the Montreal call because $0C-$0E contains 9AE972.
+If PreDecompress sets $6F to zero that means something.
 
 /////////////////////////////////////////////////////////////////////////////////////
 [0]
