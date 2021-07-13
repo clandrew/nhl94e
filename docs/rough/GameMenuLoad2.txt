@@ -55,8 +55,10 @@ $80/BBD7 A2 FE       LDX #$FE                A:0010 X:0040 Y:0008 P:envmXdizc
 
 BeforeDecompressLoop:
 $80/BBD9 E8          INX                     A:0010 X:00FE Y:0008 P:eNvmXdizc
-$80/BBDA E8          INX                     A:0010 X:00FF Y:0008 P:eNvmXdizc
-$80/BBDB C6 14       DEC $14    [$00:0014]   A:0010 X:0000 Y:0008 P:envmXdiZc	; I guess, X starts at 1 and is incremented by 2 each iteration
+$80/BBDA E8          INX                     A:0010 X:00FF Y:0008 P:eNvmXdizc	; Increment the offset that PreDecompress will store its result to.
+																				; E.g., this starts at 0 and is {0, 2, 4, 6, 8} for Montreal.
+
+$80/BBDB C6 14       DEC $14    [$00:0014]   A:0010 X:0000 Y:0008 P:envmXdiZc	; 
 $80/BBDD 06 75       ASL $75    [$00:0075]   A:0010 X:0000 Y:0008 P:envmXdizc	; $14 starts at 0x10 and is decremented by 1 each iteration
 $80/BBDF A5 75       LDA $75    [$00:0075]   A:0010 X:0000 Y:0008 P:envmXdiZc
 $80/BBE1 38          SEC                     A:0000 X:0000 Y:0008 P:envmXdiZc
@@ -904,7 +906,8 @@ Function: PreDecompress()
 
 	Postcondition: compressed data gets loaded into an intermediate buffer
 		The long ptr $0C-$0E gets incremented depending on how much gets loaded.
-		$6C contains compression intermediate
+		$6C-$6F contains compression intermediate result
+		A contains another result.
 
 $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
 $80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Load the swapped-bytes of token
@@ -946,6 +949,42 @@ $80/C1ED 85 6C       STA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmXdiZC
 $80/C1EF A5 6F       LDA $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmXdiZC
 $80/C1F1 60          RTS                     A:0000 X:0000 Y:0008 P:envmXdiZC
 
+$80/C1F2 86 00       STX $00    [$00:0000]   A:1080 X:0000 Y:0001 P:envmXdizc
+$80/C1F4 A2 02       LDX #$02                A:1080 X:0000 Y:0001 P:envmXdizc
+$80/C1F6 0A          ASL A                   A:1080 X:0002 Y:0001 P:envmXdizc
+$80/C1F7 88          DEY                     A:2100 X:0002 Y:0001 P:envmXdizc
+$80/C1F8 F0 20       BEQ $20    [$C21A]      A:2100 X:0002 Y:0000 P:envmXdiZc
+
+$80/C1FA E8          INX                     A:2188 X:0002 Y:0008 P:envmXdizc
+$80/C1FB 90 F9       BCC $F9    [$C1F6]      A:2188 X:0003 Y:0008 P:envmXdizc
+$80/C1FD 86 04       STX $04    [$00:0004]   A:0C40 X:0006 Y:0005 P:envmXdizC
+
+$80/C1FF 0A          ASL A                   A:9021 X:0003 Y:0008 P:envmXdizc
+$80/C200 26 6F       ROL $6F    [$00:006F]   A:2042 X:0003 Y:0008 P:envmXdizC
+$80/C202 88          DEY                     A:2042 X:0003 Y:0008 P:envmXdizc
+$80/C203 F0 21       BEQ $21    [$C226]      A:2042 X:0003 Y:0007 P:envmXdizc
+$80/C205 CA          DEX                     A:2042 X:0003 Y:0007 P:envmXdizc
+$80/C206 D0 F7       BNE $F7    [$C1FF]      A:2042 X:0002 Y:0007 P:envmXdizc
+
+$80/C208 85 6C       STA $6C    [$00:006C]   A:8108 X:0000 Y:0005 P:envmXdiZc
+$80/C20A 06 04       ASL $04    [$00:0004]   A:8108 X:0000 Y:0005 P:envmXdiZc
+$80/C20C A6 04       LDX $04    [$00:0004]   A:8108 X:0000 Y:0005 P:envmXdizc
+$80/C20E BF B6 C2 80 LDA $80C2B6,x[$80:C2BE] A:8108 X:0008 Y:0005 P:envmXdizc
+$80/C212 A6 00       LDX $00    [$00:0000]   A:000C X:0008 Y:0005 P:envmXdizc
+$80/C214 18          CLC                     A:000C X:0008 Y:0005 P:envmXdizc
+$80/C215 65 6F       ADC $6F    [$00:006F]   A:000C X:0008 Y:0005 P:envmXdizc
+$80/C217 85 6F       STA $6F    [$00:006F]   A:0010 X:0008 Y:0005 P:envmXdizc
+$80/C219 60          RTS                     A:0010 X:0008 Y:0005 P:envmXdizc
+
+$80/C21A E2 20       SEP #$20                A:2100 X:0002 Y:0000 P:envmXdiZc
+$80/C21C B2 0C       LDA ($0C)  [$9A:E97C]   A:2100 X:0002 Y:0000 P:envMXdiZc
+$80/C21E C2 20       REP #$20                A:2188 X:0002 Y:0000 P:eNvMXdizc
+$80/C220 E6 0C       INC $0C    [$00:000C]   A:2188 X:0002 Y:0000 P:eNvmXdizc
+$80/C222 A0 08       LDY #$08                A:2188 X:0002 Y:0000 P:eNvmXdizc
+$80/C224 80 D4       BRA $D4    [$C1FA]      A:2188 X:0002 Y:0008 P:envmXdizc
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Function: SpinUntilCond()
@@ -957,6 +996,7 @@ $80/859D C5 3C       CMP $3C    [$00:003C]   A:0000 X:4000 Y:0010 P:envmxdiZC
 $80/859F D0 FA       BNE $FA    [$859B]      A:0000 X:4000 Y:0010 P:envmxdiZC
 $80/85A1 68          PLA                     A:0000 X:4000 Y:0010 P:envmxdiZC
 $80/85A2 6B          RTL                     A:007F X:4000 Y:0010 P:envmxdizC
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 

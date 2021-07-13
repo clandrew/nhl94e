@@ -1,0 +1,112 @@
+The compressed data for the Montreal logo is
+
+30 FB 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6 
+AF FF FD AB 7F 82 20 07 0E FD AE B7 D9 65 61 5C 
+D8 D5 51 4D 48 C1 44 38 38 83 C8 09 00
+
+The decompressed data is longer, about 0x800 long.
+
+
+;                     lim       blend?
+;       decompr   xx   |         | 
+;        type    flag  |   token |     
+;        _|_  xx  _|_  |\  _|_  /|
+;	|   | || |   | || |   | ||  
+;	30 FB 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6 
+;	AF FF FD AB 7F 82 20 07 0E FD AE B7 D9 65 61 5C 
+;	D8 D5 51 4D 48 C1 44 38 38 83 C8 09 00
+;
+; 9AE972-3 - Decompr type. FB30 is used for logo graphics
+; 9AE974 - unused
+; 9AE975-6 - Unused flag. The code loads the flag, switches the bytes around, pushes it to the stack, calls Decompress, 
+;            pulls it to X, but X is overwitten immediately afterward. 
+;            Therefore it would appear that this data doesn't do anything.
+
+; 9AE977 - limiter. loaded at $80/BBBD B2 0C  stashed away at $73. Gets compared with a bunch of literals
+; 
+; 9AE978-9 - token. This gets shifted a bunch of times
+; 
+; 9AE97A - blend? used in uncharted area. $80/C228 B2 0C       $80/C1D9 B2 0C       LDA ($0C)  [$9A:E97A]   A:E200 X:0004 Y:0000 P:envMXdiZc
+;          if set to FF, it causes the background goalie image to blend incorrectly
+
+; 9AE97B - used in PreDecompress. $80/C228 B2 0C       LDA ($0C)  [$9A:E97B]   A:9000 X:0004 Y:0000 P:envMXdiZc
+; 9AE97C - used in PreDecompress. $80/C21C B2 0C       LDA ($0C)  [$9A:E97C]   A:2100 X:0002 Y:0000 P:envMXdiZc
+; 9AE97D - used in PreDecompress. $80/C228 B2 0C       LDA ($0C)  [$9A:E97D]   A:8800 X:0002 Y:0000 P:envMXdiZc
+
+; The result of PreDecompress will get stored in $0700,x $97:070C
+
+After pressing 'A' from the splash screen, the Montreal logo is the 5th thing that's loaded.
+
+For each PreDecompress, log
+
+    AXY before
+$0C-$0E before
+
+    AXY after
+$6C-$6F after
+
+PreDecompress is called just 5 times for Montreal.
+You can identify the Montreal call because $0C-$0E contains 9AE972.
+
+/////////////////////////////////////////////////////////////////////////////////////
+[0]
+Before:
+	$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmXdiZC
+	$0C-$0E		7A E9
+	
+After: 
+	$80/BBEA 9D 00 07    STA $0700,x[$9A:0700]   A:0000 X:0000 Y:0005 P:envmXdiZc
+	$6C-$6F		10 9F	
+	Result 0000 gets written to $9A:0700
+
+/////////////////////////////////////////////////////////////////////////////////////
+[1]
+Before:
+	$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0002 Y:0005 P:envmXdiZC
+	$0C-$0E		7A E9
+	
+After:  $80/BBEA 9D 00 07    STA $0700,x[$9A:0702]   A:0000 X:0002 Y:0002 P:envmXdiZc
+	
+	$6C-$6F		80 F8	
+	
+	Result 0000 gets written to $9A:0702
+
+/////////////////////////////////////////////////////////////////////////////////////
+[2]
+Before:
+	$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0004 Y:0002 P:envmXdiZC
+	$0C-$0E		7A E9	
+	
+After:  $80/BBEA 9D 00 07    STA $0700,x[$9A:0704]   A:0003 X:0004 Y:0007 P:envmXdizc
+	
+	$6C-$6F		20 C5	
+	
+	Result 0003 gets written to $9A:0704
+
+/////////////////////////////////////////////////////////////////////////////////////
+[3]
+Before:
+	$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0003 X:0006 Y:0007 P:envmXdizC
+	$0C-$0E		7B E9
+	
+After:  $80/BBEA 9D 00 07    STA $0700,x[$9A:0706]   A:0002 X:0006 Y:0004 P:envmXdizc
+	
+	$6C-$6F		00 29	
+	
+	Result 0002 gets written to $9A:0706
+
+/////////////////////////////////////////////////////////////////////////////////////
+[4]
+Before:
+	$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:000B X:0008 Y:0004 P:envmXdizC
+	$0C-$0E		7B E9
+	
+After:  $80/BBEA 9D 00 07    STA $0700,x[$9A:0708]   A:0010 X:0008 Y:0005 P:envmXdizc
+	
+	$6C-$6F		08 81	
+	
+	Result 0010 gets written to $9A:0708
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
