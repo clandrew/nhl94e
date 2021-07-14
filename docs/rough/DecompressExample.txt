@@ -49,6 +49,93 @@ PreDecompress is called just 5 times for Montreal.
 You can identify the Montreal call because $0C-$0E contains 9AE972.
 If PreDecompress sets $6F to zero that means something.
 
+$6F passed into PreDecompress doesn't matter, gets immediately stomped.
+A passed into PreDecompress doesn't matter. It gets immediately stomped.
+X gets used, but the function backs up and restores the previous value.
+
+Y does matter. It's a counter that starts at 8.
+
+
+PreDecompress pseudo code:
+	Var6F = 0
+	Load token from $6C
+	token *= 2 with overflow
+	counter--;
+	if (counter == 0)
+	{
+		Load the next byte from the pointer.
+		Increment the pointer.
+		Counter = 8
+	}
+	
+	// C1B8
+	if token didn't overflow
+	{
+		// C1F2		
+		index = 2
+		do
+		{
+			token *= 2
+			counter--;
+			if (counter == 0)
+			{
+				Load the next byte from the pointer.
+				Increment the pointer.
+				Counter = 8
+			}
+			index++;
+		}(while token didn't overflow)
+		
+		Var04 = index
+		
+		do
+		{
+			token *= 2 with overflow
+			Var6F is rotated left
+			counter--;
+			if (counter == 0)
+			{
+				Load the next byte from the pointer.
+				Increment the pointer.
+				Counter = 8
+			}
+			index--;
+		} (while index > 0)
+		
+		Stash A into Var6C as a return value
+		Var04 *= 2
+		
+		index = Var04
+		Load A = $80C2B6[index] + Var6F			; A2 10 80 D0 00 00 04 00 0C 00 1C 00 3C 00 7C 00
+		return
+	}
+	
+	token *= 2 with overflow
+	Var6F is rotated left
+	counter--;
+	if (counter==0)
+	{
+		Load the next byte from the pointer.
+		Increment the pointer.
+		Counter = 8		
+	}
+	
+	token *= 2 with overflow
+	Var6F is rotated left
+	counter--;
+	if (counter==0)
+	{
+		Load the next byte from the pointer.
+		Increment the pointer.
+		Counter = 8	
+		Store the loaded byte into the result $6C
+		return
+	}
+	
+	Store the token into the result $6C
+	Load A out of $6F
+	return
+
 /////////////////////////////////////////////////////////////////////////////////////
 [0]
 Before:
