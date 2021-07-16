@@ -2,6 +2,8 @@
 //
 
 #include <iostream>
+#include <vector>
+#include <assert.h>
 
 int token = 0;
 int counter = 8;
@@ -12,15 +14,21 @@ unsigned char compressedData[] = {
 
 unsigned char array80C2B6[] = { 0xA2, 0x10, 0x80, 0xD0, 0x00, 0x00, 0x04, 0x00, 0x0C, 0x00, 0x1C, 0x00, 0x3C, 0x00, 0x7C, 0x00 };
 
+int var00 = 0;
+int var14 = 0;
 int var6C = 0;
+int var6F = 0;
+int var75 = 0;
+int var77 = 0;
+int var79 = 0;
 
 int MultiplyBy2WithOverflowCheck(int n, bool* overflow)
 {
 	int result = n * 2;
-	if (n < 0x10000)
+	if (result < 0x10000)
 	{
 		*overflow = false;
-		return n;
+		return result;
 	}
 	else
 	{
@@ -51,8 +59,8 @@ int RotateLeft(int n)
 
 int PreDecompress()
 {
-	int var6F = 0;
 	bool overflow = false;
+	token = var6C;
 
 	token = MultiplyBy2WithOverflowCheck(token, &overflow);
 	DecrementCounter_LoadNextTokenIfZero();
@@ -106,18 +114,59 @@ int PreDecompress()
 			return result;
 		}
 	}
-	
-
 }
 
 int main()
 {
-	token = compressedData[6];
-	token <<= 8;
-	token |= compressedData[7];
+	int index = 0;
+	int initialToken = compressedData[6];
+	initialToken <<= 8;
+	initialToken |= compressedData[7];
+	var6C = initialToken;
 	pointer = 8;
 
-	int a = PreDecompress();
+	std::vector<int> results;
+	std::vector<int> results2;
+
+	for (int j = 0; j < 5; j++)
+	{
+		int a = PreDecompress();
+		results.push_back(a);
+		var77 += a;
+
+		a = var6F;
+		var75 += a;
+
+		a = var6F;
+		if (a == 0)
+		{
+			results2.push_back(0);
+			// PreDecompress again
+		}
+		else
+		{
+			var00 = var75;
+			if (var14 == 0)
+			{
+				assert(false);
+			}
+			else
+			{
+				bool overflow = false;
+				for (int i = 0; i < var14; ++i)
+				{
+					var00 = MultiplyBy2WithOverflowCheck(var00, &overflow);
+				}
+				results2.push_back(var00);
+				assert(!overflow); // Assuming no overflow here
+
+				a = index;
+				a /= 2;
+				var79 = a;
+				index = 0x3E;
+			}
+		}
+	}
 }
 
 /*
