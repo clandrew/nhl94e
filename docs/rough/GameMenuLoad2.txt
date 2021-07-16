@@ -1037,11 +1037,11 @@ Precondition:
 		After that, e.g., 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6
 			- E.g., at 9AE974 onward for Montreal
 			
-;                     lim       blend?
-;       decompr   xx   |         | 
-;        type    flag  |   token |     
-;        _|_  xx  _|_  |\  _|_  /|
-;	|   | || |   | || |   | ||  
+;                              
+;   decompr   xx             
+;    type    flag     token          
+;    _|_  xx  _|_  l   _|_      
+;	|   | || |   | || |   |     
 ;	30 FB 00 01 00 A1 93 E2 90 21 88 F8 40 04 4B D6 
 ;	AF FF FD AB 7F 82 20 07 0E FD AE B7 D9 65 61 5C 
 ;	D8 D5 51 4D 48 C1 44 38 38 83 C8 09 00
