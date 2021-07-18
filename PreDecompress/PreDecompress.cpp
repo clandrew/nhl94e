@@ -42,7 +42,9 @@ void DecrementCounter_LoadNextTokenIfZero()
 	counter--;
 	if (counter == 0)
 	{
-		token = compressedData[pointer];
+		// 8bit mode
+		token &= 0xFF00;
+		token |= compressedData[pointer];
 		pointer++;
 		counter = 8;
 	}
@@ -94,7 +96,7 @@ int PreDecompress()
 	else
 	{
 		token = MultiplyBy2WithOverflowCheck(token, &overflow);
-		var6F = RotateLeft(var6F);
+		var6F = RotateLeft(var6F); // Wrong value. It should be 1, instead it's 0.
 		DecrementCounter_LoadNextTokenIfZero();
 
 		token = MultiplyBy2WithOverflowCheck(token, &overflow);
