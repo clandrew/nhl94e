@@ -15,7 +15,7 @@ unsigned char compressedData[] = {
 unsigned char array80C2B6[] = { 0xA2, 0x10, 0x80, 0xD0, 0x00, 0x00, 0x04, 0x00, 0x0C, 0x00, 0x1C, 0x00, 0x3C, 0x00, 0x7C, 0x00 };
 
 int var00 = 0;
-int var14 = 0;
+int var14 = 0x14;
 int var6C = 0;
 int var6F = 0;
 int var75 = 0;
@@ -50,17 +50,22 @@ void DecrementCounter_LoadNextTokenIfZero()
 	}
 }
 
-int RotateLeft(int n)
+int RotateLeft(int n, bool* carry)
 {
-	bool c = n & 0x8000;
 	n <<= 1;
+	if (*carry)
+	{
+		n |= 1;
+	}
+
+	*carry = n > 0xFFFF;
 	n &= 0xFFFF;
-	if (c) n |= 1;
 	return n;
 }
 
 int PreDecompress()
 {
+	var6F = 0;
 	bool overflow = false;
 	token = var6C;
 
@@ -82,7 +87,7 @@ int PreDecompress()
 		do
 		{
 			token = MultiplyBy2WithOverflowCheck(token, &overflow);
-			var6F = RotateLeft(var6F);
+			var6F = RotateLeft(var6F, &overflow);
 			DecrementCounter_LoadNextTokenIfZero();
 			index--;
 		} while (index > 0);
@@ -96,11 +101,11 @@ int PreDecompress()
 	else
 	{
 		token = MultiplyBy2WithOverflowCheck(token, &overflow);
-		var6F = RotateLeft(var6F); // Wrong value. It should be 1, instead it's 0.
+		var6F = RotateLeft(var6F, &overflow); 
 		DecrementCounter_LoadNextTokenIfZero();
 
 		token = MultiplyBy2WithOverflowCheck(token, &overflow);
-		var6F = RotateLeft(var6F);
+		var6F = RotateLeft(var6F, &overflow);
 		DecrementCounter_LoadNextTokenIfZero();
 		if (counter == 8)
 		{
