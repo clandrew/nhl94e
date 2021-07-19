@@ -67,6 +67,7 @@ int PreDecompress()
 {
 	var6F = 0;
 	bool overflow = false;
+	token = var6C;
 
 	token = MultiplyBy2WithOverflowCheck(token, &overflow);
 	DecrementCounter_LoadNextTokenIfZero();
@@ -81,7 +82,7 @@ int PreDecompress()
 			index++;
 		} while (!overflow);
 
-		unsigned char loadedByte = array80C2B6[index * 2];
+		int var04 = index;
 
 		do
 		{
@@ -92,7 +93,9 @@ int PreDecompress()
 		} while (index > 0);
 
 		var6C = token;
-		int result = loadedByte + var6F;
+		var04 *= 2;
+		index = var04;
+		int result = array80C2B6[index] + var6F;
 		return result;
 	}
 	else
@@ -104,15 +107,16 @@ int PreDecompress()
 		token = MultiplyBy2WithOverflowCheck(token, &overflow);
 		var6F = RotateLeft(var6F, &overflow);
 		DecrementCounter_LoadNextTokenIfZero();
-		var6C = token;
 		if (counter == 8)
 		{
+			var6C = token;
 			return token;
 		}
 		else
 		{
 			// Store result into 6C
 			// Load A out of 6F
+			var6C = token;
 			int result = var6F;
 			return result;
 		}
