@@ -14,11 +14,10 @@ unsigned char compressedData[] = {
 
 unsigned char array80C2B6[] = { 0xA2, 0x10, 0x80, 0xD0, 0x00, 0x00, 0x04, 0x00, 0x0C, 0x00, 0x1C, 0x00, 0x3C, 0x00, 0x7C, 0x00 };
 
-int var00 = 0;
 int var14 = 0x14;
 int var6C = 0;
 int var6F = 0;
-int var75 = 0;
+int result2Accum = 0;
 int var77 = 0;
 int var79 = 0;
 
@@ -82,7 +81,7 @@ int PreDecompress()
 			index++;
 		} while (!overflow);
 
-		int var04 = index;
+		unsigned char baseElement = array80C2B6[index * 2]; // Array of shorts i guess
 
 		do
 		{
@@ -93,9 +92,7 @@ int PreDecompress()
 		} while (index > 0);
 
 		var6C = token;
-		var04 *= 2;
-		index = var04;
-		int result = array80C2B6[index] + var6F;
+		int result = baseElement + var6F;
 		return result;
 	}
 	else
@@ -137,40 +134,37 @@ int main()
 
 	for (int j = 0; j < 5; j++)
 	{
-		int a = PreDecompress();
-		results.push_back(a);
-		var77 += a;
+		int preDecompressResult = PreDecompress();
+		results.push_back(preDecompressResult);
 
-		a = var6F;
-		var75 += a;
+		var77 += preDecompressResult;
 
-		a = var6F;
-		if (a == 0)
+		result2Accum += var6F;
+
+		if (var6F == 0)
 		{
 			results2.push_back(0);
 			// PreDecompress again
 		}
 		else
 		{
-			var00 = var75;
 			if (var14 == 0)
 			{
 				assert(false);
 			}
 			else
 			{
+				int result2 = result2Accum; // result2 stored as var00
 				bool overflow = false;
 				for (int i = 0; i < var14; ++i)
 				{
-					var00 = MultiplyBy2WithOverflowCheck(var00, &overflow);
+					result2 = MultiplyBy2WithOverflowCheck(result2, &overflow);
 				}
-				results2.push_back(var00);
+				results2.push_back(result2);
 				assert(!overflow); // Assuming no overflow here
 
-				a = index;
-				a /= 2;
-				var79 = a;
-				index = 0x3E;
+				var79 = index / 2; // sizeInElements?
+				index = 0x3E; 
 			}
 		}
 	}
