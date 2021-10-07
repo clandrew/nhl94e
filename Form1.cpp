@@ -2415,11 +2415,6 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
         return;
     }
 
-    if (!InsertLogo(&freeSpaceIter))
-    {
-        return;
-    }
-
     s_romData.SaveBytesToFile(outputFilename.c_str());
 
     MessageBox::Show(L"Output file saved.", L"Info");
