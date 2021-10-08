@@ -2240,12 +2240,11 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
                         ADC $8D
                         STA $8D        
         */
-
-        //code_goalieSelection.LoadAccDirect_A5(0xC5);
-        //code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
-        //code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
-        //code_goalieSelection.AppendAddWithCarryDirect_65(0x8D);
-        //code_goalieSelection.AppendStoreDirect_85(0x8D);
+        code_goalieSelection.LoadAccDirect_A5(0xC5);
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.AppendAddWithCarryDirect_65(0x8D);
+        code_goalieSelection.AppendStoreDirect_85(0x8D);
 
         /*
             // Ok so now the long pointer points to the address of string for the right player.
