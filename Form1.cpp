@@ -1332,6 +1332,11 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "29";
     }
     {
+        int playerIndex = 1;
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Allie Morse";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "31";
+    }
+    {
         int playerIndex = 2;
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Meghan Pezon";
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "15";
@@ -2179,7 +2184,7 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
         code_goalieSelection.AppendPushAcc_48();
         code_goalieSelection.LoadAccDirect_A5(0x8F);
         code_goalieSelection.AppendPushAcc_48();
-
+         
         /*
             LDY $91                         ; Load home-versus-away
             LDA 9F1C98/9F1C9A based on Y    ; Load team index
