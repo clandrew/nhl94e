@@ -59,6 +59,11 @@ namespace nhl94e
 	private: System::Windows::Forms::ComboBox^ headerColorComboBox;
 
 	private: System::Windows::Forms::Label^ label6;
+	private: System::Windows::Forms::ComboBox^ awayColorComboBox;
+
+	private: System::Windows::Forms::Label^ label8;
+	private: System::Windows::Forms::ComboBox^ homeColorComboBox;
+	private: System::Windows::Forms::Label^ label7;
 #endif
 
 	private:
@@ -81,6 +86,12 @@ namespace nhl94e
 			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->awayColorComboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->label8 = (gcnew System::Windows::Forms::Label());
+			this->homeColorComboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->headerColorComboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->teamVenueTextBox = (gcnew System::Windows::Forms::TextBox());
 			this->teamNameTextBox = (gcnew System::Windows::Forms::TextBox());
 			this->locationTextBox = (gcnew System::Windows::Forms::TextBox());
@@ -91,8 +102,6 @@ namespace nhl94e
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
-			this->label6 = (gcnew System::Windows::Forms::Label());
-			this->headerColorComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			this->SuspendLayout();
@@ -145,6 +154,10 @@ namespace nhl94e
 			// 
 			this->panel1->BackColor = System::Drawing::Color::WhiteSmoke;
 			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->panel1->Controls->Add(this->awayColorComboBox);
+			this->panel1->Controls->Add(this->label8);
+			this->panel1->Controls->Add(this->homeColorComboBox);
+			this->panel1->Controls->Add(this->label7);
 			this->panel1->Controls->Add(this->headerColorComboBox);
 			this->panel1->Controls->Add(this->label6);
 			this->panel1->Controls->Add(this->teamVenueTextBox);
@@ -161,6 +174,63 @@ namespace nhl94e
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(206, 522);
 			this->panel1->TabIndex = 1;
+			// 
+			// awayColorComboBox
+			// 
+			this->awayColorComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->awayColorComboBox->FormattingEnabled = true;
+			this->awayColorComboBox->Location = System::Drawing::Point(93, 252);
+			this->awayColorComboBox->Name = L"awayColorComboBox";
+			this->awayColorComboBox->Size = System::Drawing::Size(99, 21);
+			this->awayColorComboBox->TabIndex = 14;
+			this->awayColorComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::awayColorComboBox_SelectedIndexChanged);
+			// 
+			// label8
+			// 
+			this->label8->AutoSize = true;
+			this->label8->Location = System::Drawing::Point(15, 255);
+			this->label8->Name = L"label8";
+			this->label8->Size = System::Drawing::Size(63, 13);
+			this->label8->TabIndex = 13;
+			this->label8->Text = L"Away Color:";
+			// 
+			// homeColorComboBox
+			// 
+			this->homeColorComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->homeColorComboBox->FormattingEnabled = true;
+			this->homeColorComboBox->Location = System::Drawing::Point(93, 218);
+			this->homeColorComboBox->Name = L"homeColorComboBox";
+			this->homeColorComboBox->Size = System::Drawing::Size(99, 21);
+			this->homeColorComboBox->TabIndex = 12;
+			this->homeColorComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::homeColorComboBox_SelectedIndexChanged);
+			// 
+			// label7
+			// 
+			this->label7->AutoSize = true;
+			this->label7->Location = System::Drawing::Point(15, 221);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(65, 13);
+			this->label7->TabIndex = 11;
+			this->label7->Text = L"Home Color:";
+			// 
+			// headerColorComboBox
+			// 
+			this->headerColorComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
+			this->headerColorComboBox->FormattingEnabled = true;
+			this->headerColorComboBox->Location = System::Drawing::Point(93, 185);
+			this->headerColorComboBox->Name = L"headerColorComboBox";
+			this->headerColorComboBox->Size = System::Drawing::Size(99, 21);
+			this->headerColorComboBox->TabIndex = 10;
+			this->headerColorComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::headerColorComboBox_SelectedIndexChanged);
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Location = System::Drawing::Point(15, 188);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(72, 13);
+			this->label6->TabIndex = 9;
+			this->label6->Text = L"Header Color:";
 			// 
 			// teamVenueTextBox
 			// 
@@ -248,25 +318,6 @@ namespace nhl94e
 			this->tabControl1->Size = System::Drawing::Size(409, 522);
 			this->tabControl1->TabIndex = 2;
 			// 
-			// label6
-			// 
-			this->label6->AutoSize = true;
-			this->label6->Location = System::Drawing::Point(15, 188);
-			this->label6->Name = L"label6";
-			this->label6->Size = System::Drawing::Size(72, 13);
-			this->label6->TabIndex = 9;
-			this->label6->Text = L"Header Color:";
-			// 
-			// headerColorComboBox
-			// 
-			this->headerColorComboBox->DropDownStyle = System::Windows::Forms::ComboBoxStyle::DropDownList;
-			this->headerColorComboBox->FormattingEnabled = true;
-			this->headerColorComboBox->Location = System::Drawing::Point(93, 185);
-			this->headerColorComboBox->Name = L"headerColorComboBox";
-			this->headerColorComboBox->Size = System::Drawing::Size(99, 21);
-			this->headerColorComboBox->TabIndex = 10;
-			this->headerColorComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::headerColorComboBox_SelectedIndexChanged);
-			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -307,5 +358,7 @@ private: System::Void acronymTextBox_TextChanged(System::Object^ sender, System:
 private: System::Void teamNameTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void teamVenueTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void headerColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+private: System::Void homeColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+private: System::Void awayColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 };
 }

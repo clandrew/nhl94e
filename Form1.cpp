@@ -911,6 +911,8 @@ TeamData GetTeamData(int teamIndex, int playerDataAddress)
     }
 
     result.HeaderColorIndex = teamIndex;
+    result.HomeColorIndex = teamIndex;
+    result.AwayColorIndex = teamIndex;
 
     return result;
 }
@@ -1327,36 +1329,44 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         AddTeamGridUI(team);
     }
 
-    // Load pallettes
+    const char* colorSchemeNames[] =
+    {
+        "Anaheim_WhiteGreen",
+        "Boston_BlackYellow",
+        "Buffalo_YellowBlue",
+        "Calgary_YellowOrange",
+        "Chicago_BlackRed",
+        "Dallas_BlackGreen",
+        "Detroit_WhiteRed",
+        "Edmonton_BlueOrange",
+        "Florida_BlueOrange",
+        "Hartford_GreenBlue",
+        "LosAngeles_BlackGray",
+        "Montreal_RedBlue",
+        "NewJersey_BlackRed",
+        "NyIslanders_BlueOrange",
+        "NyRangers_RedBlue",
+        "Ottawa_BlackRed",
+        "Philly_BlackOrange",
+        "Pittsburgh_YellowBrown",
+        "Quebec_LightBlueWhite",
+        "SanJose_BlackTurquoise",
+        "StLouis_YellowBlue",
+        "TampaBay_BlackBlue",
+        "Toronto_WhiteBlue",
+        "Vancouver_YellowOrange",
+        "Washington_BlueRed",
+        "Winnipeg_RedPurple",
+        "ASE_OrangeWhite",
+        "ASW_BlackOrange",
+    };
 
-    this->headerColorComboBox->Items->Add("Anaheim_WhiteGreen");
-    this->headerColorComboBox->Items->Add("Boston_BlackYellow");
-    this->headerColorComboBox->Items->Add("Buffalo_YellowBlue");
-    this->headerColorComboBox->Items->Add("Calgary_YellowOrange");
-    this->headerColorComboBox->Items->Add("Chicago_BlackRed");
-    this->headerColorComboBox->Items->Add("Dallas_BlackGreen");
-    this->headerColorComboBox->Items->Add("Detroit_WhiteRed");
-    this->headerColorComboBox->Items->Add("Edmonton_BlueOrange");
-    this->headerColorComboBox->Items->Add("Florida_BlueOrange");
-    this->headerColorComboBox->Items->Add("Hartford_GreenBlue");
-    this->headerColorComboBox->Items->Add("LosAngeles_BlackGray");
-    this->headerColorComboBox->Items->Add("Montreal_RedBlue");
-    this->headerColorComboBox->Items->Add("NewJersey_BlackRed");
-    this->headerColorComboBox->Items->Add("NyIslanders_BlueOrange");
-    this->headerColorComboBox->Items->Add("NyRangers_RedBlue");
-    this->headerColorComboBox->Items->Add("Ottawa_BlackRed");
-    this->headerColorComboBox->Items->Add("Philly_BlackOrange");
-    this->headerColorComboBox->Items->Add("Pittsburgh_YellowBrown");
-    this->headerColorComboBox->Items->Add("Quebec_LightBlueWhite");
-    this->headerColorComboBox->Items->Add("SanJose_BlackTurquoise");
-    this->headerColorComboBox->Items->Add("StLouis_YellowBlue");
-    this->headerColorComboBox->Items->Add("TampaBay_BlackBlue");
-    this->headerColorComboBox->Items->Add("Toronto_WhiteBlue");
-    this->headerColorComboBox->Items->Add("Vancouver_YellowOrange");
-    this->headerColorComboBox->Items->Add("Washington_BlueRed");
-    this->headerColorComboBox->Items->Add("Winnipeg_RedPurple");
-    this->headerColorComboBox->Items->Add("ASE_OrangeWhite");
-    this->headerColorComboBox->Items->Add("ASW_BlackOrange");
+    for (int i = 0; i < 28; ++i)
+    {
+        this->headerColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
+        this->homeColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
+        this->awayColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
+    }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
 
@@ -1405,10 +1415,9 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         teamNameTextBox->Text = "Whitecaps"; 
         teamVenueTextBox->Text = "TRIA Rink";
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
+        homeColorComboBox->SelectedIndex = (int)Team::TampaBay;
+        awayColorComboBox->SelectedIndex = (int)Team::TampaBay;
     }
-
-    s_playerPallettes[(int)Team::Montreal].Home.CopyBytesFrom(s_playerPallettes[(int)Team::TampaBay].Home);
-    s_playerPallettes[(int)Team::Montreal].Away.CopyBytesFrom(s_playerPallettes[(int)Team::TampaBay].Away);
 
 #endif
 }
@@ -2550,11 +2559,8 @@ void SavePlayerPallettes()
 {
     for (int i = 0; i < (int)Team::Count; ++i)
     {
-        if (!s_playerPallettes[i].Home.Modified && !s_playerPallettes[i].Away.Modified)
-            continue;
-
-        s_romData.SaveBytes(s_playerPallettes[i].Away.SourceDataFileOffset, s_playerPallettes[i].Away.Bytes);
-        s_romData.SaveBytes(s_playerPallettes[i].Home.SourceDataFileOffset, s_playerPallettes[i].Home.Bytes);
+        s_romData.SaveBytes(s_playerPallettes[i].Home.SourceDataFileOffset, s_playerPallettes[s_allTeams[i].HomeColorIndex].Home.Bytes);
+        s_romData.SaveBytes(s_playerPallettes[i].Away.SourceDataFileOffset, s_playerPallettes[s_allTeams[i].AwayColorIndex].Away.Bytes);
     }
 }
 
@@ -2783,7 +2789,10 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
     teamNameTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].TeamName.Get());
     teamVenueTextBox->Text = NarrowASCIIStringToManaged(s_allTeams[teamIndex].Venue.Get());
 
+    // Update combo boxes to reflect the current team selection
     this->headerColorComboBox->SelectedIndex = s_allTeams[teamIndex].HeaderColorIndex;
+    this->homeColorComboBox->SelectedIndex = s_allTeams[teamIndex].HomeColorIndex;
+    this->awayColorComboBox->SelectedIndex = s_allTeams[teamIndex].AwayColorIndex;
 }
 
 void nhl94e::Form1::locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
@@ -2819,4 +2828,16 @@ void nhl94e::Form1::headerColorComboBox_SelectedIndexChanged(System::Object^ sen
 {
     int teamIndex = this->tabControl1->SelectedIndex;
     s_allTeams[teamIndex].HeaderColorIndex = headerColorComboBox->SelectedIndex;
+}
+
+void nhl94e::Form1::homeColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) 
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    s_allTeams[teamIndex].HomeColorIndex = homeColorComboBox->SelectedIndex;
+}
+
+void nhl94e::Form1::awayColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) 
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    s_allTeams[teamIndex].AwayColorIndex = awayColorComboBox->SelectedIndex;
 }
