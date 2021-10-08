@@ -93,15 +93,14 @@ public:
         fclose(file);
     }
 
-    void ReadBytes(int fileOffset, int byteCount, std::vector<unsigned char>* dest)
+    void ReadBytes(int fileOffset, int byteCount, unsigned char* dest)
     {
-        dest->resize(byteCount);
-        memcpy(dest->data(), &(m_data[fileOffset]), byteCount);
+        memcpy(dest, &(m_data[fileOffset]), byteCount);
     }
 
-    void SaveBytes(int fileOffset, std::vector<unsigned char> const& bytes)
+    void SaveBytes(int fileOffset, int byteCount, unsigned char* bytes)
     {
-        memcpy(&(m_data[fileOffset]), bytes.data(), bytes.size());
+        memcpy(&(m_data[fileOffset]), bytes, byteCount);
     }
 
 } s_romData;
@@ -163,6 +162,23 @@ unsigned char StrToHex(std::wstring s)
     unsigned char d1 = ChrToHex(s[1]);
     return (d0 * 16) + d1;
 }
+
+static struct SkinColorOverride
+{
+    std::string Name;
+    int A8R8G8B8;
+    unsigned short B5G5R5;
+    int UITextColorARGB;
+};
+SkinColorOverride s_skinColorOverrides[]
+{
+    { "<not overridden>",   0x0,            0x0,        0xFF000000 },
+    { "Light Beige",        0xFFE2BfB4,     0x5AFC,     0xFF000000},
+    //{ "Beige", 0xC09080, 0x4258 }, used in game if not overridden
+    { "Tan",                0xFF846054,     0x2990,     0xFFFFFFFF },
+    { "Brown",              0xFF5B4437,     0x190B,     0xFFFFFFFF },
+    { "Dark Brown",         0xFF2F231D,     0x0C85,     0xFFFFFFFF },
+};
 
 static std::vector<unsigned char> asm_LoadLongAddress_ArrayElement_Into_8D_txt;
 
@@ -913,6 +929,7 @@ TeamData GetTeamData(int teamIndex, int playerDataAddress)
     result.HeaderColorIndex = teamIndex;
     result.HomeColorIndex = teamIndex;
     result.AwayColorIndex = teamIndex;
+    result.SkinColorOverrideIndex = 0;
 
     return result;
 }
@@ -926,11 +943,11 @@ std::vector<PlayerPallette> LoadPlayerPallettes()
         PlayerPallette p;
         p.Away.SourceDataROMAddress = 0x96C9CE + (0x20 * teamIndex);
         p.Away.SourceDataFileOffset = ROMAddressToFileOffset(p.Away.SourceDataROMAddress);
-        s_romData.ReadBytes(p.Away.SourceDataFileOffset, 0x20, &(p.Away.Bytes));
+        s_romData.ReadBytes(p.Away.SourceDataFileOffset, 0x20, p.Away.Bytes);
 
         p.Home.SourceDataROMAddress = 0x96CD4E + (0x20 * teamIndex);
         p.Home.SourceDataFileOffset = ROMAddressToFileOffset(p.Home.SourceDataROMAddress);
-        s_romData.ReadBytes(p.Home.SourceDataFileOffset, 0x20, &(p.Home.Bytes));
+        s_romData.ReadBytes(p.Home.SourceDataFileOffset, 0x20, p.Home.Bytes);
 
         result.push_back(p);
     }
@@ -1312,8 +1329,6 @@ void TryCommitStatChange(
 
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
-    int dbg = FileOffsetToROMAddress(0xB88D0);
-
     s_romData.LoadBytesFromFile(romFilename.c_str());
 
     if (!s_romData.EnsureExpandedSize())
@@ -1366,6 +1381,11 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         this->headerColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
         this->homeColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
         this->awayColorComboBox->Items->Add(gcnew System::String(colorSchemeNames[i]));
+    }
+
+    for (int i = 0; i < _countof(s_skinColorOverrides); ++i)
+    {
+        this->skinColorOverrideComboBox->Items->Add(gcnew System::String(s_skinColorOverrides[i].Name.c_str()));
     }
 
     tabControl1->SelectedIndex = (int)Team::Montreal;
@@ -2559,8 +2579,17 @@ void SavePlayerPallettes()
 {
     for (int i = 0; i < (int)Team::Count; ++i)
     {
-        s_romData.SaveBytes(s_playerPallettes[i].Home.SourceDataFileOffset, s_playerPallettes[s_allTeams[i].HomeColorIndex].Home.Bytes);
-        s_romData.SaveBytes(s_playerPallettes[i].Away.SourceDataFileOffset, s_playerPallettes[s_allTeams[i].AwayColorIndex].Away.Bytes);
+        PlayerPallette::ColorSet homeColors = s_playerPallettes[s_allTeams[i].HomeColorIndex].Home;
+        PlayerPallette::ColorSet awayColors = s_playerPallettes[s_allTeams[i].AwayColorIndex].Away;
+
+        if (s_allTeams[i].SkinColorOverrideIndex != 0)
+        {
+            homeColors.Named.Skin = s_skinColorOverrides[s_allTeams[i].SkinColorOverrideIndex].B5G5R5;
+            awayColors.Named.Skin = s_skinColorOverrides[s_allTeams[i].SkinColorOverrideIndex].B5G5R5;
+        }
+
+        s_romData.SaveBytes(s_playerPallettes[i].Home.SourceDataFileOffset, 0x20, homeColors.Bytes);
+        s_romData.SaveBytes(s_playerPallettes[i].Away.SourceDataFileOffset, 0x20, awayColors.Bytes);
     }
 }
 
@@ -2793,6 +2822,8 @@ void nhl94e::Form1::OnSelectedIndexChanged(System::Object^ sender, System::Event
     this->headerColorComboBox->SelectedIndex = s_allTeams[teamIndex].HeaderColorIndex;
     this->homeColorComboBox->SelectedIndex = s_allTeams[teamIndex].HomeColorIndex;
     this->awayColorComboBox->SelectedIndex = s_allTeams[teamIndex].AwayColorIndex;
+
+    this->skinColorOverrideComboBox->SelectedIndex = s_allTeams[teamIndex].SkinColorOverrideIndex;
 }
 
 void nhl94e::Form1::locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e)
@@ -2840,4 +2871,24 @@ void nhl94e::Form1::awayColorComboBox_SelectedIndexChanged(System::Object^ sende
 {
     int teamIndex = this->tabControl1->SelectedIndex;
     s_allTeams[teamIndex].AwayColorIndex = awayColorComboBox->SelectedIndex;
+}
+
+void nhl94e::Form1::skinColorOverrideComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e)
+{
+    int teamIndex = this->tabControl1->SelectedIndex;
+    s_allTeams[teamIndex].SkinColorOverrideIndex = skinColorOverrideComboBox->SelectedIndex;
+
+    if (skinColorOverrideComboBox->SelectedIndex == 0)
+    {
+        skinColorOverrideComboBox->BackColor = System::Drawing::Color::White;
+        skinColorOverrideComboBox->ForeColor = System::Drawing::Color::Black;
+    }
+    else
+    {
+        int backArgb = s_skinColorOverrides[skinColorOverrideComboBox->SelectedIndex].A8R8G8B8;
+        int textArgb = s_skinColorOverrides[skinColorOverrideComboBox->SelectedIndex].UITextColorARGB;
+
+        skinColorOverrideComboBox->BackColor = System::Drawing::Color::FromArgb(backArgb);
+        skinColorOverrideComboBox->ForeColor = System::Drawing::Color::FromArgb(textArgb);
+    }
 }

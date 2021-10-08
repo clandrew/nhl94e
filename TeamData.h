@@ -171,6 +171,7 @@ struct TeamData
     int HeaderColorIndex;
     int HomeColorIndex;
     int AwayColorIndex;
+    int SkinColorOverrideIndex; // 0 if unused
 
     PlayerData* GetPlayerByOriginalName(std::string name)
     {
@@ -191,7 +192,31 @@ struct PlayerPallette
     {
         int SourceDataROMAddress;
         int SourceDataFileOffset;
-        std::vector<unsigned char> Bytes;
+
+        union
+        {
+            struct
+            {
+                unsigned short Reserved;
+                unsigned short Skateblade;
+                unsigned short Skate;
+                unsigned short Gear0;
+                unsigned short Gear1;
+                unsigned short Gear2;
+                unsigned short Gear3;
+                unsigned short Skin;
+
+                unsigned short Gear4;
+                unsigned short Gear5;
+                unsigned short Gear6;
+                unsigned short Gear7;
+                unsigned short Gear8;
+                unsigned short Gear9;
+                unsigned short Wood;
+                unsigned short IceShadow;
+            } Named;
+            unsigned char Bytes[0x20];
+        };
     };
     ColorSet Home;
     ColorSet Away;

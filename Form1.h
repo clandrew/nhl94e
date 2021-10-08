@@ -64,6 +64,9 @@ namespace nhl94e
 	private: System::Windows::Forms::Label^ label8;
 	private: System::Windows::Forms::ComboBox^ homeColorComboBox;
 	private: System::Windows::Forms::Label^ label7;
+	private: System::Windows::Forms::ComboBox^ skinColorOverrideComboBox;
+
+	private: System::Windows::Forms::Label^ label9;
 #endif
 
 	private:
@@ -86,6 +89,8 @@ namespace nhl94e
 			this->saveROMToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->skinColorOverrideComboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->label9 = (gcnew System::Windows::Forms::Label());
 			this->awayColorComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->label8 = (gcnew System::Windows::Forms::Label());
 			this->homeColorComboBox = (gcnew System::Windows::Forms::ComboBox());
@@ -154,6 +159,8 @@ namespace nhl94e
 			// 
 			this->panel1->BackColor = System::Drawing::Color::WhiteSmoke;
 			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->panel1->Controls->Add(this->skinColorOverrideComboBox);
+			this->panel1->Controls->Add(this->label9);
 			this->panel1->Controls->Add(this->awayColorComboBox);
 			this->panel1->Controls->Add(this->label8);
 			this->panel1->Controls->Add(this->homeColorComboBox);
@@ -174,6 +181,24 @@ namespace nhl94e
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(206, 522);
 			this->panel1->TabIndex = 1;
+			// 
+			// skinColorOverrideComboBox
+			// 
+			this->skinColorOverrideComboBox->FormattingEnabled = true;
+			this->skinColorOverrideComboBox->Location = System::Drawing::Point(18, 312);
+			this->skinColorOverrideComboBox->Name = L"skinColorOverrideComboBox";
+			this->skinColorOverrideComboBox->Size = System::Drawing::Size(98, 21);
+			this->skinColorOverrideComboBox->TabIndex = 16;
+			this->skinColorOverrideComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::skinColorOverrideComboBox_SelectedIndexChanged);
+			// 
+			// label9
+			// 
+			this->label9->AutoSize = true;
+			this->label9->Location = System::Drawing::Point(15, 286);
+			this->label9->Name = L"label9";
+			this->label9->Size = System::Drawing::Size(101, 13);
+			this->label9->TabIndex = 15;
+			this->label9->Text = L"Skin Color Override:";
 			// 
 			// awayColorComboBox
 			// 
@@ -360,5 +385,6 @@ private: System::Void teamVenueTextBox_TextChanged(System::Object^ sender, Syste
 private: System::Void headerColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void homeColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void awayColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+private: System::Void skinColorOverrideComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 };
 }

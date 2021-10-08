@@ -87,3 +87,45 @@ void GetCellRowData(
     *r0 = buffer[srcIndBase + 0];
     *r1 = buffer[srcIndBase + 1];
 }
+
+int SnesB5G5R5ToR8B8G8(unsigned short snesFmt)
+{
+    unsigned short r5 = snesFmt & 0x1F;
+    snesFmt >>= 5;
+    unsigned short g5 = snesFmt & 0x1F;
+    snesFmt >>= 5;
+    unsigned short b5 = snesFmt & 0x1F;
+
+    int r8 = r5 * 8;
+    int g8 = g5 * 8;
+    int b8 = b5 * 8;
+
+    int rgb = r8;
+    rgb <<= 8;
+    rgb |= g8;
+    rgb <<= 8;
+    rgb |= b8;
+
+    return rgb;
+}
+
+unsigned short R8B8G8ToSnesB5G5R5(int rgbFmt)
+{
+    unsigned short b8 = rgbFmt & 0xFF;
+    rgbFmt >>= 8;
+    unsigned short g8 = rgbFmt & 0xFF;
+    rgbFmt >>= 8;
+    unsigned short r8 = rgbFmt & 0xFF;
+
+    int r5 = r8 / 8;
+    int g5 = g8 / 8;
+    int b5 = b8 / 8;
+
+    unsigned short snes = b5;
+    snes <<= 5;
+    snes |= g5;
+    snes <<= 5;
+    snes |= r5;
+
+    return snes;
+}
