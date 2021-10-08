@@ -185,16 +185,16 @@ namespace nhl94e
 			// skinColorOverrideComboBox
 			// 
 			this->skinColorOverrideComboBox->FormattingEnabled = true;
-			this->skinColorOverrideComboBox->Location = System::Drawing::Point(18, 312);
+			this->skinColorOverrideComboBox->Location = System::Drawing::Point(114, 284);
 			this->skinColorOverrideComboBox->Name = L"skinColorOverrideComboBox";
-			this->skinColorOverrideComboBox->Size = System::Drawing::Size(98, 21);
+			this->skinColorOverrideComboBox->Size = System::Drawing::Size(77, 21);
 			this->skinColorOverrideComboBox->TabIndex = 16;
 			this->skinColorOverrideComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form1::skinColorOverrideComboBox_SelectedIndexChanged);
 			// 
 			// label9
 			// 
 			this->label9->AutoSize = true;
-			this->label9->Location = System::Drawing::Point(15, 286);
+			this->label9->Location = System::Drawing::Point(15, 287);
 			this->label9->Name = L"label9";
 			this->label9->Size = System::Drawing::Size(101, 13);
 			this->label9->TabIndex = 15;
