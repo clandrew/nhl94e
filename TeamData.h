@@ -182,3 +182,31 @@ struct TeamData
         return nullptr;
     }
 };
+
+struct PlayerPallette
+{
+    struct ColorSet
+    {
+        ColorSet()
+            : Modified(false) {}
+
+        int SourceDataROMAddress;
+        int SourceDataFileOffset;
+        std::vector<unsigned char> Bytes;
+        bool Modified;
+
+        void CopyBytesFrom(ColorSet const& other)
+        {
+            for (int i = 0; i < Bytes.size(); ++i)
+            {
+                if (Bytes[i] != other.Bytes[i])
+                {
+                    Modified = true;
+                }
+                Bytes[i] = other.Bytes[i];
+            }
+        }
+    };
+    ColorSet Home;
+    ColorSet Away;
+};

@@ -7,6 +7,8 @@
 
 static std::vector<TeamData> s_allTeams;
 
+static std::vector<PlayerPallette> s_playerPallettes;
+
 class RomData
 {
     std::vector<unsigned char> m_data;
@@ -89,6 +91,17 @@ public:
         _wfopen_s(&file, path.c_str(), L"wb");
         fwrite(&m_data[0], 1, m_data.size(), file);
         fclose(file);
+    }
+
+    void ReadBytes(int fileOffset, int byteCount, std::vector<unsigned char>* dest)
+    {
+        dest->resize(byteCount);
+        memcpy(dest->data(), &(m_data[fileOffset]), byteCount);
+    }
+
+    void SaveBytes(int fileOffset, std::vector<unsigned char> const& bytes)
+    {
+        memcpy(&(m_data[fileOffset]), bytes.data(), bytes.size());
     }
 
 } s_romData;
@@ -902,6 +915,27 @@ TeamData GetTeamData(int teamIndex, int playerDataAddress)
     return result;
 }
 
+std::vector<PlayerPallette> LoadPlayerPallettes()
+{
+    std::vector<PlayerPallette> result;
+
+    for (int teamIndex = 0; teamIndex < 28; ++teamIndex)
+    {
+        PlayerPallette p;
+        p.Away.SourceDataROMAddress = 0x96C9CE + (0x20 * teamIndex);
+        p.Away.SourceDataFileOffset = ROMAddressToFileOffset(p.Away.SourceDataROMAddress);
+        s_romData.ReadBytes(p.Away.SourceDataFileOffset, 0x20, &(p.Away.Bytes));
+
+        p.Home.SourceDataROMAddress = 0x96CD4E + (0x20 * teamIndex);
+        p.Home.SourceDataFileOffset = ROMAddressToFileOffset(p.Home.SourceDataROMAddress);
+        s_romData.ReadBytes(p.Home.SourceDataFileOffset, 0x20, &(p.Home.Bytes));
+
+        result.push_back(p);
+    }
+
+    return result;
+}
+
 std::vector<TeamData> LoadPlayerNamesAndStats()
 {
     // Look up the player data pointer table, stored at 0x9CA5E7 in ROM memory map or 0xE25E7 in the ROM file.
@@ -1285,11 +1319,15 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
 
     s_allTeams = LoadPlayerNamesAndStats();
 
+    s_playerPallettes = LoadPlayerPallettes();
+
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
         TeamData const& team = s_allTeams[teamIndex];
         AddTeamGridUI(team);
     }
+
+    // Load pallettes
 
     this->headerColorComboBox->Items->Add("Anaheim_WhiteGreen");
     this->headerColorComboBox->Items->Add("Boston_BlackYellow");
@@ -1368,6 +1406,9 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         teamVenueTextBox->Text = "TRIA Rink";
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
     }
+
+    s_playerPallettes[(int)Team::Montreal].Home.CopyBytesFrom(s_playerPallettes[(int)Team::TampaBay].Home);
+    s_playerPallettes[(int)Team::Montreal].Away.CopyBytesFrom(s_playerPallettes[(int)Team::TampaBay].Away);
 
 #endif
 }
@@ -2505,6 +2546,18 @@ void SaveHeaderColors()
     }
 }
 
+void SavePlayerPallettes()
+{
+    for (int i = 0; i < (int)Team::Count; ++i)
+    {
+        if (!s_playerPallettes[i].Home.Modified && !s_playerPallettes[i].Away.Modified)
+            continue;
+
+        s_romData.SaveBytes(s_playerPallettes[i].Away.SourceDataFileOffset, s_playerPallettes[i].Away.Bytes);
+        s_romData.SaveBytes(s_playerPallettes[i].Home.SourceDataFileOffset, s_playerPallettes[i].Home.Bytes);
+    }
+}
+
 System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
@@ -2542,6 +2595,8 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     RomDataIterator freeSpaceIter(ROMAddressToFileOffset(0xA08000));
 
     SaveHeaderColors();
+
+    SavePlayerPallettes();
 
     if (!InsertTeamLocationText(&freeSpaceIter))
     {
