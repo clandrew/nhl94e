@@ -25,9 +25,7 @@ In the latest source, here's what works:
 * Team renames in both player cards and Ron Barr's commentary
 * Venue renames in both player cards and Ron Barr's commentary
 * Can change color schemes of the subheader for a team
-
-Future ideas:
-* Get renamed goalie to appear in the goalie selection menu item
+* Goalie renames show up in the goalie selection menu
 
 ## Build
 The source code is organized as a Visual Studio 2019 built for x86-64 architecture. It's a C++/CLI Windows Forms application. Normally I don't use C++/CLI but it started out as a command-line tool written in C++. When I wanted to add GUI this made the most sense.
