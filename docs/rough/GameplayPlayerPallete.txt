@@ -555,9 +555,9 @@ The set of 'home' palette data is 0x360 bytes, so is the 'away' data.
 -- no more palette data higher up
 
 0 Anaheim away player palette		- ROM address 96C9CE
-1					- ROM address 96C9EE
-2					- ROM address 96CA0E
-3					- ROM address 96CA2E
+1 Boston				- ROM address 96C9EE
+2 Buffalo				- ROM address 96CA0E
+3 Calgary				- ROM address 96CA2E
 4					- ROM address 96CA4E
 5					- ROM address 96CA6E
 6					- ROM address 96CA8E
@@ -566,15 +566,15 @@ The set of 'home' palette data is 0x360 bytes, so is the 'away' data.
 9					- ROM address 96CAEE
 A LA away player palette		- ROM address 96CB0E
 B Montreal away player palette		- ROM address 96CB2E
-C					- ROM address 96CB4E
-D					- ROM address 96CB6E
-E					- ROM address 96CB8E
+C NJ					- ROM address 96CB4E
+D NY					- ROM address 96CB6E
+E NY					- ROM address 96CB8E
 F					- ROM address 96CBAE
 10					- ROM address 96CBCE
 11					- ROM address 96CBEE
 12					- ROM address 96CC0E
 13					- ROM address 96CC2E
-14					- ROM address 96CC4E
+14 STL					- ROM address 96CC4E
 15					- ROM address 96CC6E
 16					- ROM address 96CC8E
 17					- ROM address 96CCAE
@@ -584,9 +584,9 @@ F					- ROM address 96CBAE
 1B All Stars West away player palette	- ROM address 96CD2E
 
 0 Anaheim home player palette		- ROM address 96CD4E
-1					- ROM address 96CD6E
-2					- ROM address 96CD8E
-3					- ROM address 96CDAE
+1 Boston				- ROM address 96CD6E
+2 Buffalo				- ROM address 96CD8E
+3 Calgary				- ROM address 96CDAE
 4					- ROM address 96CDCE
 5					- ROM address 96CDEE
 6					- ROM address 96CE0E
@@ -595,15 +595,15 @@ F					- ROM address 96CBAE
 9 Hartford				- ROM address 96CE6E
 A LA home player pallette 		- ROM address 96CE8E
 B Montreal home player pallette 	- ROM address 96CEAE
-C					- ROM address 96CECE
-D					- ROM address 96CEEE
-E					- ROM address 96CF0E
-F					- ROM address 96CF2E
-10					- ROM address 96CF4E
-11					- ROM address 96CF6E
-12					- ROM address 96CF8E
-13					- ROM address 96CFAE
-14					- ROM address 96CFCE
+C NJ					- ROM address 96CECE
+D NY					- ROM address 96CEEE
+E NY					- ROM address 96CF0E
+F Ottawa				- ROM address 96CF2E
+10 Philly				- ROM address 96CF4E
+11 Pittsburgh				- ROM address 96CF6E
+12 Quebec				- ROM address 96CF8E
+13 SJ					- ROM address 96CFAE
+14 STL					- ROM address 96CFCE
 15					- ROM address 96CFEE
 16					- ROM address 96D00E
 17					- ROM address 96D02E
