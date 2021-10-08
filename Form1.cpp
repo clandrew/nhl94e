@@ -336,6 +336,18 @@ struct ObjectCode
         AppendShortImmediate(imm);
     }
 
+    void AppendLoadYDirect_A4(unsigned char c)
+    {
+        m_code.push_back(0xA4);
+        m_code.push_back(c);
+    }
+
+    void AppendLoadAccumulatorAbsoluteY_B9(int address)
+    {
+        m_code.push_back(0xB9);
+        AppendShortImmediate(address);
+    }
+
     void AppendLoadLong_AF(int addr)
     {
         m_code.push_back(0xAF);
@@ -373,6 +385,18 @@ struct ObjectCode
     void AppendStoreDirect_85(unsigned char c)
     {
         m_code.push_back(0x85);
+        m_code.push_back(c);
+    }
+
+    void LoadAccDirect_A5(unsigned char c)
+    {
+        m_code.push_back(0xA5);
+        m_code.push_back(c);
+    }
+
+    void AppendAddWithCarryDirect_65(unsigned char c)
+    {
+        m_code.push_back(0x65);
         m_code.push_back(c);
     }
 
@@ -2061,19 +2085,19 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
     //     For stats I prefer modifying them without all this relocation business. It's fixed length non string data so who cares. Also I would need to
     //     look up all the places that touch them to feel good about it and I can't be bothered.
     //
-    // At the end of the tables is a data stream of non-fixed length.
+    // At the end of the tables is a data stream of variable length.
     //
     // In general this approach is memory-optimized for the situation where you plan to modify some players but not all of them.
     // In the datastream you store just the players whose names need to be patched on top.
 
     // First, plan out where each of the tables will be so that things are nice and compact.
 
-    ObjectCode code;
-    code.LoadAsmFromDebuggerText(L"LookupPlayerNameDet.asm");
-    if (code.m_code.size() == 0)
+    ObjectCode code_loadNamesDuringGameSetup;
+    code_loadNamesDuringGameSetup.LoadAsmFromDebuggerText(L"LookupPlayerNameDet.asm");
+    if (code_loadNamesDuringGameSetup.m_code.size() == 0)
         return false;
 
-    int codeSize = code.m_code.size();
+    int codeSize = code_loadNamesDuringGameSetup.m_code.size();
     freeSpaceIter->EnsureSpaceInBank(codeSize);
     const int codeROMLocation = freeSpaceIter->GetROMOffset();
     freeSpaceIter->SkipBytes(codeSize);
@@ -2132,13 +2156,123 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
         }
     }
 
-    RomDataIterator codeIter(ROMAddressToFileOffset(codeROMLocation));
+    // Patch code that looks up into the tables in the GAME SETUP menu
+    {
+        RomDataIterator codeIter(ROMAddressToFileOffset(codeROMLocation));
 
-    code.PatchLoadFromLongAddress_LookupPlayerNameDet(firstTableLocation);
+        code_loadNamesDuringGameSetup.PatchLoadFromLongAddress_LookupPlayerNameDet(firstTableLocation);
 
-    // Insert the detour code in free space, and add the jmp
-    bool detourPatched = InsertJumpOutDetour(code.m_code, 0x9FC732, 0x9FC756 + 1, &codeIter);
-    return detourPatched;
+        // Insert the detour code in free space, and add the jmp
+        bool detourPatched = InsertJumpOutDetour(code_loadNamesDuringGameSetup.m_code, 0x9FC732, 0x9FC756 + 1, &codeIter);
+        if (!detourPatched)
+            return false;
+    }
+
+    // Patch code for the goalie selection menu if you are re-naming goalies
+    {
+        /*
+            LDY $91                         ; Load home-versus-away
+            LDA 9F1C98/9F1C9A based on Y    ; Load team index
+            0A ASL                          ; Multiply by 4 to turn into a byte index
+            0A ASL
+            A8 TAY                          ; Put byte index in Y
+        */
+        ObjectCode code_goalieSelection;
+        code_goalieSelection.AppendLoadYDirect_A4(0x91);
+        code_goalieSelection.AppendLoadAccumulatorAbsoluteY_B9(0x1C98);
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.m_code.push_back(0xA8);
+
+        /*        
+            // Put 0xA08200 (or whatever the alternate main table is) into $99
+            A9 A0 00    LDA #$00A0
+            85 8F       STA $9B
+            A9 00 82    LDA #$8200
+            85 8D       STA $99
+        */
+
+        int tableROMAddress = firstTableLocation;
+        int tableLow = tableROMAddress & 0xFFFF;
+        tableROMAddress >>= 16;
+        int tableHigh = tableROMAddress & 0xFFFF;
+
+        code_goalieSelection.AppendLoadAccImmediate_A9_16bit(tableHigh);
+        code_goalieSelection.AppendStoreDirect_85(0x9B);
+        code_goalieSelection.AppendLoadAccImmediate_A9_16bit(tableLow);
+        code_goalieSelection.AppendStoreDirect_85(0x99);
+
+        /*
+            // Load AlternateMainTable[teamIndex], a long pointer, into $8D-$8F
+
+            B7 99       LDA [$99],y         ; Seek to the right team. load the low short
+            85 8D       STA $8D             ; Save the low short
+            C8          INY                 ; Y+=2
+            C8          INY
+            B7 99       LDA [$99],y
+            85 8F       STA $8F
+        */
+        code_goalieSelection.AppendLoadDirectFromLongPointer_YIndexed_B7(0x99);
+        code_goalieSelection.AppendStoreDirect_85(0x8D);
+        code_goalieSelection.AppendIncY_C8();
+        code_goalieSelection.AppendIncY_C8();
+        code_goalieSelection.AppendLoadDirectFromLongPointer_YIndexed_B7(0x99);
+        code_goalieSelection.AppendStoreDirect_85(0x8F);
+
+        /*
+            // Taken by itself, the long pointer we just stored points to the first
+            // person in the team.
+            // Instead, we want it to point to the Nth person on the team, where N = goalie index.
+            // So, increment the long pointer by goalie index * 4.
+
+                        LDA $C5             ; Load the goalie index
+            0A          ASL                 ; Multiply by 4 to turn into a byte index
+            0A          ASL
+                        ADC $8D
+                        STA $8D        
+        */
+
+        code_goalieSelection.LoadAccDirect_A5(0xC5);
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        code_goalieSelection.AppendAddWithCarryDirect_65(0x8D);
+        code_goalieSelection.AppendStoreDirect_85(0x8D);
+
+        /*
+            // Ok so now the long pointer points to the address of string for the right player.
+            // It'll be 0xA0..... for replaced names, 0x9C.... for default names.
+            // Dereference this to find the value we ultimately need to return.
+
+            A7 8D       LDA [$8D]         ; Low short
+            85 99       STA $99           ; Save the low short
+
+                        LDA $8D
+                        INC
+                        INC
+                        STA $8D
+
+                        LDA [$8D]
+                        STA $9B
+        */
+        code_goalieSelection.AppendLoadDirectFromLongPointer_A7(0x8D);
+        code_goalieSelection.AppendStoreDirect_85(0x99);
+
+        code_goalieSelection.LoadAccDirect_A5(0x8D);
+        code_goalieSelection.AppendIncAcc_1A();
+        code_goalieSelection.AppendIncAcc_1A();
+        code_goalieSelection.AppendStoreDirect_85(0x8D);
+
+        code_goalieSelection.AppendLoadDirectFromLongPointer_A7(0x8D);
+        code_goalieSelection.AppendStoreDirect_85(0x9B);
+
+        // Jump back
+        code_goalieSelection.AppendLongJump(0x9FEB80 + 2);
+
+        bool detourPatched = InsertJumpOutDetour(code_goalieSelection.m_code, 0x9FEB5E, 0x9FEB80 + 2, freeSpaceIter);
+        if (!detourPatched) return false;
+    }
+
+    return true;
 }
 
 bool InsertPlayerNameText(RomDataIterator* freeSpaceIter)

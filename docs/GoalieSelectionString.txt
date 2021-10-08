@@ -6,6 +6,11 @@ Patrick Roy string is located at 9CC332
 Break on read
 The string is not continuously read back when you cycle the menu.
 
+Each team's goalies are indexed at the beginning
+Most teams have 2 goalies but not all. 
+	For example, Edmonton only has one.
+	And Hartford and LA have three.
+
 ///////////////////////////////////////////////////////////////////
 
 Function: CopyGoalieLastName - $9F/EAFC
@@ -34,7 +39,13 @@ $9F/EB5C 85 C5       STA $C5    [$00:00C5]   A:0000 X:0000 Y:0000 P:envmxdiZC
 
 ; Precondition: 9F1CDC and $9f1CDE have been initialized with 
 ; main table elements for home and away teams respectively.
-
+;
+; Team indices for home/away are stored at 9F1C98/9F1C9A respectively.
+;
+; $A5 normally contains PlayerIndexOnTeam, but it's not really applicable here because
+; we're set up to just load the first 2 entries.
+;
+; $C5 is goalie index. 0 means first goalie, 1 means second goalie, etc.
 
 $9F/EB5E B9 DC 1C    LDA $1CDC,y[$9F:1CDC]   A:0000 X:0000 Y:0000 P:envmxdiZC	; Load player data pointer into $99-$9C
 $9F/EB61 85 99       STA $99    [$00:0099]   A:C2DB X:0000 Y:0000 P:eNvmxdizC
@@ -47,13 +58,22 @@ $9F/EB6D 18          CLC                     A:0055 X:0000 Y:0000 P:envmxdizC
 $9F/EB6E 65 99       ADC $99    [$00:0099]   A:0055 X:0000 Y:0000 P:envmxdizc
 $9F/EB70 85 99       STA $99    [$00:0099]   A:C330 X:0000 Y:0000 P:eNvmxdizc	; Seek past the header
 
+CheckGoalieIndex:
 $9F/EB72 C6 C5       DEC $C5    [$00:00C5]   A:C330 X:0000 Y:0000 P:eNvmxdizc
-$9F/EB74 30 0C       BMI $0C    [$EB82]      A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB74 30 0C       BMI $0C    [$EB82]      A:C330 X:0000 Y:0000 P:eNvmxdizc	; Check the goalie index? E.g., -1 (0xFFFF) for Patrick Roy
+
+$9F/EB76 A7 99       LDA [$99]  [$9C:C330]   A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB78 18          CLC                     A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB79 65 99       ADC $99    [$00:0099]   A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB7B 69 08 00    ADC #$0008              A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB7E 85 99       STA $99    [$00:0099]   A:C330 X:0000 Y:0000 P:eNvmxdizc
+$9F/EB80 80 F0       BRA $F0    [$EB72]      A:C330 X:0000 Y:0000 P:eNvmxdizc	; goto CheckGoalieIndex
+
 $9F/EB82 A0 01 00    LDY #$0001              A:C330 X:0000 Y:0000 P:eNvmxdizc	; Seek past the string length
 $9F/EB85 C8          INY                     A:C330 X:0000 Y:0001 P:envmxdizc
 $9F/EB86 B7 99       LDA [$99],y[$9C:C332]   A:C330 X:0000 Y:0002 P:envmxdizc
 
-There is a convention, I guess, that the 2 goalies are the first entry of each team's player data.
+There is a convention, I guess, that the goalies are the first entry of each team's player data.
 
 Precondition here:
 	y contains a character index
@@ -69,14 +89,14 @@ $9F/EB8E D0 F5       BNE $F5    [$EB85]      A:0050 X:0000 Y:0002 P:envmxdizC	; 
 ReadGoalieLastNameChar:
 $9F/EB90 C8          INY                     A:0020 X:0000 Y:0009 P:envmxdiZC	; Skip past the ' ' (space) itself, for first iter.
 
-$9F/EB91 98          TYA                     A:0020 X:0000 Y:000A P:envmxdizC
-$9F/EB92 C7 99       CMP [$99]  [$9C:C330]   A:000A X:0000 Y:000A P:envmxdizC	; Are we at the end of the string?
+$9F/EB91 98          TYA                     A:0020 X:0000 Y:000A P:envmxdizC	; Set Acc = char index
+$9F/EB92 C7 99       CMP [$99]  [$9C:C330]   A:000A X:0000 Y:000A P:envmxdizC	; Compare the prefix length aginst Acc. Are we at the end of the string?
 $9F/EB94 F0 0F       BEQ $0F    [$EBA5]      A:000A X:0000 Y:000A P:eNvmxdizc	; If so, goto DoneCopyingGoalieLastName
 
 $9F/EB96 B7 99       LDA [$99],y[$9C:C33A]   A:000A X:0000 Y:000A P:eNvmxdizc	; Start storing the goalie's last name
 $9F/EB98 5A          PHY                     A:6F52 X:0000 Y:000A P:envmxdizc
 $9F/EB99 AC 2A 0A    LDY $0A2A  [$9F:0A2A]   A:6F52 X:0000 Y:000A P:envmxdizc
-$9F/EB9C 99 2A 0A    STA $0A2A,y[$9F:0A35]   A:6F52 X:0000 Y:000B P:envmxdizc
+$9F/EB9C 99 2A 0A    STA $0A2A,y[$9F:0A35]   A:6F52 X:0000 Y:000B P:envmxdizc	; Store goalie's last name to a buffer
 $9F/EB9F EE 2A 0A    INC $0A2A  [$9F:0A2A]   A:6F52 X:0000 Y:000B P:envmxdizc
 $9F/EBA2 7A          PLY                     A:6F52 X:0000 Y:000B P:envmxdizc
 $9F/EBA3 80 EB       BRA $EB    [$EB90]      A:6F52 X:0000 Y:000A P:envmxdizc	; goto ReadGoalieLastNameChar
