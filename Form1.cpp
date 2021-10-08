@@ -2170,6 +2170,16 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
 
     // Patch code for the goalie selection menu if you are re-naming goalies
     {
+        ObjectCode code_goalieSelection;
+
+        /*
+        Back up 8D, 8F 
+        */
+        code_goalieSelection.LoadAccDirect_A5(0x8D);
+        code_goalieSelection.AppendPushAcc_48();
+        code_goalieSelection.LoadAccDirect_A5(0x8F);
+        code_goalieSelection.AppendPushAcc_48();
+
         /*
             LDY $91                         ; Load home-versus-away
             LDA 9F1C98/9F1C9A based on Y    ; Load team index
@@ -2177,7 +2187,6 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
             0A ASL
             A8 TAY                          ; Put byte index in Y
         */
-        ObjectCode code_goalieSelection;
         code_goalieSelection.AppendLoadYDirect_A4(0x91);
         code_goalieSelection.AppendLoadAccumulatorAbsoluteY_B9(0x1C98);
         code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
@@ -2232,11 +2241,11 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
                         STA $8D        
         */
 
-        code_goalieSelection.LoadAccDirect_A5(0xC5);
-        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
-        code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
-        code_goalieSelection.AppendAddWithCarryDirect_65(0x8D);
-        code_goalieSelection.AppendStoreDirect_85(0x8D);
+        //code_goalieSelection.LoadAccDirect_A5(0xC5);
+        //code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        //code_goalieSelection.AppendArithmaticShiftAccLeft_0A();
+        //code_goalieSelection.AppendAddWithCarryDirect_65(0x8D);
+        //code_goalieSelection.AppendStoreDirect_85(0x8D);
 
         /*
             // Ok so now the long pointer points to the address of string for the right player.
@@ -2264,6 +2273,15 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
 
         code_goalieSelection.AppendLoadDirectFromLongPointer_A7(0x8D);
         code_goalieSelection.AppendStoreDirect_85(0x9B);
+
+
+        /*
+        Restore 8D, 8F
+        */
+        code_goalieSelection.AppendPullAcc_68();
+        code_goalieSelection.AppendStoreDirect_85(0x8F);
+        code_goalieSelection.AppendPullAcc_68();
+        code_goalieSelection.AppendStoreDirect_85(0x8D);
 
         // Jump back
         code_goalieSelection.AppendLongJump(0x9FEB80 + 2);
