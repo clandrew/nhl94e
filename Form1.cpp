@@ -790,6 +790,23 @@ public:
         ++m_fileOffset;
     }
 
+    void SaveLongAddress3Bytes(int addr) // big endian-to-little-endian
+    {
+        s_romData.Set(m_fileOffset, addr & 0xFF);
+        addr >>= 8;
+        ++m_fileOffset;
+
+        s_romData.Set(m_fileOffset, addr & 0xFF);
+        addr >>= 8;
+        ++m_fileOffset;
+
+        s_romData.Set(m_fileOffset, addr & 0xFF);
+        addr >>= 8;
+        ++m_fileOffset;
+
+        assert(addr == 0); // 24-byte address expected
+    }
+
     void SaveLongAddress4Bytes(int addr) // big endian-to-little-endian
     {
         s_romData.Set(m_fileOffset, addr & 0xFF);
@@ -1468,6 +1485,59 @@ System::Void nhl94e::Form1::Form1_Load(System::Object^ sender, System::EventArgs
 
 }
 
+struct InitializeDetourResult
+{
+    int DetourDestROMAddress;
+    int FileOffsetSrcStart;
+};
+
+InitializeDetourResult InitializeDetour(
+    std::vector<unsigned char> const& detourCode,
+    int detourSrcStartROMAddress,
+    int detourSrcEndROMAddress,
+    RomDataIterator* freeSpaceIter)
+{
+    InitializeDetourResult r{};
+
+    // Quick parameter checking
+    int detourLength = detourSrcEndROMAddress - detourSrcStartROMAddress + 1; // Addresses are inclusive
+    assert(detourLength >= 4); // Need enough room to insert a long jump
+
+    r.FileOffsetSrcStart = ROMAddressToFileOffset(detourSrcStartROMAddress);
+    int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Exclusive
+
+    // Save the start of free space so we know where to jump
+    r.DetourDestROMAddress = freeSpaceIter->GetROMOffset();
+
+    // Put detour payload in free space
+    for (size_t i = 0; i < detourCode.size(); ++i)
+    {
+        freeSpaceIter->SaveByte(detourCode[i]);
+    }
+
+    for (int i = r.FileOffsetSrcStart; i < fileOffsetSrcEnd; ++i) // Good hygiene
+    {
+        s_romData.SetROMData(i, 0xEA); // NOP
+    }
+
+    return r;
+}
+
+bool InsertCallLongDetour(
+    std::vector<unsigned char> const& detourCode,
+    int detourSrcStartROMAddress,
+    int detourSrcEndROMAddress,
+    RomDataIterator* freeSpaceIter)
+{
+    InitializeDetourResult r = InitializeDetour(detourCode, detourSrcStartROMAddress, detourSrcEndROMAddress, freeSpaceIter);
+
+    RomDataIterator iter(r.FileOffsetSrcStart);
+    iter.SaveByte(0x22);
+    iter.SaveLongAddress3Bytes(r.DetourDestROMAddress); // Detour payload author is responsible for RTLing.
+
+    return true;
+}
+
 bool InsertJumpOutDetour(
     std::vector<unsigned char> const& detourCode,
     int detourSrcStartROMAddress,
@@ -1477,41 +1547,12 @@ bool InsertJumpOutDetour(
     if (detourCode.size() == 0)
         return false;
 
-    // Quick parameter checking
-    int detourLength = detourSrcEndROMAddress - detourSrcStartROMAddress + 1; // Addresses are inclusive
-    assert(detourLength >= 4); // Need enough room to insert a long jump
+    InitializeDetourResult r = InitializeDetour(detourCode, detourSrcStartROMAddress, detourSrcEndROMAddress, freeSpaceIter);
 
-    int fileOffsetSrcStart = ROMAddressToFileOffset(detourSrcStartROMAddress);
-    int fileOffsetSrcEnd = ROMAddressToFileOffset(detourSrcEndROMAddress); // Exclusive
-
-    // Save the start of free space so we know where to jump
-    int detourDestROMAddress = freeSpaceIter->GetROMOffset();
-
-    // Put detour payload in free space
-    for (size_t i = 0; i < detourCode.size(); ++i)
-    {
-        freeSpaceIter->SaveByte(detourCode[i]);
-    }
-
-    for (int i = fileOffsetSrcStart; i < fileOffsetSrcEnd; ++i) // Good hygiene
-    {
-        s_romData.SetROMData(i, 0xEA); // NOP
-    }
-
-    // Insert JMP to detour payload
-    // Detour payload author is responsible for JMPing back or they can RTL.
-    int detourB2 = detourDestROMAddress & 0xFF;
-    detourDestROMAddress >>= 8;
-    int detourB1 = detourDestROMAddress & 0xFF;
-    detourDestROMAddress >>= 8;
-    int detourB0 = detourDestROMAddress & 0xFF;
-    detourDestROMAddress >>= 8;
-    assert(detourDestROMAddress == 0);
-
-    s_romData.SetROMData(fileOffsetSrcStart, 0x5C); // JMP
-    s_romData.SetROMData(fileOffsetSrcStart + 1, detourB2);
-    s_romData.SetROMData(fileOffsetSrcStart + 2, detourB1);
-    s_romData.SetROMData(fileOffsetSrcStart + 3, detourB0);
+    RomDataIterator iter(r.FileOffsetSrcStart);
+    iter.SaveByte(0x5C);// JMP
+    // Detour payload author is responsible for JMPing back or they can RTL in certain cases.
+    iter.SaveLongAddress3Bytes(r.DetourDestROMAddress); 
 
     return true;
 }
@@ -2592,6 +2633,46 @@ void SavePlayerPallettes()
     }
 }
 
+bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
+{
+    // Copy decompressed graphics into the ROM
+
+    std::wstring imageFilenames[] = {
+        L"anaheim.bin",
+        L"boston.bin",
+        L"buffalo.bin",
+        L"calgary.bin",
+        L"chicago.bin",
+        L"dallas.bin",
+        L"detroit.bin",
+        L"edmonton.bin",
+        L"florida.bin",
+        L"hartford.bin",
+        L"LA.bin",
+        L"Montreal.bin",
+        L"NJ.bin",
+        L"NYIslanders.bin",
+        L"NYRangers.bin",
+        L"Ottawa.bin",
+        L"philly.bin",
+        L"pittsburgh.bin",
+        L"quebec.bin",
+        L"sanjose.bin",
+        L"stlouis.bin",
+        L"tampabay.bin",
+        L"toronto.bin",
+        L"vancouver.bin",
+        L"washington.bin",
+        L"winnepeg.bin",
+    };
+
+    //std::vector<unsigned char> decompressProfile = ObjectCode::LoadAsmFromDebuggerTextImpl(L"DecompressProfileMain.asm");
+
+    // Replace DecompressProfileMain
+    //return InsertJumpOutDetour(decompressProfile, 0x9DCC42, 0x9DCCAD, freeSpaceIter);
+    return true;
+}
+
 System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e)
 {
     SaveFileDialog^ dialog = gcnew SaveFileDialog();
@@ -2656,6 +2737,13 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
     if (!InsertPlayerNameText(&freeSpaceIter))
     {
         System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file LookupPlayerNameDet.asm.");
+        MessageBox::Show(dialogString);
+        return;
+    }
+
+    if (!InsertPlayerGraphics(&freeSpaceIter))
+    {
+        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file DecompressProfileMain.asm.");
         MessageBox::Show(dialogString);
         return;
     }
@@ -2890,41 +2978,4 @@ void nhl94e::Form1::skinColorOverrideComboBox_SelectedIndexChanged(System::Objec
         skinColorOverrideComboBox->BackColor = System::Drawing::Color::FromArgb(backArgb);
         skinColorOverrideComboBox->ForeColor = System::Drawing::Color::FromArgb(textArgb);
     }
-}
-
-void InsertPlayerGraphics()
-{
-    // Copy decompressed graphics into the ROM
-
-    std::wstring imageFilenames[] = {
-        L"anaheim.bin",
-        L"boston.bin",
-        L"buffalo.bin",
-        L"calgary.bin",
-        L"chicago.bin",
-        L"dallas.bin",
-        L"detroit.bin",
-        L"edmonton.bin",
-        L"florida.bin",
-        L"hartford.bin",
-        L"LA.bin",
-        L"Montreal.bin",
-        L"NJ.bin",
-        L"NYIslanders.bin",
-        L"NYRangers.bin",
-        L"Ottawa.bin",
-        L"philly.bin",
-        L"pittsburgh.bin",
-        L"quebec.bin",
-        L"sanjose.bin",
-        L"stlouis.bin",
-        L"tampabay.bin",
-        L"toronto.bin",
-        L"vancouver.bin",
-        L"washington.bin",
-        L"winnepeg.bin",
-    };
-
-    // Replace DecompressProfileMain
-    InsertDetour(L"DecompressProfileMain.asm", 0x9DCC42, 0x9DCCAD, 0xA08000);
 }
