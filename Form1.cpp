@@ -1294,7 +1294,6 @@ void TryCommitPlayerNameChange(
     }
 }
 
-
 void TryCommitStatChange(
     System::Windows::Forms::DataGridView^ view,
     int teamIndex,
@@ -2891,4 +2890,41 @@ void nhl94e::Form1::skinColorOverrideComboBox_SelectedIndexChanged(System::Objec
         skinColorOverrideComboBox->BackColor = System::Drawing::Color::FromArgb(backArgb);
         skinColorOverrideComboBox->ForeColor = System::Drawing::Color::FromArgb(textArgb);
     }
+}
+
+void InsertPlayerGraphics()
+{
+    // Copy decompressed graphics into the ROM
+
+    std::wstring imageFilenames[] = {
+        L"anaheim.bin",
+        L"boston.bin",
+        L"buffalo.bin",
+        L"calgary.bin",
+        L"chicago.bin",
+        L"dallas.bin",
+        L"detroit.bin",
+        L"edmonton.bin",
+        L"florida.bin",
+        L"hartford.bin",
+        L"LA.bin",
+        L"Montreal.bin",
+        L"NJ.bin",
+        L"NYIslanders.bin",
+        L"NYRangers.bin",
+        L"Ottawa.bin",
+        L"philly.bin",
+        L"pittsburgh.bin",
+        L"quebec.bin",
+        L"sanjose.bin",
+        L"stlouis.bin",
+        L"tampabay.bin",
+        L"toronto.bin",
+        L"vancouver.bin",
+        L"washington.bin",
+        L"winnepeg.bin",
+    };
+
+    // Replace DecompressProfileMain
+    InsertDetour(L"DecompressProfileMain.asm", 0x9DCC42, 0x9DCCAD, 0xA08000);
 }
