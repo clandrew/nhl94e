@@ -9,6 +9,20 @@ static std::vector<TeamData> s_allTeams;
 
 static std::vector<PlayerPallette> s_playerPallettes;
 
+std::vector<unsigned char> LoadRomBytesFromFile(std::wstring sourcePath)
+{
+    FILE* file = {};
+    _wfopen_s(&file, sourcePath.c_str(), L"rb");
+    long retrievedFileSize = GetFileSize(file);
+
+    std::vector<unsigned char> result;
+    result.resize(retrievedFileSize);
+    fread(&result[0], 1, retrievedFileSize, file);
+    fclose(file);
+
+    return result;
+}
+
 class RomData
 {
     std::vector<unsigned char> m_data;
@@ -19,7 +33,7 @@ public:
         return m_data[index];
     }
 
-    void LoadBytesFromFile(const wchar_t* fileName)
+    void LoadRomBytesFromFile(const wchar_t* fileName)
     {
         m_data.clear();
 
@@ -683,14 +697,19 @@ public:
         ++m_fileOffset;
     }
 
-    void SaveBytes_EnsureSpaceInBank(unsigned char* bytes, int count)
+    void SaveBytes(unsigned char* bytes, int count)
     {
-        EnsureSpaceInBank(count);
         for (int i = 0; i < count; ++i)
         {
             s_romData.Set(m_fileOffset, bytes[i]);
             ++m_fileOffset;
         }
+    }
+
+    void SaveBytes_EnsureSpaceInBank(unsigned char* bytes, int count)
+    {
+        EnsureSpaceInBank(count);
+        SaveBytes(bytes, count);
     }
 
     void SaveObjectCode(ObjectCode* code)
@@ -1345,7 +1364,7 @@ void TryCommitStatChange(
 
 void nhl94e::Form1::OpenROM(std::wstring romFilename)
 {
-    s_romData.LoadBytesFromFile(romFilename.c_str());
+    s_romData.LoadRomBytesFromFile(romFilename.c_str());
 
     if (!s_romData.EnsureExpandedSize())
         return;
@@ -2633,6 +2652,13 @@ void SavePlayerPallettes()
     }
 }
 
+struct ProfileData
+{
+    int ROMAddress;
+    std::wstring Path;
+};
+std::vector<ProfileData> s_profileData;
+
 bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 {
     // Copy decompressed graphics into the ROM
@@ -2665,6 +2691,23 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         L"washington.bin",
         L"winnepeg.bin",
     };
+
+    std::wstring prefix = L"ImageData\\";
+
+
+    for (int i = 0; i < _countof(imageFilenames); ++i)
+    {
+        ProfileData p;
+        p.Path = prefix;
+        p.Path.append(imageFilenames[i]);
+        std::vector<unsigned char> imageBytes = LoadRomBytesFromFile(p.Path);
+        freeSpaceIter->EnsureSpaceInBank(imageBytes.size());
+        p.ROMAddress = freeSpaceIter->GetROMOffset();
+        freeSpaceIter->SaveBytes(imageBytes.data(), imageBytes.size());
+        s_profileData.push_back(p);
+    }
+
+    // Change the decompress into a load. For now, hardcode it to always load Montreal.
 
     //std::vector<unsigned char> decompressProfile = ObjectCode::LoadAsmFromDebuggerTextImpl(L"DecompressProfileMain.asm");
 
