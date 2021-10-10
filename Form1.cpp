@@ -321,12 +321,12 @@ struct ObjectCode
         }
     }
 
-    void AppendReturnLong()
+    void AppendReturnLong_6B()
     {
         m_code.push_back(0x6B);
     }
 
-    void AppendLongAddress(int addr)
+    void AppendLongAddress3Bytes(int addr)
     {
         unsigned char c;
         c = addr & 0xFF;
@@ -354,7 +354,7 @@ struct ObjectCode
     void AppendStoreLong_8F(int addr)
     {
         m_code.push_back(0x8F);
-        AppendLongAddress(addr);
+        AppendLongAddress3Bytes(addr);
     }
 
     void AppendLoadDirect_A5(unsigned char c)
@@ -394,7 +394,7 @@ struct ObjectCode
     void AppendLoadLong_AF(int addr)
     {
         m_code.push_back(0xAF);
-        AppendLongAddress(addr);
+        AppendLongAddress3Bytes(addr);
     }
 
     void AppendLoadDirectFromLongPointer_A7(unsigned char c)
@@ -471,7 +471,7 @@ struct ObjectCode
     void AppendLongJump(int addr)
     {
         m_code.push_back(0x5C);
-        AppendLongAddress(addr);
+        AppendLongAddress3Bytes(addr);
     }
 
     void AppendStoreZeroA5()
@@ -484,7 +484,7 @@ struct ObjectCode
     void AppendJumpSubroutineLong(int addr)
     {
         m_code.push_back(0x22);
-        AppendLongAddress(addr);
+        AppendLongAddress3Bytes(addr);
     }
 
     void PrependCode(unsigned char code[], int codeSize)
@@ -1693,7 +1693,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         ObjectCode code;
         code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
         code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(lengthDelimitedStringTableStartFileAddress));
-        code.AppendReturnLong();
+        code.AppendReturnLong_6B();
 
         int dstStartROMAddress = 0x9BC5AB;
         int dstEndROMAddress = 0x9BC5E6;
@@ -2475,7 +2475,7 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
         
         // STA long,X
         code.m_code.push_back(0x9F);
-        code.AppendLongAddress(0x7FA675);
+        code.AppendLongAddress3Bytes(0x7FA675);
 
         code.m_code.push_back(0xCA);// DEX
 
@@ -2484,7 +2484,7 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
 
         code.m_code.push_back(0xE2); // SEP 10
         code.m_code.push_back(0x10);
-        code.AppendReturnLong();
+        code.AppendReturnLong_6B();
 
         freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
         montrealRoutineROMAddress = freeSpaceIter->GetROMOffset();
@@ -2717,9 +2717,116 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         s_profileData.push_back(p);
     }
 
-    // Change the decompress into a load. For now, hardcode it to always load Montreal.
+    // Write the addresses of all the profile data images to a table.
+    int tableSize = 4 * _countof(imageFilenames);
+    freeSpaceIter->EnsureSpaceInBank(tableSize);
+    int profileDataAddressTableROMAddress = freeSpaceIter->GetROMOffset();
+    for (int i = 0; i < _countof(imageFilenames); ++i)
+    {
+        freeSpaceIter->SaveLongAddress4Bytes(s_profileData[i].ROMAddress);
+    }
 
-    std::vector<unsigned char> copy = ObjectCode::LoadAsmFromDebuggerTextImpl(L"CopyProfileImages.asm");
+    /*
+    
+ A0 00 24			LDY #$2400  // initialize a counter
+ 88					DEY
+
+ // Here: need to seek to the right element of the pointer array based on the team index.
+A9 0B 00            LDA 000B
+0A                  ASL
+0A                  ASL
+AA                  TAX
+BF  __ __ __        LDA ______,X
+85 0C				STA $0C
+E8                  INX
+BF  __ __ __        LDA ______,X
+85 0E				STA $0E
+
+
+A6 91				LDX $91
+D0 07				BNE Away
+
+A9 00 51			LDA 5100
+85 10				STA $10
+
+80 05				BRA after
+
+// Away:
+A9 00 2D			LDA 2D00
+85 10				STA $10
+
+// After:
+A9 7F 00			LDA 007F
+85 12				STA $12
+
+// CopyLoop:
+B7 0C				LDA [$0C],y
+97 10				STA [$10],y
+88					DEY
+10 F9				BPL CopyLoop
+
+$9D/CCAD 6B          RTL
+    */
+
+    // Reference: CopyProfileImages.asm
+    ObjectCode copy;
+    copy.AppendLoadYImmediate_A0(0x2400);
+    copy.m_code.push_back(0x88); // DEY
+
+    /*
+
+A9 0B 00            LDA 000B
+0A                  ASL
+0A                  ASL
+AA                  TAX
+BF  __ __ __        LDA ______,X
+85 0C				STA $0C
+E8                  INX
+BF  __ __ __        LDA ______,X
+85 0E				STA $0E
+    */
+
+    copy.AppendLoadAccImmediate_A9_16bit(0x000B);
+    copy.AppendArithmaticShiftAccLeft_0A();
+    copy.AppendArithmaticShiftAccLeft_0A();
+    copy.m_code.push_back(0xAA); //TAX
+
+    copy.m_code.push_back(0xBF);    // LDA ______,X
+    copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
+    copy.AppendStoreDirect_85(0x0C);
+    copy.m_code.push_back(0xE8); // INX
+    copy.m_code.push_back(0xE8); // INX
+    copy.m_code.push_back(0xBF);    // LDA ______,X
+    copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
+    copy.AppendStoreDirect_85(0x0E);
+
+    copy.m_code.push_back(0xA6); // LDX $91
+    copy.m_code.push_back(0x91);
+    copy.m_code.push_back(0xD0);
+    copy.m_code.push_back(0x07);
+
+    copy.AppendLoadAccImmediate_A9_16bit(0x5100);
+    copy.AppendStoreDirect_85(0x10);
+    copy.m_code.push_back(0x80); // BRA after
+    copy.m_code.push_back(0x05);
+
+    copy.AppendLoadAccImmediate_A9_16bit(0x2D00);
+    copy.AppendStoreDirect_85(0x10);
+
+    copy.AppendLoadAccImmediate_A9_16bit(0x007F);
+    copy.AppendStoreDirect_85(0x12);
+
+    copy.m_code.push_back(0xB7);
+    copy.m_code.push_back(0x0C); // LDA [$0C],y
+    copy.m_code.push_back(0x97);
+    copy.m_code.push_back(0x10); // STA [$10],y
+    copy.m_code.push_back(0x88); // DEY
+    copy.m_code.push_back(0x10);
+    copy.m_code.push_back(0xF9);
+
+    copy.AppendReturnLong_6B();
+
+    // Change the decompress into a load. For now, hardcode it to always load Montreal.
 
     int decompressMainStartFileOffset = ROMAddressToFileOffset(0x9DCC42);
     int decompressMainEndFileOffset = ROMAddressToFileOffset(0x9DCCAD);
@@ -2731,7 +2838,7 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
     }
 
     RomDataIterator iter(decompressMainStartFileOffset);
-    iter.SaveBytes(copy.data(), copy.size());
+    iter.SaveObjectCode(&copy);
 
     return true;
 }
