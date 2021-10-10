@@ -2773,20 +2773,12 @@ $9D/CCAD 6B          RTL
     copy.AppendLoadYImmediate_A0(0x2400);
     copy.m_code.push_back(0x88); // DEY
 
-    /*
+    copy.m_code.push_back(0xA6);    // LDX $91    [$00:0091] Load the choice of HomeOrAway. 0 == home, 2 == away	
+    copy.m_code.push_back(0x91);
+    copy.m_code.push_back(0xBD);
+    copy.m_code.push_back(0x98);
+    copy.m_code.push_back(0x1C);    // LDA $1C98,x[$9F:1C98]   // Load the index of CurrentTeam. 
 
-A9 0B 00            LDA 000B
-0A                  ASL
-0A                  ASL
-AA                  TAX
-BF  __ __ __        LDA ______,X
-85 0C				STA $0C
-E8                  INX
-BF  __ __ __        LDA ______,X
-85 0E				STA $0E
-    */
-
-    copy.AppendLoadAccImmediate_A9_16bit(0x000B);
     copy.AppendArithmaticShiftAccLeft_0A();
     copy.AppendArithmaticShiftAccLeft_0A();
     copy.m_code.push_back(0xAA); //TAX
