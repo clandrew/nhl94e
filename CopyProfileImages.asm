@@ -33,6 +33,7 @@ $9D/CCA8 10 F1       BPL $F1            // if OffsetCounter > 0, goto ForEachPro
 // Source: $0C-$0E
 // Dest:   $10-$12
 A0 00 24			LDY #$2400
+88					DEY
 
 A9 00 C5			LDA C500
 85 0C				STA $0C
@@ -58,7 +59,7 @@ A9 7F 00			LDA 007F
 B7 0C				LDA [$0C],y
 97 10				STA [$10],y
 88					DEY
-D0 F9				BNE CopyLoop
+10 F9				BPL CopyLoop
 
 $9D/CCAA 68          PLA                     
 $9D/CCAB 85 A5       STA $A5    [$00:00A5]   
