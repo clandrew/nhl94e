@@ -2709,10 +2709,20 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 
     // Change the decompress into a load. For now, hardcode it to always load Montreal.
 
-    //std::vector<unsigned char> decompressProfile = ObjectCode::LoadAsmFromDebuggerTextImpl(L"DecompressProfileMain.asm");
+    std::vector<unsigned char> copy = ObjectCode::LoadAsmFromDebuggerTextImpl(L"CopyProfileImages.asm");
 
-    // Replace DecompressProfileMain
-    //return InsertJumpOutDetour(decompressProfile, 0x9DCC42, 0x9DCCAD, freeSpaceIter);
+    int decompressMainStartFileOffset = ROMAddressToFileOffset(0x9DCC42);
+    int decompressMainEndFileOffset = ROMAddressToFileOffset(0x9DCCAD);
+
+    // Pad with no-ops for hygiene
+    for (int i = decompressMainStartFileOffset; i <= decompressMainEndFileOffset; ++i)
+    {
+        s_romData.Set(i, 0xEA); // NOP
+    }
+
+    RomDataIterator iter(decompressMainStartFileOffset);
+    iter.SaveBytes(copy.data(), copy.size());
+
     return true;
 }
 
