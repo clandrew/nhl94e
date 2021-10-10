@@ -2656,6 +2656,7 @@ struct ProfileData
 {
     int ROMAddress;
     std::wstring Path;
+    std::vector<unsigned char> ImageBytes;
 };
 std::vector<ProfileData> s_profileData;
 
@@ -2700,10 +2701,19 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         ProfileData p;
         p.Path = prefix;
         p.Path.append(imageFilenames[i]);
-        std::vector<unsigned char> imageBytes = LoadRomBytesFromFile(p.Path);
-        freeSpaceIter->EnsureSpaceInBank(imageBytes.size());
+
+        // The byte count in the binary file is slightly less than 2400. 
+        // Reason: there is some non-viable data at the end of each profile image. 
+        // We don't bother storing the last profile image's non-viable data on disk.
+        // For profile images other than the last one, the non-viable data is stored in the file as zeroes.
+        // Anyway, we pad out the full allocation here.
+        p.ImageBytes.resize(0x2400);
+        std::fill(p.ImageBytes.begin(), p.ImageBytes.end(), 0);
+        p.ImageBytes = LoadRomBytesFromFile(p.Path);
+
+        freeSpaceIter->EnsureSpaceInBank(p.ImageBytes.size());
         p.ROMAddress = freeSpaceIter->GetROMOffset();
-        freeSpaceIter->SaveBytes(imageBytes.data(), imageBytes.size());
+        freeSpaceIter->SaveBytes(p.ImageBytes.data(), p.ImageBytes.size());
         s_profileData.push_back(p);
     }
 
