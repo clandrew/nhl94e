@@ -2662,6 +2662,7 @@ std::vector<ProfileData> s_profileData;
 
 bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 {
+    return true;
     // Copy decompressed graphics into the ROM
 
     std::wstring imageFilenames[] = {
@@ -2691,6 +2692,8 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         L"vancouver.bin",
         L"washington.bin",
         L"winnepeg.bin",
+        L"ase.bin",
+        L"asw.bin",
     };
 
     std::wstring prefix = L"ImageData\\";
