@@ -252,6 +252,8 @@ $9D/C99F 85 A5       STA $A5    [$00:00A5]   // Store an argument used by LoadTe
 //        Doesn't do VRAM transfer.
 // 
 // This function is called twice when loading the GAME SETUP screen, once per team.
+// Scrambles $0C-$0E.
+// Scrambles $10-$12.
 //
 $9D/CC42 A5 A5       LDA $A5    [$00:00A5]  
 $9D/CC44 48          PHA                    // Politely back up $A5 because LookupPlayerIndexForPlayerWithProfile is going to scramble it.

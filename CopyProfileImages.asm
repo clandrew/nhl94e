@@ -29,6 +29,37 @@ $9D/CCA7 CA          DEX
 $9D/CCA8 10 F1       BPL $F1            // if OffsetCounter > 0, goto ForEachProfileImagePlayerOnTeam
 
 //Done:
+// Do an absolutely stupid copy of 0x600 bytes from A3C500 to 7F5100 for home, to 7F2D00 for away.
+// Source: $0C-$0E
+// Dest:   $10-$12
+A0 00 24			LDY #$2400
+
+A9 00 C5			LDA C500
+85 0C				STA $0C
+A9 A3 00			LDA 00A3
+85 0E				STA $0E
+
+A6 91				LDX $91
+D0 07				BNE Away
+
+A9 00 51			LDA 5100
+85 10				STA $10
+80 05				BRA after
+
+// Away:
+A9 00 2D			LDA 2D00
+85 10				STA $10
+
+// After:
+A9 7F 00			LDA 007F
+85 12				STA $12
+
+// CopyLoop:
+B7 0C				LDA [$0C],y
+97 10				STA [$10],y
+88					DEY
+D0 F9				BNE CopyLoop
+
 $9D/CCAA 68          PLA                     
 $9D/CCAB 85 A5       STA $A5    [$00:00A5]   
 $9D/CCAD 6B          RTL					// Restore $A5 and return
