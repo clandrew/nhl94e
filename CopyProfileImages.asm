@@ -42,4 +42,4 @@ B7 0C				LDA [$0C],y
 88					DEY
 10 F9				BPL CopyLoop
 
-$9D/CCAD 6B          RTL					// Restore $A5 and return
+$9D/CCAD 6B          RTL
