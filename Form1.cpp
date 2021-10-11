@@ -2654,7 +2654,8 @@ void SavePlayerPallettes()
 
 struct ProfileData
 {
-    int ROMAddress;
+    int ImageDataROMAddress;
+    int PalletteROMAddress;
     std::wstring Path;
     std::vector<unsigned char> ImageBytes;
 };
@@ -2662,7 +2663,6 @@ std::vector<ProfileData> s_profileData;
 
 bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 {
-    return true;
     // Copy decompressed graphics into the ROM
 
     std::wstring imageFilenames[] = {
@@ -2696,12 +2696,45 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         L"asw.bin",
     };
 
+    int profileImagePalletteLocationsInFile[] =
+    {
+        0xd747c,    // Anaheim
+        0x2ffdf,    // Boston
+        0xd6a5c,    // Calgary
+        0xd6a7c,
+        0xd6a9c,
+        0xd6abc,
+        0xd6adc,
+        0xd6afc,
+        0xd6b1c,
+        0xd6b3c,
+        0xd6b5c,
+        0xd6b7c,
+        0xd6b9c,
+        0xd6bbc,
+        0xd6bdc,
+        0xd6bfc,
+        0xd6c1c,
+        0xd6c3c,
+        0xd6c5c,
+        0xd6c7c,
+        0xd6c9c,
+        0xd6cbc,
+        0xd6cdc,
+        0xd6cfc,
+        0xd6d1c,
+        0xd6d3c,
+        0xd6d5c,
+        0xd6d7c, // ASW
+    };
+
     std::wstring prefix = L"ImageData\\";
 
 
     for (int i = 0; i < _countof(imageFilenames); ++i)
     {
         ProfileData p;
+        p.PalletteROMAddress = FileOffsetToROMAddress(profileImagePalletteLocationsInFile[i]);
         p.Path = prefix;
         p.Path.append(imageFilenames[i]);
 
@@ -2715,7 +2748,7 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         p.ImageBytes = LoadRomBytesFromFile(p.Path);
 
         freeSpaceIter->EnsureSpaceInBank(p.ImageBytes.size());
-        p.ROMAddress = freeSpaceIter->GetROMOffset();
+        p.ImageDataROMAddress = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveBytes(p.ImageBytes.data(), p.ImageBytes.size());
         s_profileData.push_back(p);
     }
@@ -2726,7 +2759,7 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
     int profileDataAddressTableROMAddress = freeSpaceIter->GetROMOffset();
     for (int i = 0; i < _countof(imageFilenames); ++i)
     {
-        freeSpaceIter->SaveLongAddress4Bytes(s_profileData[i].ROMAddress);
+        freeSpaceIter->SaveLongAddress4Bytes(s_profileData[i].ImageDataROMAddress);
     }
 
     /*
