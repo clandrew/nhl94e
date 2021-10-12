@@ -224,3 +224,16 @@ struct PlayerPallette
     ColorSet Home;
     ColorSet Away;
 };
+
+struct ProfilePalletteData
+{
+    int PalletteROMAddress;
+    std::vector<unsigned char> PalletteBytes;
+};
+
+struct ProfileImageData
+{
+    int ImageDataROMAddress;
+    std::wstring Path;
+    std::vector<unsigned char> ImageBytes;
+};

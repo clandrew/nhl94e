@@ -35,6 +35,10 @@ namespace nhl94e
 		}
 	private: System::Windows::Forms::Panel^ panel1;
 	private: System::Drawing::Bitmap^ demoBitmap;
+	private: System::Drawing::Bitmap^ demoBitmap2;
+	private: System::Windows::Forms::Button^ saveTemplateBtn;
+	private: ProfileImageData* profileImageData;
+	private: ProfilePalletteData* profilePalletteData;
 	protected:
 
 	private:
@@ -51,6 +55,7 @@ namespace nhl94e
 		void InitializeComponent(void)
 		{
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
+			this->saveTemplateBtn = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// panel1
@@ -61,13 +66,24 @@ namespace nhl94e
 			this->panel1->TabIndex = 0;
 			this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form2::panel1_Paint);
 			// 
+			// saveTemplateBtn
+			// 
+			this->saveTemplateBtn->Location = System::Drawing::Point(13, 230);
+			this->saveTemplateBtn->Name = L"saveTemplateBtn";
+			this->saveTemplateBtn->Size = System::Drawing::Size(193, 39);
+			this->saveTemplateBtn->TabIndex = 1;
+			this->saveTemplateBtn->Text = L"Save Template";
+			this->saveTemplateBtn->UseVisualStyleBackColor = true;
+			this->saveTemplateBtn->Click += gcnew System::EventHandler(this, &Form2::saveTemplateBtn_Click);
+			// 
 			// Form2
 			// 
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->ClientSize = System::Drawing::Size(275, 378);
+			this->ClientSize = System::Drawing::Size(218, 383);
+			this->Controls->Add(this->saveTemplateBtn);
 			this->Controls->Add(this->panel1);
 			this->Name = L"Form2";
-			this->Load += gcnew System::EventHandler(this, &nhl94e::Form2::OnLoad);
+			this->Load += gcnew System::EventHandler(this, &Form2::OnLoad);
 			this->ResumeLayout(false);
 
 		}
@@ -76,5 +92,7 @@ namespace nhl94e
 	private: 
 	private: System::Void panel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 		   void OnLoad(System::Object^ sender, System::EventArgs^ e);
+	private: System::Void saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e);
+	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal);
 	};
 }

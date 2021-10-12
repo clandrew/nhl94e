@@ -10,6 +10,10 @@ static std::vector<TeamData> s_allTeams;
 
 static std::vector<PlayerPallette> s_playerPallettes;
 
+static std::vector<ProfilePalletteData> s_profilePalletteData;
+
+std::vector<ProfileImageData> s_profileImageData;
+
 std::vector<unsigned char> LoadRomBytesFromFile(std::wstring sourcePath)
 {
     FILE* file = {};
@@ -971,6 +975,8 @@ TeamData GetTeamData(int teamIndex, int playerDataAddress)
     return result;
 }
 
+// This loads pallettes for the gameplay sprites that display during games.
+// These aren't the pallettes for profile images.
 std::vector<PlayerPallette> LoadPlayerPallettes()
 {
     std::vector<PlayerPallette> result;
@@ -985,6 +991,115 @@ std::vector<PlayerPallette> LoadPlayerPallettes()
         p.Home.SourceDataROMAddress = 0x96CD4E + (0x20 * teamIndex);
         p.Home.SourceDataFileOffset = ROMAddressToFileOffset(p.Home.SourceDataROMAddress);
         s_romData.ReadBytes(p.Home.SourceDataFileOffset, 0x20, p.Home.Bytes);
+
+        result.push_back(p);
+    }
+
+    return result;
+}
+
+std::vector<ProfileImageData> LoadProfileImageData()
+{
+    std::wstring imageFilenames[] = {
+        L"anaheim.bin",
+        L"boston.bin",
+        L"buffalo.bin",
+        L"calgary.bin",
+        L"chicago.bin",
+        L"dallas.bin",
+        L"detroit.bin",
+        L"edmonton.bin",
+        L"florida.bin",
+        L"hartford.bin",
+        L"LA.bin",
+        L"Montreal.bin",
+        L"NJ.bin",
+        L"NYIslanders.bin",
+        L"NYRangers.bin",
+        L"Ottawa.bin",
+        L"philly.bin",
+        L"pittsburgh.bin",
+        L"quebec.bin",
+        L"sanjose.bin",
+        L"stlouis.bin",
+        L"tampabay.bin",
+        L"toronto.bin",
+        L"vancouver.bin",
+        L"washington.bin",
+        L"winnepeg.bin",
+        L"ase.bin",
+        L"asw.bin",
+    };
+
+    std::wstring prefix = L"ImageData\\";
+
+    std::vector<ProfileImageData> result;
+
+    for (int i = 0; i < _countof(imageFilenames); ++i)
+    {
+        ProfileImageData p;
+        p.Path = prefix;
+        p.Path.append(imageFilenames[i]);
+
+        // The byte count in the binary file is slightly less than 2400. 
+        // Reason: there is some non-viable data at the end of each profile image. 
+        // We don't bother storing the last profile image's non-viable data on disk.
+        // For profile images other than the last one, the non-viable data is stored in the file as zeroes.
+        // Anyway, we pad out the full allocation here.
+        p.ImageBytes.resize(0x2400);
+        std::fill(p.ImageBytes.begin(), p.ImageBytes.end(), 0);
+        p.ImageBytes = LoadRomBytesFromFile(p.Path);
+        result.push_back(p);
+    }
+
+    return result;
+}
+
+std::vector<ProfilePalletteData> LoadProfileImagePallettes()
+{
+
+    int profileImagePalletteLocationsInFile[] =
+    {
+        0xd747c,    // Anaheim
+        0x2ffdf,    // Boston
+        0xd6a5c,    // Calgary
+        0xd6a7c,
+        0xd6a9c,
+        0xd6abc,
+        0xd6adc,
+        0xd6afc,
+        0xd6b1c,
+        0xd6b3c,
+        0xd6b5c,
+        0xd6b7c,
+        0xd6b9c,
+        0xd6bbc,
+        0xd6bdc,
+        0xd6bfc,
+        0xd6c1c,
+        0xd6c3c,
+        0xd6c5c,
+        0xd6c7c,
+        0xd6c9c,
+        0xd6cbc,
+        0xd6cdc,
+        0xd6cfc,
+        0xd6d1c,
+        0xd6d3c,
+        0xd6d5c,
+        0xd6d7c, // ASW
+    };
+
+    std::vector<ProfilePalletteData> result;
+
+    for (int i = 0; i < _countof(profileImagePalletteLocationsInFile); ++i)
+    {
+        ProfilePalletteData p;
+
+        int palletteFileOffset = profileImagePalletteLocationsInFile[i];
+        p.PalletteROMAddress = FileOffsetToROMAddress(palletteFileOffset);
+        p.PalletteBytes.resize(0x20);
+        s_romData.ReadBytes(palletteFileOffset, 0x20, p.PalletteBytes.data());
 
         result.push_back(p);
     }
@@ -1410,6 +1525,12 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     s_allTeams = LoadPlayerNamesAndStats();
 
     s_playerPallettes = LoadPlayerPallettes();
+
+    s_profileImageData = LoadProfileImageData();
+
+    s_profilePalletteData = LoadProfileImagePallettes();
+
+    LoadProfileImagePallettes();
 
     for (int teamIndex = 0; teamIndex < s_allTeams.size(); ++teamIndex)
     {
@@ -2690,114 +2811,27 @@ void SavePlayerPallettes()
     }
 }
 
-struct ProfileData
-{
-    int ImageDataROMAddress;
-    int PalletteROMAddress;
-    std::wstring Path;
-    std::vector<unsigned char> ImageBytes;
-};
-std::vector<ProfileData> s_profileData;
-
 bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 {
     // Copy decompressed graphics into the ROM
+    assert(s_profileImageData.size() == (size_t)Team::Count);
 
-    std::wstring imageFilenames[] = {
-        L"anaheim.bin",
-        L"boston.bin",
-        L"buffalo.bin",
-        L"calgary.bin",
-        L"chicago.bin",
-        L"dallas.bin",
-        L"detroit.bin",
-        L"edmonton.bin",
-        L"florida.bin",
-        L"hartford.bin",
-        L"LA.bin",
-        L"Montreal.bin",
-        L"NJ.bin",
-        L"NYIslanders.bin",
-        L"NYRangers.bin",
-        L"Ottawa.bin",
-        L"philly.bin",
-        L"pittsburgh.bin",
-        L"quebec.bin",
-        L"sanjose.bin",
-        L"stlouis.bin",
-        L"tampabay.bin",
-        L"toronto.bin",
-        L"vancouver.bin",
-        L"washington.bin",
-        L"winnepeg.bin",
-        L"ase.bin",
-        L"asw.bin",
-    };
-
-    int profileImagePalletteLocationsInFile[] =
+    for (int i = 0; i < (int)Team::Count; ++i)
     {
-        0xd747c,    // Anaheim
-        0x2ffdf,    // Boston
-        0xd6a5c,    // Calgary
-        0xd6a7c,
-        0xd6a9c,
-        0xd6abc,
-        0xd6adc,
-        0xd6afc,
-        0xd6b1c,
-        0xd6b3c,
-        0xd6b5c,
-        0xd6b7c,
-        0xd6b9c,
-        0xd6bbc,
-        0xd6bdc,
-        0xd6bfc,
-        0xd6c1c,
-        0xd6c3c,
-        0xd6c5c,
-        0xd6c7c,
-        0xd6c9c,
-        0xd6cbc,
-        0xd6cdc,
-        0xd6cfc,
-        0xd6d1c,
-        0xd6d3c,
-        0xd6d5c,
-        0xd6d7c, // ASW
-    };
-
-    std::wstring prefix = L"ImageData\\";
-
-
-    for (int i = 0; i < _countof(imageFilenames); ++i)
-    {
-        ProfileData p;
-        p.PalletteROMAddress = FileOffsetToROMAddress(profileImagePalletteLocationsInFile[i]);
-        p.Path = prefix;
-        p.Path.append(imageFilenames[i]);
-
-        // The byte count in the binary file is slightly less than 2400. 
-        // Reason: there is some non-viable data at the end of each profile image. 
-        // We don't bother storing the last profile image's non-viable data on disk.
-        // For profile images other than the last one, the non-viable data is stored in the file as zeroes.
-        // Anyway, we pad out the full allocation here.
-        p.ImageBytes.resize(0x2400);
-        std::fill(p.ImageBytes.begin(), p.ImageBytes.end(), 0);
-        p.ImageBytes = LoadRomBytesFromFile(p.Path);
+        ProfileImageData& p = s_profileImageData[i];
 
         freeSpaceIter->EnsureSpaceInBank(p.ImageBytes.size());
         p.ImageDataROMAddress = freeSpaceIter->GetROMOffset();
         freeSpaceIter->SaveBytes(p.ImageBytes.data(), p.ImageBytes.size());
-        s_profileData.push_back(p);
     }
 
     // Write the addresses of all the profile data images to a table.
-    int tableSize = 4 * _countof(imageFilenames);
+    int tableSize = 4 * (int)Team::Count;
     freeSpaceIter->EnsureSpaceInBank(tableSize);
     int profileDataAddressTableROMAddress = freeSpaceIter->GetROMOffset();
-    for (int i = 0; i < _countof(imageFilenames); ++i)
+    for (int i = 0; i < (int)Team::Count; ++i)
     {
-        freeSpaceIter->SaveLongAddress4Bytes(s_profileData[i].ImageDataROMAddress);
+        freeSpaceIter->SaveLongAddress4Bytes(s_profileImageData[i].ImageDataROMAddress);
     }
 
     /*
@@ -3221,6 +3255,9 @@ void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::
     if (e->ColumnIndex != 2)
         return;
 
+    int teamIndex = this->tabControl1->SelectedIndex;
+
     Form2^ dialog = gcnew Form2();
+    dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));
     dialog->ShowDialog();
 }
