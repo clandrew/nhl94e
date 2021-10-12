@@ -1069,7 +1069,6 @@ std::vector<ProfilePalletteData> LoadProfileImagePallettes()
         0xd6adc,    // Detroit confirm        
         0xd6afc,    // Edmonton confirm
         0xd6b1c,    // Florida confirm
-        0xd6b3c,    // ASW/ASE confirm
         0xd6b5c,    // Hartford confirm
         0xd6b7c,    // LA confirm
         0xd6b9c,    // Montreal confirm
@@ -1087,6 +1086,8 @@ std::vector<ProfilePalletteData> LoadProfileImagePallettes()
         0xd6d1c,    // Vancouver
         0xd6d3c,    // Washington
         0xd6d5c,    // Winnepeg
+        0xd6b3c,    // ASW/ASE confirm
+        0xd6b3c,    // ASW/ASE confirm
     };
 
     std::vector<ProfilePalletteData> result;
@@ -3254,7 +3255,7 @@ void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::
     if (e->ColumnIndex != 2)
         return;
 
-    int teamIndex = this->tabControl1->SelectedIndex + 2;
+    int teamIndex = this->tabControl1->SelectedIndex;
 
     Form2^ dialog = gcnew Form2();
     dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));
