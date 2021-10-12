@@ -4,8 +4,6 @@
 
 void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
-	demoBitmap = gcnew System::Drawing::Bitmap(L"0B_0.png");
-	demoBitmap->SetResolution(96, 96);
 }
 
 void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal)
