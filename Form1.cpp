@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Form1.h"
+#include "Form2.h"
 #include "AddressMapping.h"
 #include "TeamData.h"
 #include "Utils.h"
@@ -3220,5 +3221,6 @@ void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::
     if (e->ColumnIndex != 2)
         return;
 
-    throw gcnew System::NotImplementedException();
+    Form2^ dialog = gcnew Form2();
+    dialog->ShowDialog();
 }

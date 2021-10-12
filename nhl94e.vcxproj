@@ -148,6 +148,9 @@
     <ClInclude Include="Form1.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="Form2.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
     <ClInclude Include="Optional.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -157,6 +160,7 @@
   <ItemGroup>
     <ClCompile Include="AddressMapping.cpp" />
     <ClCompile Include="AssemblyInfo.cpp" />
+    <ClCompile Include="Form2.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Form1.cpp" />
     <ClCompile Include="pch.cpp">
@@ -181,6 +185,11 @@
   <ItemGroup>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.h</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Form2.resx">
+      <DependentUpon>Form2.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

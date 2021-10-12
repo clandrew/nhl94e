@@ -44,6 +44,9 @@
     <ClInclude Include="CustomUI.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Form2.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -62,6 +65,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="AddressMapping.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Form2.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
