@@ -6,10 +6,11 @@ void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
 }
 
-void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal)
+void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal, int imgIndex)
 {
 	profileImageData = img;
 	profilePalletteData = pal;
+	imageIndex = imgIndex;
 
 	demoBitmap2 = gcnew System::Drawing::Bitmap(48, 48);
 	demoBitmap2->SetResolution(96, 96);
@@ -25,10 +26,12 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 		snesToRgb[i] = rgb;
 	}
 
+	int imgBytesOffset = imgIndex * 0x600;
+
 	int destBlock = 0;
 	for (int i = 0; i < 0x480; i += 0x20)
 	{
-		unsigned char* blockStart = &(img->ImageBytes[i]);
+		unsigned char* blockStart = &(img->ImageBytes[imgBytesOffset + i]);
 		int ind[8][8]{};
 
 		for (int row = 0; row < 8; ++row)

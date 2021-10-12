@@ -947,6 +947,8 @@ TeamData GetTeamData(int teamIndex, int playerDataAddress)
         p.BasePassAccuracy.Initialize(halfByteAddr, passAcc);
         p.BaseAggression.Initialize(halfByteAddr, aggression);
 
+        p.ProfileImageIndex = -1;
+
         result.Players.push_back(p);
     }
 
@@ -1140,12 +1142,12 @@ std::vector<TeamData> LoadPlayerNamesAndStats()
     }
 
     // Hardcode who has profile images for now.
-    result[(int)Team::Montreal].Players[0].HasProfileImage = true;
-    result[(int)Team::Montreal].Players[2].HasProfileImage = true;
-    result[(int)Team::Montreal].Players[6].HasProfileImage = true;
-    result[(int)Team::Montreal].Players[11].HasProfileImage = true;
-    result[(int)Team::Montreal].Players[16].HasProfileImage = true;
-    result[(int)Team::Montreal].Players[17].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[2].ProfileImageIndex = 0;
+    result[(int)Team::Montreal].Players[6].ProfileImageIndex = 1;
+    result[(int)Team::Montreal].Players[11].ProfileImageIndex = 2;
+    result[(int)Team::Montreal].Players[17].ProfileImageIndex = 3;
+    result[(int)Team::Montreal].Players[16].ProfileImageIndex = 4;
+    result[(int)Team::Montreal].Players[0].ProfileImageIndex = 5;
 
     return result;
 }
@@ -1382,7 +1384,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     // for reasons I ran out of energy trying to understand. So, set them up here.
     for (int i = 0; i < dataGridView1->Rows->Count; ++i)
     {
-        if (team.Players[i].HasProfileImage)
+        if (team.Players[i].ProfileImageIndex != -1)
         {
             DataGridViewButtonCell^ cell = (DataGridViewButtonCell^)dataGridView1->Rows[i]->Cells[2];
             cell->Value = L"🖼";
@@ -1588,6 +1590,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     OnSelectedIndexChanged(nullptr, nullptr);
 
 #if _DEBUG
+    
     {
         int playerIndex = 0;
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Leveille";
@@ -3257,7 +3260,9 @@ void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::
 
     int teamIndex = this->tabControl1->SelectedIndex;
 
+    int profileImageIndex = s_allTeams[teamIndex].Players[e->RowIndex].ProfileImageIndex;
+
     Form2^ dialog = gcnew Form2();
-    dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));
+    dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]), profileImageIndex);
     dialog->ShowDialog();
 }

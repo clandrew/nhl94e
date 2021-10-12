@@ -96,7 +96,7 @@ struct PlayerData
     ModifiableStat<int> BasePassAccuracy;
     ModifiableStat<int> BaseAggression;
 
-    bool HasProfileImage;
+    int ProfileImageIndex; // -1 means no profile image
 
     void SetNumericalStat(WhichStat s, int v)
     {

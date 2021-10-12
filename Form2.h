@@ -38,6 +38,7 @@ namespace nhl94e
 	private: System::Windows::Forms::Button^ saveTemplateBtn;
 	private: ProfileImageData* profileImageData;
 	private: ProfilePalletteData* profilePalletteData;
+	private: int imageIndex;
 	protected:
 
 	private:
@@ -92,6 +93,6 @@ namespace nhl94e
 	private: System::Void panel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 		   void OnLoad(System::Object^ sender, System::EventArgs^ e);
 	private: System::Void saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e);
-	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal);
+	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal, int imgIndex);
 	};
 }
