@@ -873,7 +873,7 @@ public:
 
 TeamData GetTeamData(int teamIndex, int playerDataAddress)
 {
-    TeamData result;
+    TeamData result{};
 
     result.SourceDataROMAddress = playerDataAddress;
 
@@ -1023,6 +1023,14 @@ std::vector<TeamData> LoadPlayerNamesAndStats()
         result.push_back(GetTeamData(teamIndex, playerDataPointers[teamIndex]));
     }
 
+    // Hardcode who has profile images for now.
+    result[(int)Team::Montreal].Players[0].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[2].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[6].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[11].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[16].HasProfileImage = true;
+    result[(int)Team::Montreal].Players[17].HasProfileImage = true;
+
     return result;
 }
 
@@ -1044,6 +1052,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     DoubleBufferedDataGridView^ dataGridView1;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column0;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
+    System::Windows::Forms::DataGridViewButtonColumn^ Column1_5;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column2;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column3;
     System::Windows::Forms::DataGridViewTextBoxColumn^ Column4;
@@ -1064,6 +1073,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     dataGridView1 = (gcnew DoubleBufferedDataGridView());
     Column0 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column1 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
+    Column1_5 = (gcnew System::Windows::Forms::DataGridViewButtonColumn());
     Column2 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column3 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
     Column4 = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
@@ -1098,6 +1108,10 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
 
     Column1->HeaderText = L"Player Name";
     Column1->Name = L"Column1";
+
+    Column1_5->HeaderText = L"Img";
+    Column1_5->Name = L"Column1_5";
+    Column1_5->Width = 25;
 
     Column2->HeaderText = L"#";
     Column2->Name = L"Column2";
@@ -1174,6 +1188,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     dataGridView1->ColumnHeadersHeightSizeMode = System::Windows::Forms::DataGridViewColumnHeadersHeightSizeMode::AutoSize;
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column0 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1 });
+    dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column1_5 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column2 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column3 });
     dataGridView1->Columns->AddRange(gcnew cli::array< System::Windows::Forms::DataGridViewColumn^  >(1) { Column4 });
@@ -1202,7 +1217,10 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
         PlayerData const& player = team.Players[i];
 
         System::Object^ playerIndex = i;
-        System::String^ playerNameString = gcnew System::String(player.Name.Get().c_str());
+        System::String^ playerNameString = gcnew System::String(player.Name.Get().c_str());     
+
+        System::Object^ playerProfileImageCell = L"A";
+
         System::Object^ playerNumber = player.PlayerNumber.Get();
         System::Object^ weightClass = player.WeightFactor.Get();
         System::Object^ agility = player.BaseAgility.Get();
@@ -1219,10 +1237,11 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
         System::Object^ passAcc = player.BasePassAccuracy.Get();
         System::Object^ aggression = player.BaseAggression.Get();
 
-        dataGridView1->Rows->Add(gcnew cli::array<System::Object^>(17) 
+        dataGridView1->Rows->Add(gcnew cli::array<System::Object^>(18) 
         { 
             playerIndex,
             playerNameString, 
+            playerProfileImageCell,
             playerNumber, 
             weightClass, 
             agility,
@@ -1239,6 +1258,22 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
             passAcc,
             aggression
         });
+    }
+
+
+    // Button columns of data grid views aren't configurable when you construct the rows like above, 
+    // for reasons I ran out of energy trying to understand. So, set them up here.
+    for (int i = 0; i < dataGridView1->Rows->Count; ++i)
+    {
+        if (team.Players[i].HasProfileImage)
+        {
+            dataGridView1->Rows[i]->Cells[2]->Value = L"🖼";
+        }
+        else
+        {
+            dataGridView1->Rows[i]->Cells[2] = gcnew DataGridViewTextBoxCell();
+            dataGridView1->Rows[i]->Cells[2]->ReadOnly = true;
+        }
     }
 
     tabPage1->ResumeLayout(false);

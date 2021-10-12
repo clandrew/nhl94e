@@ -9,21 +9,22 @@ enum class WhichStat
 {
     PlayerIndex = 0,
     PlayerName = 1,
-    PlayerNumber = 2,
-    WeightClass = 3,
-    Agility = 4,
-    Speed = 5,
-    OffAware = 6,
-    DefAware = 7,
-    ShotPower = 8,
-    Checking = 9,
-    Handedness = 10,
-    StickHandling = 11,
-    ShotAccuracy = 12,
-    Endurance = 13,
-    Roughness = 14,
-    PassAccuracy = 15,
-    Aggression = 16
+    ProfileImage = 2,
+    PlayerNumber = 3,
+    WeightClass = 4,
+    Agility = 5,
+    Speed = 6,
+    OffAware = 7,
+    DefAware = 8,
+    ShotPower = 9,
+    Checking = 10,
+    Handedness = 11,
+    StickHandling = 12,
+    ShotAccuracy = 13,
+    Endurance = 14,
+    Roughness = 15,
+    PassAccuracy = 16,
+    Aggression = 17
 };
 
 template<typename T>
@@ -94,6 +95,8 @@ struct PlayerData
     ModifiableStat<int> Roughness; // Not reported in the game card
     ModifiableStat<int> BasePassAccuracy;
     ModifiableStat<int> BaseAggression;
+
+    bool HasProfileImage;
 
     void SetNumericalStat(WhichStat s, int v)
     {
