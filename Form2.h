@@ -33,6 +33,9 @@ namespace nhl94e
 				delete components;
 			}
 		}
+	private: System::Windows::Forms::Panel^ panel1;
+	private: System::Drawing::Bitmap^ demoBitmap;
+	protected:
 
 	private:
 		/// <summary>
@@ -47,14 +50,31 @@ namespace nhl94e
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			System::ComponentModel::ComponentResourceManager^ resources = (gcnew System::ComponentModel::ComponentResourceManager(Form2::typeid));
+			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->SuspendLayout();
+			// 
+			// panel1
+			// 
+			this->panel1->Location = System::Drawing::Point(13, 13);
+			this->panel1->Name = L"panel1";
+			this->panel1->Size = System::Drawing::Size(192, 192);
+			this->panel1->TabIndex = 0;
+			this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form2::panel1_Paint);
+			// 
+			// Form2
+			// 
+			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
+			this->ClientSize = System::Drawing::Size(275, 378);
+			this->Controls->Add(this->panel1);
+			this->Name = L"Form2";
+			this->Load += gcnew System::EventHandler(this, &nhl94e::Form2::OnLoad);
 			this->ResumeLayout(false);
-			this->PerformLayout();
 
 		}
 #pragma endregion
 
 	private: 
-};
+	private: System::Void panel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
+		   void OnLoad(System::Object^ sender, System::EventArgs^ e);
+	};
 }
