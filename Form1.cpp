@@ -1060,35 +1060,33 @@ std::vector<ProfilePalletteData> LoadProfileImagePallettes()
 
     int profileImagePalletteLocationsInFile[] =
     {
-        0xd747c,    // Anaheim
-        0x2ffdf,    // Boston
-        0,          // Buffalo?
-        0xd6a5c,    // Calgary
-        0xd6a7c,    // Chicago
-        0xd6a9c,    // Dallas
-        0xd6abc,    // Detroit
-        0xd6adc,    // Edmonton
-        0xd6afc,    // Florida
-        0xd6b1c,    // Hartford
-        0xd6b3c,    // LA
-        0xd6b5c,    // Montreal
-        0xd6b7c,    
-        0xd6b9c,
-        0xd6bbc,
-        0xd6bdc,
-        0xd6bfc,
-        0xd6c1c,
-        0xd6c3c,
-        0xd6c5c,
-        0xd6c7c,
-        0xd6c9c,
-        0xd6cbc,
-        0xd6cdc,
-        0xd6cfc,
-        0xd6d1c,
-        0xd6d3c,
-        0xd6d5c,
-        0xd6d7c, // ASW
+        0xd747c,    // Anaheim confirm
+        0x2ffdf,    // Boston confirm
+        0xd6a5c,    // Buffalo confirm
+        0xd6a7c,    // Calgary confirm
+        0xd6a9c,    // Chicago confirm
+        0xd6abc,    // Dallas confirm
+        0xd6adc,    // Detroit confirm        
+        0xd6afc,    // Edmonton confirm
+        0xd6b1c,    // Florida confirm
+        0xd6b3c,    // ASW/ASE confirm
+        0xd6b5c,    // Hartford confirm
+        0xd6b7c,    // LA confirm
+        0xd6b9c,    // Montreal confirm
+        0xd6bbc,    // NJ
+        0xd6bdc,    // NY Islanders
+        0xd6bfc,    // NY Rangers
+        0xd6c1c,    // Ottawa
+        0xd6c3c,    // Philly
+        0xd6c5c,    // Pittsburgh
+        0xd6c7c,    // Quebec
+        0xd6c9c,    // SJ
+        0xd6cbc,    // St Louis
+        0xd6cdc,    // Tampa
+        0xd6cfc,    // Toronto
+        0xd6d1c,    // Vancouver
+        0xd6d3c,    // Washington
+        0xd6d5c,    // Winnepeg
     };
 
     std::vector<ProfilePalletteData> result;
