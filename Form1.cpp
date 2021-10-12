@@ -1092,6 +1092,7 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
 
     dataGridView1->CellValidating += gcnew System::Windows::Forms::DataGridViewCellValidatingEventHandler(this, &nhl94e::Form1::OnCellValidating);
     dataGridView1->CellValueChanged += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &nhl94e::Form1::OnCellValueChanged);
+    dataGridView1->CellContentClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &nhl94e::Form1::OnCellContentClick);
 
     System::Windows::Forms::TabPage^ tabPage1;
 
@@ -1267,7 +1268,8 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
     {
         if (team.Players[i].HasProfileImage)
         {
-            dataGridView1->Rows[i]->Cells[2]->Value = L"🖼";
+            DataGridViewButtonCell^ cell = (DataGridViewButtonCell^)dataGridView1->Rows[i]->Cells[2];
+            cell->Value = L"🖼";
         }
         else
         {
@@ -3211,4 +3213,12 @@ void nhl94e::Form1::skinColorOverrideComboBox_SelectedIndexChanged(System::Objec
         skinColorOverrideComboBox->BackColor = System::Drawing::Color::FromArgb(backArgb);
         skinColorOverrideComboBox->ForeColor = System::Drawing::Color::FromArgb(textArgb);
     }
+}
+
+void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e)
+{
+    if (e->ColumnIndex != 2)
+        return;
+
+    throw gcnew System::NotImplementedException();
 }

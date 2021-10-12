@@ -388,5 +388,6 @@ private: System::Void headerColorComboBox_SelectedIndexChanged(System::Object^ s
 private: System::Void homeColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void awayColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void skinColorOverrideComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+	   void OnCellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e);
 };
 }
