@@ -21,13 +21,12 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 	{
 		int byte0Index = i*2;
 		int byte1Index = byte0Index + 1;
-		unsigned short indexed = (pal->PalletteBytes[byte1Index] << 8) | pal->PalletteBytes[byte0Index]; // Not sure if this is right
+		unsigned short indexed = (pal->PalletteBytes[byte1Index] << 8) | pal->PalletteBytes[byte0Index];
 		int rgb = SnesB5G5R5ToR8B8G8(indexed);
 		rgb |= 0xFF000000;
 		snesToRgb[i] = rgb;
 	}
 
-	// Read source data and turn it into rgb
 	int destBlock = 0;
 	for (int i = 0; i < 0x480; i += 0x20)
 	{

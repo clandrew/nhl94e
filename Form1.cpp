@@ -1062,16 +1062,17 @@ std::vector<ProfilePalletteData> LoadProfileImagePallettes()
     {
         0xd747c,    // Anaheim
         0x2ffdf,    // Boston
+        0,          // Buffalo?
         0xd6a5c,    // Calgary
-        0xd6a7c,
-        0xd6a9c,
-        0xd6abc,
-        0xd6adc,
-        0xd6afc,
-        0xd6b1c,
-        0xd6b3c,
-        0xd6b5c,
-        0xd6b7c,
+        0xd6a7c,    // Chicago
+        0xd6a9c,    // Dallas
+        0xd6abc,    // Detroit
+        0xd6adc,    // Edmonton
+        0xd6afc,    // Florida
+        0xd6b1c,    // Hartford
+        0xd6b3c,    // LA
+        0xd6b5c,    // Montreal
+        0xd6b7c,    
         0xd6b9c,
         0xd6bbc,
         0xd6bdc,
@@ -1096,10 +1097,10 @@ std::vector<ProfilePalletteData> LoadProfileImagePallettes()
     {
         ProfilePalletteData p;
 
-        int palletteFileOffset = profileImagePalletteLocationsInFile[i];
-        p.PalletteROMAddress = FileOffsetToROMAddress(palletteFileOffset);
+        p.PalletteFileOffset = profileImagePalletteLocationsInFile[i];
+        p.PalletteROMAddress = FileOffsetToROMAddress(p.PalletteFileOffset);
         p.PalletteBytes.resize(0x20);
-        s_romData.ReadBytes(palletteFileOffset, 0x20, p.PalletteBytes.data());
+        s_romData.ReadBytes(p.PalletteFileOffset, 0x20, p.PalletteBytes.data());
 
         result.push_back(p);
     }
@@ -3255,7 +3256,7 @@ void nhl94e::Form1::OnCellContentClick(System::Object^ sender, System::Windows::
     if (e->ColumnIndex != 2)
         return;
 
-    int teamIndex = this->tabControl1->SelectedIndex;
+    int teamIndex = this->tabControl1->SelectedIndex + 2;
 
     Form2^ dialog = gcnew Form2();
     dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));

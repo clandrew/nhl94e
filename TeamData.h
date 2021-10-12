@@ -227,6 +227,7 @@ struct PlayerPallette
 
 struct ProfilePalletteData
 {
+    int PalletteFileOffset;
     int PalletteROMAddress;
     std::vector<unsigned char> PalletteBytes;
 };
