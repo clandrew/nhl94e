@@ -27,7 +27,7 @@ In the latest source, here's what works:
 * Can change color schemes of the subheader for a team
 * Goalie renames show up in the goalie selection menu
 * Can edit players' skin color in gameplay
-* Can edit players' profile images shown on the GAME SETUP screen
+* Can edit players' profile images shown on the GAME SETUP screen (alpha version!)
 
 Things for the future:
 * Edit players' profile images as seen elsewhere in the game, like on player cards. (it's a different code path)
