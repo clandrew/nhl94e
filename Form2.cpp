@@ -280,6 +280,8 @@ void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs
 						int srcX = x + xi;
 						int srcY = y + yi;
 
+						srcX += imageIndex * 48;
+
 						System::Drawing::Color pixelColor = templateBitmap->GetPixel(srcX, srcY);
 						int argb = pixelColor.ToArgb();
 						block[yi * 8 + xi] = argb;

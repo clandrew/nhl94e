@@ -28,6 +28,16 @@ std::vector<unsigned char> LoadRomBytesFromFile(std::wstring sourcePath)
     return result;
 }
 
+void LoadRomBytesFromFile(std::wstring sourcePath, std::vector<unsigned char>* dest)
+{
+    FILE* file = {};
+    _wfopen_s(&file, sourcePath.c_str(), L"rb");
+    long retrievedFileSize = GetFileSize(file);
+
+    fread(dest->data(), 1, retrievedFileSize, file);
+    fclose(file);
+}
+
 class RomData
 {
     std::vector<unsigned char> m_data;
@@ -1050,7 +1060,7 @@ std::vector<ProfileImageData> LoadProfileImageData()
         // Anyway, we pad out the full allocation here.
         p.ImageBytes.resize(0x2400);
         std::fill(p.ImageBytes.begin(), p.ImageBytes.end(), 0);
-        p.ImageBytes = LoadRomBytesFromFile(p.Path);
+        LoadRomBytesFromFile(p.Path, &p.ImageBytes);
         result.push_back(p);
     }
 
@@ -3263,4 +3273,9 @@ void nhl94e::Form1::profileImagesButton_Click(System::Object^ sender, System::Ev
     }
 
     std::vector<unsigned char>* importedSnesImageData = dialog->GetImportedSnesImageData();
+
+    // Put image data back into ROM
+    assert(importedSnesImageData->size() == 0x2400 && importedSnesImageData->size() == s_profileImageData[teamIndex].ImageBytes.size());
+
+    std::copy(importedSnesImageData->begin(), importedSnesImageData->end(), s_profileImageData[teamIndex].ImageBytes.begin());
 }
