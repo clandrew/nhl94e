@@ -67,6 +67,7 @@ namespace nhl94e
 	private: System::Windows::Forms::ComboBox^ skinColorOverrideComboBox;
 
 	private: System::Windows::Forms::Label^ label9;
+	private: System::Windows::Forms::Button^ profileImagesButton;
 
 
 #endif
@@ -109,6 +110,7 @@ namespace nhl94e
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->tabControl1 = (gcnew System::Windows::Forms::TabControl());
+			this->profileImagesButton = (gcnew System::Windows::Forms::Button());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			this->SuspendLayout();
@@ -161,6 +163,7 @@ namespace nhl94e
 			// 
 			this->panel1->BackColor = System::Drawing::Color::WhiteSmoke;
 			this->panel1->BorderStyle = System::Windows::Forms::BorderStyle::Fixed3D;
+			this->panel1->Controls->Add(this->profileImagesButton);
 			this->panel1->Controls->Add(this->skinColorOverrideComboBox);
 			this->panel1->Controls->Add(this->label9);
 			this->panel1->Controls->Add(this->awayColorComboBox);
@@ -345,6 +348,16 @@ namespace nhl94e
 			this->tabControl1->Size = System::Drawing::Size(409, 522);
 			this->tabControl1->TabIndex = 2;
 			// 
+			// profileImagesButton
+			// 
+			this->profileImagesButton->Location = System::Drawing::Point(19, 320);
+			this->profileImagesButton->Name = L"profileImagesButton";
+			this->profileImagesButton->Size = System::Drawing::Size(173, 23);
+			this->profileImagesButton->TabIndex = 17;
+			this->profileImagesButton->Text = L"Profile Images🖼";
+			this->profileImagesButton->UseVisualStyleBackColor = true;
+			this->profileImagesButton->Click += gcnew System::EventHandler(this, &Form1::profileImagesButton_Click);
+			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -388,6 +401,6 @@ private: System::Void headerColorComboBox_SelectedIndexChanged(System::Object^ s
 private: System::Void homeColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void awayColorComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void skinColorOverrideComboBox_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
-	   void OnCellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e);
+private: System::Void profileImagesButton_Click(System::Object^ sender, System::EventArgs^ e);
 };
 }

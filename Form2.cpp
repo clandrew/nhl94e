@@ -2,90 +2,101 @@
 #include "Form2.h"
 #include "Utils.h"
 
-int s_snesToRgbColors[16]{};
+struct MultiFormatPallette
+{
+	int PortableR8G8B8[16];
+	int SnesB5G5R5[16];
+};
+MultiFormatPallette s_default{};
 
 void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
 }
 
-void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal, int imgIndex)
+void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal)
 {
-	profileImageData = img;
-	profilePalletteData = pal;
-	imageIndex = imgIndex;
+	m_profileImageData = img;
+	m_profilePalletteData = pal;
 
-	demoBitmap2 = gcnew System::Drawing::Bitmap(48, 48);
-	demoBitmap2->SetResolution(96, 96);
+	m_demoBitmap2 = gcnew System::Drawing::Bitmap(48 * 6, 48);
+	m_demoBitmap2->SetResolution(96, 96);
 
 	for (int i = 0; i < 16; ++i)
 	{
 		int byte0Index = i*2;
 		int byte1Index = byte0Index + 1;
-		unsigned short indexed = (pal->PalletteBytes[byte1Index] << 8) | pal->PalletteBytes[byte0Index];
-		int rgb = SnesB5G5R5ToR8B8G8(indexed);
-		rgb |= 0xFF000000;
-		s_snesToRgbColors[i] = rgb;
+		unsigned short snesB5G5R5 = (pal->PalletteBytes[byte1Index] << 8) | pal->PalletteBytes[byte0Index];
+		int portableR8G8B8 = SnesB5G5R5ToR8B8G8(snesB5G5R5);
+		portableR8G8B8 |= 0xFF000000;
+
+		s_default.SnesB5G5R5[i] = snesB5G5R5;
+		s_default.PortableR8G8B8[i] = portableR8G8B8;
 	}
 
-	int imgBytesOffset = imgIndex * 0x600;
-
-	int destBlock = 0;
-	for (int i = 0; i < 0x480; i += 0x20)
+	for (int imgIndex = 0; imgIndex < 6; ++imgIndex)
 	{
-		unsigned char* blockStart = &(img->ImageBytes[imgBytesOffset + i]);
-		int ind[8][8]{};
+		int imgBytesOffset = imgIndex * 0x600;
 
-		for (int row = 0; row < 8; ++row)
+		int destBlock = 0;
+		for (int i = 0; i < 0x480; i += 0x20)
 		{
-			int mask = 0x80;
-			for (int col = 0; col < 8; ++col)
+			unsigned char* blockStart = &(img->ImageBytes[imgBytesOffset + i]);
+			int ind[8][8]{};
+
+			for (int row = 0; row < 8; ++row)
 			{
-				int byteIndex0 = row * 2;
-				int byteIndex1 = byteIndex0 + 1;
-				int byteIndex2 = byteIndex0 + 0x10;
-				int byteIndex3 = byteIndex2 + 1;
+				int mask = 0x80;
+				for (int col = 0; col < 8; ++col)
+				{
+					int byteIndex0 = row * 2;
+					int byteIndex1 = byteIndex0 + 1;
+					int byteIndex2 = byteIndex0 + 0x10;
+					int byteIndex3 = byteIndex2 + 1;
 
-				if (blockStart[byteIndex0] & mask)
-				{
-					ind[row][col] |= 0x1;
-				}
-				if (blockStart[byteIndex1] & mask)
-				{
-					ind[row][col] |= 0x2;
-				}
-				if (blockStart[byteIndex2] & mask)
-				{
-					ind[row][col] |= 0x4;
-				}
-				if (blockStart[byteIndex3] & mask)
-				{
-					ind[row][col] |= 0x8;
-				}
+					if (blockStart[byteIndex0] & mask)
+					{
+						ind[row][col] |= 0x1;
+					}
+					if (blockStart[byteIndex1] & mask)
+					{
+						ind[row][col] |= 0x2;
+					}
+					if (blockStart[byteIndex2] & mask)
+					{
+						ind[row][col] |= 0x4;
+					}
+					if (blockStart[byteIndex3] & mask)
+					{
+						ind[row][col] |= 0x8;
+					}
 
-				mask >>= 1;
+					mask >>= 1;
+				}
 			}
-		}
 
-		int blockIndexX = destBlock % 6;
-		int blockIndexY = destBlock / 6;
+			int blockIndexX = destBlock % 6;
+			int blockIndexY = destBlock / 6;
 
-		int blockStartX = blockIndexX * 8;
-		int blockStartY = blockIndexY * 8;
+			int blockStartX = blockIndexX * 8;
+			int blockStartY = blockIndexY * 8;
 
-		for (int row = 0; row < 8; ++row)
-		{
-			for (int col = 0; col < 8; ++col)
+			blockStartX += imgIndex * 48;
+
+			for (int row = 0; row < 8; ++row)
 			{
-				int index = ind[row][col];
-				assert(index >= 0 && index <= 15);
-				int rgb = s_snesToRgbColors[index];
+				for (int col = 0; col < 8; ++col)
+				{
+					int index = ind[row][col];
+					assert(index >= 0 && index <= 15);
+					int rgb = s_default.PortableR8G8B8[index];
 
-				System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
-				demoBitmap2->SetPixel(blockStartX + col, blockStartY + row, color);
+					System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
+					m_demoBitmap2->SetPixel(blockStartX + col, blockStartY + row, color);
+				}
 			}
-		}
 
-		destBlock++;
+			destBlock++;
+		}
 	}
 }
 
@@ -96,7 +107,7 @@ void nhl94e::Form2::panel1_Paint(System::Object^ sender, System::Windows::Forms:
 	e->Graphics->Clear(System::Drawing::Color::Transparent);
 
 	// I don't know why the +2 is necessary and at this point I can't be bothered to find out.
-	e->Graphics->DrawImage(demoBitmap2, 0, 0, 48 * scaling + 2, 48 * scaling + 2);
+	e->Graphics->DrawImage(m_demoBitmap2, 0, 0, 48 * 6 * scaling + 2, 48 * scaling + 2);
 }
 
 void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e) 
@@ -109,19 +120,188 @@ void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventA
 	if (result != System::Windows::Forms::DialogResult::OK)
 		return;
 
-	System::Drawing::Bitmap^ templateBitmap = gcnew System::Drawing::Bitmap(48, 50);
+	System::Drawing::Bitmap^ templateBitmap = gcnew System::Drawing::Bitmap(48 * 6, 50);
 	
 	{
 		System::Drawing::Graphics^ ctx = System::Drawing::Graphics::FromImage(templateBitmap);
 		ctx->Clear(System::Drawing::Color::Black);
-		ctx->DrawImage(demoBitmap2, 0, 0);
+		ctx->DrawImage(m_demoBitmap2, 0, 0);
 	}
 	for (int i = 0; i < 16; ++i)
 	{
-		int rgb = s_snesToRgbColors[i];
+		int rgb = s_default.PortableR8G8B8[i];
 		System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
 		templateBitmap->SetPixel(i, 49, color);
 	}
 
 	templateBitmap->Save(dialog->FileName);
+}
+
+struct RgbToIndexedResult
+{
+	unsigned char Indexed;
+	bool ValidColor;
+};
+
+RgbToIndexedResult RgbToIndexed(int rgb, MultiFormatPallette* importedPallette)
+{
+	RgbToIndexedResult result{};
+
+	// Try to find rgb in the pallette
+	for (unsigned char i = 0; i < 16; ++i)
+	{
+		int rgbIgnoreAlpha = rgb & 0xFFFFFF;
+		int palletteIgnoreAlpha = importedPallette->PortableR8G8B8[i] & 0xFFFFFF;
+
+		if (rgbIgnoreAlpha == palletteIgnoreAlpha)
+		{
+			result.Indexed = i;
+			result.ValidColor = true;
+			return result;
+		}
+	}
+
+	result.Indexed = 0;
+	result.ValidColor = false;
+	return result;
+}
+
+struct TranscodeBlockResult
+{
+	std::vector<unsigned char> TranscodedBlock;
+	bool ValidColors;
+	int InvalidColorX;
+	int InvalidColorY;
+};
+
+TranscodeBlockResult TranscodeBlock(std::vector<int> const& rgbBlock, MultiFormatPallette* importedPallette)
+{
+	TranscodeBlockResult result{};
+	result.TranscodedBlock.resize(32);
+
+	for (int yi = 0; yi < 8; ++yi)
+	{
+		for (int xi = 0; xi < 8; ++xi)
+		{
+			int rgbx = 8 - 1 - xi;
+			int rgby = yi;
+
+			RgbToIndexedResult rgbToIndexedResult = RgbToIndexed(rgbBlock[rgby * 8 + rgbx], importedPallette);
+			if (!rgbToIndexedResult.ValidColor)
+			{
+				result.ValidColors = false;
+				result.InvalidColorX = 8 - xi - 1;
+				result.InvalidColorY = yi;
+				return result;
+			}
+
+			unsigned char ic = rgbToIndexedResult.Indexed;
+
+			unsigned char i0 = (ic & 0x1) >> 0;
+			unsigned char i1 = (ic & 0x2) >> 1;
+			unsigned char i2 = (ic & 0x4) >> 2;
+			unsigned char i3 = (ic & 0x8) >> 3;
+
+			if (i0)
+			{
+				result.TranscodedBlock[yi * 2 + 0x0] |= (0x1 << xi);
+			}
+			if (i1)
+			{
+				result.TranscodedBlock[yi * 2 + 0x1] |= (0x1 << xi);
+			}
+			if (i2)
+			{
+				result.TranscodedBlock[yi * 2 + 0x10] |= (0x1 << xi);
+			}
+			if (i3)
+			{
+				result.TranscodedBlock[yi * 2 + 0x11] |= (0x1 << xi);
+			}
+		}
+	}
+
+	result.ValidColors = true;
+	return result;
+}
+
+void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs^ e) 
+{
+	OpenFileDialog^ dialog = gcnew OpenFileDialog();
+#if _DEBUG
+	dialog->FileName = L"D:\\repos\\nhl94e\\template.png";
+#endif
+
+	System::Windows::Forms::DialogResult result = dialog->ShowDialog();
+	if (result != System::Windows::Forms::DialogResult::OK)
+		return;
+
+	System::Drawing::Bitmap^ templateBitmap = gcnew System::Drawing::Bitmap(dialog->FileName);
+
+	// Verify expected sizes
+	if (templateBitmap->Size.Width != 48 * 6)
+	{
+		System::Windows::Forms::MessageBox::Show("The template image was an unexpected width; 288 was expected.");
+		return;
+	}
+
+	if (templateBitmap->Size.Height != 48 + 2)
+	{
+		System::Windows::Forms::MessageBox::Show("The template image was an unexpected height; 50 was expected.");
+		return;
+	}
+
+	MultiFormatPallette importedPallette{};
+
+	for (int i = 0; i < 16; ++i)
+	{
+		System::Drawing::Color pixelColor = templateBitmap->GetPixel(i, 48 - 1 + 2);
+		int argb = pixelColor.ToArgb();
+		importedPallette.PortableR8G8B8[i] = argb;
+		importedPallette.SnesB5G5R5[i] = SnesB5G5R5ToR8B8G8(importedPallette.PortableR8G8B8[i]);
+	}
+
+	int dstOffset = 0;
+
+	for (int y = 0; y < 48; y += 8)
+	{
+		for (int x = 0; x < 48; x += 8)
+		{
+			std::vector<int> block;
+			block.resize(8 * 8);
+			for (int yi = 0; yi < 8; ++yi)
+			{
+				for (int xi = 0; xi < 8; ++xi)
+				{
+					int srcX = x + xi;
+					int srcY = y + yi;
+
+					System::Drawing::Color pixelColor = templateBitmap->GetPixel(srcX, srcY);
+					int argb = pixelColor.ToArgb();
+					block[yi * 8 + xi] = argb;
+				}
+			}
+
+			// Transcode block
+			TranscodeBlockResult transcodeBlockResult = TranscodeBlock(block, &importedPallette);
+
+			if (!transcodeBlockResult.ValidColors)
+			{
+				int invalidColorX = x + transcodeBlockResult.InvalidColorX;
+				int invalidColorY = y + transcodeBlockResult.InvalidColorY;
+				String^ msg = String::Format(
+					"The image contained a color at X={0}, Y={1} which was not present in the pallette.", 
+					invalidColorX,
+					invalidColorY);
+				System::Windows::Forms::MessageBox::Show(msg);
+				return;
+			}
+
+			for (size_t i = 0; i < transcodeBlockResult.TranscodedBlock.size(); ++i)
+			{
+				m_profileImageData->ImageBytes[dstOffset] = transcodeBlockResult.TranscodedBlock[i];
+				++dstOffset;
+			}
+		}
+	}
 }

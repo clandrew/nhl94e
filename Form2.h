@@ -33,12 +33,12 @@ namespace nhl94e
 				delete components;
 			}
 		}
-	private: System::Windows::Forms::Panel^ panel1;
-	private: System::Drawing::Bitmap^ demoBitmap2;
-	private: System::Windows::Forms::Button^ saveTemplateBtn;
-	private: ProfileImageData* profileImageData;
-	private: ProfilePalletteData* profilePalletteData;
-	private: int imageIndex;
+	private: System::Windows::Forms::Panel^ m_panel1;
+	private: System::Drawing::Bitmap^ m_demoBitmap2;
+	private: System::Windows::Forms::Button^ m_saveTemplateBtn;
+	private: ProfileImageData* m_profileImageData;
+	private: ProfilePalletteData* m_profilePalletteData;
+	private: System::Windows::Forms::Button^ m_importButton;
 	protected:
 
 	private:
@@ -54,34 +54,46 @@ namespace nhl94e
 		/// </summary>
 		void InitializeComponent(void)
 		{
-			this->panel1 = (gcnew System::Windows::Forms::Panel());
-			this->saveTemplateBtn = (gcnew System::Windows::Forms::Button());
+			this->m_panel1 = (gcnew System::Windows::Forms::Panel());
+			this->m_saveTemplateBtn = (gcnew System::Windows::Forms::Button());
+			this->m_importButton = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
 			// panel1
 			// 
-			this->panel1->Location = System::Drawing::Point(13, 13);
-			this->panel1->Name = L"panel1";
-			this->panel1->Size = System::Drawing::Size(192, 192);
-			this->panel1->TabIndex = 0;
-			this->panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form2::panel1_Paint);
+			this->m_panel1->Location = System::Drawing::Point(13, 13);
+			this->m_panel1->Name = L"panel1";
+			this->m_panel1->Size = System::Drawing::Size(1152, 192);
+			this->m_panel1->TabIndex = 0;
+			this->m_panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form2::panel1_Paint);
 			// 
 			// saveTemplateBtn
 			// 
-			this->saveTemplateBtn->Location = System::Drawing::Point(13, 230);
-			this->saveTemplateBtn->Name = L"saveTemplateBtn";
-			this->saveTemplateBtn->Size = System::Drawing::Size(193, 39);
-			this->saveTemplateBtn->TabIndex = 1;
-			this->saveTemplateBtn->Text = L"Save Template";
-			this->saveTemplateBtn->UseVisualStyleBackColor = true;
-			this->saveTemplateBtn->Click += gcnew System::EventHandler(this, &Form2::saveTemplateBtn_Click);
+			this->m_saveTemplateBtn->Location = System::Drawing::Point(13, 221);
+			this->m_saveTemplateBtn->Name = L"saveTemplateBtn";
+			this->m_saveTemplateBtn->Size = System::Drawing::Size(193, 39);
+			this->m_saveTemplateBtn->TabIndex = 1;
+			this->m_saveTemplateBtn->Text = L"Save Template";
+			this->m_saveTemplateBtn->UseVisualStyleBackColor = true;
+			this->m_saveTemplateBtn->Click += gcnew System::EventHandler(this, &Form2::saveTemplateBtn_Click);
+			// 
+			// importButton
+			// 
+			this->m_importButton->Location = System::Drawing::Point(972, 221);
+			this->m_importButton->Name = L"importButton";
+			this->m_importButton->Size = System::Drawing::Size(193, 39);
+			this->m_importButton->TabIndex = 2;
+			this->m_importButton->Text = L"Import From Template";
+			this->m_importButton->UseVisualStyleBackColor = true;
+			this->m_importButton->Click += gcnew System::EventHandler(this, &Form2::importButton_Click);
 			// 
 			// Form2
 			// 
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->ClientSize = System::Drawing::Size(218, 383);
-			this->Controls->Add(this->saveTemplateBtn);
-			this->Controls->Add(this->panel1);
+			this->ClientSize = System::Drawing::Size(1180, 284);
+			this->Controls->Add(this->m_importButton);
+			this->Controls->Add(this->m_saveTemplateBtn);
+			this->Controls->Add(this->m_panel1);
 			this->Name = L"Form2";
 			this->Load += gcnew System::EventHandler(this, &Form2::OnLoad);
 			this->ResumeLayout(false);
@@ -93,6 +105,7 @@ namespace nhl94e
 	private: System::Void panel1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e);
 		   void OnLoad(System::Object^ sender, System::EventArgs^ e);
 	private: System::Void saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e);
-	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal, int imgIndex);
+	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal);
+	private: System::Void importButton_Click(System::Object^ sender, System::EventArgs^ e);
 	};
 }
