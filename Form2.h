@@ -34,7 +34,7 @@ namespace nhl94e
 			}
 		}
 	private: System::Windows::Forms::Panel^ m_panel1;
-	private: System::Drawing::Bitmap^ m_demoBitmap2;
+	private: System::Drawing::Bitmap^ m_demoBitmap;
 	private: System::Windows::Forms::Button^ m_saveTemplateBtn;
 	private: ProfileImageData* m_profileImageData;
 	private: ProfilePalletteData* m_profilePalletteData;

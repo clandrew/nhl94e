@@ -16,8 +16,8 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 	m_profileImageData = img;
 	m_profilePalletteData = pal;
 
-	m_demoBitmap2 = gcnew System::Drawing::Bitmap(48 * 6, 48);
-	m_demoBitmap2->SetResolution(96, 96);
+	m_demoBitmap = gcnew System::Drawing::Bitmap(48 * 6, 48);
+	m_demoBitmap->SetResolution(96, 96);
 
 	for (int i = 0; i < 16; ++i)
 	{
@@ -89,7 +89,7 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 					int rgb = s_default.PortableR8G8B8[index];
 
 					System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
-					m_demoBitmap2->SetPixel(blockStartX + col, blockStartY + row, color);
+					m_demoBitmap->SetPixel(blockStartX + col, blockStartY + row, color);
 				}
 			}
 
@@ -105,7 +105,7 @@ void nhl94e::Form2::panel1_Paint(System::Object^ sender, System::Windows::Forms:
 	e->Graphics->Clear(System::Drawing::Color::Transparent);
 
 	// I don't know why the +2 is necessary and at this point I can't be bothered to find out.
-	e->Graphics->DrawImage(m_demoBitmap2, 0, 0, 48 * 6 * scaling + 2, 48 * scaling + 2);
+	e->Graphics->DrawImage(m_demoBitmap, 0, 0, 48 * 6 * scaling + 2, 48 * scaling + 2);
 }
 
 void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e) 
@@ -123,7 +123,7 @@ void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventA
 	{
 		System::Drawing::Graphics^ ctx = System::Drawing::Graphics::FromImage(templateBitmap);
 		ctx->Clear(System::Drawing::Color::Black);
-		ctx->DrawImage(m_demoBitmap2, 0, 0);
+		ctx->DrawImage(m_demoBitmap, 0, 0);
 	}
 	for (int i = 0; i < 16; ++i)
 	{
@@ -316,6 +316,14 @@ void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs
 	}
 
 	m_importedSomethingValid = true;
+
+	// Update the demo image
+	{
+		System::Drawing::Graphics^ ctx = System::Drawing::Graphics::FromImage(m_demoBitmap);
+		ctx->Clear(System::Drawing::Color::Black);
+		ctx->DrawImage(templateBitmap, 0, 0);
+		m_panel1->Invalidate();
+	}
 }
 
 MultiFormatPallette* nhl94e::Form2::GetImportedPallette()
