@@ -30,7 +30,7 @@ In the latest source, here's what works:
 * Can edit players' profile images shown on the GAME SETUP screen
 
 Things for the future:
-* Edit players' profile images as seen elsewhere in the game, like on player cards. (Yeah... there's a different code path)
+* Edit players' profile images as seen elsewhere in the game, like on player cards. (it's a different code path)
 
 ## Build
 The source code is organized as a Visual Studio 2019 built for x86-64 architecture. It's a C++/CLI Windows Forms application. Normally I don't use C++/CLI but it started out as a command-line tool written in C++. When I wanted to add GUI this made the most sense.
