@@ -2816,7 +2816,12 @@ void SavePlayerPallettes()
 
 bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
 {
-    // Copy decompressed graphics into the ROM
+    // The profile images are all stored compressed.
+    // I believe in work smarter not harder. So this approach does not actualy involve reverse engineering of
+    // the whole compression or working out of compressed images. Instead, keep a decompressed copy with this 
+    // program and re-write the game's decompress with a dead simple load. I noticed the decompression itself
+    // doesn't have external side effects so it is safe to totally replace it.
+
     assert(s_profileImageData.size() == (size_t)Team::Count);
 
     for (int i = 0; i < (int)Team::Count; ++i)
@@ -2928,8 +2933,6 @@ $9D/CCAD 6B          RTL
     copy.m_code.push_back(0xF9);
 
     copy.AppendReturnLong_6B();
-
-    // Change the decompress into a load. For now, hardcode it to always load Montreal.
 
     int decompressMainStartFileOffset = ROMAddressToFileOffset(0x9DCC42);
     int decompressMainEndFileOffset = ROMAddressToFileOffset(0x9DCCAD);
