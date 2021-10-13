@@ -3236,4 +3236,31 @@ void nhl94e::Form1::profileImagesButton_Click(System::Object^ sender, System::Ev
     Form2^ dialog = gcnew Form2();
     dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));
     dialog->ShowDialog();
+
+    if (!dialog->ImportedSomethingValid())
+    {
+        return;
+    }
+
+    MultiFormatPallette* importedPallette = dialog->GetImportedPallette();
+
+    // Put pallette back into ROM
+    {
+        int addr = s_profilePalletteData[teamIndex].PalletteROMAddress;
+        RomDataIterator iter(ROMAddressToFileOffset(addr));
+        for (int i = 0; i < 16; ++i)
+        {
+            int color = importedPallette->SnesB5G5R5[i];
+            unsigned char low = color & 0xFF;
+            color >>= 8;
+            unsigned char high = color & 0xFF;
+            color >>= 8;
+            assert(color == 0);
+
+            iter.SaveByte(low);
+            iter.SaveByte(high);
+        }
+    }
+
+    std::vector<unsigned char>* importedSnesImageData = dialog->GetImportedSnesImageData();
 }

@@ -39,6 +39,7 @@ namespace nhl94e
 	private: ProfileImageData* m_profileImageData;
 	private: ProfilePalletteData* m_profilePalletteData;
 	private: System::Windows::Forms::Button^ m_importButton;
+	private: bool m_importedSomethingValid;
 	protected:
 
 	private:
@@ -107,5 +108,8 @@ namespace nhl94e
 	private: System::Void saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e);
 	public: void SetProfileData(ProfileImageData* img, ProfilePalletteData* pal);
 	private: System::Void importButton_Click(System::Object^ sender, System::EventArgs^ e);
+	public: MultiFormatPallette* GetImportedPallette();
+	public: std::vector<unsigned char>* GetImportedSnesImageData();
+	public: bool ImportedSomethingValid();
 	};
 }

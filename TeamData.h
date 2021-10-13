@@ -237,3 +237,8 @@ struct ProfileImageData
     std::wstring Path;
     std::vector<unsigned char> ImageBytes;
 };
+struct MultiFormatPallette
+{
+    int PortableR8G8B8[16];
+    int SnesB5G5R5[16];
+};

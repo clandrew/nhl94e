@@ -2,15 +2,13 @@
 #include "Form2.h"
 #include "Utils.h"
 
-struct MultiFormatPallette
-{
-	int PortableR8G8B8[16];
-	int SnesB5G5R5[16];
-};
 MultiFormatPallette s_default{};
+MultiFormatPallette s_importedPallette{};
+std::vector<unsigned char> s_snesImageData;
 
 void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
+	m_importedSomethingValid = false;
 }
 
 void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal)
@@ -242,66 +240,93 @@ void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs
 	if (templateBitmap->Size.Width != 48 * 6)
 	{
 		System::Windows::Forms::MessageBox::Show("The template image was an unexpected width; 288 was expected.");
+		m_importedSomethingValid = false;
 		return;
 	}
 
 	if (templateBitmap->Size.Height != 48 + 2)
 	{
 		System::Windows::Forms::MessageBox::Show("The template image was an unexpected height; 50 was expected.");
+		m_importedSomethingValid = false;
 		return;
 	}
-
-	MultiFormatPallette importedPallette{};
 
 	for (int i = 0; i < 16; ++i)
 	{
 		System::Drawing::Color pixelColor = templateBitmap->GetPixel(i, 48 - 1 + 2);
 		int argb = pixelColor.ToArgb();
-		importedPallette.PortableR8G8B8[i] = argb;
-		importedPallette.SnesB5G5R5[i] = SnesB5G5R5ToR8B8G8(importedPallette.PortableR8G8B8[i]);
+		s_importedPallette.PortableR8G8B8[i] = argb;
+		s_importedPallette.SnesB5G5R5[i] = R8B8G8ToSnesB5G5R5(s_importedPallette.PortableR8G8B8[i]);
 	}
 
+	// Commit image data back into rom data, validating as we go
 	int dstOffset = 0;
+	s_snesImageData.clear();
+	s_snesImageData.resize(0x2400);
+	std::fill(s_snesImageData.begin(), s_snesImageData.end(), 0);
 
-	for (int y = 0; y < 48; y += 8)
+	for (int imageIndex = 0; imageIndex < 6; ++imageIndex)
 	{
-		for (int x = 0; x < 48; x += 8)
+		for (int y = 0; y < 48; y += 8)
 		{
-			std::vector<int> block;
-			block.resize(8 * 8);
-			for (int yi = 0; yi < 8; ++yi)
+			for (int x = 0; x < 48; x += 8)
 			{
-				for (int xi = 0; xi < 8; ++xi)
+				std::vector<int> block;
+				block.resize(8 * 8);
+				for (int yi = 0; yi < 8; ++yi)
 				{
-					int srcX = x + xi;
-					int srcY = y + yi;
+					for (int xi = 0; xi < 8; ++xi)
+					{
+						int srcX = x + xi;
+						int srcY = y + yi;
 
-					System::Drawing::Color pixelColor = templateBitmap->GetPixel(srcX, srcY);
-					int argb = pixelColor.ToArgb();
-					block[yi * 8 + xi] = argb;
+						System::Drawing::Color pixelColor = templateBitmap->GetPixel(srcX, srcY);
+						int argb = pixelColor.ToArgb();
+						block[yi * 8 + xi] = argb;
+					}
+				}
+
+				TranscodeBlockResult transcodeBlockResult = TranscodeBlock(block, &s_importedPallette);
+
+				if (!transcodeBlockResult.ValidColors)
+				{
+					int invalidColorX = x + transcodeBlockResult.InvalidColorX;
+					int invalidColorY = y + transcodeBlockResult.InvalidColorY;
+					String^ msg = String::Format(
+						"The image contained a color at X={0}, Y={1} which was not present in the pallette.",
+						invalidColorX,
+						invalidColorY);
+					System::Windows::Forms::MessageBox::Show(msg);
+					m_importedSomethingValid = false;
+					return;
+				}
+
+				for (size_t i = 0; i < transcodeBlockResult.TranscodedBlock.size(); ++i)
+				{
+					s_snesImageData[dstOffset] = transcodeBlockResult.TranscodedBlock[i];
+					++dstOffset;
 				}
 			}
-
-			// Transcode block
-			TranscodeBlockResult transcodeBlockResult = TranscodeBlock(block, &importedPallette);
-
-			if (!transcodeBlockResult.ValidColors)
-			{
-				int invalidColorX = x + transcodeBlockResult.InvalidColorX;
-				int invalidColorY = y + transcodeBlockResult.InvalidColorY;
-				String^ msg = String::Format(
-					"The image contained a color at X={0}, Y={1} which was not present in the pallette.", 
-					invalidColorX,
-					invalidColorY);
-				System::Windows::Forms::MessageBox::Show(msg);
-				return;
-			}
-
-			for (size_t i = 0; i < transcodeBlockResult.TranscodedBlock.size(); ++i)
-			{
-				m_profileImageData->ImageBytes[dstOffset] = transcodeBlockResult.TranscodedBlock[i];
-				++dstOffset;
-			}
 		}
+
+		// After each image, pad with non-viable bytes
+		dstOffset += 0x180;
 	}
+
+	m_importedSomethingValid = true;
+}
+
+MultiFormatPallette* nhl94e::Form2::GetImportedPallette()
+{
+	return &s_importedPallette;
+}
+
+std::vector<unsigned char>* nhl94e::Form2::GetImportedSnesImageData()
+{
+	return &s_snesImageData;
+}
+
+bool nhl94e::Form2::ImportedSomethingValid()
+{
+	return m_importedSomethingValid;
 }
