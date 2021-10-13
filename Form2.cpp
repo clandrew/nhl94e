@@ -340,3 +340,9 @@ bool nhl94e::Form2::ImportedSomethingValid()
 {
 	return m_importedSomethingValid;
 }
+
+void nhl94e::Form2::m_okButton_Click(System::Object^ sender, System::EventArgs^ e) 
+{
+	this->DialogResult = System::Windows::Forms::DialogResult::OK;
+	this->Close();
+}

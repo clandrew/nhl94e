@@ -40,6 +40,8 @@ namespace nhl94e
 	private: ProfilePalletteData* m_profilePalletteData;
 	private: System::Windows::Forms::Button^ m_importButton;
 	private: bool m_importedSomethingValid;
+	private: System::Windows::Forms::Button^ m_okButton;
+
 	protected:
 
 	private:
@@ -58,40 +60,52 @@ namespace nhl94e
 			this->m_panel1 = (gcnew System::Windows::Forms::Panel());
 			this->m_saveTemplateBtn = (gcnew System::Windows::Forms::Button());
 			this->m_importButton = (gcnew System::Windows::Forms::Button());
+			this->m_okButton = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
-			// panel1
+			// m_panel1
 			// 
 			this->m_panel1->Location = System::Drawing::Point(13, 13);
-			this->m_panel1->Name = L"panel1";
+			this->m_panel1->Name = L"m_panel1";
 			this->m_panel1->Size = System::Drawing::Size(1152, 192);
 			this->m_panel1->TabIndex = 0;
 			this->m_panel1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form2::panel1_Paint);
 			// 
-			// saveTemplateBtn
+			// m_saveTemplateBtn
 			// 
 			this->m_saveTemplateBtn->Location = System::Drawing::Point(13, 221);
-			this->m_saveTemplateBtn->Name = L"saveTemplateBtn";
+			this->m_saveTemplateBtn->Name = L"m_saveTemplateBtn";
 			this->m_saveTemplateBtn->Size = System::Drawing::Size(193, 39);
 			this->m_saveTemplateBtn->TabIndex = 1;
 			this->m_saveTemplateBtn->Text = L"Save Template";
 			this->m_saveTemplateBtn->UseVisualStyleBackColor = true;
 			this->m_saveTemplateBtn->Click += gcnew System::EventHandler(this, &Form2::saveTemplateBtn_Click);
 			// 
-			// importButton
+			// m_importButton
 			// 
-			this->m_importButton->Location = System::Drawing::Point(972, 221);
-			this->m_importButton->Name = L"importButton";
+			this->m_importButton->Location = System::Drawing::Point(212, 221);
+			this->m_importButton->Name = L"m_importButton";
 			this->m_importButton->Size = System::Drawing::Size(193, 39);
 			this->m_importButton->TabIndex = 2;
 			this->m_importButton->Text = L"Import From Template";
 			this->m_importButton->UseVisualStyleBackColor = true;
 			this->m_importButton->Click += gcnew System::EventHandler(this, &Form2::importButton_Click);
 			// 
+			// m_okButton
+			// 
+			this->m_okButton->Location = System::Drawing::Point(972, 221);
+			this->m_okButton->Name = L"m_okButton";
+			this->m_okButton->Size = System::Drawing::Size(193, 39);
+			this->m_okButton->TabIndex = 3;
+			this->m_okButton->Text = L"OK";
+			this->m_okButton->UseVisualStyleBackColor = true;
+			this->m_okButton->Click += gcnew System::EventHandler(this, &Form2::m_okButton_Click);
+			// 
 			// Form2
 			// 
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Stretch;
-			this->ClientSize = System::Drawing::Size(1180, 284);
+			this->ClientSize = System::Drawing::Size(1180, 276);
+			this->Controls->Add(this->m_okButton);
 			this->Controls->Add(this->m_importButton);
 			this->Controls->Add(this->m_saveTemplateBtn);
 			this->Controls->Add(this->m_panel1);
@@ -111,5 +125,6 @@ namespace nhl94e
 	public: MultiFormatPallette* GetImportedPallette();
 	public: std::vector<unsigned char>* GetImportedSnesImageData();
 	public: bool ImportedSomethingValid();
-	};
+	private: System::Void m_okButton_Click(System::Object^ sender, System::EventArgs^ e);
+};
 }

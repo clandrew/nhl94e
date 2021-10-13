@@ -3247,6 +3247,11 @@ void nhl94e::Form1::profileImagesButton_Click(System::Object^ sender, System::Ev
     dialog->SetProfileData(&(s_profileImageData[teamIndex]), &(s_profilePalletteData[teamIndex]));
     dialog->ShowDialog();
 
+    if (dialog->DialogResult != System::Windows::Forms::DialogResult::OK)
+    {
+        return;
+    }
+
     if (!dialog->ImportedSomethingValid())
     {
         return;
