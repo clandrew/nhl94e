@@ -2,6 +2,8 @@
 #include "Form2.h"
 #include "Utils.h"
 
+int s_snesToRgbColors[16]{};
+
 void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
 }
@@ -15,7 +17,6 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 	demoBitmap2 = gcnew System::Drawing::Bitmap(48, 48);
 	demoBitmap2->SetResolution(96, 96);
 
-	int snesToRgb[16]; 
 	for (int i = 0; i < 16; ++i)
 	{
 		int byte0Index = i*2;
@@ -23,7 +24,7 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 		unsigned short indexed = (pal->PalletteBytes[byte1Index] << 8) | pal->PalletteBytes[byte0Index];
 		int rgb = SnesB5G5R5ToR8B8G8(indexed);
 		rgb |= 0xFF000000;
-		snesToRgb[i] = rgb;
+		s_snesToRgbColors[i] = rgb;
 	}
 
 	int imgBytesOffset = imgIndex * 0x600;
@@ -77,7 +78,7 @@ void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* p
 			{
 				int index = ind[row][col];
 				assert(index >= 0 && index <= 15);
-				int rgb = snesToRgb[index];
+				int rgb = s_snesToRgbColors[index];
 
 				System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
 				demoBitmap2->SetPixel(blockStartX + col, blockStartY + row, color);
@@ -100,5 +101,27 @@ void nhl94e::Form2::panel1_Paint(System::Object^ sender, System::Windows::Forms:
 
 void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventArgs^ e) 
 {
+	SaveFileDialog^ dialog = gcnew SaveFileDialog();
+#if _DEBUG
+	dialog->FileName = L"D:\\repos\\nhl94e\\template.png";
+#endif
+	System::Windows::Forms::DialogResult result = dialog->ShowDialog();
+	if (result != System::Windows::Forms::DialogResult::OK)
+		return;
 
+	System::Drawing::Bitmap^ templateBitmap = gcnew System::Drawing::Bitmap(48, 50);
+	
+	{
+		System::Drawing::Graphics^ ctx = System::Drawing::Graphics::FromImage(templateBitmap);
+		ctx->Clear(System::Drawing::Color::Black);
+		ctx->DrawImage(demoBitmap2, 0, 0);
+	}
+	for (int i = 0; i < 16; ++i)
+	{
+		int rgb = s_snesToRgbColors[i];
+		System::Drawing::Color color = System::Drawing::Color::FromArgb(rgb);
+		templateBitmap->SetPixel(i, 49, color);
+	}
+
+	templateBitmap->Save(dialog->FileName);
 }
