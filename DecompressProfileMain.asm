@@ -45,6 +45,160 @@ $9D/C99F 85 A5       STA $A5    [$00:00A5]   A:0000 X:000A Y:0000 P:envmxdiZc	//
 $9D/C9A1 6B          RTL                     A:0000 X:000A Y:0000 P:envmxdiZc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
+
+// void LoadTeamProfileImagesForPlayerCard() ?-9DC9A8
+
+$9D/C9A8 85 A5       STA $A5    [$00:00A5]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9AA AF 74 34 7E LDA $7E3474[$7E:3474]   A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9AE F0 03       BEQ $03    [$C9B3]      A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9B0 4C 9F CB    JMP $CB9F  [$9D:CB9F]   A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9B3 5A          PHY                     A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9B4 DA          PHX                     A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9B5 A5 91       LDA $91    [$00:0091]   A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9B7 F0 08       BEQ $08    [$C9C1]      A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9B9 A9 00 24    LDA #$2400              A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9BC 8D 87 1E    STA $1E87  [$9F:1E87]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9BF 80 06       BRA $06    [$C9C7]      A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9C1 A9 00 34    LDA #$3400              A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9C4 8D 87 1E    STA $1E87  [$9F:1E87]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9C7 A5 A5       LDA $A5    [$00:00A5]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9C9 A4 91       LDY $91    [$00:0091]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9CB 85 A5       STA $A5    [$00:00A5]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9CD B9 98 1C    LDA $1C98,y[$9F:1C98]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9D0 A2 1A 00    LDX #$001A              A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9D3 22 4C 8F 80 JSL $808F4C[$80:8F4C]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9D7 18          CLC                     A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9D8 65 A5       ADC $A5    [$00:00A5]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9DA 0A          ASL A                   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9DB 0A          ASL A                   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9DC AA          TAX                     A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9DD BF 53 CD 9D LDA $9DCD53,x[$9D:D1E3] A:0000 X:0490 Y:0000 P:envmxdiZc	// DecompressActual src = e.g., 970490
+$9D/C9E1 85 0C       STA $0C    [$00:000C]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9E3 BF 55 CD 9D LDA $9DCD55,x[$9D:D1E5] A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9E7 85 0E       STA $0E    [$00:000E]   A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9E9 A9 7F 00    LDA #$007F              A:0000 X:0490 Y:0000 P:envmxdiZc	// DecompressActual1 dest = 7F0000
+$9D/C9EC 85 12       STA $12    [$00:0012]   A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9EE A9 00 00    LDA #$0000              A:0000 X:0490 Y:0000 P:envmxdiZc
+$9D/C9F1 85 10       STA $10    [$00:0010]   A:0000 X:0490 Y:0000 P:envmxdiZc
+
+$9D/C9F3 22 73 C3 80 JSL $80C373[$80:C373]   A:8000 X:0480 Y:0000 P:envmxdiZc	// call DecompressActual1()
+$9D/C9F7 86 00       STX $00    [$00:0000]   A:8000 X:0480 Y:0000 P:envmxdiZc
+$9D/C9F9 A5 91       LDA $91    [$00:0091]   A:8000 X:0480 Y:0000 P:envmxdiZc
+$9D/C9FB F0 0B       BEQ $0B    [$CA08]      A:0000 X:0480 Y:0000 P:envmxdiZc
+
+$9D/CA08 A9 00 6F    LDA #$6F00              A:0000 X:0480 Y:0000 P:envmxdiZc
+$9D/CA0B 85 10       STA $10    [$00:0010]   A:6F00 X:0480 Y:0000 P:envmxdizc	// DecompressActual2 dst = 7F6F00
+
+$9D/CA0D 8F 70 34 7E STA $7E3470[$7E:3470]   A:6F00 X:0480 Y:0000 P:envmxdizc
+
+$9D/CA11 A9 7F 00    LDA #$007F              A:6F00 X:0480 Y:0000 P:envmxdizc	// DecompressActual2 src = 7F0000
+$9D/CA14 85 0E       STA $0E    [$00:000E]   A:007F X:0480 Y:0000 P:envmxdizc
+$9D/CA16 A9 00 00    LDA #$0000              A:007F X:0480 Y:0000 P:envmxdizc
+$9D/CA19 85 0C       STA $0C    [$00:000C]   A:0000 X:0480 Y:0000 P:envmxdiZc
+
+$9D/CA1B 22 C2 85 9B JSL $9B85C2[$9B:85C2]   A:0000 X:0480 Y:0000 P:envmxdiZc	// Call DecompressActual2()
+
+$9D/CA1F 22 1C CB 9D JSL $9DCB1C[$9D:CB1C]   A:C0C0 X:0000 Y:0490 P:eNvmxdizc
+$9D/CA23 D0 31       BNE $31    [$CA56]      A:0000 X:0000 Y:0002 P:envmxdiZC
+$9D/CA25 A9 92 00    LDA #$0092              A:0000 X:0000 Y:0002 P:envmxdiZC
+$9D/CA28 85 0E       STA $0E    [$00:000E]   A:0092 X:0000 Y:0002 P:envmxdizC
+$9D/CA2A A9 B0 FF    LDA #$FFB0              A:0092 X:0000 Y:0002 P:envmxdizC
+$9D/CA2D 85 0C       STA $0C    [$00:000C]   A:FFB0 X:0000 Y:0002 P:eNvmxdizC
+$9D/CA2F A9 7E 00    LDA #$007E              A:FFB0 X:0000 Y:0002 P:eNvmxdizC
+$9D/CA32 85 12       STA $12    [$00:0012]   A:007E X:0000 Y:0002 P:envmxdizC
+$9D/CA34 A9 F4 37    LDA #$37F4              A:007E X:0000 Y:0002 P:envmxdizC
+$9D/CA37 85 10       STA $10    [$00:0010]   A:37F4 X:0000 Y:0002 P:envmxdizC
+$9D/CA39 A9 20 00    LDA #$0020              A:37F4 X:0000 Y:0002 P:envmxdizC
+$9D/CA3C 85 24       STA $24    [$00:0024]   A:0020 X:0000 Y:0002 P:envmxdizC
+$9D/CA3E AF D2 35 7E LDA $7E35D2[$7E:35D2]   A:0020 X:0000 Y:0002 P:envmxdizC
+$9D/CA42 18          CLC                     A:0372 X:0000 Y:0002 P:envmxdizC
+$9D/CA43 6D 87 1E    ADC $1E87  [$9F:1E87]   A:0372 X:0000 Y:0002 P:envmxdizc
+$9D/CA46 A4 91       LDY $91    [$00:0091]   A:3772 X:0000 Y:0002 P:envmxdizc
+$9D/CA48 F0 04       BEQ $04    [$CA4E]      A:3772 X:0000 Y:0000 P:envmxdiZc
+$9D/CA4E FA          PLX                     A:3772 X:0000 Y:0000 P:envmxdiZc
+$9D/CA4F 7A          PLY                     A:3772 X:000D Y:0000 P:envmxdizc
+$9D/CA50 22 2D 8E 80 JSL $808E2D[$80:8E2D]   A:3772 X:000D Y:0004 P:envmxdizc
+$9D/CA54 80 2F       BRA $2F    [$CA85]      A:FFFE X:0000 Y:000C P:envmxdiZc
+
+$9D/CA85 A4 91       LDY $91    [$00:0091]   A:FFFE X:0000 Y:000C P:envmxdiZc
+$9D/CA87 B9 98 1C    LDA $1C98,y[$9F:1C98]   A:FFFE X:0000 Y:0000 P:envmxdiZc
+$9D/CA8A 0A          ASL A                   A:000B X:0000 Y:0000 P:envmxdizc
+$9D/CA8B 0A          ASL A                   A:0016 X:0000 Y:0000 P:envmxdizc
+$9D/CA8C 18          CLC                     A:002C X:0000 Y:0000 P:envmxdizc
+$9D/CA8D 69 B3 D8    ADC #$D8B3              A:002C X:0000 Y:0000 P:envmxdizc
+$9D/CA90 85 8D       STA $8D    [$00:008D]   A:D8DF X:0000 Y:0000 P:eNvmxdizc
+$9D/CA92 A9 9D 00    LDA #$009D              A:D8DF X:0000 Y:0000 P:eNvmxdizc
+$9D/CA95 85 8F       STA $8F    [$00:008F]   A:009D X:0000 Y:0000 P:envmxdizc
+$9D/CA97 A7 8D       LDA [$8D]  [$9D:D8DF]   A:009D X:0000 Y:0000 P:envmxdizc
+$9D/CA99 85 0C       STA $0C    [$00:000C]   A:EB9C X:0000 Y:0000 P:eNvmxdizc
+$9D/CA9B E6 8D       INC $8D    [$00:008D]   A:EB9C X:0000 Y:0000 P:eNvmxdizc
+$9D/CA9D E6 8D       INC $8D    [$00:008D]   A:EB9C X:0000 Y:0000 P:eNvmxdizc
+$9D/CA9F A7 8D       LDA [$8D]  [$9D:D8E1]   A:EB9C X:0000 Y:0000 P:eNvmxdizc
+$9D/CAA1 85 0E       STA $0E    [$00:000E]   A:009A X:0000 Y:0000 P:envmxdizc
+$9D/CAA3 A5 91       LDA $91    [$00:0091]   A:009A X:0000 Y:0000 P:envmxdizc
+$9D/CAA5 F0 05       BEQ $05    [$CAAC]      A:0000 X:0000 Y:0000 P:envmxdiZc
+$9D/CAAC A0 50 00    LDY #$0050              A:0000 X:0000 Y:0000 P:envmxdiZc
+$9D/CAAF A2 10 00    LDX #$0010              A:0000 X:0000 Y:0050 P:envmxdizc
+$9D/CAB2 22 BD E0 9D JSL $9DE0BD[$9D:E0BD]   A:0000 X:0010 Y:0050 P:envmxdizc
+$9D/CAB6 6B          RTL                     A:6000 X:00C0 Y:0020 P:envmxdiZc
+$9D/C21A A9 7F 00    LDA #$007F              A:6000 X:00C0 Y:0020 P:envmxdiZc
+$9D/C21D 85 0E       STA $0E    [$00:000E]   A:007F X:00C0 Y:0020 P:envmxdizc
+$9D/C21F AF 70 34 7E LDA $7E3470[$7E:3470]   A:007F X:00C0 Y:0020 P:envmxdizc
+$9D/C223 85 0C       STA $0C    [$00:000C]   A:6F00 X:00C0 Y:0020 P:envmxdizc
+$9D/C225 AF D2 35 7E LDA $7E35D2[$7E:35D2]   A:6F00 X:00C0 Y:0020 P:envmxdizc
+$9D/C229 0A          ASL A                   A:0372 X:00C0 Y:0020 P:envmxdizc
+$9D/C22A 0A          ASL A                   A:06E4 X:00C0 Y:0020 P:envmxdizc
+$9D/C22B 0A          ASL A                   A:0DC8 X:00C0 Y:0020 P:envmxdizc
+$9D/C22C 0A          ASL A                   A:1B90 X:00C0 Y:0020 P:envmxdizc
+$9D/C22D 18          CLC                     A:3720 X:00C0 Y:0020 P:envmxdizc
+
+$9D/C22E 69 00 20    ADC #$2000              A:3720 X:00C0 Y:0020 P:envmxdizc
+$9D/C231 A8          TAY                     A:5720 X:00C0 Y:0020 P:envmxdizc
+$9D/C232 A2 00 06    LDX #$0600              A:5720 X:00C0 Y:5720 P:envmxdizc
+$9D/C235 22 83 85 80 JSL $808583[$80:8583]   A:5720 X:0600 Y:5720 P:envmxdizc
+$9D/C239 22 1F 89 80 JSL $80891F[$80:891F]   A:5720 X:0600 Y:5720 P:envmxdizc
+$9D/C23D A9 7F 00    LDA #$007F              A:F600 X:0278 Y:5A20 P:eNvmxdizc
+$9D/C240 85 0E       STA $0E    [$00:000E]   A:007F X:0278 Y:5A20 P:envmxdizc
+$9D/C242 AF 72 34 7E LDA $7E3472[$7E:3472]   A:007F X:0278 Y:5A20 P:envmxdizc
+$9D/C246 85 0C       STA $0C    [$00:000C]   A:0000 X:0278 Y:5A20 P:envmxdiZc
+$9D/C248 AF D2 35 7E LDA $7E35D2[$7E:35D2]   A:0000 X:0278 Y:5A20 P:envmxdiZc
+$9D/C24C 0A          ASL A                   A:0372 X:0278 Y:5A20 P:envmxdizc
+$9D/C24D 0A          ASL A                   A:06E4 X:0278 Y:5A20 P:envmxdizc
+$9D/C24E 0A          ASL A                   A:0DC8 X:0278 Y:5A20 P:envmxdizc
+$9D/C24F 0A          ASL A                   A:1B90 X:0278 Y:5A20 P:envmxdizc
+$9D/C250 18          CLC                     A:3720 X:0278 Y:5A20 P:envmxdizc
+$9D/C251 69 00 23    ADC #$2300              A:3720 X:0278 Y:5A20 P:envmxdizc
+$9D/C254 A8          TAY                     A:5A20 X:0278 Y:5A20 P:envmxdizc
+$9D/C255 A2 00 06    LDX #$0600              A:5A20 X:0278 Y:5A20 P:envmxdizc
+$9D/C258 22 1F 89 80 JSL $80891F[$80:891F]   A:5A20 X:0600 Y:5A20 P:envmxdizc
+$9D/C25C 22 23 D9 9D JSL $9DD923[$9D:D923]   A:F600 X:0280 Y:5D20 P:eNvmxdizc
+$9D/C260 A9 7F 00    LDA #$007F              A:F800 X:0288 Y:0400 P:eNvmxdizc
+$9D/C263 85 0E       STA $0E    [$00:000E]   A:007F X:0288 Y:0400 P:envmxdizc
+
+$9D/C265 A9 80 77    LDA #$7780              A:007F X:0288 Y:0400 P:envmxdizc
+$9D/C268 85 0C       STA $0C    [$00:000C]   A:7780 X:0288 Y:0400 P:envmxdizc
+$9D/C26A A9 00 04    LDA #$0400              A:7780 X:0288 Y:0400 P:envmxdizc
+$9D/C26D 8D 9C 07    STA $079C  [$9F:079C]   A:0400 X:0288 Y:0400 P:envmxdizc
+$9D/C270 A2 0C 00    LDX #$000C              A:0400 X:0288 Y:0400 P:envmxdizc
+$9D/C273 A0 04 00    LDY #$0004              A:0400 X:000C Y:0400 P:envmxdizc
+$9D/C276 22 DF 8A 80 JSL $808ADF[$80:8ADF]   A:0400 X:000C Y:0004 P:envmxdizc
+$9D/C27A 80 04       BRA $04    [$C280]      A:000B X:02C0 Y:056C P:envmxdiZc
+$9D/C280 22 DE C2 9D JSL $9DC2DE[$9D:C2DE]   A:000B X:02C0 Y:056C P:envmxdiZc
+$9D/C284 22 83 85 80 JSL $808583[$80:8583]   A:7C00 X:00F0 Y:056C P:envmxdizc
+$9D/C288 22 DE AF 80 JSL $80AFDE[$80:AFDE]   A:7C00 X:00F0 Y:056C P:envmxdizc
+$9D/C28C A9 68 35    LDA #$3568              A:2101 X:2100 Y:2320 P:eNvmxdizC
+$9D/C28F 8F 00 75 7F STA $7F7500[$7F:7500]   A:3568 X:2100 Y:2320 P:envmxdizC
+$9D/C293 22 D4 E0 9D JSL $9DE0D4[$9D:E0D4]   A:3568 X:2100 Y:2320 P:envmxdizC
+$9D/C297 6B          RTL                     A:0200 X:0100 Y:0000 P:envmxdizc
+
+///////////////////////////////////////////////////////////////////////////////////////////////
 void DecompressFB30()		80BBB3
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -243,7 +397,7 @@ $9D/C99F 85 A5       STA $A5    [$00:00A5]   // Store an argument used by LoadTe
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
-// void LoadTeamProfileImages()
+// void LoadTeamProfileImagesForGameSetup() 9DCC42
 // Preconditions: Choice of home or away team is in $91. 0 means home, 2 means away
 //		  Current teams choices are stored at 0x9F1C98 and 0x9f1C9A for home and away respectively.
 //
