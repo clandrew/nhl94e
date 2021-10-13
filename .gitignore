@@ -10,3 +10,4 @@ docs/rough/*.bin
 PreDecompress/.vs/*
 PreDecompress/Debug/*
 PreDecompress/Release/*
+share/*
