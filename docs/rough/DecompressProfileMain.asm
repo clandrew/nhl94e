@@ -165,15 +165,19 @@ void DecompressFB30()		80BBB3
 //				  Argument: $75
 //				  Argument: $77
 //
-//                9A0720 in RAM has been initialized with some argument type thing.
-//				  It's an array. Each element is 2 bytes. There are about 12 elements.
-//
 // Postconditions:A decompressed intermediate is written to the output vector.
 //                This doesn't move anything to VRAM, it works in system memory only.
+//
+//                9A0720 in RAM (shadowed to 7E0720) has been initialized with some argument type thing.
+//				  It's an array. Each element is 2 bytes. There are about 12 elements.
+//
+//                9A0700 in RAM (shadowed to 7E0700) has been initialized with some argument type thing.
+//				  It's an array, like the above. Each element is 2 bytes. 
 //
 //				  Scrambles $14.
 //			      Scrambles $6C.
 //		          Scrambles $6F.
+//		          Scrambles $73.
 //
 // Comments: This function is an absolute monstrosity. About 850 ops.
 //		
@@ -216,14 +220,14 @@ $80/BBDF A5 75       LDA $75    [$00:0075]   A:0010 X:0000 Y:0008 P:envmXdiZc
 $80/BBE1 38          SEC                     A:0000 X:0000 Y:0008 P:envmXdiZc
 $80/BBE2 E5 77       SBC $77    [$00:0077]   A:0000 X:0000 Y:0008 P:envmXdiZC
 
-$80/BBE4 9D 20 07    STA $0720,x[$9A:0720]   A:0000 X:0000 Y:0008 P:envmXdiZC	; 970720 contains some intermediate thing
+$80/BBE4 9D 20 07    STA $0720,x[$9A:0720]   A:0000 X:0000 Y:0008 P:envmXdiZC	; 9A0720 contains some intermediate thing
 
 
 																				; For first iter for montreal, $0C = 9AE97A
 $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmXdiZC	; Call PreDecompress(). Eats $6F
 																				; Part of result gets stored in $6C
 																		
-$80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Store result. For Montreal, these are {0, 0, 3, 2, 0x10}
+$80/BBEA 9D 00 07    STA $0700,x[$97:070C]   A:8004 X:000C Y:0000 P:eNvmXdizc	; Store result, shadowed at 7E0700. For Montreal, these are {0, 0, 3, 2, 0x10}
 
 $80/BBED 18          CLC                     A:8004 X:000C Y:0000 P:eNvmXdizc
 $80/BBEE 65 77       ADC $77    [$00:0077]   A:8004 X:000C Y:0000 P:eNvmXdizc
