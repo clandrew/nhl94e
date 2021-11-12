@@ -861,6 +861,33 @@ public:
         assert(addr == 0); // 24-byte address expected
     }
 
+    int LoadLongAddress4Bytes()
+    {
+        unsigned char b0 = s_romData.Get(m_fileOffset);
+        ++m_fileOffset;
+
+        unsigned char b1 = s_romData.Get(m_fileOffset);
+        ++m_fileOffset;
+
+        unsigned char b2 = s_romData.Get(m_fileOffset);
+        ++m_fileOffset;
+
+        unsigned char b3 = s_romData.Get(m_fileOffset);
+        assert(b3 == 0); // 24-byte address expected
+        ++m_fileOffset;
+
+        int addr = 0;
+        addr |= b3;
+        addr <<= 8;
+        addr |= b2;
+        addr <<= 8;
+        addr |= b1;
+        addr <<= 8;
+        addr |= b0;
+
+        return addr;
+    }
+
     void SaveByte(int b)
     {
         assert(b >= 0 && b < 256);
@@ -1573,7 +1600,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     OnSelectedIndexChanged(nullptr, nullptr);
 
 #if _DEBUG
-    
+    /*
     {
         int playerIndex = 0;
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Leveille";
@@ -1617,7 +1644,30 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
         homeColorComboBox->SelectedIndex = (int)Team::TampaBay;
         awayColorComboBox->SelectedIndex = (int)Team::TampaBay;
+    }*/
+
+    std::stringstream log;
+
+    for (int teamIndex = 0; teamIndex < 26; teamIndex++)
+    {
+        log << "Team index " << teamIndex << "\n";
+
+        TeamData const& teamData = s_allTeams[teamIndex];
+
+        for (int playerIndex = 0; playerIndex < teamData.Players.size(); playerIndex++)
+        {
+            int index = teamIndex * 26 + playerIndex;
+            int offset = 0x9DCD53 + (index * 4);
+            
+            RomDataIterator iter(ROMAddressToFileOffset(offset));
+            int profileData = iter.LoadLongAddress4Bytes();
+
+            log << playerIndex << "\t" << teamData.Players[playerIndex].Name.Get() << "\t" << std::hex << offset << "\t" << profileData << "\n";
+        }
+        log << "\n";
     }
+
+    std::string logstr = log.str();
 
 #endif
 }
@@ -3002,7 +3052,7 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 
     if (!InsertPlayerGraphics(&freeSpaceIter))
     {
-        System::String^ dialogString = gcnew System::String(L"Encountered an error loading the contents of the file DecompressProfileMain.asm.");
+        System::String^ dialogString = gcnew System::String(L"Encountered an error inserting player graphics.");
         MessageBox::Show(dialogString);
         return;
     }
