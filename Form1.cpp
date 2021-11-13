@@ -895,6 +895,13 @@ public:
         ++m_fileOffset;
     }
 
+    unsigned char LoadByte()
+    {
+        unsigned char b = s_romData.Get(m_fileOffset);
+        ++m_fileOffset;
+        return b;
+    }
+
     void EnsureSpaceInBank(int bytes)
     {
         // This checks bank boundaries not page boundaries.
