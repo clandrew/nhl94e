@@ -1046,6 +1046,164 @@ $80/C1AF 60          RTS                     A:8004 X:000C Y:0000 P:eNvmXdizc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+// Interrupt handler
+
+*** NMI
+$00/8147 5C 4B 81 80 JMP $80814B[$80:814B]   A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/814B C2 30       REP #$30                A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/814D 8B          PHB                     A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/814E 4B          PHK                     A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/814F AB          PLB                     A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/8150 48          PHA                     A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/8151 58          CLI                     A:009C X:0628 Y:0005 P:eNvmxdIzc
+$80/8152 A9 00 00    LDA #$0000              A:009C X:0628 Y:0005 P:eNvmxdizc
+$80/8155 5B          TCD                     A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8156 AD 10 42    LDA $4210  [$80:4210]   A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8159 A5 38       LDA $38    [$00:0038]   A:42C2 X:0628 Y:0005 P:envmxdizc
+$80/815B F0 03       BEQ $03    [$8160]      A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8160 DA          PHX                     A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8161 5A          PHY                     A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8162 A9 D3 16    LDA #$16D3              A:0000 X:0628 Y:0005 P:envmxdiZc
+$80/8165 85 3E       STA $3E    [$00:003E]   A:16D3 X:0628 Y:0005 P:envmxdizc
+$80/8167 E2 10       SEP #$10                A:16D3 X:0628 Y:0005 P:envmxdizc
+$80/8169 AE 74 07    LDX $0774  [$80:0774]   A:16D3 X:0028 Y:0005 P:envmXdizc
+$80/816C F0 0F       BEQ $0F    [$817D]      A:16D3 X:0000 Y:0005 P:envmXdiZc
+$80/817D A2 80       LDX #$80                A:16D3 X:0000 Y:0005 P:envmXdiZc
+$80/817F DA          PHX                     A:16D3 X:0080 Y:0005 P:eNvmXdizc
+$80/8180 F4 85 81    PEA $8185               A:16D3 X:0080 Y:0005 P:eNvmXdizc	; Setup where to go next after the interrupt ig
+$80/8183 DC 8C 07    JML [$078C][$80:8019]   A:16D3 X:0080 Y:0005 P:eNvmXdizc	; Jump to a ret
+$80/8019 6B          RTL                     A:16D3 X:0080 Y:0005 P:eNvmXdizc
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+// void AfterInterrupt()
+
+$80/8186 C2 30       REP #$30                A:16D3 X:0080 Y:0007 P:eNvmXdizC	
+$80/8188 AD D2 07    LDA $07D2  [$80:07D2]   A:16D3 X:0080 Y:0007 P:eNvmxdizC
+$80/818B 8D 09 42    STA $4209  [$80:4209]   A:0046 X:0080 Y:0007 P:envmxdizC
+$80/818E AD D4 07    LDA $07D4  [$80:07D4]   A:0046 X:0080 Y:0007 P:envmxdizC
+$80/8191 8D 07 42    STA $4207  [$80:4207]   A:0000 X:0080 Y:0007 P:envmxdiZC
+$80/8194 E2 30       SEP #$30                A:0000 X:0080 Y:0007 P:envmxdiZC
+$80/8196 AD 62 07    LDA $0762  [$80:0762]   A:0000 X:0080 Y:0007 P:envMXdiZC
+$80/8199 8D 00 21    STA $2100  [$80:2100]   A:008F X:0080 Y:0007 P:eNvMXdizC
+$80/819C A2 00       LDX #$00                A:008F X:0080 Y:0007 P:eNvMXdizC
+$80/819E 9B          TXY                     A:008F X:0000 Y:0007 P:envMXdiZC
+
+Loop:
+$80/819F 8A          TXA                     A:008F X:0000 Y:0000 P:envMXdiZC
+$80/81A0 BD D6 07    LDA $07D6,x[$80:07D6]   A:0000 X:0000 Y:0000 P:envMXdiZC
+$80/81A3 99 0D 21    STA $210D,y[$80:210D]   A:0000 X:0000 Y:0000 P:envMXdiZC
+$80/81A6 BD D7 07    LDA $07D7,x[$80:07D7]   A:0000 X:0000 Y:0000 P:envMXdiZC
+$80/81A9 99 0D 21    STA $210D,y[$80:210D]   A:0000 X:0000 Y:0000 P:envMXdiZC
+$80/81AC C8          INY                     A:0000 X:0000 Y:0000 P:envMXdiZC
+$80/81AD E8          INX                     A:0000 X:0000 Y:0001 P:envMXdizC
+$80/81AE E8          INX                     A:0000 X:0001 Y:0001 P:envMXdizC
+$80/81AF E0 0C       CPX #$0C                A:0000 X:0002 Y:0001 P:envMXdizC
+$80/81B1 D0 EC       BNE $EC    [$819F]      A:0000 X:0002 Y:0001 P:eNvMXdizc
+
+$80/81B3 C2 20       REP #$20                A:00FF X:000C Y:0006 P:envMXdiZC
+$80/81B5 AD 68 07    LDA $0768  [$80:0768]   A:00FF X:000C Y:0006 P:envmXdiZC
+$80/81B8 F0 31       BEQ $31    [$81EB]      A:0000 X:000C Y:0006 P:envmXdiZC
+$80/81EB E2 20       SEP #$20                A:0000 X:000C Y:0006 P:envmXdiZC
+$80/81ED C2 10       REP #$10                A:0000 X:000C Y:0006 P:envMXdiZC
+$80/81EF A6 3A       LDX $3A    [$00:003A]   A:0000 X:000C Y:0006 P:envMxdiZC	// Load unblock number from $3A
+
+CompareThen_JumpTo_WriteXTo3A:
+$80/81F1 E4 3C       CPX $3C    [$00:003C]   A:0000 X:0140 Y:0006 P:envMxdizC
+$80/81F3 F0 48       BEQ $48    [$823D]      A:0000 X:0140 Y:0006 P:envMxdiZC	// goto JumpTo_WriteXTo3A
+
+$80/81F8 30 49       BMI $49    [$8243]      A:0101 X:0158 Y:0006 P:envMxdizc
+$80/81FA 8D 00 43    STA $4300  [$80:4300]   A:0101 X:0158 Y:0006 P:envMxdizc
+$80/81FD A9 18       LDA #$18                A:0101 X:0158 Y:0006 P:envMxdizc
+$80/81FF 8D 01 43    STA $4301  [$80:4301]   A:0118 X:0158 Y:0006 P:envMxdizc
+$80/8202 BD 01 01    LDA $0101,x[$80:0259]   A:0118 X:0158 Y:0006 P:envMxdizc
+$80/8205 8D 02 43    STA $4302  [$80:4302]   A:0135 X:0158 Y:0006 P:envMxdizc
+$80/8208 C2 20       REP #$20                A:0135 X:0158 Y:0006 P:envMxdizc
+$80/820A A5 3E       LDA $3E    [$00:003E]   A:0135 X:0158 Y:0006 P:envmxdizc
+$80/820C 38          SEC                     A:1061 X:0158 Y:0006 P:envmxdizc
+$80/820D E9 66 00    SBC #$0066              A:1061 X:0158 Y:0006 P:envmxdizC
+$80/8210 90 6A       BCC $6A    [$827C]      A:0FFB X:0158 Y:0006 P:envmxdizC
+$80/8212 FD 04 01    SBC $0104,x[$80:025C]   A:0FFB X:0158 Y:0006 P:envmxdizC
+$80/8215 90 65       BCC $65    [$827C]      A:0E3B X:0158 Y:0006 P:envmxdizC
+$80/8217 85 3E       STA $3E    [$00:003E]   A:0E3B X:0158 Y:0006 P:envmxdizC
+$80/8219 BD 02 01    LDA $0102,x[$80:025A]   A:0E3B X:0158 Y:0006 P:envmxdizC
+$80/821C 8D 03 43    STA $4303  [$80:4303]   A:7FA8 X:0158 Y:0006 P:envmxdizC
+$80/821F BD 04 01    LDA $0104,x[$80:025C]   A:7FA8 X:0158 Y:0006 P:envmxdizC
+$80/8222 8D 05 43    STA $4305  [$80:4305]   A:01C0 X:0158 Y:0006 P:envmxdizC
+$80/8225 BD 06 01    LDA $0106,x[$80:025E]   A:01C0 X:0158 Y:0006 P:envmxdizC
+$80/8228 8D 16 21    STA $2116  [$80:2116]   A:6300 X:0158 Y:0006 P:envmxdizC
+
+$80/822B 8A          TXA                     A:6300 X:0158 Y:0006 P:envmxdizC	// X+=8
+$80/822C 18          CLC                     A:0158 X:0158 Y:0006 P:envmxdizC
+$80/822D 69 08 00    ADC #$0008              A:0158 X:0158 Y:0006 P:envmxdizc
+$80/8230 29 FF 03    AND #$03FF              A:0160 X:0158 Y:0006 P:envmxdizc
+$80/8233 AA          TAX                     A:0160 X:0158 Y:0006 P:envmxdizc
+
+$80/8234 E2 20       SEP #$20                A:0160 X:0160 Y:0006 P:envmxdizc
+$80/8236 A9 01       LDA #$01                A:0160 X:0160 Y:0006 P:envMxdizc
+$80/8238 8D 0B 42    STA $420B  [$80:420B]   A:0101 X:0160 Y:0006 P:envMxdizc
+$80/823B 80 B4       BRA $B4    [$81F1]      A:0101 X:0160 Y:0006 P:envMxdizc	// goto CompareThen_JumpTo_WriteXTo3A
+
+JumpTo_WriteXTo3A:
+$80/823D 4C A5 83    JMP $83A5  [$80:83A5]   A:0000 X:0140 Y:0006 P:envMxdiZC	// Jump to unblock
+
+WriteXTo3A:
+$80/83A5 86 3A       STX $3A    [$00:003A]   A:0201 X:0228 Y:0006 P:envMxdiZC	// Unblocks DecompressActual1_WaitUntilReady
+$80/83A7 C2 20       REP #$20                A:0201 X:0228 Y:0006 P:envMxdiZC
+$80/83A9 A5 3E       LDA $3E    [$00:003E]   A:0201 X:0228 Y:0006 P:envmxdiZC
+$80/83AB C9 6E 02    CMP #$026E              A:0E6D X:0228 Y:0006 P:envmxdizC
+$80/83AE 90 2D       BCC $2D    [$83DD]      A:0E6D X:0228 Y:0006 P:envmxdizC
+$80/83B0 E2 20       SEP #$20                A:0E6D X:0228 Y:0006 P:envmxdizC
+$80/83B2 AD 66 07    LDA $0766  [$80:0766]   A:0E6D X:0228 Y:0006 P:envMxdizC
+$80/83B5 F0 26       BEQ $26    [$83DD]      A:0E00 X:0228 Y:0006 P:envMxdiZC
+
+$80/83DD C2 30       REP #$30                A:0E00 X:0228 Y:0006 P:envMxdiZC
+$80/83DF AF D8 35 7E LDA $7E35D8[$7E:35D8]   A:0E00 X:0228 Y:0006 P:envmxdiZC
+$80/83E3 18          CLC                     A:0000 X:0228 Y:0006 P:envmxdiZC
+$80/83E4 6F DA 35 7E ADC $7E35DA[$7E:35DA]   A:0000 X:0228 Y:0006 P:envmxdiZc
+$80/83E8 8F D8 35 7E STA $7E35D8[$7E:35D8]   A:0000 X:0228 Y:0006 P:envmxdiZc
+$80/83EC A5 83       LDA $83    [$00:0083]   A:0000 X:0228 Y:0006 P:envmxdiZc
+$80/83EE 69 01 00    ADC #$0001              A:07FF X:0228 Y:0006 P:envmxdizc
+$80/83F1 85 83       STA $83    [$00:0083]   A:0800 X:0228 Y:0006 P:envmxdizc
+$80/83F3 90 02       BCC $02    [$83F7]      A:0800 X:0228 Y:0006 P:envmxdizc
+$80/83F7 AD D1 0A    LDA $0AD1  [$80:0AD1]   A:0800 X:0228 Y:0006 P:envmxdizc
+$80/83FA F0 42       BEQ $42    [$843E]      A:0004 X:0228 Y:0006 P:envmxdizc
+$80/83FC 30 21       BMI $21    [$841F]      A:0004 X:0228 Y:0006 P:envmxdizc
+$80/83FE C9 01 00    CMP #$0001              A:0004 X:0228 Y:0006 P:envmxdizc
+$80/8401 D0 12       BNE $12    [$8415]      A:0004 X:0228 Y:0006 P:envmxdizC
+
+$80/8415 CE D1 0A    DEC $0AD1  [$80:0AD1]   A:0004 X:0228 Y:0006 P:envmxdizC
+$80/8418 80 24       BRA $24    [$843E]      A:0004 X:0228 Y:0006 P:envmxdizC
+
+$80/843E C2 20       REP #$20                A:0004 X:0228 Y:0006 P:envmxdizC
+$80/8440 AD 87 07    LDA $0787  [$80:0787]   A:0004 X:0228 Y:0006 P:envmxdizC
+$80/8443 D0 03       BNE $03    [$8448]      A:0000 X:0228 Y:0006 P:envmxdiZC
+$80/8445 EE 64 07    INC $0764  [$80:0764]   A:0000 X:0228 Y:0006 P:envmxdiZC
+$80/8448 E2 10       SEP #$10                A:0000 X:0228 Y:0006 P:envmxdizC
+$80/844A C2 20       REP #$20                A:0000 X:0028 Y:0006 P:envmXdizC
+$80/844C AE 71 07    LDX $0771  [$80:0771]   A:0000 X:0028 Y:0006 P:envmXdizC
+$80/844F F0 0F       BEQ $0F    [$8460]      A:0000 X:0000 Y:0006 P:envmXdiZC
+
+$80/8460 A2 80       LDX #$80                A:0000 X:0000 Y:0006 P:envmXdiZC
+$80/8462 DA          PHX                     A:0000 X:0080 Y:0006 P:eNvmXdizC
+$80/8463 F4 68 84    PEA $8468               A:0000 X:0080 Y:0006 P:eNvmXdizC
+$80/8466 DC 89 07    JML [$0789][$9C:9971]   A:0000 X:0080 Y:0006 P:eNvmXdizC
+
+// Jump location is dynamically decided. It's capable of returning up to $80/8469.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+void SpinUntilCond()	808583
+$80/8583 48          PHA                     A:000B X:0000 Y:000E P:envmxdizc
+$80/8584 AD 64 07    LDA $0764  [$9F:0764]   A:000B X:0000 Y:000E P:envmxdizc
+
+Spin:
+$80/8587 CD 64 07    CMP $0764  [$9F:0764]   A:0172 X:0000 Y:000E P:envmxdizc
+$80/858A F0 FB       BEQ $FB    [$8587]      A:0172 X:0000 Y:000E P:envmxdiZC	; goto Spin
+$80/858C 68          PLA                     A:0172 X:0000 Y:000E P:eNvmxdizc
+$80/858D 6B          RTL                     A:000B X:0000 Y:000E P:envmxdizc
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 void DecompressActual1_WaitUntilReady() 80859A
 // Makes sure $3A and $3C are equal.
 // Maybe for vblank, or waiting until DMA channel is open.
@@ -1060,6 +1218,27 @@ $80/85A2 6B          RTL                     A:007F X:4000 Y:0010 P:envmxdizC
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
+// void UnblockL2()
+...
+$9D/DF61 80 04       BRA $04    [$DF67]      A:000B X:0000 Y:000E P:envmxdizc
+$9D/DF63 22 83 85 80 JSL $808583[$80:8583]   A:000B X:0000 Y:000E P:envmxdizc	// call SpinUntilCond()
+$9D/DF67 22 38 D9 9D JSL $9DD938[$9D:D938]   A:000B X:0000 Y:000E P:envmxdizc
+$9D/DF6B 22 62 D9 9D JSL $9DD962[$9D:D962]   A:01A0 X:0300 Y:01A0 P:envmxdizc
+$9D/DF6F 68          PLA                     A:05A0 X:0300 Y:05A0 P:envmxdizc
+$9D/DF70 85 91       STA $91    [$00:0091]   A:0002 X:0300 Y:05A0 P:envmxdizc
+$9D/DF72 6B          RTL                     A:0002 X:0300 Y:05A0 P:envmxdizc
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+// void UnblockL3()
+
+// call void UnblockL2()
+$9D/DDAF 68          PLA                     A:0002 X:0300 Y:05A0 P:envmxdizc
+$9D/DDB0 85 91       STA $91    [$00:0091]   A:FFFF X:0300 Y:05A0 P:eNvmxdizc
+$9D/DDB2 6B          RTL                     A:FFFF X:0300 Y:05A0 P:eNvmxdizc
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 void DecompressActual1()	80C373
 ///
 // Preconditions:	$0C-$0E stores a pointer to compressed data.
@@ -1067,6 +1246,8 @@ void DecompressActual1()	80C373
 //						The compressed data is expected to start with a header containing the compression type.
 //						The compression type is one of four choices: FB10, FB46, FB30, FB7A.
 //						In practice, the profile images are all of compression type FB30.
+//
+//						For Patrick Roy  this is 9a862e.
 //
 //					$10-$12 stores a pointer to where the decompressed result should be written.
 //						In practice, this is always 7F0000 for profile images.
