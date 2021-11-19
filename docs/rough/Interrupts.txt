@@ -1,0 +1,24 @@
+NMI isn't a "real" instruction. 
+It's a directive typical 65816 assemblers understand.
+You use the directive like
+	NMI MyHandler
+	
+where MyHandler is a label in the source code.
+
+In response, the assembler doesn't directly emit any opcodes. What it will do is
+* After assembly, look at the object code address of MyHandler. 
+	* The short, 16-bit address. Why? Because interrupts have to be in bank 0.
+* Write the address to 0x7FEA or 0xFFEA, depending on whether it's LoROM or HiROM. 
+* The rule is that the vectors live in the last page of the first ROM bank, so that's in 0x7FEA for LoROM or 0xFFEA for HiROM.
+
+Fun fact: in Geiger you can't set a breakpoint to code inside an NMI. Well, you can try, but it won't hit. If you want to see control flow through an NMI, you can use the Logging-CPU feature.
+
+After you assemble and load your program, and execute to something that enables interrupts, your interrupt handler will get called automagically.
+
+On SNES, the NMI vector is called when VBlank begins. That's just how it is. So sometimes NMI and VBlank get talked about interchangeably on that platform.
+
+NMI is a hardware interrupt not a software interrupt.
+
+For hardware interrupts, the K (program bank reg) gets automatically pushed, then the 16-bit PC is pushed, then the P (processor flags reg) is pushed, then there is an automagic transfer of control to the interupt handler. You drop everything you're doing and go right to the handler. At least the CPU has the decency to push the execution state beforehand, I guess.
+
+One detail- in emulation mode, the program bank reg does not get pushed. So you probably want to NOT be executing code in a nonzero bank in emulation mode if there's a hardware interrupt, because you don't know where to return to when the interrupt handler is done. For NMI, the whole thing is no you can't disable it with a processor flag (that is, 'i') so forget trying to disable them either. And since it's a hardware interrupt, it's set up by special vector not by an instruction like BRK or COP. Software interrupts, you can predict when they'll happen or make it so they're never happen since you know where there's a BRK or COP in your code. Hardware interrupts- no.
