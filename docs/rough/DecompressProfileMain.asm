@@ -1077,6 +1077,9 @@ $80/8019 6B          RTL                     A:16D3 X:0080 Y:0005 P:eNvmXdizc
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 // void AfterInterrupt()
+// Looks like this loops until $3A == $3C.
+// In general, $3C goes up to 03F8.
+// It's some kind of timer.
 
 $80/8186 C2 30       REP #$30                A:16D3 X:0080 Y:0007 P:eNvmXdizC	
 $80/8188 AD D2 07    LDA $07D2  [$80:07D2]   A:16D3 X:0080 Y:0007 P:eNvmxdizC
@@ -1190,6 +1193,39 @@ $80/8463 F4 68 84    PEA $8468               A:0000 X:0080 Y:0006 P:eNvmXdizC
 $80/8466 DC 89 07    JML [$0789][$9C:9971]   A:0000 X:0080 Y:0006 P:eNvmXdizC
 
 // Jump location is dynamically decided. It's capable of returning up to $80/8469.
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+// Code for incrementing (and resetting!) the counter in $3C.
+// The counter goes from 0 up to 0x400, counting by 8.
+
+$80/B4EB 8A          TXA                     A:6200 X:03F8 Y:0038 P:envmxdizc
+$80/B4EC 18          CLC                     A:03F8 X:03F8 Y:0038 P:envmxdizc
+$80/B4ED 69 08 00    ADC #$0008              A:03F8 X:03F8 Y:0038 P:envmxdizc	; Increment the counter
+$80/B4F0 29 FF 03    AND #$03FF              A:0400 X:03F8 Y:0038 P:envmxdizc	; Mask. This way, if the counter gets to 0x400, it gets wrapped around to 0.
+$80/B4F3 AA          TAX                     A:0000 X:03F8 Y:0038 P:envmxdiZc
+$80/B4F4 A5 04       LDA $04    [$00:0004]   A:0000 X:0000 Y:0038 P:envmxdiZc
+$80/B4F6 9D 00 01    STA $0100,x[$7E:0100]   A:3501 X:0000 Y:0038 P:envmxdizc
+$80/B4F9 A5 06       LDA $06    [$00:0006]   A:3501 X:0000 Y:0038 P:envmxdizc
+$80/B4FB 9D 02 01    STA $0102,x[$7E:0102]   A:7FA8 X:0000 Y:0038 P:envmxdizc
+$80/B4FE AD CA 07    LDA $07CA  [$7E:07CA]   A:7FA8 X:0000 Y:0038 P:envmxdizc
+$80/B501 9D 04 01    STA $0104,x[$7E:0104]   A:01C0 X:0000 Y:0038 P:envmxdizc
+$80/B504 D0 0B       BNE $0B    [$B511]      A:01C0 X:0000 Y:0038 P:envmxdizc
+$80/B511 A5 0A       LDA $0A    [$00:000A]   A:01C0 X:0000 Y:0038 P:envmxdizc
+$80/B513 09 00 01    ORA #$0100              A:6200 X:0000 Y:0038 P:envmxdizc
+$80/B516 9D 06 01    STA $0106,x[$7E:0106]   A:6300 X:0000 Y:0038 P:envmxdizc
+$80/B519 8A          TXA                     A:6300 X:0000 Y:0038 P:envmxdizc
+$80/B51A 18          CLC                     A:0000 X:0000 Y:0038 P:envmxdiZc
+$80/B51B 69 08 00    ADC #$0008              A:0000 X:0000 Y:0038 P:envmxdiZc
+$80/B51E 29 FF 03    AND #$03FF              A:0008 X:0000 Y:0038 P:envmxdizc
+$80/B521 85 3C       STA $3C    [$00:003C]   A:0008 X:0000 Y:0038 P:envmxdizc
+$80/B523 AB          PLB                     A:0008 X:0000 Y:0038 P:envmxdizc
+$80/B524 7A          PLY                     A:0008 X:0000 Y:0038 P:envmxdizc
+$80/B525 FA          PLX                     A:0008 X:0000 Y:0000 P:envmxdiZc
+$80/B526 AD BA 07    LDA $07BA  [$7E:07BA]   A:0008 X:0038 Y:0000 P:envmxdizc
+$80/B529 3A          DEC A                   A:001D X:0038 Y:0000 P:envmxdizc
+$80/B52A 0A          ASL A                   A:001C X:0038 Y:0000 P:envmxdizc
+$80/B52B 6B          RTL                     A:0038 X:0038 Y:0000 P:envmxdizc
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 void SpinUntilCond()	808583
