@@ -5,6 +5,7 @@
 #include "TeamData.h"
 #include "Utils.h"
 #include "Optional.h"
+#include "ProfileImageImporter.h"
 
 static std::vector<TeamData> s_allTeams;
 
@@ -1635,6 +1636,15 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         homeColorComboBox->SelectedIndex = (int)Team::TampaBay;
         awayColorComboBox->SelectedIndex = (int)Team::TampaBay;
     }
+    {
+        ProfileImageImporter importer;
+        importer.Import(L"template.png");
+        assert(importer.ImportedSomethingValid());
+
+        MultiFormatPallette* importedPallette = importer.GetImportedPallette();
+        std::vector<unsigned char>* importedSnesImageData = importer.GetImportedSnesImageData();
+        OverwriteProfileImage((int)Team::Montreal, importedPallette, importedSnesImageData);
+    }
 
 #endif
 }
@@ -2955,6 +2965,8 @@ System::Void nhl94e::Form1::saveROMToolStripMenuItem_Click(System::Object^ sende
 #if _DEBUG
     dialog->FileName = L"E:\\Emulation\\SNES\\Images\\Test\\nhl94em.sfc";
 #endif
+    dialog->Filter = "SFC files (*.sfc)|*.sfc|All files (*.*)|*.*";
+
     System::Windows::Forms::DialogResult result = dialog->ShowDialog();
     if (result != System::Windows::Forms::DialogResult::OK)
         return;
@@ -3256,6 +3268,34 @@ void nhl94e::Form1::skinColorOverrideComboBox_SelectedIndexChanged(System::Objec
     }
 }
 
+void nhl94e::Form1::OverwriteProfileImage(
+    int teamIndex,
+    MultiFormatPallette* importedPallette,
+    std::vector<unsigned char>* importedSnesImageData)
+{
+    // Put pallette back into ROM
+    {
+        int addr = s_profilePalletteData[teamIndex].PalletteROMAddress;
+        RomDataIterator iter(ROMAddressToFileOffset(addr));
+        for (int i = 0; i < 16; ++i)
+        {
+            int color = importedPallette->SnesB5G5R5[i];
+            unsigned char low = color & 0xFF;
+            color >>= 8;
+            unsigned char high = color & 0xFF;
+            color >>= 8;
+            assert(color == 0);
+
+            iter.SaveByte(low);
+            iter.SaveByte(high);
+        }
+    }
+
+    // Put image data back into ROM
+    assert(importedSnesImageData->size() == 0x2400 && importedSnesImageData->size() == s_profileImageData[teamIndex].ImageBytes.size());
+    std::copy(importedSnesImageData->begin(), importedSnesImageData->end(), s_profileImageData[teamIndex].ImageBytes.begin());
+}
+
 void nhl94e::Form1::profileImagesButton_Click(System::Object^ sender, System::EventArgs^ e) 
 {
     int teamIndex = this->tabControl1->SelectedIndex;
@@ -3275,29 +3315,7 @@ void nhl94e::Form1::profileImagesButton_Click(System::Object^ sender, System::Ev
     }
 
     MultiFormatPallette* importedPallette = dialog->GetImportedPallette();
-
-    // Put pallette back into ROM
-    {
-        int addr = s_profilePalletteData[teamIndex].PalletteROMAddress;
-        RomDataIterator iter(ROMAddressToFileOffset(addr));
-        for (int i = 0; i < 16; ++i)
-        {
-            int color = importedPallette->SnesB5G5R5[i];
-            unsigned char low = color & 0xFF;
-            color >>= 8;
-            unsigned char high = color & 0xFF;
-            color >>= 8;
-            assert(color == 0);
-
-            iter.SaveByte(low);
-            iter.SaveByte(high);
-        }
-    }
-
     std::vector<unsigned char>* importedSnesImageData = dialog->GetImportedSnesImageData();
 
-    // Put image data back into ROM
-    assert(importedSnesImageData->size() == 0x2400 && importedSnesImageData->size() == s_profileImageData[teamIndex].ImageBytes.size());
-
-    std::copy(importedSnesImageData->begin(), importedSnesImageData->end(), s_profileImageData[teamIndex].ImageBytes.begin());
+    OverwriteProfileImage(teamIndex, importedPallette, importedSnesImageData);
 }

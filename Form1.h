@@ -392,6 +392,10 @@ namespace nhl94e
 		System::Void openROMToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e);
 		void OpenROM(std::wstring romFilename);
 		void OnSelectedIndexChanged(System::Object^ sender, System::EventArgs^ e);
+		void OverwriteProfileImage(
+			int teamIndex,
+			MultiFormatPallette* importedPallette,
+			std::vector<unsigned char>* importedSnesImageData);
 	private: 
 		System::Void locationTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);
 private: System::Void acronymTextBox_TextChanged(System::Object^ sender, System::EventArgs^ e);

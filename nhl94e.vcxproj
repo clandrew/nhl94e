@@ -153,6 +153,7 @@
     </ClInclude>
     <ClInclude Include="Optional.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ProfileImageImporter.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="TeamData.h" />
     <ClInclude Include="Utils.h" />
@@ -169,6 +170,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ProfileImageImporter.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>

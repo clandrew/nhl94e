@@ -39,7 +39,6 @@ namespace nhl94e
 	private: ProfileImageData* m_profileImageData;
 	private: ProfilePalletteData* m_profilePalletteData;
 	private: System::Windows::Forms::Button^ m_importButton;
-	private: bool m_importedSomethingValid;
 	private: System::Windows::Forms::Button^ m_okButton;
 
 	protected:

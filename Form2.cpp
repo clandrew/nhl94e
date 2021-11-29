@@ -1,14 +1,12 @@
 ﻿#include "pch.h"
 #include "Form2.h"
+#include "ProfileImageImporter.h"
 #include "Utils.h"
 
 MultiFormatPallette s_default{};
-MultiFormatPallette s_importedPallette{};
-std::vector<unsigned char> s_snesImageData;
 
 void nhl94e::Form2::OnLoad(System::Object^ sender, System::EventArgs^ e)
 {
-	m_importedSomethingValid = false;
 }
 
 void nhl94e::Form2::SetProfileData(ProfileImageData* img, ProfilePalletteData* pal)
@@ -136,93 +134,7 @@ void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventA
 	templateBitmap->Save(dialog->FileName);
 }
 
-struct RgbToIndexedResult
-{
-	unsigned char Indexed;
-	bool ValidColor;
-};
-
-RgbToIndexedResult RgbToIndexed(int rgb, MultiFormatPallette* importedPallette)
-{
-	RgbToIndexedResult result{};
-
-	// Try to find rgb in the pallette
-	for (unsigned char i = 0; i < 16; ++i)
-	{
-		int rgbIgnoreAlpha = rgb & 0xFFFFFF;
-		int palletteIgnoreAlpha = importedPallette->PortableR8G8B8[i] & 0xFFFFFF;
-
-		if (rgbIgnoreAlpha == palletteIgnoreAlpha)
-		{
-			result.Indexed = i;
-			result.ValidColor = true;
-			return result;
-		}
-	}
-
-	result.Indexed = 0;
-	result.ValidColor = false;
-	return result;
-}
-
-struct TranscodeBlockResult
-{
-	std::vector<unsigned char> TranscodedBlock;
-	bool ValidColors;
-	int InvalidColorX;
-	int InvalidColorY;
-};
-
-TranscodeBlockResult TranscodeBlock(std::vector<int> const& rgbBlock, MultiFormatPallette* importedPallette)
-{
-	TranscodeBlockResult result{};
-	result.TranscodedBlock.resize(32);
-
-	for (int yi = 0; yi < 8; ++yi)
-	{
-		for (int xi = 0; xi < 8; ++xi)
-		{
-			int rgbx = 8 - 1 - xi;
-			int rgby = yi;
-
-			RgbToIndexedResult rgbToIndexedResult = RgbToIndexed(rgbBlock[rgby * 8 + rgbx], importedPallette);
-			if (!rgbToIndexedResult.ValidColor)
-			{
-				result.ValidColors = false;
-				result.InvalidColorX = 8 - xi - 1;
-				result.InvalidColorY = yi;
-				return result;
-			}
-
-			unsigned char ic = rgbToIndexedResult.Indexed;
-
-			unsigned char i0 = (ic & 0x1) >> 0;
-			unsigned char i1 = (ic & 0x2) >> 1;
-			unsigned char i2 = (ic & 0x4) >> 2;
-			unsigned char i3 = (ic & 0x8) >> 3;
-
-			if (i0)
-			{
-				result.TranscodedBlock[yi * 2 + 0x0] |= (0x1 << xi);
-			}
-			if (i1)
-			{
-				result.TranscodedBlock[yi * 2 + 0x1] |= (0x1 << xi);
-			}
-			if (i2)
-			{
-				result.TranscodedBlock[yi * 2 + 0x10] |= (0x1 << xi);
-			}
-			if (i3)
-			{
-				result.TranscodedBlock[yi * 2 + 0x11] |= (0x1 << xi);
-			}
-		}
-	}
-
-	result.ValidColors = true;
-	return result;
-}
+ProfileImageImporter s_profileImageImporter;
 
 void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs^ e) 
 {
@@ -235,88 +147,15 @@ void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs
 	if (result != System::Windows::Forms::DialogResult::OK)
 		return;
 
-	System::Drawing::Bitmap^ templateBitmap = gcnew System::Drawing::Bitmap(dialog->FileName);
+	std::wstring fileName = ManagedToWideString(dialog->FileName);
 
-	// Verify expected sizes
-	if (templateBitmap->Size.Width != 48 * 6)
+	System::Drawing::Bitmap^ templateBitmap = s_profileImageImporter.Import(fileName.c_str());
+
+	if (!s_profileImageImporter.ImportedSomethingValid())
 	{
-		System::Windows::Forms::MessageBox::Show("The template image was an unexpected width; 288 was expected.");
-		m_importedSomethingValid = false;
+		System::Windows::Forms::MessageBox::Show(NarrowASCIIStringToManaged(s_profileImageImporter.GetErrorMessage()));
 		return;
 	}
-
-	if (templateBitmap->Size.Height != 48 + 2)
-	{
-		System::Windows::Forms::MessageBox::Show("The template image was an unexpected height; 50 was expected.");
-		m_importedSomethingValid = false;
-		return;
-	}
-
-	for (int i = 0; i < 16; ++i)
-	{
-		System::Drawing::Color pixelColor = templateBitmap->GetPixel(i, 48 - 1 + 2);
-		int argb = pixelColor.ToArgb();
-		s_importedPallette.PortableR8G8B8[i] = argb;
-		s_importedPallette.SnesB5G5R5[i] = R8B8G8ToSnesB5G5R5(s_importedPallette.PortableR8G8B8[i]);
-	}
-
-	// Commit image data back into rom data, validating as we go
-	int dstOffset = 0;
-	s_snesImageData.clear();
-	s_snesImageData.resize(0x2400);
-	std::fill(s_snesImageData.begin(), s_snesImageData.end(), 0);
-
-	for (int imageIndex = 0; imageIndex < 6; ++imageIndex)
-	{
-		for (int y = 0; y < 48; y += 8)
-		{
-			for (int x = 0; x < 48; x += 8)
-			{
-				std::vector<int> block;
-				block.resize(8 * 8);
-				for (int yi = 0; yi < 8; ++yi)
-				{
-					for (int xi = 0; xi < 8; ++xi)
-					{
-						int srcX = x + xi;
-						int srcY = y + yi;
-
-						srcX += imageIndex * 48;
-
-						System::Drawing::Color pixelColor = templateBitmap->GetPixel(srcX, srcY);
-						int argb = pixelColor.ToArgb();
-						block[yi * 8 + xi] = argb;
-					}
-				}
-
-				TranscodeBlockResult transcodeBlockResult = TranscodeBlock(block, &s_importedPallette);
-
-				if (!transcodeBlockResult.ValidColors)
-				{
-					int invalidColorX = x + transcodeBlockResult.InvalidColorX;
-					int invalidColorY = y + transcodeBlockResult.InvalidColorY;
-					String^ msg = String::Format(
-						"The image contained a color at X={0}, Y={1} which was not present in the pallette.",
-						invalidColorX,
-						invalidColorY);
-					System::Windows::Forms::MessageBox::Show(msg);
-					m_importedSomethingValid = false;
-					return;
-				}
-
-				for (size_t i = 0; i < transcodeBlockResult.TranscodedBlock.size(); ++i)
-				{
-					s_snesImageData[dstOffset] = transcodeBlockResult.TranscodedBlock[i];
-					++dstOffset;
-				}
-			}
-		}
-
-		// After each image, pad with non-viable bytes
-		dstOffset += 0x180;
-	}
-
-	m_importedSomethingValid = true;
 
 	// Update the demo image
 	{
@@ -325,21 +164,23 @@ void nhl94e::Form2::importButton_Click(System::Object^ sender, System::EventArgs
 		ctx->DrawImage(templateBitmap, 0, 0);
 		m_panel1->Invalidate();
 	}
+
+	templateBitmap->~Bitmap(); // no idea why I have to do this but apparently I do
 }
 
 MultiFormatPallette* nhl94e::Form2::GetImportedPallette()
 {
-	return &s_importedPallette;
+	return s_profileImageImporter.GetImportedPallette();
 }
 
 std::vector<unsigned char>* nhl94e::Form2::GetImportedSnesImageData()
 {
-	return &s_snesImageData;
+	return s_profileImageImporter.GetImportedSnesImageData();
 }
 
 bool nhl94e::Form2::ImportedSomethingValid()
 {
-	return m_importedSomethingValid;
+	return s_profileImageImporter.ImportedSomethingValid();
 }
 
 void nhl94e::Form2::m_okButton_Click(System::Object^ sender, System::EventArgs^ e) 

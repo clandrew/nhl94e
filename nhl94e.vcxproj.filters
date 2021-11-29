@@ -47,6 +47,9 @@
     <ClInclude Include="Form2.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ProfileImageImporter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AssemblyInfo.cpp">
@@ -68,6 +71,9 @@
       <Filter>Source</Filter>
     </ClCompile>
     <ClCompile Include="Form2.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfileImageImporter.cpp">
       <Filter>Source</Filter>
     </ClCompile>
   </ItemGroup>
