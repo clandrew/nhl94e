@@ -129,3 +129,20 @@ unsigned short R8B8G8ToSnesB5G5R5(int rgbFmt)
 
     return snes;
 }
+
+std::wstring ManagedToWideString(System::String^ s)
+{
+    array<wchar_t>^ arr = s->ToCharArray();
+
+    std::wstring result;
+    for (int i = 0; i < arr->Length; ++i)
+    {
+        result.push_back(arr[i]);
+    }
+    return result;
+}
+
+System::String^ NarrowASCIIStringToManaged(std::string const& s)
+{
+    return gcnew System::String(s.c_str());
+}

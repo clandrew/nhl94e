@@ -1423,18 +1423,6 @@ void nhl94e::Form1::AddTeamGridUI(TeamData const& team)
 #endif
 }
 
-std::wstring ManagedToWideString(System::String^ s)
-{
-    array<wchar_t>^ arr = s->ToCharArray();
-
-    std::wstring result;
-    for (int i = 0; i < arr->Length; ++i)
-    {
-        result.push_back(arr[i]);
-    }
-    return result;
-}
-
 std::string ManagedToNarrowASCIIString(System::String^ s)
 {
     array<wchar_t>^ arr = s->ToCharArray();
@@ -1448,11 +1436,6 @@ std::string ManagedToNarrowASCIIString(System::String^ s)
         result.push_back(narrow);
     }
     return result;
-}
-
-System::String^ NarrowASCIIStringToManaged(std::string const& s)
-{
-    return gcnew System::String(s.c_str());
 }
 
 bool IsValidPlayerName(System::String^ name)

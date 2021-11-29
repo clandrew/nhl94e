@@ -10,3 +10,6 @@ void SaveBytesToFile(const wchar_t* fileName, std::vector<unsigned char>& romDat
 
 int SnesB5G5R5ToR8B8G8(unsigned short snesFmt);
 unsigned short R8B8G8ToSnesB5G5R5(int rgbFmt);
+
+std::wstring ManagedToWideString(System::String^ s);
+System::String^ NarrowASCIIStringToManaged(std::string const& s);
