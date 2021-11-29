@@ -1607,7 +1607,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     OnSelectedIndexChanged(nullptr, nullptr);
 
 #if _DEBUG
-    /*
+    
     {
         int playerIndex = 0;
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Leveille";
@@ -1651,62 +1651,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
         headerColorComboBox->SelectedIndex = (int)Team::TampaBay;
         homeColorComboBox->SelectedIndex = (int)Team::TampaBay;
         awayColorComboBox->SelectedIndex = (int)Team::TampaBay;
-    }*/
-
-    std::stringstream log;
-
-    int teamIndex = 0xB;
-    TeamData const& teamData = s_allTeams[teamIndex];
-
-    for (int playerIndex = 0; playerIndex < teamData.Players.size(); playerIndex++)
-    {
-
-        int index = teamIndex * 26 + playerIndex;
-        int offset = 0x9DCD53 + (index * 4);
-
-        int profileData = 0;
-        {
-            RomDataIterator iter(ROMAddressToFileOffset(offset));
-            profileData = iter.LoadLongAddress4Bytes();
-        }
-
-        log << playerIndex << "\t" << teamData.Players[playerIndex].Name.Get() << "\t" << std::hex << profileData << "\n";
-
-        std::vector<unsigned char> compressedData;
-        {
-            RomDataIterator iter(ROMAddressToFileOffset(profileData));
-            unsigned char token = iter.LoadByte();
-            assert(token == 0x30);
-            token = iter.LoadByte();
-            assert(token == 0xFB);
-            compressedData.push_back(0x30);
-            compressedData.push_back(0xFB);
-
-            bool foundDelim = false;
-            unsigned char lastByte = 0xFB;
-            while (!foundDelim)
-            {
-                unsigned char curByte = iter.LoadByte();
-                if (lastByte == 0x30 && curByte == 0xFB)
-                {
-                    foundDelim = true;
-                }
-                if (lastByte == 0x0 && curByte == 0x0)
-                {
-                    foundDelim = true;
-                }
-                compressedData.push_back(curByte);
-                lastByte = curByte;
-            }
-        }
-        for (int i = 0; i < compressedData.size(); ++i)
-        {
-            log << std::hex << (int)compressedData[i] << " " ;
-        }
-        log << "\n\n";
     }
-
-    std::string logstr = log.str();
 
 #endif
 }
