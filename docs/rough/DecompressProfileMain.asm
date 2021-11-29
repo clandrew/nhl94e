@@ -1543,7 +1543,7 @@ $9D/CC60 65 A5       ADC $A5    [$00:00A5]   //     Acc = GlobalPlayerIndex.
 											 // Starting from the first player in Anaheim, to the last player of ASW.
 
 $9D/CC62 0A          ASL A                   // X = GlobalPlayerIndex * 4
-$9D/CC63 0A          ASL A				     // These are getting into pretty high numbers but fortunately 4 bytes is enough. :)
+$9D/CC63 0A          ASL A	             // These are getting into pretty high numbers but fortunately 4 bytes is enough. :)
 $9D/CC64 AA          TAX    
 											 // There is a giant array stored at 9DCD53.
 											 // There are like 800 elements, one per GlobalPlayerIndex.

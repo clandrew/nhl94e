@@ -2832,6 +2832,14 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
     // program and re-write the game's decompress with a dead simple load. I noticed the decompression itself
     // doesn't have external side effects so it is safe to totally replace it.
 
+    // This over-writes the code in function "LoadTeamProfileImagesForGameSetup() / 9DCC42" to do a stupid copy
+    // instead of what it normally does, which is
+    // - Do a bunch of setup in preparation for DecompressActual1()
+    // - Call DecompressActual1()
+    // - Call DecompressActual2()
+
+    // There are other code paths (e.g., EDIT LINES) which also call DecompressActual1() and DecompressActual2().
+
     assert(s_profileImageData.size() == (size_t)Team::Count);
 
     for (int i = 0; i < (int)Team::Count; ++i)
