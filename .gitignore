@@ -11,3 +11,5 @@ PreDecompress/.vs/*
 PreDecompress/Debug/*
 PreDecompress/Release/*
 share/*
+testimage.png
+template.png
