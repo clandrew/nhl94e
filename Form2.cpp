@@ -114,6 +114,7 @@ void nhl94e::Form2::saveTemplateBtn_Click(System::Object^ sender, System::EventA
 #if _DEBUG
 	dialog->FileName = L"D:\\repos\\nhl94e\\template.png";
 #endif
+	dialog->Filter = "PNG files (*.png)|*.png|All files (*.*)|*.*";
 	System::Windows::Forms::DialogResult result = dialog->ShowDialog();
 	if (result != System::Windows::Forms::DialogResult::OK)
 		return;
