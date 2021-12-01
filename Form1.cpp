@@ -3296,6 +3296,10 @@ void nhl94e::Form1::OverwriteProfileImage(
 
             iter.SaveByte(low);
             iter.SaveByte(high);
+
+            // Update the cached copy too
+            s_profilePalletteData[teamIndex].PalletteBytes[i * 2 + 0] = low;
+            s_profilePalletteData[teamIndex].PalletteBytes[i * 2 + 1] = high;
         }
     }
 
