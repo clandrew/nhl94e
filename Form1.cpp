@@ -484,7 +484,7 @@ struct ObjectCode
         AppendShortImmediate(imm);
     }
 
-    void AppendLongJump(int addr)
+    void AppendLongJump_5C(int addr)
     {
         m_code.push_back(0x5C);
         AppendLongAddress3Bytes(addr);
@@ -497,7 +497,7 @@ struct ObjectCode
         m_code.push_back(0xA5);
     }
 
-    void AppendJumpSubroutineLong(int addr)
+    void AppendJumpSubroutineLong_22(int addr)
     {
         m_code.push_back(0x22);
         AppendLongAddress3Bytes(addr);
@@ -1943,7 +1943,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
             ObjectCode code;
             code.LoadAsm_LoadLongAddress_ArrayElement_Into_8D_txt();
             code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(lengthDelimitedStringTableStartFileAddress));
-            code.AppendLongJump(0x9ECD19);
+            code.AppendLongJump_5C(0x9ECD19);
 
             freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
             InsertJumpOutDetour(code.m_code, 0x9ECD0A, 0x9ECD17 + 2, freeSpaceIter);
@@ -1974,7 +1974,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString.AppendLoadDirect_A5(0x8F);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
 
-        code_LoadGameMenuString.AppendLongJump(0x9C9429);
+        code_LoadGameMenuString.AppendLongJump_5C(0x9C9429);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9423, 0x9C9427 + 2, freeSpaceIter);
@@ -2009,7 +2009,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         code_LoadGameMenuString.AppendLoadYImmediate_A0(0x0000);
 
-        code_LoadGameMenuString.AppendLongJump(0x9C945A);
+        code_LoadGameMenuString.AppendLongJump_5C(0x9C945A);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C9450, 0x9C9457 + 3, freeSpaceIter);
@@ -2030,7 +2030,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         code_LoadGameMenuString.AppendAndImmediate_29(0xFF);
         code_LoadGameMenuString.AppendStoreDirect_85(0xAB);
 
-        code_LoadGameMenuString.AppendLongJump(0x9C9471);
+        code_LoadGameMenuString.AppendLongJump_5C(0x9C9471);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString.m_code, 0x9C946B, 0x9C946F + 2, freeSpaceIter);
@@ -2040,7 +2040,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         ObjectCode code_LoadGameMenuString_CommonPath_FirstLoad;
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
         code_LoadGameMenuString_CommonPath_FirstLoad.AppendAndImmediate_29(0xFF); // Remember mask
-        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump(0x9C947E);
+        code_LoadGameMenuString_CommonPath_FirstLoad.AppendLongJump_5C(0x9C947E);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_FirstLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_FirstLoad.m_code, 0x9C9479, 0x9C947B + 3, freeSpaceIter);
@@ -2050,7 +2050,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
         ObjectCode code_LoadGameMenuString_CommonPath_SecondLoad;
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendLoadDirectFromLongPointer_YIndexed_B7(0xA9); // This is the value we need to return
         code_LoadGameMenuString_CommonPath_SecondLoad.AppendAndImmediate_29(0xFF); // Remember mask
-        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump(0x9C94FD);
+        code_LoadGameMenuString_CommonPath_SecondLoad.AppendLongJump_5C(0x9C94FD);
 
         freeSpaceIter->EnsureSpaceInBank(code_LoadGameMenuString_CommonPath_SecondLoad.m_code.size());
         InsertJumpOutDetour(code_LoadGameMenuString_CommonPath_SecondLoad.m_code, 0x9C94F8, 0x9C94FA + 3, freeSpaceIter);
@@ -2090,7 +2090,7 @@ bool InsertTeamLocationText(RomDataIterator* freeSpaceIter)
 
         code.m_code.push_back(0x7A); // PLY
 
-        code.AppendLongJump(0x9DAF38);
+        code.AppendLongJump_5C(0x9DAF38);
 
         freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
         InsertJumpOutDetour(code.m_code, 0x9DAF2D, 0x9DAF36 + 2, freeSpaceIter);
@@ -2171,7 +2171,7 @@ bool InsertTeamAcronymText(RomDataIterator* freeSpaceIter)
 
         code.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(stringTableStartFileAddress));
 
-        code.AppendJumpSubroutineLong(0x9EC7BE);
+        code.AppendJumpSubroutineLong_22(0x9EC7BE);
 
         int dstStartROMAddress = 0x9FBD66;
         int dstEndROMAddress = 0x9FBD8D;
@@ -2270,7 +2270,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         // B9 98 1C             LDA $1C98, y[$9F:1C98]
         unsigned char prefix[] = { 0xA4, 0x91, 0xB9, 0x98, 0x1C };
         code_teamNameInPlayerCard.PrependCode(prefix, _countof(prefix));
-        code_teamNameInPlayerCard.AppendLongJump(0x9DC149);
+        code_teamNameInPlayerCard.AppendLongJump_5C(0x9DC149);
         code_teamNameInPlayerCard.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
 
         bool detourPatched = InsertJumpOutDetour(code_teamNameInPlayerCard.m_code, 0x9DC12B, 0x9DC147 + 2, freeSpaceIter);
@@ -2328,7 +2328,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         }
         // By here, the team index is loaded into A.
         code_teamNameForRonBarr.AppendStoreZeroA5();
-        code_teamNameForRonBarr.AppendLongJump(0x9ECD19);
+        code_teamNameForRonBarr.AppendLongJump_5C(0x9ECD19);
         code_teamNameForRonBarr.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(teamNameStringTableStartFileAddress));
 
         bool detourPatched = InsertJumpOutDetour(code_teamNameForRonBarr.m_code, 0x9ECC2A, 0x9ECC48 + 2, freeSpaceIter);
@@ -2343,7 +2343,7 @@ bool InsertTeamNameOrVenueText(RomDataIterator* freeSpaceIter)
         // AF E0 1C 9F LDA $9F1CE0
         unsigned char prefix[] = { 0xAF, 0xE0, 0x1C, 0x9F };
         code_teamVenueForRonBarr.PrependCode(prefix, _countof(prefix));
-        code_teamVenueForRonBarr.AppendLongJump(0x9ECD19);
+        code_teamVenueForRonBarr.AppendLongJump_5C(0x9ECD19);
 
         code_teamVenueForRonBarr.PatchLoadLongAddressIn8D_Code(FileOffsetToROMAddress(venueStringTableStartFileAddress));
 
@@ -2589,7 +2589,7 @@ bool AddLookupPlayerNamePointerTables(std::vector<PlayerRename> const& renames, 
         code_goalieSelection.AppendStoreDirect_85(0x8D);
 
         // Jump back
-        code_goalieSelection.AppendLongJump(0x9FEB80 + 2);
+        code_goalieSelection.AppendLongJump_5C(0x9FEB80 + 2);
 
         bool detourPatched = InsertJumpOutDetour(code_goalieSelection.m_code, 0x9FEB5E, 0x9FEB80 + 2, freeSpaceIter);
         if (!detourPatched) return false;
@@ -2704,7 +2704,7 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
 
         code.m_code.push_back(0xD0); // BNE
         code.m_code.push_back(0x04); 
-        code.AppendJumpSubroutineLong(montrealRoutineROMAddress);
+        code.AppendJumpSubroutineLong_22(montrealRoutineROMAddress);
 
         // Required payload. Keep this last.
         //              LDA 6C
@@ -2714,8 +2714,8 @@ bool InsertLogo(RomDataIterator* freeSpaceIter)
         code.AppendLoadDirect_A5(0x6C);
         code.m_code.push_back(0x30);
         code.m_code.push_back(0x04);
-        code.AppendLongJump(0x80C199);
-        code.AppendLongJump(0x80C1AF);
+        code.AppendLongJump_5C(0x80C199);
+        code.AppendLongJump_5C(0x80C1AF);
 
         freeSpaceIter->EnsureSpaceInBank(code.m_code.size());
         InsertJumpOutDetour(code.m_code, 0x80C195, 0x80C197 + 2, freeSpaceIter);
@@ -2860,109 +2860,120 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         freeSpaceIter->SaveLongAddress4Bytes(s_profileImageData[i].ImageDataROMAddress);
     }
 
-    /*
-    
- A0 00 24			LDY #$2400  // initialize a counter
- 88					DEY
-
- // Here: need to seek to the right element of the pointer array based on the team index.
-A9 0B 00            LDA 000B
-0A                  ASL
-0A                  ASL
-AA                  TAX
-BF  __ __ __        LDA ______,X
-85 0C				STA $0C
-E8                  INX
-BF  __ __ __        LDA ______,X
-85 0E				STA $0E
-
-
-A6 91				LDX $91
-D0 07				BNE Away
-
-A9 00 51			LDA 5100
-85 10				STA $10
-
-80 05				BRA after
-
-// Away:
-A9 00 2D			LDA 2D00
-85 10				STA $10
-
-// After:
-A9 7F 00			LDA 007F
-85 12				STA $12
-
-// CopyLoop:
-B7 0C				LDA [$0C],y
-97 10				STA [$10],y
-88					DEY
-10 F9				BPL CopyLoop
-
-$9D/CCAD 6B          RTL
-    */
-
-    // Reference: CopyProfileImages.asm
-    ObjectCode copy;
-    copy.AppendLoadYImmediate_A0(0x2400);
-    copy.m_code.push_back(0x88); // DEY
-
-    copy.m_code.push_back(0xA6);    // LDX $91    [$00:0091] Load the choice of HomeOrAway. 0 == home, 2 == away	
-    copy.m_code.push_back(0x91);
-    copy.m_code.push_back(0xBD);
-    copy.m_code.push_back(0x98);
-    copy.m_code.push_back(0x1C);    // LDA $1C98,x[$9F:1C98]   // Load the index of CurrentTeam. 
-
-    copy.AppendArithmaticShiftAccLeft_0A();
-    copy.AppendArithmaticShiftAccLeft_0A();
-    copy.m_code.push_back(0xAA); //TAX
-
-    copy.m_code.push_back(0xBF);    // LDA ______,X
-    copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
-    copy.AppendStoreDirect_85(0x0C);
-    copy.m_code.push_back(0xE8); // INX
-    copy.m_code.push_back(0xE8); // INX
-    copy.m_code.push_back(0xBF);    // LDA ______,X
-    copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
-    copy.AppendStoreDirect_85(0x0E);
-
-    copy.m_code.push_back(0xA6); // LDX $91
-    copy.m_code.push_back(0x91);
-    copy.m_code.push_back(0xD0);
-    copy.m_code.push_back(0x07);
-
-    copy.AppendLoadAccImmediate_A9_16bit(0x5100);
-    copy.AppendStoreDirect_85(0x10);
-    copy.m_code.push_back(0x80); // BRA after
-    copy.m_code.push_back(0x05);
-
-    copy.AppendLoadAccImmediate_A9_16bit(0x2D00);
-    copy.AppendStoreDirect_85(0x10);
-
-    copy.AppendLoadAccImmediate_A9_16bit(0x007F);
-    copy.AppendStoreDirect_85(0x12);
-
-    copy.m_code.push_back(0xB7);
-    copy.m_code.push_back(0x0C); // LDA [$0C],y
-    copy.m_code.push_back(0x97);
-    copy.m_code.push_back(0x10); // STA [$10],y
-    copy.m_code.push_back(0x88); // DEY
-    copy.m_code.push_back(0x10);
-    copy.m_code.push_back(0xF9);
-
-    copy.AppendReturnLong_6B();
-
-    int decompressMainStartFileOffset = ROMAddressToFileOffset(0x9DCC42);
-    int decompressMainEndFileOffset = ROMAddressToFileOffset(0x9DCCAD);
-
-    // Pad with no-ops for hygiene
-    for (int i = decompressMainStartFileOffset; i <= decompressMainEndFileOffset; ++i)
     {
-        s_romData.Set(i, 0xEA); // NOP
-    }
+        /*
+         A0 00 24			LDY #$2400  // initialize a counter
+         88					DEY
 
-    RomDataIterator iter(decompressMainStartFileOffset);
-    iter.SaveObjectCode(&copy);
+         // Here: need to seek to the right element of the pointer array based on the team index.
+        A9 0B 00            LDA 000B
+        0A                  ASL
+        0A                  ASL
+        AA                  TAX
+        BF  __ __ __        LDA ______,X
+        85 0C				STA $0C
+        E8                  INX
+        BF  __ __ __        LDA ______,X
+        85 0E				STA $0E
+
+
+        A6 91				LDX $91
+        D0 07				BNE Away
+
+        A9 00 51			LDA 5100
+        85 10				STA $10
+
+        80 05				BRA after
+
+        // Away:
+        A9 00 2D			LDA 2D00
+        85 10				STA $10
+
+        // After:
+        A9 7F 00			LDA 007F
+        85 12				STA $12
+
+        // CopyLoop:
+        B7 0C				LDA [$0C],y
+        97 10				STA [$10],y
+        88					DEY
+        10 F9				BPL CopyLoop
+
+        $9D/CCAD 6B          RTL
+        */
+
+        // Reference: CopyProfileImages.asm
+        ObjectCode copy;
+        copy.AppendLoadYImmediate_A0(0x2400);
+        copy.m_code.push_back(0x88); // DEY
+
+        copy.m_code.push_back(0xA6);    // LDX $91    [$00:0091] Load the choice of HomeOrAway. 0 == home, 2 == away	
+        copy.m_code.push_back(0x91);
+        copy.m_code.push_back(0xBD);
+        copy.m_code.push_back(0x98);
+        copy.m_code.push_back(0x1C);    // LDA $1C98,x[$9F:1C98]   // Load the index of CurrentTeam. 
+
+        copy.AppendArithmaticShiftAccLeft_0A();
+        copy.AppendArithmaticShiftAccLeft_0A();
+        copy.m_code.push_back(0xAA); //TAX
+
+        copy.m_code.push_back(0xBF);    // LDA ______,X
+        copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
+        copy.AppendStoreDirect_85(0x0C);
+        copy.m_code.push_back(0xE8); // INX
+        copy.m_code.push_back(0xE8); // INX
+        copy.m_code.push_back(0xBF);    // LDA ______,X
+        copy.AppendLongAddress3Bytes(profileDataAddressTableROMAddress);
+        copy.AppendStoreDirect_85(0x0E);
+
+        copy.m_code.push_back(0xA6); // LDX $91
+        copy.m_code.push_back(0x91);
+        copy.m_code.push_back(0xD0);
+        copy.m_code.push_back(0x07);
+
+        copy.AppendLoadAccImmediate_A9_16bit(0x5100);
+        copy.AppendStoreDirect_85(0x10);
+        copy.m_code.push_back(0x80); // BRA after
+        copy.m_code.push_back(0x05);
+
+        copy.AppendLoadAccImmediate_A9_16bit(0x2D00);
+        copy.AppendStoreDirect_85(0x10);
+
+        copy.AppendLoadAccImmediate_A9_16bit(0x007F);
+        copy.AppendStoreDirect_85(0x12);
+
+        copy.m_code.push_back(0xB7);
+        copy.m_code.push_back(0x0C); // LDA [$0C],y
+        copy.m_code.push_back(0x97);
+        copy.m_code.push_back(0x10); // STA [$10],y
+        copy.m_code.push_back(0x88); // DEY
+        copy.m_code.push_back(0x10);
+        copy.m_code.push_back(0xF9);
+
+        copy.AppendReturnLong_6B();
+
+        int decompressMainStartFileOffset = ROMAddressToFileOffset(0x9DCC42);
+        int decompressMainEndFileOffset = ROMAddressToFileOffset(0x9DCCAD);
+
+        // Pad with no-ops for hygiene
+        for (int i = decompressMainStartFileOffset; i <= decompressMainEndFileOffset; ++i)
+        {
+            s_romData.Set(i, 0xEA); // NOP
+        }
+
+        RomDataIterator iter(decompressMainStartFileOffset);
+        iter.SaveObjectCode(&copy);
+    }
+    {
+        ObjectCode editLinesPayload;
+        editLinesPayload.AppendJumpSubroutineLong_22(0x9DDDB3);
+        editLinesPayload.AppendLongJump_5C(0x9DDDAF);
+
+        freeSpaceIter->EnsureSpaceInBank(editLinesPayload.m_code.size());
+
+        // Detour here: $9D/DDAB 22 B3 DD 9D JSL $9DDDB3[$9D:DDB3]   A:3568 X:0000 Y:FFFE P:envmxdizc
+        InsertJumpOutDetour(editLinesPayload.m_code, 0x9DDDAB, 0x9DDDAB + 4, freeSpaceIter);
+    }
 
     return true;
 }

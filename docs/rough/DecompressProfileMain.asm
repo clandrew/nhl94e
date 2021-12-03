@@ -1633,7 +1633,7 @@ $9D/D9CB 22 73 C3 80 JSL $80C373[$80:C373]   A:8001 X:7C00 Y:0000 P:envmxdizc	//
 
 $9D/D9CF 22 08 97 9F JSL $9F9708[$9F:9708]   A:8001 X:7C00 Y:0000 P:envmxdizc	// Call EditLinesSpinUntilCond()
 
-$9D/D9D3 22 A9 86 80 JSL $8086A9[$80:86A9]   A:0000 X:7C00 Y:0000 P:envmxdiZc	// Call EditLinesDecompressImpl()
+$9D/D9D3 22 A9 86 80 JSL $8086A9[$80:86A9]   A:0000 X:7C00 Y:0000 P:envmxdiZc	// Call EditLinesDecompressHelper()
 
 $9D/D9D7 E2 20       SEP #$20                A:00E0 X:7C00 Y:0000 P:envmxdizc
 $9D/D9D9 A9 00       LDA #$00                A:00E0 X:7C00 Y:0000 P:envMxdizc
@@ -1943,6 +1943,9 @@ $9D/DDA7 8F 00 75 7F STA $7F7500[$7F:7500]   A:3568 X:0000 Y:FFFE P:envmxdizc
 
 $9D/DDAB 22 B3 DD 9D JSL $9DDDB3[$9D:DDB3]   A:3568 X:0000 Y:FFFE P:envmxdizc	// Call DecompressWrapper2() - This owns calling DecompressActual2 down the chain.
 
+// Sadly, this code diverges a lot from the loader code during GAME SETUP. 
+// It would be safer to copy overtop here rather than replace the code outright.
+
 $9D/DDAF 68          PLA                     A:0002 X:0300 Y:05A0 P:envmxdizc
 $9D/DDB0 85 91       STA $91    [$00:0091]   A:0000 X:0300 Y:05A0 P:envmxdiZc
 $9D/DDB2 6B          RTL                     A:0000 X:0300 Y:05A0 P:envmxdiZc
@@ -1961,6 +1964,7 @@ $9B/86D3 A9 05 00    LDA #$0005              A:7500 X:0002 Y:0000 P:envmxdizc
 ////////////////////////////////////////////////////////////////////////////////////////
 
 // void EditLinesSpinUntilCond()
+// Probably waiting on Vblank
 
 $9F/9708 22 83 85 80 JSL $808583[$80:8583]   A:8001 X:7C00 Y:0000 P:envmxdizc	; Call SpinUntilCond()
 $9F/970C AD D3 0A    LDA $0AD3  [$9F:0AD3]   A:8001 X:7C00 Y:0000 P:eNvmxdizc
@@ -1969,12 +1973,13 @@ $9F/9711 6B          RTL                     A:0000 X:7C00 Y:0000 P:envmxdiZc
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-// void EditLinesDecompressImpl()
+// void EditLinesDecompressHelper()
+// This doesn't call DecompressActual2- that happens later.
 
 $80/86A9 AD D3 0A    LDA $0AD3  [$9F:0AD3]   A:0000 X:7C00 Y:0000 P:envmxdiZc
 $80/86AC F0 08       BEQ $08    [$86B6]      A:0000 X:7C00 Y:0000 P:envmxdiZc
 
-$80/86B6 22 84 86 80 JSL $808684[$80:8684]   A:0000 X:7C00 Y:0000 P:envmxdiZc	; Call EditLinesDecompressImpl2()
+$80/86B6 22 84 86 80 JSL $808684[$80:8684]   A:0000 X:7C00 Y:0000 P:envmxdiZc	; Call EditLinesDecompressHelper2()
 
 $80/86BA 4C D5 86    JMP $86D5  [$80:86D5]   A:0130 X:7C00 Y:0000 P:envmxdizc
 $80/86D5 48          PHA                     A:0130 X:7C00 Y:0000 P:envmxdizc
@@ -2010,7 +2015,7 @@ $80/8722 6B          RTL                     A:0130 X:7C00 Y:0000 P:envmxdizc
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
-// void EditLinesDecompressImpl2() - 808684
+// void EditLinesDecompressHelper2() - 808684
 $80/86B6 22 84 86 80 JSL $808684[$80:8684]   A:0000 X:7C00 Y:0000 P:envmxdiZc
 $80/8684 22 83 85 80 JSL $808583[$80:8583]   A:0000 X:7C00 Y:0000 P:envmxdiZc
 $80/8688 22 07 85 80 JSL $808507[$80:8507]   A:0000 X:7C00 Y:0000 P:envmxdiZc
