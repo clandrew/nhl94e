@@ -19,3 +19,24 @@ DMA Special Tracing- what does the output mean?					See below
 Can not view CGRAM or OAM							Use a different debugger
 
 There could be things not specified here. I use some 10% or 20% of the tool's features.
+
+DMA transfer tracing format
+===========================
+Enabling debug tracing of DMA transfers causes some debug output to appear on each transfer.
+
+Example:
+DMA[1]: CPU->PPU Mode:0 0x7F0000->0x2122 Bytes:200 (inc) V:128 CGRAM: 00 (0)
+   #0      #1                   #2          #3      #4    #5      #6
+
+Here is what this output means.
+
+#0: Which channel is it.
+#1: Pretty obvious, the source and dest component.
+#2: Source address to dest gate. Here is what the gates mean
+		0x2104	OAM
+		0x2118 	VRAM
+		0x2122	CGRAM
+#3: How many bytes are being transferred.
+#4: CPU address counting mode. It can be 'inc' or 'fixed'.
+#5: I thiiiink this is what scanline we're on.
+#6: Dest address in the non-WRAM memory. For example, in this case, it's a CGRAM address. If we were transferring to VRAM, it's say VRAM: [number].
