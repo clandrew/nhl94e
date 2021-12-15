@@ -1,0 +1,21 @@
+Geiger personality traits
+
+There is a rich assortment of SNES debugging tools out there, some of which are in active development.
+
+I still use Geiger's SNES debugger for a lot of things. It's a great tool and is super useful. That said, it has some bugs/limitations/'personality traits'. I've come to work around them, or use a different tool as appropriate then switch back.
+
+The emulator-debugger is closed source and not under active development, so these 'personality traits' are not going away any time soon.
+
+I've made a list of the 'personality traits' so that you can also work around them if you run into them.
+
+Issue										Workaround
+=====										==========
+Breakpoints don't hit after certain operations (e.g., save state load)		Re-open the breakpoint window, and click OK
+Step Out doesn't step out to the expected place					Don't rely on Step Out for functions that straddle VBlanks
+'Show Hex' (memory) window shows blank ROM on 1st open				Choose something (e.g., RAM) 'viewing' dropdown then go back to ROM
+Emulator crash if you scroll too far down in the memory window			Don't use invalid ranges. Don't try to scroll past the end of the range.
+Can not view DBR or PBR								Edit some code to push them (PHB/PHK) then PLA
+DMA Special Tracing- what does the output mean?					See below
+Can not view CGRAM or OAM							Use a different debugger
+
+There could be things not specified here. I use some 10% or 20% of the tool's features.
