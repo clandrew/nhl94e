@@ -37,6 +37,7 @@ struct TranscodeBlockResult
 	bool ValidColors;
 	int InvalidColorX;
 	int InvalidColorY;
+	int InvalidColorRgb;
 };
 
 TranscodeBlockResult TranscodeBlock(std::vector<int> const& rgbBlock, MultiFormatPallette* importedPallette)
@@ -51,12 +52,15 @@ TranscodeBlockResult TranscodeBlock(std::vector<int> const& rgbBlock, MultiForma
 			int rgbx = 8 - 1 - xi;
 			int rgby = yi;
 
-			RgbToIndexedResult rgbToIndexedResult = RgbToIndexed(rgbBlock[rgby * 8 + rgbx], importedPallette);
+			int rgb = rgbBlock[rgby * 8 + rgbx];
+
+			RgbToIndexedResult rgbToIndexedResult = RgbToIndexed(rgb, importedPallette);
 			if (!rgbToIndexedResult.ValidColor)
 			{
 				result.ValidColors = false;
 				result.InvalidColorX = 8 - xi - 1;
 				result.InvalidColorY = yi;
+				result.InvalidColorRgb = rgb;
 				return result;
 			}
 
@@ -158,9 +162,10 @@ System::Drawing::Bitmap^ ProfileImageImporter::Import(wchar_t const* fileName)
 				{
 					int invalidColorX = x + transcodeBlockResult.InvalidColorX;
 					int invalidColorY = y + transcodeBlockResult.InvalidColorY;
+					int invalidColorRgb = transcodeBlockResult.InvalidColorRgb;
 
 					std::stringstream strm;
-					strm << "The image contained a color at X=" << invalidColorX << ", Y=" << invalidColorY << " which was not present in the pallette.";
+					strm << "The image contained a color, 0x" << std::hex << invalidColorRgb << std::dec << " at X=" << invalidColorX << ", Y=" << invalidColorY << " which was not present in the pallette.";
 					m_errorMessage = strm.str();
 					m_importedSomethingValid = false;
 					return nullptr;
