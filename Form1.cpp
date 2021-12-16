@@ -1592,7 +1592,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
 
 #if _DEBUG
     
-    {
+    {   // Goalie
         int playerIndex = 0;
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Leveille";
         m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "29";
@@ -1604,8 +1604,8 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     }
     {
         int playerIndex = 2;
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Meghan Pezon";
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "15";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Ashleigh Brykaliuk";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "13";
     }
     {
         int playerIndex = 6;
@@ -1619,13 +1619,13 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     }
     {
         int playerIndex = 16;
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Amanda Boulier";
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "8";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Mak Langei";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "2";
     }
     {
         int playerIndex = 17;
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Winnie Brodt Brown";
-        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "5";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerName]->Value = "Patti Marshall";
+        m_montrealDataGridView->Rows[playerIndex]->Cells[(int)WhichStat::PlayerNumber]->Value = "27";
     }
     {
         locationTextBox->Text = "Minnesota";
