@@ -1638,7 +1638,7 @@ void nhl94e::Form1::OpenROM(std::wstring romFilename)
     }
     {
         ProfileImageImporter importer;
-        importer.Import(L"template.png");
+        importer.Import(L"capsprof.png");
         assert(importer.ImportedSomethingValid());
 
         MultiFormatPallette* importedPallette = importer.GetImportedPallette();
