@@ -2965,8 +2965,16 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         iter.SaveObjectCode(&copy);
     }
     {
+        // Turns out this is called not just for edit lines :(
+        // How to distinguish between them?
         ObjectCode editLinesPayload;
+
+        // Call the thing that we replaced, so there's no loss of behavior
         editLinesPayload.AppendJumpSubroutineLong_22(0x9DDDB3);
+
+        // Here-- write a black pixel to sysmem
+
+        // Done, return
         editLinesPayload.AppendLongJump_5C(0x9DDDAF);
 
         freeSpaceIter->EnsureSpaceInBank(editLinesPayload.m_code.size());

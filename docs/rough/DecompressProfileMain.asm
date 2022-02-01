@@ -1608,11 +1608,142 @@ $9D/CCAB 85 A5       STA $A5    [$00:00A5]
 $9D/CCAD 6B          RTL					// Restore $A5 and return
 
 ///////////////////////////////////////////////////////////////////////////////////////////
+
+; During EDIT LINES
+$9B/86B6 A9 FF FF    LDA #$FFFF              A:0000 X:0300 Y:05A0 P:envmxdiZc
+$9B/86B9 8F 52 34 7E STA $7E3452[$7E:3452]   A:0000 X:0300 Y:05A0 P:envmxdiZc
+$9B/86BD 22 AD D9 9D JSL $9DD9AD[$9D:D9AD]   A:0000 X:0300 Y:05A0 P:envmxdiZc	; Call DecompressForGameSetupAndEditLines()
+$9B/86C1 22 0F 89 9B JSL $9B890F[$9B:890F]   A:0000 X:0300 Y:05A0 P:envmxdiZc
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+; During GAME SETUP
+...
+$9D/A629 8F 52 34 7E STA $7E3452[$7E:3452]   A:FFFF X:0300 Y:05A0 P:eNvmxdizc
+$9D/A62D 22 AD D9 9D JSL $9DD9AD[$9D:D9AD]   A:FFFF X:0300 Y:05A0 P:eNvmxdizc	; Call DecompressForGameSetupAndEditLines()
+$9D/A631 E2 20       SEP #$20                A:FFFF X:0300 Y:05A0 P:eNvmxdizc
+
+$9D/A633 A9 01       LDA #$01                A:FFFF X:0300 Y:05A0 P:eNvMxdizc
+$9D/A635 8D 05 21    STA $2105  [$9F:2105]   A:FF01 X:0300 Y:05A0 P:envMxdizc
+$9D/A638 C2 20       REP #$20                A:FF01 X:0300 Y:05A0 P:envMxdizc
+$9D/A63A A2 4F 00    LDX #$004F              A:FF01 X:0300 Y:05A0 P:envmxdizc
+$9D/A63D A0 18 00    LDY #$0018              A:FF01 X:004F Y:05A0 P:envmxdizc
+$9D/A640 A9 9C 00    LDA #$009C              A:FF01 X:004F Y:0018 P:envmxdizc
+$9D/A643 85 8F       STA $8F    [$00:008F]   A:009C X:004F Y:0018 P:envmxdizc
+$9D/A645 A9 97 F5    LDA #$F597              A:009C X:004F Y:0018 P:envmxdizc
+$9D/A648 85 8D       STA $8D    [$00:008D]   A:F597 X:004F Y:0018 P:eNvmxdizc
+$9D/A64A 22 6C 93 9C JSL $9C936C[$9C:936C]   A:F597 X:004F Y:0018 P:eNvmxdizc
+$9D/A64E A9 47 1D    LDA #$1D47              A:000C X:000F Y:000C P:envmxdiZC
+$9D/A651 8F 0A 75 7F STA $7F750A[$7F:750A]   A:1D47 X:000F Y:000C P:envmxdizC
+$9D/A655 A9 FF FF    LDA #$FFFF              A:1D47 X:000F Y:000C P:envmxdizC
+$9D/A658 8F 0E 75 7F STA $7F750E[$7F:750E]   A:FFFF X:000F Y:000C P:eNvmxdizC
+$9D/A65C A9 A5 14    LDA #$14A5              A:FFFF X:000F Y:000C P:eNvmxdizC
+$9D/A65F 8F 82 76 7F STA $7F7682[$7F:7682]   A:14A5 X:000F Y:000C P:envmxdizC
+$9D/A663 A9 7B 6F    LDA #$6F7B              A:14A5 X:000F Y:000C P:envmxdizC
+$9D/A666 8F C2 75 7F STA $7F75C2[$7F:75C2]   A:6F7B X:000F Y:000C P:envmxdizC
+$9D/A66A 22 D4 E0 9D JSL $9DE0D4[$9D:E0D4]   A:6F7B X:000F Y:000C P:envmxdizC
+$9D/A66E 22 DE AF 80 JSL $80AFDE[$80:AFDE]   A:7500 X:0002 Y:0000 P:envmxdizc
+$9D/A672 22 23 D9 9D JSL $9DD923[$9D:D923]   A:2301 X:2320 Y:2100 P:eNvmxdizC
+$9D/A676 22 17 80 9B JSL $9B8017[$9B:8017]   A:0400 X:0800 Y:0400 P:envmxdizc
+$9D/A67A 22 26 85 9B JSL $9B8526[$9B:8526]   A:000F X:0000 Y:0400 P:envmxdizc
+$9D/A67E A9 00 00    LDA #$0000              A:000F X:0000 Y:0400 P:envmxdizc
+$9D/A681 8D CB 0C    STA $0CCB  [$9F:0CCB]   A:0000 X:0000 Y:0400 P:envmxdiZc
+$9D/A684 A5 8F       LDA $8F    [$00:008F]   A:0000 X:0000 Y:0400 P:envmxdiZc
+$9D/A686 48          PHA                     A:009C X:0000 Y:0400 P:envmxdizc
+$9D/A687 A5 8D       LDA $8D    [$00:008D]   A:009C X:0000 Y:0400 P:envmxdizc
+$9D/A689 48          PHA                     A:F597 X:0000 Y:0400 P:eNvmxdizc
+$9D/A68A A9 9C 00    LDA #$009C              A:F597 X:0000 Y:0400 P:eNvmxdizc
+$9D/A68D 85 8F       STA $8F    [$00:008F]   A:009C X:0000 Y:0400 P:envmxdizc
+$9D/A68F A9 A3 F5    LDA #$F5A3              A:009C X:0000 Y:0400 P:envmxdizc
+$9D/A692 85 8D       STA $8D    [$00:008D]   A:F5A3 X:0000 Y:0400 P:eNvmxdizc
+$9D/A694 22 BE C7 9E JSL $9EC7BE[$9E:C7BE]   A:F5A3 X:0000 Y:0400 P:eNvmxdizc
+$9D/A698 68          PLA                     A:F5A8 X:0000 Y:0005 P:envmxdiZc
+$9D/A699 85 8D       STA $8D    [$00:008D]   A:F597 X:0000 Y:0005 P:eNvmxdizc
+$9D/A69B 68          PLA                     A:F597 X:0000 Y:0005 P:eNvmxdizc
+$9D/A69C 85 8F       STA $8F    [$00:008F]   A:009C X:0000 Y:0005 P:envmxdizc
+$9D/A69E 22 27 A2 9C JSL $9CA227[$9C:A227]   A:009C X:0000 Y:0005 P:envmxdizc
+$9D/A6A2 A9 28 00    LDA #$0028              A:0000 X:010E Y:001E P:envmxdizC
+$9D/A6A5 8D 43 0E    STA $0E43  [$9F:0E43]   A:0028 X:010E Y:001E P:envmxdizC
+$9D/A6A8 8D 4F 0E    STA $0E4F  [$9F:0E4F]   A:0028 X:010E Y:001E P:envmxdizC
+$9D/A6AB A9 FF FF    LDA #$FFFF              A:0028 X:010E Y:001E P:envmxdizC
+$9D/A6AE 8F CC 34 7E STA $7E34CC[$7E:34CC]   A:FFFF X:010E Y:001E P:eNvmxdizC
+$9D/A6B2 A5 91       LDA $91    [$00:0091]   A:FFFF X:010E Y:001E P:eNvmxdizC
+$9D/A6B4 48          PHA                     A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6B5 A9 00 00    LDA #$0000              A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6B8 85 91       STA $91    [$00:0091]   A:0000 X:010E Y:001E P:envmxdiZC
+$9D/A6BA 22 34 93 9B JSL $9B9334[$9B:9334]   A:0000 X:010E Y:001E P:envmxdiZC
+$9D/A6BE A9 02 00    LDA #$0002              A:0000 X:010E Y:001E P:envmxdiZC
+$9D/A6C1 85 91       STA $91    [$00:0091]   A:0002 X:010E Y:001E P:envmxdizC
+$9D/A6C3 22 34 93 9B JSL $9B9334[$9B:9334]   A:0002 X:010E Y:001E P:envmxdizC
+$9D/A6C7 68          PLA                     A:0000 X:010E Y:001E P:envmxdiZC
+$9D/A6C8 85 91       STA $91    [$00:0091]   A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6CA 64 C1       STZ $C1    [$00:00C1]   A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6CC 64 A5       STZ $A5    [$00:00A5]   A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6CE 20 4F AC    JSR $AC4F  [$9D:AC4F]   A:0120 X:010E Y:001E P:envmxdizC
+$9D/A6D1 20 73 A9    JSR $A973  [$9D:A973]   A:0001 X:010E Y:001E P:envmxdizc
+$9D/A6D4 20 83 AA    JSR $AA83  [$9D:AA83]   A:0000 X:000E Y:0010 P:envmxdiZC
+$9D/A6D7 22 17 80 9B JSL $9B8017[$9B:8017]   A:7500 X:0002 Y:0000 P:envmxdizc
+$9D/A6DB 22 F6 DF 9D JSL $9DDFF6[$9D:DFF6]   A:2000 X:0000 Y:0000 P:envmxdizc
+$9D/A6DF 22 BD 86 80 JSL $8086BD[$80:86BD]   A:200C X:E064 Y:0000 P:envmxdizc
+$9D/A6E3 A9 08 00    LDA #$0008              A:200C X:009C Y:0000 P:envmxdizc
+$9D/A6E6 A2 40 00    LDX #$0040              A:0008 X:009C Y:0000 P:envmxdizc
+$9D/A6E9 22 F5 CC 9D JSL $9DCCF5[$9D:CCF5]   A:0008 X:0040 Y:0000 P:envmxdizc
+$9D/A6ED 22 23 D9 9D JSL $9DD923[$9D:D923]   A:CDB1 X:009D Y:00C4 P:envmxdizc
+$9D/A6F1 A2 00 00    LDX #$0000              A:F800 X:00F0 Y:0400 P:eNvmxdizc
+$9D/A6F4 22 36 CC 9D JSL $9DCC36[$9D:CC36]   A:F800 X:0000 Y:0400 P:envmxdiZc
+$9D/A6F8 A2 02 00    LDX #$0002              A:FFFF X:0000 Y:FFFF P:eNvmxdizc
+$9D/A6FB 22 36 CC 9D JSL $9DCC36[$9D:CC36]   A:FFFF X:0002 Y:FFFF P:envmxdizc
+
+Main:
+$9D/A6FF A9 C0 12    LDA #$12C0              A:0000 X:0002 Y:FFFF P:eNvmxdizc
+$9D/A702 85 BD       STA $BD    [$00:00BD]   A:12C0 X:0002 Y:FFFF P:envmxdizc
+$9D/A704 22 83 85 80 JSL $808583[$80:8583]   A:12C0 X:0002 Y:FFFF P:envmxdizc
+$9D/A708 AD 66 07    LDA $0766  [$9F:0766]   A:12C0 X:0002 Y:FFFF P:envmxdizc
+$9D/A70B D0 F7       BNE $F7    [$A704]      A:0000 X:0002 Y:FFFF P:envmxdiZc
+$9D/A70D EE 92 07    INC $0792  [$9F:0792]   A:0000 X:0002 Y:FFFF P:envmxdiZc
+$9D/A710 D0 03       BNE $03    [$A715]      A:0000 X:0002 Y:FFFF P:envmxdizc
+$9D/A715 22 83 85 80 JSL $808583[$80:8583]   A:0000 X:0002 Y:FFFF P:envmxdizc
+$9D/A719 AE 0E 1A    LDX $1A0E  [$9F:1A0E]   A:0000 X:0002 Y:FFFF P:envmxdiZc
+$9D/A71C 8A          TXA                     A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A71D 45 AF       EOR $AF    [$00:00AF]   A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A71F D0 03       BNE $03    [$A724]      A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A721 4C 68 A7    JMP $A768  [$9D:A768]   A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A768 AD 0E 1A    LDA $1A0E  [$9F:1A0E]   A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A76B F0 03       BEQ $03    [$A770]      A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A770 22 17 80 9B JSL $9B8017[$9B:8017]   A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A774 A5 83       LDA $83    [$00:0083]   A:0000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A776 8D 35 0D    STA $0D35  [$9F:0D35]   A:07D7 X:0000 Y:FFFF P:envmxdizc
+$9D/A779 8D 01 0D    STA $0D01  [$9F:0D01]   A:07D7 X:0000 Y:FFFF P:envmxdizc
+$9D/A77C 22 F5 84 9B JSL $9B84F5[$9B:84F5]   A:07D7 X:0000 Y:FFFF P:envmxdizc
+$9D/A780 CE C4 0A    DEC $0AC4  [$9F:0AC4]   A:0008 X:0000 Y:FFFF P:envmxdizc
+$9D/A783 22 2C 85 9B JSL $9B852C[$9B:852C]   A:0008 X:0000 Y:FFFF P:eNvmxdizc
+$9D/A787 A5 A9       LDA $A9    [$00:00A9]   A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A789 29 F0 FF    AND #$FFF0              A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A78C 85 A9       STA $A9    [$00:00A9]   A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A78E F0 03       BEQ $03    [$A793]      A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A790 4C 69 A8    JMP $A869  [$9D:A869]   A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A869 A5 A9       LDA $A9    [$00:00A9]   A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A86B 89 00 10    BIT #$1000              A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A86E F0 03       BEQ $03    [$A873]      A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A873 89 00 04    BIT #$0400              A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A876 F0 0E       BEQ $0E    [$A886]      A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A886 89 00 08    BIT #$0800              A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A889 F0 0E       BEQ $0E    [$A899]      A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A899 A9 01 00    LDA #$0001              A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A89C 85 AD       STA $AD    [$00:00AD]   A:0001 X:0000 Y:FFFF P:envmxdizc
+$9D/A89E A5 A9       LDA $A9    [$00:00A9]   A:0001 X:0000 Y:FFFF P:envmxdizc
+$9D/A8A0 89 00 01    BIT #$0100              A:2000 X:0000 Y:FFFF P:envmxdizc
+$9D/A8A3 D0 0A       BNE $0A    [$A8AF]      A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A8A5 89 00 02    BIT #$0200              A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A8A8 F0 EC       BEQ $EC    [$A896]      A:2000 X:0000 Y:FFFF P:envmxdiZc
+$9D/A896 4C FF A6    JMP $A6FF  [$9D:A6FF]   A:2000 X:0000 Y:FFFF P:envmxdiZc
+
+///////////////////////////////////////////////////////////////////////////////////////////
 //
-// During loading of the EDIT LINES menu.
+// During loading of the EDIT LINES menu, and during GAME SETUP.
 // There's a bunch of repetitive code in this function. Looks like a loop that has been unrolled and manually tweaked.
 //
-// void DecompressForEditLines() -9DD9AD
+// void DecompressForGameSetupAndEditLines() -9DD9AD
 // 	This is used specifically during the EDIT LINES menu.
 $9D/D9AD 9C C6 07    STZ $07C6  [$9F:07C6]   A:FFFF X:0000 Y:0000 P:eNvmxdizc
 $9D/D9B0 A5 91       LDA $91    [$00:0091]   A:FFFF X:0000 Y:0000 P:eNvmxdizc
