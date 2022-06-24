@@ -1482,6 +1482,7 @@ $9D/C99F 85 A5       STA $A5    [$00:00A5]   // Store an argument used by LoadTe
 //
 // Postconditions: 
 //		  Six players on a team have their decompressed profile images stored in system memory at the appropriate location.
+//		  For example, when loading profile images for Montreal, they get stored to RAM file offset 0x015000 = RAM address 0x7F5000 up to about 0x7F7380 (length 0x2380)
 //        Doesn't do VRAM transfer.
 // 
 // This function is called twice when loading the GAME SETUP screen, once per team.
@@ -1613,7 +1614,8 @@ $9D/CCAD 6B          RTL					// Restore $A5 and return
 $9B/86B6 A9 FF FF    LDA #$FFFF              A:0000 X:0300 Y:05A0 P:envmxdiZc
 $9B/86B9 8F 52 34 7E STA $7E3452[$7E:3452]   A:0000 X:0300 Y:05A0 P:envmxdiZc
 $9B/86BD 22 AD D9 9D JSL $9DD9AD[$9D:D9AD]   A:0000 X:0300 Y:05A0 P:envmxdiZc	; Call DecompressForGameSetupAndEditLines()
-$9B/86C1 22 0F 89 9B JSL $9B890F[$9B:890F]   A:0000 X:0300 Y:05A0 P:envmxdiZc
+$9B/86C1 22 0F 89 9B JSL $9B890F[$9B:890F]   A:0000 X:0300 Y:05A0 P:envmxdiZc	; - patch sysmem here
+$9B/86C5 A9 05 00    LDA #$0005              A:0177 X:0002 Y:0005 P:envmxdizc
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1744,7 +1746,7 @@ $9D/A896 4C FF A6    JMP $A6FF  [$9D:A6FF]   A:2000 X:0000 Y:FFFF P:envmxdiZc
 // There's a bunch of repetitive code in this function. Looks like a loop that has been unrolled and manually tweaked.
 //
 // void DecompressForGameSetupAndEditLines() -9DD9AD
-// 	This is used specifically during the EDIT LINES menu.
+// 	This is used during the EDIT LINES menu, and before GAME SETUP
 $9D/D9AD 9C C6 07    STZ $07C6  [$9F:07C6]   A:FFFF X:0000 Y:0000 P:eNvmxdizc
 $9D/D9B0 A5 91       LDA $91    [$00:0091]   A:FFFF X:0000 Y:0000 P:eNvmxdizc
 $9D/D9B2 48          PHA                     A:0000 X:0000 Y:0000 P:envmxdiZc
