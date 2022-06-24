@@ -12,7 +12,7 @@ std::vector<unsigned char> ram;
 std::vector<unsigned short> actual;
 std::ofstream debugLog;
 int validationLength = 2;
-int instructionLimit = 35;
+int instructionLimit = 1000;
 int printedInstructionCount = 0;
 
 std::vector<unsigned char> LoadBinaryFile(char const* fileName)
@@ -58,15 +58,18 @@ void WriteOutput(int address, unsigned short output)
     actual[outputElement] = output;
 }
 
-void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
+void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
 {
-    debugLog << asmText;
-    debugLog << " A:" << std::hex << std::setw(4) << std::setfill('0') << a;
-    debugLog << " X:" << std::hex << std::setw(4) << std::setfill('0') << x;
-    debugLog << " Y:" << std::hex << std::setw(4) << std::setfill('0') << y;
+    debugLog << " A:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << a;
+    debugLog << " X:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << x;
+    debugLog << " Y:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << y;
     debugLog << " P:envmxdi";
-    debugLog << (zero? "Z" : "z");
+    debugLog << (zero ? "Z" : "z");
     debugLog << (carry ? "C" : "c");
+}
+
+void DebugPrintFinalize()
+{
     debugLog << "\n";
     debugLog.flush();
 
@@ -76,6 +79,42 @@ void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigne
     {
         exit(0);
     }
+}
+
+void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
+{
+    debugLog << asmText;
+    DebugPrintRegs(a, x, y, zero, carry);
+    DebugPrintFinalize();
+}
+
+void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
+{
+    debugLog << "$9B/85F4 B1 0C       LDA ($0C),y[$7F:";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << y;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y, zero, carry);
+    DebugPrintFinalize();
+}
+
+void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
+{
+    debugLog << "$9B/864B 91 10       STA ($10),y[$7F:";
+    unsigned short offset = 0x5100 + y;
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << offset;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y, zero, carry);
+    DebugPrintFinalize();
+}
+
+void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool zero, bool carry)
+{
+    debugLog << "$9B/8655 91 10       STA ($10),y[$7F:";
+    unsigned short offset = 0x5100 + y;
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << offset;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y, zero, carry);
+    DebugPrintFinalize();
 }
 
 int main()
@@ -159,9 +198,11 @@ label_85DC:
 
 label_85E8:
     // $9B/85E8 A2 80 00    LDX #$0080              A:0000 X:0008 Y:0012 P:envmxdizc
+    DebugPrint("$9B/85E8 A2 80 00    LDX #$0080             ", a, x, y, z, c);
     x = 0x80;
 
     // $9B/85EB 64 14       STZ $14    [$00:0014]   A:0000 X:0080 Y:0012 P:envmxdizc
+    DebugPrint("$9B/85EB 64 14       STZ $14    [$00:0014]  ", a, x, y, z, c);
     mem14 = 0;
 
 label_85ED:
@@ -173,31 +214,23 @@ label_85ED:
         // $9B/85F1 0A          ASL A                   A:0001 X:0080 Y:0010 P:envmxdizc
         // $9B/85F2 0A          ASL A                   A:0002 X:0080 Y:0010 P:envmxdizc
         // $9B/85F3 A8          TAY                     A:0004 X:0080 Y:0010 P:envmxdizc
-        // $9B/85F4 B1 0C       LDA ($0C),y[$7F:0004]   A:0004 X:0080 Y:0004 P:envmxdizc
         DebugPrint("$9B/85EF A5 04       LDA $04    [$00:0004]  ", 0, x, y, z, c);
-        DebugPrint("$9B/85F1 0A          ASL A                  ", mem04, x, y, z, c);
-        DebugPrint("$9B/85F2 0A          ASL A                  ", mem04*2, x, y, z, c);
-        DebugPrint("$9B/85F3 A8          TAY                    ", mem04*4, x, y, z, c);
-        DebugPrint("$9B/85F4 B1 0C       LDA ($0C),y[$7F:0004]  ", mem04*4, x, mem04 * 4, z, c);
-        unsigned short element = mem04;
-        unsigned short byteOffset = element * 4;
-        y = byteOffset;
-        int pointerLocation = pointer0C + byteOffset;
-        unsigned short token0 = LoadFromRAM(pointerLocation);
+        a = mem04;
 
-        // $9B/85F6 F0 E4       BEQ $E4    [$85DC]      A:0000 X:0080 Y:0004 P:envmxdiZc
-        z = token0 == 0;
-        DebugPrint("$9B/85F6 F0 E4       BEQ $E4    [$85DC]     ", token0, x, mem04 * 4, z, c);
-        if (token0 == 0)
-        {
-            goto label_85DC;
-        }
+        DebugPrint("$9B/85F1 0A          ASL A                  ", a, x, y, z, c);
+        a *= 2;
+
+        DebugPrint("$9B/85F2 0A          ASL A                  ", a, x, y, z, c);
+        a *= 2;
+
+        DebugPrint("$9B/85F3 A8          TAY                    ", mem04*4, x, y, z, c);
+        y = a;
     }
 
 label_85F4:
     {
         // $9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]   A:0008 X:0008 Y:0006 P:envmxdizc
-        DebugPrint("$9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]  ", a, x, y, z, c);
+        DebugPrint85F4(a, x, y, z, c);
         unsigned short token1 = LoadFromRAM(pointer0C + y);
         a = token1;
         z = token1 == 0;
@@ -208,16 +241,129 @@ label_85F4:
         {
             goto label_85DC;
         }
-        else
-        {
-            __debugbreak(); // Not impl
-        }
     }
+
+    // $9B/85F8 EB          XBA                     A:0800 X:0008 Y:003E P:envmxdizc
+    DebugPrint("$9B/85F8 EB          XBA                    ", a, x, y, z, c);
+    {
+        unsigned short temp = a & 0xFF;
+        a <<= 8;
+        a |= temp;
+    }
+
+    // $9B/85F9 A8          TAY                     A:0008 X:0008 Y:003E P:envmxdizc
+    DebugPrint("$9B/85F9 A8          TAY                    ", a, x, y, z, c);
+    y = a;
+
+label_85FA:
+    // $9B/85FA 98          TYA                     A:0008 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/85FA 98          TYA                    ", a, x, y, z, c);
+    a = y;
+
+    // $9B/85FB 0A          ASL A                   A:0008 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/85FB 0A          ASL A                  ", a, x, y, z, c);
+    a *= 2;
+
+    // $9B/85FC 90 05       BCC $05    [$8603]      A:0010 X:0008 Y:0008 P:envmxdizc
+    if (c == false)
+    {
+        goto label_8603;
+    }
+
+label_8603:
+    // $9B/8603 0A          ASL A                   A:0010 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/8603 0A          ASL A                  ", a, x, y, z, c);
+    a *= 2;
+
+    // $9B/8604 90 05       BCC $05    [$860B]      A:0020 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/8604 90 05       BCC $05    [$860B]     ", a, x, y, z, c);
+    if (c == false)
+    {
+        goto label_860B;
+    }
+
+label_860B:
+    // $9B/860B 0A          ASL A                   A:0010 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/860B 0A          ASL A                  ", a, x, y, z, c);
+    a *= 2;
+
+    // $9B/860C 90 05       BCC $05    [$8613]      A:0040 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/860C 90 05       BCC $05    [$8613]     ", a, x, y, z, c);
+    if (c == false)
+    {
+        goto label_8613;
+    }
+
+label_8613:
+    // $9B/8613 0A          ASL A                   A:0040 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/8613 0A          ASL A                  ", a, x, y, z, c);
+    a *= 2;
+
+    // $9B/8614 90 05       BCC $05    [$861B]      A:0080 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/8614 90 05       BCC $05    [$861B]     ", a, x, y, z, c);
+    if (c == false)
+    {
+        goto label_861B;
+    }
+
+label_861B:
+    // $9B/861B A8          TAY                     A:0080 X:0008 Y:0008 P:envmxdizc
+    DebugPrint("$9B/861B A8          TAY                    ", a, x, y, z, c);
+    y = a;
+
+    // $9B/861C 8A          TXA                     A:0080 X:0008 Y:0080 P:envmxdizc
+    DebugPrint("$9B/861C 8A          TXA                    ", a, x, y, z, c);
+    a = x;
+
+    // $9B/861D 4A          LSR A                   A:0008 X:0008 Y:0080 P:envmxdizc
+    DebugPrint("$9B/861D 4A          LSR A                  ", a, x, y, z, c);
+    a >>= 1;
+
+    // $9B/861E AA          TAX                     A:0004 X:0008 Y:0080 P:envmxdizc
+    DebugPrint("$9B/861E AA          TAX                    ", a, x, y, z, c);
+    x = a;
+
+    // $9B/861F E0 10 00    CPX #$0010              A:0004 X:0004 Y:0080 P:envmxdizc
+    DebugPrint("$9B/861F E0 10 00    CPX #$0010             ", a, x, y, z, c);
+    c = x >= 0x10;
+
+    // $9B/8622 B0 D6       BCS $D6    [$85FA]      A:0004 X:0004 Y:0080 P:eNvmxdizc
+    DebugPrint("$9B/8622 B0 D6       BCS $D6    [$85FA]     ", a, x, y, z, c);
+    if (c)
+    {
+        goto label_85FA;
+    }
+
+    // $9B/8624 E0 00 00    CPX #$0000              A:0004 X:0004 Y:0080 P:eNvmxdizc
+    DebugPrint("$9B/8624 E0 00 00    CPX #$0000             ", a, x, y, z, c);
+    z = x == 0;
+
+    // $9B/8627 F0 0E       BEQ $0E    [$8637]      A:0004 X:0004 Y:0080 P:envmxdizC
+    DebugPrint("$9B/8627 F0 0E       BEQ $0E    [$8637]     ", a, x, y, z, c);
+    if (z)
+    {
+        goto label_8637;
+    }
+
+    // $9B/8629 E0 08 00    CPX #$0008              A:0004 X:0004 Y:0080 P:envmxdizC
+    DebugPrint("$9B/8629 E0 08 00    CPX #$0008             ", a, x, y, z, c);
+    c = x >= 0x8;
+
+    // $9B/862C 90 CC       BCC $CC    [$85FA]      A:0004 X:0004 Y:0080 P:eNvmxdizc
+    DebugPrint("$9B/862C 90 CC       BCC $CC    [$85FA]     ", a, x, y, z, c);
+    if (c == false)
+    {
+        goto label_85FA;
+    }
+
+    __debugbreak(); // not impl
+
 
 label_8637:
     // $9B/8637 A5 06       LDA $06    [$00:0006]   A:0000 X:0008 Y:0006 P:envmxdiZC
     DebugPrint("$9B/8637 A5 06       LDA $06    [$00:0006]  ", a, x, y, z, c);
     a = mem06;
+    z = a == 0;
 
     // $9B/8639 1A          INC A                   A:0000 X:0008 Y:0006 P:envmxdiZC
     DebugPrint("$9B/8639 1A          INC A                  ", a, x, y, z, c);
@@ -250,6 +396,22 @@ label_8637:
         goto label_8647;
     }
 
+    // $9B/8641 98          TYA                     A:0010 X:0008 Y:0010 P:envmxdizC
+    DebugPrint("$9B/8641 98          TYA                    ", a, x, y, z, c);
+    a = y;
+
+    // $9B/8642 18          CLC                     A:0010 X:0008 Y:0010 P:envmxdizC
+    DebugPrint("$9B/8642 18          CLC                    ", a, x, y, z, c);
+    c = false;
+
+    // $9B/8643 69 10 00    ADC #$0010              A:0010 X:0008 Y:0010 P:envmxdizc
+    DebugPrint("$9B/8643 69 10 00    ADC #$0010             ", a, x, y, z, c);
+    a += 0x10;
+
+    // $9B/8646 A8          TAY                     A:0020 X:0008 Y:0010 P:envmxdizc
+    DebugPrint("$9B/8646 A8          TAY                    ", a, x, y, z, c);
+    y = a;
+
 label_8647:
     // $9B/8647 84 06       STY $06    [$00:0006]   A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint("$9B/8647 84 06       STY $06    [$00:0006]  ", a, x, y, z, c);
@@ -258,26 +420,53 @@ label_8647:
     // $9B/8649 A5 16       LDA $16    [$00:0016]   A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint("$9B/8649 A5 16       LDA $16    [$00:0016]  ", a, x, y, z, c);
     a = mem16;
+    z = a == 0;
 
     // $9B/864B 91 10       STA ($10),y[$7F:5102]   A:0000 X:0008 Y:0002 P:envmxdiZC
-    DebugPrint("$9B/864B 91 10       STA ($10),y[$7F:5102]  ", a, x, y, z, c);
+    DebugPrint864B(a, x, y, z, c);
 
     WriteOutput(pointer10 + y, mem16);
 
     // $9B/864D 98          TYA                     A:0000 X:0008 Y:0002 P:envmxdiZC
+    DebugPrint("$9B/864D 98          TYA                    ", a, x, y, z, c);
+    a = y;
+    z = a == 0;
+
     // $9B/864E 18          CLC                     A:0002 X:0008 Y:0002 P:envmxdizC
+    DebugPrint("$9B/864E 18          CLC                    ", a, x, y, z, c);
+    c = false;
+
     // $9B/864F 69 10 00    ADC #$0010              A:0002 X:0008 Y:0002 P:envmxdizc
+    DebugPrint("$9B/864F 69 10 00    ADC #$0010             ", a, x, y, z, c);
+    a += 0x10;
+
     // $9B/8652 A8          TAY                     A:0012 X:0008 Y:0002 P:envmxdizc
+    DebugPrint("$9B/8652 A8          TAY                    ", a, x, y, z, c);
+    y = a;
+
     // $9B/8653 A5 14       LDA $14    [$00:0014]   A:0012 X:0008 Y:0012 P:envmxdizc
+    DebugPrint("$9B/8653 A5 14       LDA $14    [$00:0014]  ", a, x, y, z, c);
+    a = mem14;
+    z = a == 0;
+    c = false;
+
     // $9B/8655 91 10       STA ($10),y[$7F:5112]   A:0000 X:0008 Y:0012 P:envmxdiZc
-    y += 0x10;
+    DebugPrint8655(a, x, y, z, c);
+
     WriteOutput(pointer10 + y, mem14);
 
     // $9B/8657 E6 04       INC $04    [$00:0004]   A:0000 X:0008 Y:0012 P:envmxdiZc
-    // $9B/8659 C6 00       DEC $00    [$00:0000]   A:0000 X:0008 Y:0012 P:envmxdizc
-    // $9B/865B 10 8B       BPL $8B    [$85E8]      A:0000 X:0008 Y:0012 P:envmxdizc
+    DebugPrint("$9B/8657 E6 04       INC $04    [$00:0004]  ", a, x, y, z, c);
     mem04++;
+    z = mem04 == 0;
+
+    // $9B/8659 C6 00       DEC $00    [$00:0000]   A:0000 X:0008 Y:0012 P:envmxdizc
+    DebugPrint("$9B/8659 C6 00       DEC $00    [$00:0000]  ", a, x, y, z, c);
     mem00--;
+
+    // $9B/865B 10 8B       BPL $8B    [$85E8]      A:0000 X:0008 Y:0012 P:envmxdizc
+    DebugPrint("$9B/865B 10 8B       BPL $8B    [$85E8]     ", a, x, y, z, c);
+
     if (mem00 > 0)
     {
         goto label_85E8;
