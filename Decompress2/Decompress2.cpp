@@ -12,7 +12,7 @@ std::vector<unsigned char> ram;
 std::vector<unsigned short> actual;
 std::ofstream debugLog;
 int validationLength = 2;
-int instructionLimit = 1100;
+int instructionLimit = 10000;
 int printedInstructionCount = 0;
 
 std::vector<unsigned char> LoadBinaryFile(char const* fileName)
@@ -308,24 +308,12 @@ label_85FA:
     DebugPrint("$9B/8602 98          TYA                    ", a, x, y, n, z, c);
     a = y;
 
+label_8603:
     // $9B/8603 0A          ASL A                   A:0000 X:0001 Y:0000 P:envmxdizc
     DebugPrint("$9B/8603 0A          ASL A                  ", a, x, y, n, z, c);
     willCarry = a >= 0x8000;
     a *= 2;
     c = willCarry;
-
-    // $9B/8604 90 05       BCC $05    [$860B]      A:0000 X:0001 Y:0000 P:envmxdizc
-    DebugPrint("$9B/8604 90 05       BCC $05    [$860B]     ", a, x, y, n, z, c);
-    if (!c)
-    {
-        goto label_860B;
-    }
-
-
-label_8603:
-    // $9B/8603 0A          ASL A                   A:0010 X:0008 Y:0008 P:envmxdizc
-    DebugPrint("$9B/8603 0A          ASL A                  ", a, x, y, n, z, c);
-    a *= 2;
 
     // $9B/8604 90 05       BCC $05    [$860B]      A:0020 X:0008 Y:0008 P:envmxdizc
     DebugPrint("$9B/8604 90 05       BCC $05    [$860B]     ", a, x, y, n, z, c);
@@ -333,6 +321,22 @@ label_8603:
     {
         goto label_860B;
     }
+
+    // $9B/8606 A8          TAY                     A:2E6C X:0008 Y:9736 P:envmxdizc
+    DebugPrint("$9B/8606 A8          TAY                    ", a, x, y, n, z, c);
+    y = a;
+
+    // $9B/8607 8A          TXA                     A:2E6C X:0008 Y:2E6C P:envmxdizc
+    DebugPrint("$9B/8607 8A          TXA                    ", a, x, y, n, z, c);
+    a = x;
+
+    // $9B/8608 04 14       TSB $14    [$00:0014]   A:0008 X:0008 Y:2E6C P:envmxdizc
+    DebugPrint("$9B/8608 04 14       TSB $14    [$00:0014]  ", a, x, y, n, z, c);
+    mem14 |= a;
+
+    // $9B/860A 98          TYA                     A:0008 X:0008 Y:2E6C P:envmxdizc
+    DebugPrint("$9B/860A 98          TYA                    ", a, x, y, n, z, c);
+    a = y;
 
 label_860B:
     // $9B/860B 0A          ASL A                   A:0010 X:0008 Y:0008 P:envmxdizc
@@ -368,8 +372,10 @@ label_8613:
     // $9B/8613 0A          ASL A                   A:0040 X:0008 Y:0008 P:envmxdizc
     DebugPrint("$9B/8613 0A          ASL A                  ", a, x, y, n, z, c);
     willSetNegative = a >= 0x4000;
+    willCarry = a >= 0x8000;
     a *= 2;
     n = willSetNegative;
+    c = willCarry;
 
     // $9B/8614 90 05       BCC $05    [$861B]      A:0080 X:0008 Y:0008 P:envmxdizc
     DebugPrint("$9B/8614 90 05       BCC $05    [$861B]     ", a, x, y, n, z, c);
@@ -449,8 +455,33 @@ label_861B:
         goto label_85FA;
     }
 
-    __debugbreak(); // not impl
+    // $9B/862E A5 04       LDA $04    [$00:0004]   A:0008 X:0008 Y:0000 P:envmxdizc
+    DebugPrint("$9B/862E A5 04       LDA $04    [$00:0004]  ", a, x, y, n, z, c);
+    a = mem04;
 
+    // $9B/8630 0A          ASL A                   A:0014 X:0008 Y:0000 P:envmxdizc
+    DebugPrint("$9B/8630 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $9B/8631 0A          ASL A                   A:0028 X:0008 Y:0000 P:envmxdizc
+    DebugPrint("$9B/8631 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $9B/8632 A8          TAY                     A:0050 X:0008 Y:0000 P:envmxdizc
+    DebugPrint("$9B/8632 A8          TAY                    ", a, x, y, n, z, c);
+    y = a;
+
+    // $9B/8633 C8          INY                     A:0050 X:0008 Y:0050 P:envmxdizc
+    DebugPrint("$9B/8633 C8          INY                    ", a, x, y, n, z, c);
+    ++y;
+
+    // $9B/8634 C8          INY                     A:0050 X:0008 Y:0051 P:envmxdizc
+    DebugPrint("$9B/8634 C8          INY                    ", a, x, y, n, z, c);
+    ++y;
+
+    // $9B/8635 80 BD       BRA $BD    [$85F4]      A:0050 X:0008 Y:0052 P:envmxdizc
+    DebugPrint("$9B/8635 80 BD       BRA $BD    [$85F4]     ", a, x, y, n, z, c);
+    goto label_85F4;
 
 label_8637:
     // $9B/8637 A5 06       LDA $06    [$00:0006]   A:0000 X:0008 Y:0006 P:envmxdiZC
