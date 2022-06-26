@@ -12,7 +12,7 @@ std::vector<unsigned char> ram;
 std::vector<unsigned short> actual;
 std::ofstream debugLog;
 int validationLength = 2;
-int instructionLimit = 10000;
+int instructionLimit = 40503;
 int printedInstructionCount = 0;
 
 std::vector<unsigned char> LoadBinaryFile(char const* fileName)
@@ -129,6 +129,44 @@ void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool n
     debugLog << "]  ";
     DebugPrintRegs(a, x, y, negative, zero, carry);
     DebugPrintFinalize();
+}
+
+void Fn_9B85C2()
+{
+    // Caller:
+    // $9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]   A:0000 X:0008 Y:0490 P:eNvmxdizc
+    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:eNvmxdizc
+
+    // Impl
+    // $9B/85C2 A6 00       LDX $00    [$00:0000]   A:0000 X:0000 Y:0000 P:envmxdiZc
+
+    // $9B/85C4 8B          PHB                     A:0000 X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85C5 E2 20       SEP #$20                A:0000 X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85C7 A5 0E       LDA $0E    [$00:000E]   A:0000 X:0480 Y:0000 P:envMxdizc
+
+    // $9B/85C9 48          PHA                     A:007F X:0480 Y:0000 P:envMxdizc
+
+    // $9B/85CA C2 20       REP #$20                A:007F X:0480 Y:0000 P:envMxdizc
+
+    // $9B/85CC AB          PLB                     A:007F X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85CD 64 04       STZ $04    [$00:0004]   A:007F X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85CF A9 FE FF    LDA #$FFFE              A:007F X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85D2 85 06       STA $06    [$00:0006]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+
+    // $9B/85D4 A5 00       LDA $00    [$00:0000]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+
+    // $9B/85D6 4A          LSR A                   A:0480 X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85D7 4A          LSR A                   A:0240 X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85D8 85 00       STA $00    [$00:0000]   A:0120 X:0480 Y:0000 P:envmxdizc
+
+    // $9B/85DA 80 0C       BRA $0C    [$85E8]      A:0120 X:0480 Y:0000 P:envmxdizc
 }
 
 int main()
@@ -595,6 +633,21 @@ label_8647:
     {
         goto label_85E8;
     }
+
+    // $9B/865D AB          PLB                     A:0000 X:0008 Y:0490 P:envmxdizc
+    DebugPrint("$9B/865D AB          PLB                    ", a, x, y, n, z, c);
+
+    // $9B/865E 6B          RTL                     A:0000 X:0008 Y:0490 P:envmxdizc
+    DebugPrint("$9B/865E 6B          RTL                    ", a, x, y, n, z, c);
+
+    // Go to caller
+   
+    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:envmxdizc
+    // $9D/CCA6 CA          DEX                     A:0000 X:0000 Y:0490 P:envmxdizc
+    // $9D/CCA7 CA          DEX                     A:0000 X:FFFF Y:0490 P:envmxdizc
+    // $9D/CCA8 10 9E       BPL $9E    [$CC48]      A:0000 X:FFFE Y:0490 P:envmxdizc
+    // $9D/CCAA 68          PLA                     A:0000 X:FFFE Y:0490 P:envmxdizc
+    // $9D/CCAB 85 A5       STA $A5    [$00:00A5]   A:0000 X:FFFE Y:0490 P:envmxdizc
 
     if (actual.size() < validationLength)
     {
