@@ -12,7 +12,7 @@ std::vector<unsigned char> ram;
 std::vector<unsigned short> actual;
 std::ofstream debugLog;
 int validationLength = 2;
-int instructionLimit = 40503;
+int instructionLimit = 5000;//40503;
 int printedInstructionCount = 0;
 
 std::vector<unsigned char> LoadBinaryFile(char const* fileName)
@@ -133,71 +133,81 @@ void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool n
 
 void Fn_9B85C2()
 {
-    // Caller:
-    // $9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]   A:0000 X:0008 Y:0490 P:eNvmxdizc
-    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:eNvmxdizc
-
-    // Impl
-    // $9B/85C2 A6 00       LDX $00    [$00:0000]   A:0000 X:0000 Y:0000 P:envmxdiZc
-
-    // $9B/85C4 8B          PHB                     A:0000 X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85C5 E2 20       SEP #$20                A:0000 X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85C7 A5 0E       LDA $0E    [$00:000E]   A:0000 X:0480 Y:0000 P:envMxdizc
-
-    // $9B/85C9 48          PHA                     A:007F X:0480 Y:0000 P:envMxdizc
-
-    // $9B/85CA C2 20       REP #$20                A:007F X:0480 Y:0000 P:envMxdizc
-
-    // $9B/85CC AB          PLB                     A:007F X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85CD 64 04       STZ $04    [$00:0004]   A:007F X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85CF A9 FE FF    LDA #$FFFE              A:007F X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85D2 85 06       STA $06    [$00:0006]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
-
-    // $9B/85D4 A5 00       LDA $00    [$00:0000]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
-
-    // $9B/85D6 4A          LSR A                   A:0480 X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85D7 4A          LSR A                   A:0240 X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85D8 85 00       STA $00    [$00:0000]   A:0120 X:0480 Y:0000 P:envmxdizc
-
-    // $9B/85DA 80 0C       BRA $0C    [$85E8]      A:0120 X:0480 Y:0000 P:envmxdizc
-}
-
-int main()
-{
-    debugLog.open("output.txt", std::ofstream::out | std::ofstream::trunc);
-
-    expected = LoadBinaryFile("expected.bin");
-    ram = LoadBinaryFile("ram.bin");
-    actual.resize(0x2290 / 2);
-    memset(actual.data(), 0, 0x2290);
-
     // The profile images are loaded in "backwards" order. The earliest memory offset one gets loaded last.
     // The output is saved out 2 bytes at a time.
 
     int pointer0C = 0x7F0000;
     int pointer10 = 0x7F5100;   // For output
-    unsigned short mem00 = 0;
+    unsigned short mem00 = 0x480;
     unsigned short mem04 = 1;
     unsigned short mem06 = 0;
+    unsigned short mem0e = 0x7f;
     unsigned short mem14 = 0;
     unsigned short mem16 = 0;
     unsigned short a = 0x0;
-    unsigned short x = 0x80;
-    unsigned short y = 0x10;
+    unsigned short x = 0x0;
+    unsigned short y = 0x0;
     bool n = false;
     bool z = false;
     bool c = false;
     bool willCarry = false;
     bool willSetNegative = false;
 
-goto label_85ED;
+    // Impl
+    // $9B/85C2 A6 00       LDX $00    [$00:0000]   A:0000 X:0000 Y:0000 P:envmxdiZc
+    DebugPrint("$9B/85C2 A6 00       LDX $00    [$00:0000]  ", a, x, y, n, z, c);
+    x = mem00;
+
+    // $9B/85C4 8B          PHB                     A:0000 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85C4 8B          PHB                    ", a, x, y, n, z, c);
+
+    // $9B/85C5 E2 20       SEP #$20                A:0000 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85C5 E2 20       SEP #$20               ", a, x, y, n, z, c);
+
+    // $9B/85C7 A5 0E       LDA $0E    [$00:000E]   A:0000 X:0480 Y:0000 P:envMxdizc
+    DebugPrint("$9B/85C7 A5 0E       LDA $0E    [$00:000E]  ", a, x, y, n, z, c);
+    a = mem0e;
+
+    // $9B/85C9 48          PHA                     A:007F X:0480 Y:0000 P:envMxdizc
+    DebugPrint("$9B/85C9 48          PHA                    ", a, x, y, n, z, c);
+
+    // $9B/85CA C2 20       REP #$20                A:007F X:0480 Y:0000 P:envMxdizc
+    DebugPrint("$9B/85CA C2 20       REP #$20               ", a, x, y, n, z, c);
+
+    // $9B/85CC AB          PLB                     A:007F X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85CC AB          PLB                    ", a, x, y, n, z, c);
+
+    // $9B/85CD 64 04       STZ $04    [$00:0004]   A:007F X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85CD 64 04       STZ $04    [$00:0004]  ", a, x, y, n, z, c);
+    mem04 = 0;
+
+    // $9B/85CF A9 FE FF    LDA #$FFFE              A:007F X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85CF A9 FE FF    LDA #$FFFE             ", a, x, y, n, z, c);
+    a = 0xFFFE;
+
+    // $9B/85D2 85 06       STA $06    [$00:0006]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+    DebugPrint("$9B/85D2 85 06       STA $06    [$00:0006]  ", a, x, y, n, z, c);
+    mem06 = a;
+
+    // $9B/85D4 A5 00       LDA $00    [$00:0000]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+    DebugPrint("$9B/85D4 A5 00       LDA $00    [$00:0000]  ", a, x, y, n, z, c);
+    a = mem00;
+
+    // $9B/85D6 4A          LSR A                   A:0480 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85D6 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>=1 ;
+
+    // $9B/85D7 4A          LSR A                   A:0240 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85D7 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $9B/85D8 85 00       STA $00    [$00:0000]   A:0120 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85D8 85 00       STA $00    [$00:0000]  ", a, x, y, n, z, c);
+    mem00 = a;
+
+    // $9B/85DA 80 0C       BRA $0C    [$85E8]      A:0120 X:0480 Y:0000 P:envmxdizc
+    DebugPrint("$9B/85DA 80 0C       BRA $0C    [$85E8]     ", a, x, y, n, z, c);
+    goto label_85E8;
 
 label_85DC:
     // $9B/85DC 8A          TXA                     A:0000 X:0080 Y:0004 P:envmxdiZc
@@ -205,7 +215,7 @@ label_85DC:
     // $9B/85DE 4A          LSR A                   A:0040 X:0080 Y:0004 P:envmxdizc
     // $9B/85DF 4A          LSR A                   A:0020 X:0080 Y:0004 P:envmxdizc
     // $9B/85E0 4A          LSR A                   A:0010 X:0080 Y:0004 P:envmxdizc
-    DebugPrint("$9B/85DC 8A          TXA                    ", 0, x, y, n, z, c);
+    DebugPrint("$9B/85DC 8A          TXA                    ", a, x, y, n, z, c);
     willCarry = x < 16;
     a = x;
     z = a == 0;
@@ -245,7 +255,7 @@ label_85DC:
 
     DebugPrint("$9B/85E5 C8          INY                    ", a, x, y, n, z, c);
     y++;
-    
+
     DebugPrint("$9B/85E6 80 0C       BRA $0C    [$85F4]     ", a, x, y, n, z, c);
 
     goto label_85F4;
@@ -277,7 +287,7 @@ label_85ED:
         DebugPrint("$9B/85F2 0A          ASL A                  ", a, x, y, n, z, c);
         a *= 2;
 
-        DebugPrint("$9B/85F3 A8          TAY                    ", mem04*4, x, y, n, z, c);
+        DebugPrint("$9B/85F3 A8          TAY                    ", mem04 * 4, x, y, n, z, c);
         y = a;
     }
 
@@ -400,7 +410,7 @@ label_860B:
 
     // $9B/8610 04 17       TSB $17    [$00:0017]   A:0008 X:0008 Y:DDC8 P:envmxdizc
     DebugPrint("$9B/8610 04 17       TSB $17    [$00:0017]  ", a, x, y, n, z, c);
-    mem16 |= (a << 8); 
+    mem16 |= (a << 8);
 
     // $9B/8612 98          TYA                     A:0008 X:0008 Y:DDC8 P:envmxdizc
     DebugPrint("$9B/8612 98          TYA                    ", a, x, y, n, z, c);
@@ -641,13 +651,28 @@ label_8647:
     DebugPrint("$9B/865E 6B          RTL                    ", a, x, y, n, z, c);
 
     // Go to caller
-   
+
     // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:envmxdizc
     // $9D/CCA6 CA          DEX                     A:0000 X:0000 Y:0490 P:envmxdizc
     // $9D/CCA7 CA          DEX                     A:0000 X:FFFF Y:0490 P:envmxdizc
     // $9D/CCA8 10 9E       BPL $9E    [$CC48]      A:0000 X:FFFE Y:0490 P:envmxdizc
     // $9D/CCAA 68          PLA                     A:0000 X:FFFE Y:0490 P:envmxdizc
     // $9D/CCAB 85 A5       STA $A5    [$00:00A5]   A:0000 X:FFFE Y:0490 P:envmxdizc
+}
+
+int main()
+{
+    debugLog.open("output.txt", std::ofstream::out | std::ofstream::trunc);
+
+    expected = LoadBinaryFile("expected.bin");
+    ram = LoadBinaryFile("ram.bin");
+    actual.resize(0x2290 / 2);
+    memset(actual.data(), 0, 0x2290);
+
+    // Caller:
+    // $9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]   A:0000 X:0008 Y:0490 P:eNvmxdizc
+    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:eNvmxdizc
+    Fn_9B85C2();
 
     if (actual.size() < validationLength)
     {
