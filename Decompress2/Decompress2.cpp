@@ -649,15 +649,6 @@ label_8647:
 
     // $9B/865E 6B          RTL                     A:0000 X:0008 Y:0490 P:envmxdizc
     DebugPrint("$9B/865E 6B          RTL                    ", a, x, y, n, z, c);
-
-    // Go to caller
-
-    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:envmxdizc
-    // $9D/CCA6 CA          DEX                     A:0000 X:0000 Y:0490 P:envmxdizc
-    // $9D/CCA7 CA          DEX                     A:0000 X:FFFF Y:0490 P:envmxdizc
-    // $9D/CCA8 10 9E       BPL $9E    [$CC48]      A:0000 X:FFFE Y:0490 P:envmxdizc
-    // $9D/CCAA 68          PLA                     A:0000 X:FFFE Y:0490 P:envmxdizc
-    // $9D/CCAB 85 A5       STA $A5    [$00:00A5]   A:0000 X:FFFE Y:0490 P:envmxdizc
 }
 
 int main()
@@ -669,10 +660,63 @@ int main()
     actual.resize(0x2290 / 2);
     memset(actual.data(), 0, 0x2290);
 
+    // $9D/CC48 DA          PHX                     A:0000 X:0000 Y:0490 P:envmxdiZc
+    // $9D/CC49 8A          TXA                     A:0000 X:0000 Y:0490 P:envmxdiZc
+    // $9D/CC4A 4A          LSR A                   A:0000 X:0000 Y:0490 P:envmxdiZc
+
+    // Some function call
+    // $9D/CC4B 22 73 C9 9D JSL $9DC973[$9D:C973]   A:0000 X:0000 Y:0490 P:envmxdiZc
+
+    // $9D/CC4F A6 91       LDX $91    [$00:0091]   A:0002 X:0000 Y:0004 P:envmxdizc
+    // $9D/CC51 BD 98 1C    LDA $1C98,x[$9F:1C98]   A:0002 X:0000 Y:0004 P:envmxdiZc
+    // $9D/CC54 9F 6C 34 7E STA $7E346C,x[$7E:346C] A:000B X:0000 Y:0004 P:envmxdizc
+    // $9D/CC58 A2 1A 00    LDX #$001A              A:000B X:0000 Y:0004 P:envmxdizc
+
+    // Some function call
+    // $9D/CC5B 22 4C 8F 80 JSL $808F4C[$80:8F4C]   A:000B X:001A Y:0004 P:envmxdizc
+
+    // $9D/CC5F 18          CLC                     A:011E X:001A Y:0004 P:envmxdizc
+    // $9D/CC60 65 A5       ADC $A5    [$00:00A5]   A:011E X:001A Y:0004 P:envmxdizc
+    // $9D/CC62 0A          ASL A                   A:0120 X:001A Y:0004 P:envmxdizc
+    // $9D/CC63 0A          ASL A                   A:0240 X:001A Y:0004 P:envmxdizc
+    // $9D/CC64 AA          TAX                     A:0480 X:001A Y:0004 P:envmxdizc
+    // $9D/CC65 BF 53 CD 9D LDA $9DCD53,x[$9D:D1D3] A:0480 X:0480 Y:0004 P:envmxdizc
+    // $9D/CC69 85 0C       STA $0C    [$00:000C]   A:F8AC X:0480 Y:0004 P:eNvmxdizc
+    // $9D/CC6B BF 55 CD 9D LDA $9DCD55,x[$9D:D1D5] A:F8AC X:0480 Y:0004 P:eNvmxdizc
+    // $9D/CC6F 85 0E       STA $0E    [$00:000E]   A:0099 X:0480 Y:0004 P:envmxdizc
+    // $9D/CC71 A9 7F 00    LDA #$007F              A:0099 X:0480 Y:0004 P:envmxdizc
+    // $9D/CC74 85 12       STA $12    [$00:0012]   A:007F X:0480 Y:0004 P:envmxdizc
+    // $9D/CC76 A9 00 00    LDA #$0000              A:007F X:0480 Y:0004 P:envmxdizc
+    // $9D/CC79 85 10       STA $10    [$00:0010]   A:0000 X:0480 Y:0004 P:envmxdiZc
+    
+    // Some function call
+    // $9D/CC7B 22 73 C3 80 JSL $80C373[$80:C373]   A:0000 X:0480 Y:0004 P:envmxdiZc
+
+
+    // $9D/CC7F 86 00       STX $00    [$00:0000]   A:8300 X:0480 Y:0000 P:envmxdiZc
+    // $9D/CC81 A3 01       LDA $01,s  [$00:1FF6]   A:8300 X:0480 Y:0000 P:envmxdiZc
+    // $9D/CC83 AA          TAX                     A:0000 X:0480 Y:0000 P:envmxdiZc
+    // $9D/CC84 A5 91       LDA $91    [$00:0091]   A:0000 X:0000 Y:0000 P:envmxdiZc
+    // $9D/CC86 F0 05       BEQ $05    [$CC8D]      A:0000 X:0000 Y:0000 P:envmxdiZc
+    // $9D/CC8D A9 00 51    LDA #$5100              A:0000 X:0000 Y:0000 P:envmxdiZc
+    // $9D/CC90 18          CLC                     A:5100 X:0000 Y:0000 P:envmxdizc
+    // $9D/CC91 7F AE CC 9D ADC $9DCCAE,x[$9D:CCAE] A:5100 X:0000 Y:0000 P:envmxdizc
+    // $9D/CC95 85 10       STA $10    [$00:0010]   A:5100 X:0000 Y:0000 P:envmxdizc
+    // $9D/CC97 A9 7F 00    LDA #$007F              A:5100 X:0000 Y:0000 P:envmxdizc
+    // $9D/CC9A 85 0E       STA $0E    [$00:000E]   A:007F X:0000 Y:0000 P:envmxdizc
+    // $9D/CC9C A9 00 00    LDA #$0000              A:007F X:0000 Y:0000 P:envmxdizc
+    // $9D/CC9F 85 0C       STA $0C    [$00:000C]   A:0000 X:0000 Y:0000 P:envmxdiZc
+
     // Caller:
     // $9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]   A:0000 X:0008 Y:0490 P:eNvmxdizc
-    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:eNvmxdizc
     Fn_9B85C2();
+
+    // $9D/CCA5 FA          PLX                     A:0000 X:0008 Y:0490 P:eNvmxdizc
+    // $9D/CCA6 CA          DEX                     A:0000 X:0000 Y:0490 P:envmxdizc
+    // $9D/CCA7 CA          DEX                     A:0000 X:FFFF Y:0490 P:envmxdizc
+    // $9D/CCA8 10 9E       BPL $9E    [$CC48]      A:0000 X:FFFE Y:0490 P:envmxdizc
+    // $9D/CCAA 68          PLA                     A:0000 X:FFFE Y:0490 P:envmxdizc
+    // $9D/CCAB 85 A5       STA $A5    [$00:00A5]   A:0000 X:FFFE Y:0490 P:envmxdizc
 
     if (actual.size() < validationLength)
     {
