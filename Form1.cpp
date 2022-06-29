@@ -2965,22 +2965,24 @@ bool InsertPlayerGraphics(RomDataIterator* freeSpaceIter)
         iter.SaveObjectCode(&copy);
     }
     {
-        // Turns out this is called not just for edit lines :(
-        // How to distinguish between them?
         ObjectCode editLinesPayload;
 
         // Call the thing that we replaced, so there's no loss of behavior
-        editLinesPayload.AppendJumpSubroutineLong_22(0x9DDDB3);
+        editLinesPayload.AppendJumpSubroutineLong_22(0x9B890F);
 
         // Here-- write a black pixel to sysmem
+        editLinesPayload.AppendPushAcc_48();
+        editLinesPayload.AppendLoadAccImmediate_A9_16bit(0xFFFF);
+        editLinesPayload.AppendStoreLong_8F(0x7F6900);
+        editLinesPayload.AppendPullAcc_68();
 
         // Done, return
-        editLinesPayload.AppendLongJump_5C(0x9DDDAF);
+        editLinesPayload.AppendLongJump_5C(0x9B86C5);
 
         freeSpaceIter->EnsureSpaceInBank(editLinesPayload.m_code.size());
 
-        // Detour here: $9D/DDAB 22 B3 DD 9D JSL $9DDDB3[$9D:DDB3]   A:3568 X:0000 Y:FFFE P:envmxdizc
-        InsertJumpOutDetour(editLinesPayload.m_code, 0x9DDDAB, 0x9DDDAB + 4, freeSpaceIter);
+        // Detour here: $9B/86C1 22 0F 89 9B JSL $9B890F[$9B:890F]   A:0000 X:0300 Y:05A0 P:envmxdiZc
+        InsertJumpOutDetour(editLinesPayload.m_code, 0x9B86C1, 0x9B86C1 + 4, freeSpaceIter);
     }
 
     return true;
