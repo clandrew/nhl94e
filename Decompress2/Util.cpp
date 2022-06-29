@@ -6,6 +6,7 @@
 #include <iomanip>
 
 std::ofstream debugLog;
+std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
 std::vector<unsigned short> decompressed;
 int instructionLimit = 60503;
@@ -48,6 +49,11 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     return result;
 }
 
+void LoadROMFragment()
+{
+    romFragment = LoadBinaryFile8("rom_fragment.bin");
+}
+
 std::vector<int> ramReads;
 
 unsigned short LoadFromRAM(int address)
@@ -63,6 +69,22 @@ unsigned short LoadFromRAM(int address)
     unsigned char ch0 = ram[address - 0x7F0000];
     unsigned char ch1 = ram[address - 0x7F0000 + 1];
 
+    unsigned short result = (ch1 << 8) | ch0;
+    return result;
+}
+
+unsigned short LoadFromROMFragment(int address)
+{
+    if (address < 0x99F8B1 || address > 0x99FAB4 - 1)
+    {
+        __debugbreak();
+        return 0xFF;
+    }
+
+    int offs = address - 0x99F8B1;
+
+    unsigned char ch0 = romFragment[offs];
+    unsigned char ch1 = romFragment[offs+1];
     unsigned short result = (ch1 << 8) | ch0;
     return result;
 }
@@ -150,4 +172,14 @@ void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool n
     debugLog << "]  ";
     DebugPrintRegs(a, x, y, negative, zero, carry);
     DebugPrintFinalize();
+}
+
+unsigned short ExchangeShortHighAndLow(unsigned short s)
+{
+    unsigned short part0 = s & 0x00FF;
+    unsigned short part1 = s & 0xFF00;
+    part0 <<= 8;
+    part1 >>= 8;
+    s = part0 | part1;
+    return s;
 }

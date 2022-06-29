@@ -184,13 +184,7 @@ label_85F4:
 
     // $9B/85F8 EB          XBA                     A:0800 X:0008 Y:003E P:envmxdizc
     DebugPrint("$9B/85F8 EB          XBA                    ", a, x, y, n, z, c);
-    {
-        unsigned short part0 = a & 0x00FF;
-        unsigned short part1 = a & 0xFF00;
-        part0 <<= 8;
-        part1 >>= 8;
-        a = part0 | part1;
-    }
+    a = ExchangeShortHighAndLow(a);
 
     // $9B/85F9 A8          TAY                     A:0008 X:0008 Y:003E P:envmxdizc
     DebugPrint("$9B/85F9 A8          TAY                    ", a, x, y, n, z, c);
