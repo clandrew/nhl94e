@@ -466,7 +466,7 @@ label_8647:
     // $9B/864B 91 10       STA ($10),y[$7F:5102]   A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint864B(a, x, y, n, z, c);
 
-    WriteOutput(pointer10 + y, mem16);
+    WriteDecompressedOutput(pointer10 + y, mem16);
 
     // $9B/864D 98          TYA                     A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint("$9B/864D 98          TYA                    ", a, x, y, n, z, c);
@@ -494,7 +494,7 @@ label_8647:
     // $9B/8655 91 10       STA ($10),y[$7F:5112]   A:0000 X:0008 Y:0012 P:envmxdiZc
     DebugPrint8655(a, x, y, n, z, c);
 
-    WriteOutput(pointer10 + y, mem14);
+    WriteDecompressedOutput(pointer10 + y, mem14);
 
     // $9B/8657 E6 04       INC $04    [$00:0004]   A:0000 X:0008 Y:0012 P:envmxdiZc
     DebugPrint("$9B/8657 E6 04       INC $04    [$00:0004]  ", a, x, y, n, z, c);

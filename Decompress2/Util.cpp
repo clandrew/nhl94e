@@ -8,8 +8,9 @@
 std::ofstream debugLog;
 std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
+std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
-int instructionLimit = 60503;
+int instructionLimit = 90;
 int printedInstructionCount = 0;
 
 void OpenDebugLog()
@@ -52,6 +53,7 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
 void LoadROMFragment()
 {
     romFragment = LoadBinaryFile8("rom_fragment.bin");
+    staging.resize(0x300);
 }
 
 std::vector<int> ramReads;
@@ -89,7 +91,21 @@ unsigned short LoadFromROMFragment(int address)
     return result;
 }
 
-void WriteOutput(int address, unsigned short output)
+
+void WriteStagingOutput(int address, unsigned short output)
+{
+    if (address < 0x7E0500 || address >= 0x7E0800)
+    {
+        __debugbreak();
+        return;
+    }
+
+    int offs = address - 0x7E0500;
+    int index = offs / 2;
+    staging[index] = output;
+}
+
+void WriteDecompressedOutput(int address, unsigned short output)
 {
     if (address < 0x7F5100 || address > 0x7F7390)
     {
@@ -145,33 +161,33 @@ void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigne
     DebugPrintFinalize();
 }
 
-void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrintIndexed(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    debugLog << "$9B/85F4 B1 0C       LDA ($0C),y[$7F:";
-    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << y;
+    debugLog << asmPrefix;
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
     debugLog << "]  ";
     DebugPrintRegs(a, x, y, negative, zero, carry);
     DebugPrintFinalize();
+}
+
+void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+{
+    DebugPrintIndexed("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y, negative, zero, carry);
 }
 
 void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    debugLog << "$9B/864B 91 10       STA ($10),y[$7F:";
-    unsigned short offset = 0x5100 + y;
-    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << offset;
-    debugLog << "]  ";
-    DebugPrintRegs(a, x, y, negative, zero, carry);
-    DebugPrintFinalize();
+    DebugPrintIndexed("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
 }
 
 void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    debugLog << "$9B/8655 91 10       STA ($10),y[$7F:";
-    unsigned short offset = 0x5100 + y;
-    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << offset;
-    debugLog << "]  ";
-    DebugPrintRegs(a, x, y, negative, zero, carry);
-    DebugPrintFinalize();
+    DebugPrintIndexed("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
+}
+
+void DebugPrintNewline()
+{
+    debugLog << "\n";
 }
 
 unsigned short ExchangeShortHighAndLow(unsigned short s)
