@@ -10,7 +10,7 @@ std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
 std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
-int instructionLimit = 90;
+int instructionLimit = 3000;
 int printedInstructionCount = 0;
 
 void OpenDebugLog()
@@ -161,28 +161,32 @@ void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigne
     DebugPrintFinalize();
 }
 
-void DebugPrintIndexed(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrintWithAddress(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry, bool longAddress)
 {
     debugLog << asmPrefix;
     debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
-    debugLog << "]  ";
+    debugLog << "]";
+    if (!longAddress)
+    {
+        debugLog << "  ";
+    }
     DebugPrintRegs(a, x, y, negative, zero, carry);
     DebugPrintFinalize();
 }
 
 void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    DebugPrintIndexed("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y, negative, zero, carry);
+    DebugPrintWithAddress("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y, negative, zero, carry);
 }
 
 void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    DebugPrintIndexed("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
+    DebugPrintWithAddress("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
 }
 
 void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
 {
-    DebugPrintIndexed("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
+    DebugPrintWithAddress("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
 }
 
 void DebugPrintNewline()
