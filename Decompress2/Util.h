@@ -1,10 +1,12 @@
 #pragma once
+#include <vector>
 
 void OpenDebugLog();
 void LoadROMFragment();
 
 unsigned short LoadFromRAM(int address);
 unsigned short LoadFromROMFragment(int address);
+std::vector<unsigned char> LoadBinaryFile8(char const* fileName);
 
 void WriteStagingOutput(int address, unsigned short output);
 

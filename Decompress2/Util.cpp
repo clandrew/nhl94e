@@ -10,7 +10,7 @@ std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
 std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
-int instructionLimit = 3000;
+int instructionLimit = 20000;
 int printedInstructionCount = 0;
 
 void OpenDebugLog()
