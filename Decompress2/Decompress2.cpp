@@ -46,13 +46,18 @@ unsigned short mem77 = 0;
 unsigned short mem79 = 0;
 unsigned short mem7b = 0;
 unsigned short mem7d = 0;
+
 unsigned char mem0500[64];
 unsigned char mem0540[64];
 unsigned char mem0580[64];
 unsigned char mem05C0[64];
+
 int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
-std::vector<unsigned char> mem7E0700;
+
+std::vector<unsigned char> ram7E0100_7E0200;
+std::vector<unsigned char> ram7E0700_7E0750;
+
 std::vector<unsigned char> rom80BC7B;
 
 void Fn_C1B0()
@@ -851,7 +856,7 @@ label_BC60:
 
     // $80/BC6A BD 00 07    LDA $0700,x[$99:0700]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrintWithAddress("$80/BC6A BD 00 07    LDA $0700,x[$99:", 0x700 + x, a, x, y, n, z, c);
-    a = mem7E0700[x]; // X = 0x0-0x50
+    a = ram7E0700_7E0750[x]; // X = 0x0-0x50
     
     // $80/BC6D 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC6D 85 77       STA $77    [$00:0077]  ", a, x, y, n, z, c);
@@ -884,26 +889,67 @@ label_BC60:
 label_BC83:
 
     // $80/BC83 A5 7B       LDA $7B    [$00:007B]   A:0041 X:0000 Y:0000 P:envmxdizc
-    // $80/BC85 0A          ASL A                   A:0001 X:0000 Y:0000 P:envmxdizc
-    // $80/BC86 85 00       STA $00    [$00:0000]   A:0002 X:0000 Y:0000 P:envmxdizc
-    // $80/BC88 B9 00 01    LDA $0100,y[$99:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
-    // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
-    // $80/BC8D C8          INY                     A:0000 X:0000 Y:0000 P:envmxdizc
-    // $80/BC8E C5 73       CMP $73    [$00:0073]   A:0000 X:0000 Y:0001 P:envmxdizc
-    // $80/BC90 D0 09       BNE $09    [$BC9B]      A:0000 X:0000 Y:0001 P:envmxdizc
-    // $80/BC9B 84 04       STY $04    [$00:0004]   A:0000 X:0000 Y:0001 P:envmxdizc
-    // $80/BC9D A4 7D       LDY $7D    [$00:007D]   A:0000 X:0000 Y:0001 P:envmxdizc
-    // $80/BC9F 80 0B       BRA $0B    [$BCAC]      A:0000 X:0000 Y:0041 P:envmxdizc
+    DebugPrint("$80/BC83 A5 7B       LDA $7B    [$00:007B]  ", a, x, y, n, z, c);
+    a = mem7b;
 
-    __debugbreak();
+    // $80/BC85 0A          ASL A                   A:0001 X:0000 Y:0000 P:envmxdizc
+    DebugPrint("$80/BC85 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/BC86 85 00       STA $00    [$00:0000]   A:0002 X:0000 Y:0000 P:envmxdizc
+    DebugPrint("$80/BC86 85 00       STA $00    [$00:0000]  ", a, x, y, n, z, c);
+    mem00 = a;
+
+    // $80/BC88 B9 00 01    LDA $0100,y[$99:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
+    // 8bit load of RAM
+    DebugPrintWithAddress("$80/BC88 B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y, n, z, c);
+    a = ram7E0100_7E0200[y - 0x100];
+
+    // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
+    DebugPrint("$80/BC8B 85 01       STA $01    [$00:0001]  ", a, x, y, n, z, c);
+    mem00 &= 0xFF00;
+    mem00 |= (a & 0xFF);
+
+    // $80/BC8D C8          INY                     A:0000 X:0000 Y:0000 P:envmxdizc
+    DebugPrint("$80/BC8D C8          INY                    ", a, x, y, n, z, c);
+    ++y;
+
+    // $80/BC8E C5 73       CMP $73    [$00:0073]   A:0000 X:0000 Y:0001 P:envmxdizc
+    DebugPrint("$80/BC8E C5 73       CMP $73    [$00:0073]  ", a, x, y, n, z, c);
+    z = a == mem73;
+
+    // $80/BC90 D0 09       BNE $09    [$BC9B]      A:0000 X:0000 Y:0001 P:envmxdizc
+    DebugPrint("$80/BC90 D0 09       BNE $09    [$BC9B]     ", a, x, y, n, z, c);
+    if (!z)
+    {
+        __debugbreak(); // notimpl
+    }
+
+    // $80/BC9B 84 04       STY $04    [$00:0004]   A:0000 X:0000 Y:0001 P:envmxdizc
+    DebugPrint("$80/BC9B 84 04       STY $04    [$00:0004]  ", a, x, y, n, z, c);
+    mem04 = y;
+
+    // $80/BC9D A4 7D       LDY $7D    [$00:007D]   A:0000 X:0000 Y:0001 P:envmxdizc
+    DebugPrint("$80/BC9D A4 7D       LDY $7D    [$00:007D]  ", a, x, y, n, z, c);
+    y = mem7d;
+
+    // $80/BC9F 80 0B       BRA $0B    [$BCAC]      A:0000 X:0000 Y:0041 P:envmxdizc
+    DebugPrint("$80/BC9F 80 0B       BRA $0B    [$BCAC]     ", a, x, y, n, z, c);
+    goto label_BCAC;
 
     // $80/BCA1 A5 01       LDA $01    [$00:0001]   A:0000 X:0000 Y:0040 P:envmxdizc
+    DebugPrint("$80/BCA1 A5 01       LDA $01    [$00:0001]  ", a, x, y, n, z, c);
+    a &= 0xFF00;
+    a |= (mem00 & 0xFF);
+
     // $80/BCA3 9D 00 05    STA $0500,x[$99:0500]   A:0000 X:0000 Y:0040 P:envmxdizc
+    DebugPrintWithAddress("$80/BCA3 9D 00 05    STA $0500,x[$99:", 0x500 + x, a, x, y, n, z, c);
+
     // $80/BCA6 A5 00       LDA $00    [$00:0000]   A:0000 X:0000 Y:0040 P:envmxdizc
     // $80/BCA8 9D 00 06    STA $0600,x[$99:0600]   A:0002 X:0000 Y:0040 P:envmxdizc
     // $80/BCAB E8          INX                     A:0002 X:0000 Y:0040 P:envmxdizc
 
-
+label_BCAC:
     // $80/BCAC 88          DEY                     A:0000 X:0000 Y:0041 P:envmxdizc
     // $80/BCAD D0 F2       BNE $F2    [$BCA1]      A:0000 X:0000 Y:0040 P:envmxdizc
 
@@ -961,9 +1007,9 @@ int main()
     memset(mem0580, 0, sizeof(mem0580));
     memset(mem05C0, 0, sizeof(mem05C0));
 
-    // Maybe have to initialize this from snapshot-- not 0.
-    // which snapshot?
-    mem7E0700 = LoadBinaryFile8("ram_stagex_7E0700.bin");
+    // Have to initialize this from snapshot-- not 0.
+    ram7E0100_7E0200 = LoadBinaryFile8("ram_stagex_7E0100.bin");
+    ram7E0700_7E0750 = LoadBinaryFile8("ram_stagex_7E0700.bin");
 
     Fn_80BBB3();
 
