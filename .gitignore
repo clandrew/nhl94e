@@ -22,3 +22,6 @@ template.png
 /Decompress2/initialized_output.bin
 /Decompress2/Verification.txt
 /Decompress2/rom_fragment.bin
+/Decompress2/rom80BC7B.bin
+/Decompress2/ram_stagex_7E0700.bin
+/Decompress2/ram_stagex_7E0100.bin
