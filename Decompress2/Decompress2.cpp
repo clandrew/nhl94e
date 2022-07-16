@@ -852,6 +852,8 @@ label_BE53:
 
     // $80/BE58 8E 80 21    STX $2180  [$99:2180]   A:9420 X:0000 Y:0025 P:envmxdizc
     DebugPrint("$80/BE58 8E 80 21    STX $2180  [$99:2180]  ", a, x, y, n, z, c);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(x);
 
     // $80/BE5B 86 08       STX $08    [$00:0008]   A:9420 X:0000 Y:0025 P:envmxdizc
     DebugPrint("$80/BE5B 86 08       STX $08    [$00:0008]  ", a, x, y, n, z, c);
@@ -911,6 +913,35 @@ label_C17C:
     // $80/C183 20 32 C2    JSR $C232  [$80:C232]   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C183 20 32 C2    JSR $C232  [$80:C232]  ", a, x, y, n, z, c);
     Fn_80C232();
+
+    // $80/C186 F0 0D       BEQ $0D    [$C195]      A:003E X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C186 F0 0D       BEQ $0D    [$C195]     ", a, x, y, n, z, c);
+    if (z)
+    {
+        __debugbreak(); // notimpl
+    }
+
+    // $80/C188 A4 08       LDY $08    [$00:0008]   A:003E X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C188 A4 08       LDY $08    [$00:0008]  ", a, x, y, n, z, c);
+    y = mem08;
+
+label_C18A:
+    // $80/C18A 8C 80 21    STY $2180  [$99:2180]   A:003E X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C18A 8C 80 21    STY $2180  [$99:2180]  ", a, x, y, n, z, c);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(y);
+
+    // $80/C18D 3A          DEC A                   A:003E X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C18D 3A          DEC A                  ", a, x, y, n, z, c);
+    a--;
+    z = a == 0;
+
+    // $80/C18E D0 FA       BNE $FA    [$C18A]      A:003D X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C18E D0 FA       BNE $FA    [$C18A]     ", a, x, y, n, z, c);
+    if (!z)
+    {
+        goto label_C18A;
+    }
 
     __debugbreak();
 }
@@ -1278,6 +1309,7 @@ label_C226:
 void Fn_80C232()
 {
     bool willCarry = false;
+    unsigned short loaded = 0;
 
     // $80/C232 64 6F       STZ $6F    [$00:006F]   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C232 64 6F       STZ $6F    [$00:006F]  ", a, x, y, n, z, c);
@@ -1363,20 +1395,151 @@ label_C279:
     DebugPrint("$80/C281 84 14       STY $14    [$00:0014]  ", a, x, y, n, z, c);
     mem14 = y;
 
+label_C283:
     // $80/C283 0A          ASL A                   A:0B80 X:0002 Y:0006 P:envmxdizc
     DebugPrint("$80/C283 0A          ASL A                  ", a, x, y, n, z, c);
+    c = a >= 0x8000;
     a *= 2;
 
     // $80/C284 26 6F       ROL $6F    [$00:006F]   A:1700 X:0002 Y:0006 P:envmxdizc
     DebugPrint("$80/C284 26 6F       ROL $6F    [$00:006F]  ", a, x, y, n, z, c);
+    RotateLeft(&mem6f, &c);
 
     // $80/C286 CA          DEX                     A:1700 X:0002 Y:0006 P:envmxdizc
-    // $80/C287 CA          DEX                     A:1700 X:0001 Y:0006 P:envmxdizc
-    // $80/C288 F0 24       BEQ $24    [$C2AE]      A:1700 X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C286 CA          DEX                    ", a, x, y, n, z, c);
+    --x;
 
+    // $80/C287 CA          DEX                     A:1700 X:0001 Y:0006 P:envmxdizc
+    DebugPrint("$80/C287 CA          DEX                    ", a, x, y, n, z, c);
+    --x;
+    z = x == 0;
+
+    // $80/C288 F0 24       BEQ $24    [$C2AE]      A:1700 X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C288 F0 24       BEQ $24    [$C2AE]     ", a, x, y, n, z, c);
+    if (z)
+    {
+        goto label_C2AE;
+    }
+
+label_C28A:
+
+    // $80/C28A 88          DEY                     A:178C X:0010 Y:0006 P:envmxdizc
+    DebugPrint("$80/C28A 88          DEY                    ", a, x, y, n, z, c);
+    y--;
+    z = y == 0;
+
+    // $80/C28B D0 F6       BNE $F6    [$C283]      A:178C X:0010 Y:0005 P:envmxdizc
+    DebugPrint("$80/C28B D0 F6       BNE $F6    [$C283]     ", a, x, y, n, z, c);
+    if (!z)
+    {
+        goto label_C283;
+    }
+
+    // $80/C28D 85 6C       STA $6C    [$00:006C]   A:F180 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C28D 85 6C       STA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    mem6c = a;
+
+    // $80/C28F 9B          TXY                     A:F180 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C28F 9B          TXY                    ", a, x, y, n, z, c);
+    y = x;
+
+    // $80/C290 A5 14       LDA $14    [$00:0014]   A:F180 X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C290 A5 14       LDA $14    [$00:0014]  ", a, x, y, n, z, c);
+    a = mem14;
+
+    // $80/C292 29 FF 00    AND #$00FF              A:0006 X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C292 29 FF 00    AND #$00FF             ", a, x, y, n, z, c);
+    a &= 0xFF;
+
+    // $80/C295 0A          ASL A                   A:0006 X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C295 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/C296 AA          TAX                     A:000C X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C296 AA          TAX                    ", a, x, y, n, z, c);
+    x = a;
+
+    // $80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2] A:000C X:000C Y:0006 P:envmxdizc
+    // x is one of {6, 8, A, C, 10}
+    if (x == 0x6)
+    {
+        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2BC]", a, x, y, n, z, c);
+        a = 0x4;
+    }
+    else if (x == 0x8)
+    {
+        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2BE]", a, x, y, n, z, c);
+        a = 0xC;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C0]", a, x, y, n, z, c);
+        a = 0x1C;
+    }
+    else if (x == 0xC)
+    {
+        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2]", a, x, y, n, z, c);
+        a = 0x3C;
+    }
+    else if (x == 0xE)
+    {
+        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C4]", a, x, y, n, z, c);
+        a = 0x7C;
+    }
+    else
+    {
+        __debugbreak(); // notimpl
+    }
+
+    // $80/C29B BB          TYX                     A:003C X:000C Y:0006 P:envmxdizc
+    DebugPrint("$80/C29B BB          TYX                    ", a, x, y, n, z, c);
+    x = y;
+
+    // $80/C29C 18          CLC                     A:003C X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C29C 18          CLC                    ", a, x, y, n, z, c);
+
+    // $80/C29D 65 6F       ADC $6F    [$00:006F]   A:003C X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C29D 65 6F       ADC $6F    [$00:006F]  ", a, x, y, n, z, c);
+    a += mem6f;
+
+    // $80/C29F 85 6F       STA $6F    [$00:006F]   A:003E X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C29F 85 6F       STA $6F    [$00:006F]  ", a, x, y, n, z, c);
+    mem6f = a;
+    z = a == 0;
+
+    // $80/C2A1 60          RTS                     A:003E X:0006 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2A1 60          RTS                    ", a, x, y, n, z, c);
+    return;
 
     __debugbreak(); // notimpl
 
+label_C2AE:
+
+    // $80/C2AE E2 20       SEP #$20                A:1700 X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2AE E2 20       SEP #$20               ", a, x, y, n, z, c);
+
+    // $80/C2B0 B2 0C       LDA ($0C)  [$99:F8F8]   A:1700 X:0000 Y:0006 P:envmxdizc
+    DebugPrintWithAddress("$80/C2B0 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y, n, z, c);
+    loaded = LoadFromROMFragment(0x990000 | mem0c);
+    a &= 0xFF00;
+    a |= loaded & 0xFF;
+
+    // $80/C2B2 C2 20       REP #$20                A:178C X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2B2 C2 20       REP #$20               ", a, x, y, n, z, c);
+
+    // $80/C2B4 E6 0C       INC $0C    [$00:000C]   A:178C X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2B4 E6 0C       INC $0C    [$00:000C]  ", a, x, y, n, z, c);
+    mem0c++;
+
+    // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2B6 A2 10       LDX #$10               ", a, x, y, n, z, c);
+    x = 0x10;
+
+    // $80/C2B8 80 D0       BRA $D0    [$C28A]      A:178C X:0010 Y:0006 P:envmxdizc
+    DebugPrint("$80/C2B8 80 D0       BRA $D0    [$C28A]     ", a, x, y, n, z, c);
+    goto label_C28A;
+
+    __debugbreak(); // notimpl
 }
 
 void Fn_80C2DC()
