@@ -1359,6 +1359,22 @@ label_C279:
         goto label_C279;
     }
 
+    // $80/C281 84 14       STY $14    [$00:0014]   A:0B80 X:0002 Y:0006 P:envmxdizc
+    DebugPrint("$80/C281 84 14       STY $14    [$00:0014]  ", a, x, y, n, z, c);
+    mem14 = y;
+
+    // $80/C283 0A          ASL A                   A:0B80 X:0002 Y:0006 P:envmxdizc
+    DebugPrint("$80/C283 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/C284 26 6F       ROL $6F    [$00:006F]   A:1700 X:0002 Y:0006 P:envmxdizc
+    DebugPrint("$80/C284 26 6F       ROL $6F    [$00:006F]  ", a, x, y, n, z, c);
+
+    // $80/C286 CA          DEX                     A:1700 X:0002 Y:0006 P:envmxdizc
+    // $80/C287 CA          DEX                     A:1700 X:0001 Y:0006 P:envmxdizc
+    // $80/C288 F0 24       BEQ $24    [$C2AE]      A:1700 X:0000 Y:0006 P:envmxdizc
+
+
     __debugbreak(); // notimpl
 
 }
