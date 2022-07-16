@@ -56,6 +56,7 @@ unsigned short mem0c = 0xF8AC;
 unsigned short mem10 = 0;
 unsigned short mem12 = 0x007F;
 unsigned short mem14 = 0;
+unsigned short mem6a = 0;
 unsigned short mem6c = 0;
 unsigned short mem6f = 0;
 unsigned short mem71 = 0;
@@ -73,6 +74,10 @@ int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
 
 std::vector<unsigned char> rom80BC7B;
+
+unsigned short loaded = 0;
+unsigned char low = 0;
+bool willCarry = false;
 
 void Fn_80BBB3()
 {
@@ -621,7 +626,6 @@ label_BCA1:
     // $80/BCA1 A5 01       LDA $01    [$00:0001]   A:0000 X:0000 Y:0040 P:envmxdizc
     DebugPrint("$80/BCA1 A5 01       LDA $01    [$00:0001]  ", a, x, y, n, z, c);
     // Select the upper byte of mem0
-    // xxx we load 00 but we should load 0f
     a = mem00.High8;
 
     // $80/BCA3 9D 00 05    STA $0500,x[$99:0500]   A:0000 X:0000 Y:0040 P:envmxdizc
@@ -894,8 +898,76 @@ label_BE7B:
     goto label_C17C;
 
     __debugbreak();
-
     // notimpl
+
+label_BEAE:
+
+    // $80/BEAE 85 6C       STA $6C    [$00:006C]   A:F180 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/BEAE 85 6C       STA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    mem6c = a;
+
+    // $80/BEB0 A4 6D       LDY $6D    [$00:006D]   A:F180 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/BEB0 A4 6D       LDY $6D    [$00:006D]  ", a, x, y, n, z, c);
+    y = mem6c >> 8;
+
+    // $80/BEB2 BE 00 06    LDX $0600,y[$99:06F1]   A:F180 X:0006 Y:00F1 P:envmxdizc
+    DebugPrintWithAddress("$80/BEB2 BE 00 06    LDX $0600,y[$99:", 0x600 + y, a, x, y, n, z, c);
+    x = mem7E0500_7E0700[0x100 + y];
+
+    // $80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BED1] A:F180 X:0010 Y:00F1 P:envmxdizc
+    if (x == 0x10)
+    {
+        DebugPrint("$80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BED1]", a, x, y, n, z, c);
+        goto label_BED1;
+    }
+    else
+    {
+        __debugbreak(); // notimpl
+    }
+
+    __debugbreak();
+
+label_BED1:
+
+    // $80/BED1 A2 06       LDX #$06                A:F180 X:0010 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BED1 A2 06       LDX #$06               ", a, x, y, n, z, c);
+    x = 6;
+
+    // $80/BED3 64 6A       STZ $6A    [$00:006A]   A:F180 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BED3 64 6A       STZ $6A    [$00:006A]  ", a, x, y, n, z, c);
+    mem6a = 0;
+
+    // $80/BED5 B2 0C       LDA ($0C)  [$99:F8F9]   A:F180 X:0006 Y:00F1 P:envmxdizc
+    DebugPrintWithAddress("$80/BED5 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y, n, z, c);
+    a = LoadFromROMFragment(0x990000 | mem0c);
+
+    // $80/BED7 29 FF 00    AND #$00FF              A:8C94 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BED7 29 FF 00    AND #$00FF             ", a, x, y, n, z, c);
+    a &= 0xFF;
+
+    DebugPrint("$80/BEDA 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    DebugPrint("$80/BEDB 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    DebugPrint("$80/BEDC 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    DebugPrint("$80/BEDD 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    DebugPrint("$80/BEDE 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/BEDF 05 6B       ORA $6B    [$00:006B]   A:1280 X:0006 Y:00F1 P:envmxdizc
+    // $80/BEE1 85 6B       STA $6B    [$00:006B]   A:9280 X:0006 Y:00F1 P:envmxdizc
+    // $80/BEE3 A5 6C       LDA $6C    [$00:006C]   A:9280 X:0006 Y:00F1 P:envmxdizc
+    // $80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]   A:F192 X:0006 Y:00F1 P:envmxdizc
+
+    // xxx
+
+    __debugbreak();
 
 label_C17C:
     // $80/C17C A4 74       LDY $74    [$00:0074]   A:9420 X:0008 Y:0094 P:envmxdizc
@@ -943,16 +1015,27 @@ label_C18A:
         goto label_C18A;
     }
 
+    // $80/C190 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C190 A5 6C       LDA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    a = mem6c;
+
+    // $80/C192 7C F9 BC    JMP ($BCF9,x)[$80:BEAE] A:F180 X:0006 Y:0000 P:envmxdizc
+    if (x == 6)
+    {
+        DebugPrint("$80/C192 7C F9 BC    JMP ($BCF9,x)[$80:BEAE]", a, x, y, n, z, c);
+        goto label_BEAE;
+    }
+    else
+    {
+        __debugbreak(); // notimpl
+    }
+
     __debugbreak();
 }
 
 
 void Fn_80C1B0()
 {
-    bool willCarry = false;
-    unsigned short loaded = 0;
-    unsigned char low = 0;
-
     // $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmxdizc
     DebugPrint("$80/C1B0 64 6F       STZ $6F    [$00:006F]  ", a, x, y, n, z, c);
     mem6f = 0;
@@ -1308,9 +1391,6 @@ label_C226:
 
 void Fn_80C232()
 {
-    bool willCarry = false;
-    unsigned short loaded = 0;
-
     // $80/C232 64 6F       STZ $6F    [$00:006F]   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C232 64 6F       STZ $6F    [$00:006F]  ", a, x, y, n, z, c);
     mem6f = 0;
@@ -1544,7 +1624,6 @@ label_C2AE:
 
 void Fn_80C2DC()
 {
-    unsigned short loaded = 0;
 
 label_C2DC:
     // $80/C2DC 0A          ASL A                   A:9420 X:0008 Y:0006 P:envmxdizc
