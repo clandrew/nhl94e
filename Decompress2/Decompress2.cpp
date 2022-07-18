@@ -57,6 +57,8 @@ unsigned short mem10 = 0;
 unsigned short mem12 = 0x007F;
 unsigned short mem14 = 0;
 unsigned short mem6a = 0;
+Mem16 LoadMem6b();
+void SaveMem6b(Mem16 const& v);
 unsigned short mem6c = 0;
 unsigned short mem6f = 0;
 unsigned short mem71 = 0;
@@ -76,6 +78,7 @@ std::vector<unsigned short> indirectStores7E0100;
 std::vector<unsigned char> rom80BC7B;
 
 unsigned short loaded = 0;
+Mem16 loaded16{};
 unsigned char low = 0;
 bool willCarry = false;
 
@@ -961,11 +964,122 @@ label_BED1:
     a *= 2;
 
     // $80/BEDF 05 6B       ORA $6B    [$00:006B]   A:1280 X:0006 Y:00F1 P:envmxdizc
-    // $80/BEE1 85 6B       STA $6B    [$00:006B]   A:9280 X:0006 Y:00F1 P:envmxdizc
-    // $80/BEE3 A5 6C       LDA $6C    [$00:006C]   A:9280 X:0006 Y:00F1 P:envmxdizc
-    // $80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]   A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BEDF 05 6B       ORA $6B    [$00:006B]  ", a, x, y, n, z, c);
+    loaded16 = LoadMem6b();
+    a |= loaded16.Data16;
 
-    // xxx
+    // $80/BEE1 85 6B       STA $6B    [$00:006B]   A:9280 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BEE1 85 6B       STA $6B    [$00:006B]  ", a, x, y, n, z, c);
+    loaded16.Data16 = a;
+    SaveMem6b(loaded16);
+
+    // $80/BEE3 A5 6C       LDA $6C    [$00:006C]   A:9280 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BEE3 A5 6C       LDA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    a = mem6c;
+
+    // $80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]   A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y, n, z, c);
+    goto label_BFC8;
+
+    __debugbreak();
+
+label_BF8F:
+
+    // $80/BF8F 4A          LSR A                   A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF8F 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF90 4A          LSR A                   A:78C9 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF90 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF91 4A          LSR A                   A:3C64 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF91 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF92 4A          LSR A                   A:1E32 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF92 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF93 4A          LSR A                   A:0F19 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF93 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF94 4A          LSR A                   A:078C X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF94 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF95 4A          LSR A                   A:03C6 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF95 4A          LSR A                  ", a, x, y, n, z, c);
+    a >>= 1;
+
+    // $80/BF96 38          SEC                     A:01E3 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF96 38          SEC                    ", a, x, y, n, z, c);
+
+    // $80/BF97 ED 30 07    SBC $0730  [$99:0730]   A:01E3 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF97 ED 30 07    SBC $0730  [$99:0730]  ", a, x, y, n, z, c);
+    loaded16.Low8 = ram7E0700_7E1000[0x30];
+    loaded16.High8 = ram7E0700_7E1000[0x31];
+    a -= loaded16.Data16;
+
+    // $80/BF9A A8          TAY                     A:003C X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BF9A A8          TAY                    ", a, x, y, n, z, c);
+    y = a;
+
+    // $80/BF9B E2 20       SEP #$20                A:003C X:0006 Y:003C P:envmxdizc
+    DebugPrint("$80/BF9B E2 20       SEP #$20               ", a, x, y, n, z, c);
+
+    // $80/BF9D B9 00 01    LDA $0100,y[$99:013C]   A:003C X:0006 Y:003C P:envmxdizc
+    DebugPrintWithAddress("$80/BF9D B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y, n, z, c);
+    a = ram7E0100_7E0200[y];
+
+    // $80/BFA0 A0 01       LDY #$01                A:0008 X:0006 Y:003C P:envmxdizc
+    DebugPrint("$80/BFA0 A0 01       LDY #$01               ", a, x, y, n, z, c);
+    y = 1;
+
+    // $80/BFA2 C5 73       CMP $73    [$00:0073]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/BFA2 C5 73       CMP $73    [$00:0073]  ", a, x, y, n, z, c);
+    z = a == (mem73 & 0xFF); // we are in 8bit mode
+
+    // $80/BFA4 F0 1C       BEQ $1C    [$BFC2]      A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/BFA4 F0 1C       BEQ $1C    [$BFC2]     ", a, x, y, n, z, c);
+    if (z)
+    {
+        __debugbreak(); // notimpl
+    }
+
+    // $80/BFA6 4C E8 C0    JMP $C0E8  [$80:C0E8]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/BFA6 4C E8 C0    JMP $C0E8  [$80:C0E8]  ", a, x, y, n, z, c);
+    goto label_C0E8;
+
+    __debugbreak();
+
+label_BFC8:
+
+    // $80/BFC8 CD 50 07    CMP $0750  [$99:0750]   A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BFC8 CD 50 07    CMP $0750  [$99:0750]  ", a, x, y, n, z, c);
+    loaded16.Low8 =  ram7E0700_7E1000[0x50];
+    loaded16.High8 = ram7E0700_7E1000[0x51];
+    c = a >= loaded16.Data16;
+
+    // $80/BFCB 90 C2       BCC $C2    [$BF8F]      A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BFCB 90 C2       BCC $C2    [$BF8F]     ", a, x, y, n, z, c);
+    if (!c)
+    {
+        goto label_BF8F;
+    }
+
+    __debugbreak();
+
+label_C0E8:
+
+    // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
+    // $80/C0EB 85 08       STA $08    [$00:0008]   A:0008 X:0006 Y:0001 P:envmxdizc
+    // $80/C0ED C2 20       REP #$20                A:0008 X:0006 Y:0001 P:envmxdizc
+    // $80/C0EF E6 0C       INC $0C    [$00:000C]   A:0008 X:0006 Y:0001 P:envmxdizc
+    // $80/C0F1 A5 6B       LDA $6B    [$00:006B]   A:0008 X:0006 Y:0001 P:envmxdizc
+    // $80/C0F3 7C F4 C0    JMP ($C0F4,x)[$80:C11A] A:9280 X:0006 Y:0001 P:envmxdizc
+
 
     __debugbreak();
 
@@ -1715,5 +1829,20 @@ int main()
     Fn_80BBB3();
 
     return 0;
+}
 
+Mem16 LoadMem6b()
+{
+    Mem16 mem6b;
+    mem6b.Low8 = mem6a >> 8;
+    mem6b.High8 = mem6c & 0xFF;
+    return mem6b;
+}
+
+void SaveMem6b(Mem16 const& v)
+{
+    mem6a &= 0xFF;
+    mem6a |= (v.Low8 << 8);
+    mem6c &= 0xFF00;
+    mem6c |= v.High8;
 }
