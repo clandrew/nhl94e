@@ -983,6 +983,23 @@ label_BED1:
 
     __debugbreak();
 
+label_BF00:
+
+    // $80/BF00 85 6C       STA $6C    [$00:006C]   A:2500 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/BF00 85 6C       STA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    mem6c = a;
+
+    // $80/BF02 A4 6D       LDY $6D    [$00:006D]   A:2500 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/BF02 A4 6D       LDY $6D    [$00:006D]  ", a, x, y, n, z, c);
+    loaded16.Data16 = mem6c;
+    y &= 0xFF00;
+    y |= loaded16.High8;
+
+    // $80/BF04 BE 00 06    LDX $0600,y[$99:0625]   A:2500 X:0006 Y:0025 P:envmxdizc
+    // $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2500 X:0002 Y:0025 P:envmxdizc
+
+    __debugbreak();
+
 label_BF8F:
 
     // $80/BF8F 4A          LSR A                   A:F192 X:0006 Y:00F1 P:envmxdizc
@@ -1075,13 +1092,60 @@ label_C0E8:
 
     // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
     // $80/C0EB 85 08       STA $08    [$00:0008]   A:0008 X:0006 Y:0001 P:envmxdizc
-    // $80/C0ED C2 20       REP #$20                A:0008 X:0006 Y:0001 P:envmxdizc
-    // $80/C0EF E6 0C       INC $0C    [$00:000C]   A:0008 X:0006 Y:0001 P:envmxdizc
-    // $80/C0F1 A5 6B       LDA $6B    [$00:006B]   A:0008 X:0006 Y:0001 P:envmxdizc
-    // $80/C0F3 7C F4 C0    JMP ($C0F4,x)[$80:C11A] A:9280 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0EB 85 08       STA $08    [$00:0008]  ", a, x, y, n, z, c);
+    loaded16.Data16 = mem08;
+    loaded16.Low8 = a & 0xFF;
+    mem08 = loaded16.Data16;
 
+    // $80/C0ED C2 20       REP #$20                A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0ED C2 20       REP #$20               ", a, x, y, n, z, c);
+    // 
+    // $80/C0EF E6 0C       INC $0C    [$00:000C]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0EF E6 0C       INC $0C    [$00:000C]  ", a, x, y, n, z, c);
+    mem0c++;
+    // 
+    // $80/C0F1 A5 6B       LDA $6B    [$00:006B]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0F1 A5 6B       LDA $6B    [$00:006B]  ", a, x, y, n, z, c);
+    loaded16 = LoadMem6b();
+    a = loaded16.Data16;
+
+    // $80/C0F3 7C F4 C0    JMP ($C0F4,x)[$80:C11A] A:9280 X:0006 Y:0001 P:envmxdizc
+    if (x == 6)
+    {
+        DebugPrint("$80/C0F3 7C F4 C0    JMP ($C0F4,x)[$80:C11A]", a, x, y, n, z, c);
+        goto label_C11A;
+    }
+    else
+    {
+        __debugbreak(); // notimpl
+    }
 
     __debugbreak();
+
+label_C11A:
+
+    // $80/C11A 0A          ASL A                   A:9280 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C11A 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/C11B 88          DEY                     A:2500 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C11B 88          DEY                    ", a, x, y, n, z, c);
+    y--;
+    z = y == 0;
+
+    // $80/C11C F0 2C       BEQ $2C    [$C14A]      A:2500 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C11C F0 2C       BEQ $2C    [$C14A]     ", a, x, y, n, z, c);
+    if (z)
+    {
+        goto label_C14A;
+    }
+
+    __debugbreak();
+
+label_C14A:
+    // $80/C14A 4C 00 BF    JMP $BF00  [$80:BF00]   A:2500 X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C14A 4C 00 BF    JMP $BF00  [$80:BF00]  ", a, x, y, n, z, c);
+    goto label_BF00;
 
 label_C17C:
     // $80/C17C A4 74       LDY $74    [$00:0074]   A:9420 X:0008 Y:0094 P:envmxdizc
