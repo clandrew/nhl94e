@@ -996,6 +996,7 @@ label_BF00:
     y |= loaded16.High8;
 
     // $80/BF04 BE 00 06    LDX $0600,y[$99:0625]   A:2500 X:0006 Y:0025 P:envmxdizc
+    
     // $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2500 X:0002 Y:0025 P:envmxdizc
 
     __debugbreak();
@@ -1091,6 +1092,10 @@ label_BFC8:
 label_C0E8:
 
     // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0E8 8D 80 21    STA $2180  [$99:2180]  ", a, x, y, n, z, c);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(a);
+
     // $80/C0EB 85 08       STA $08    [$00:0008]   A:0008 X:0006 Y:0001 P:envmxdizc
     DebugPrint("$80/C0EB 85 08       STA $08    [$00:0008]  ", a, x, y, n, z, c);
     loaded16.Data16 = mem08;
