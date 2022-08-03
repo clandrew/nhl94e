@@ -818,6 +818,81 @@ label_BCC5:
 
     __debugbreak();
 
+label_BD11:
+
+    // $80/BD11 0A          ASL A                   A:2500 X:0002 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD11 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/BD12 0A          ASL A                   A:4A00 X:0002 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
+    // $80/BD13 E2 20       SEP #$20                A:9400 X:0002 Y:0025 P:envmxdizc 
+    DebugPrint("$80/BD13 E2 20       SEP #$20               ", a, x, y, n, z, c); // 8-bit acc
+    
+    // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
+    DebugPrintWithAddress("$80/BD15 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y, n, z, c);
+    loaded = LoadFromROMFragment(0x990000 | mem0c);
+    a &= 0xFF00;
+    a |= loaded & 0xFF;
+
+    // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD17 C2 20       REP #$20               ", a, x, y, n, z, c); // 16-bit acc
+
+    // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:948C X:0002 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD19 E6 0C       INC $0C    [$00:000C]  ", a, x, y, n, z, c); //
+    mem0c++;
+
+    // $80/BD1B BE 00 05    LDX $0500,y[$99:0525]   A:948C X:0002 Y:0025 P:envmxdizc
+    DebugPrintWithAddress("$80/BD1B BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y, n, z, c);
+    x = mem7E0500_7E0700[y];
+
+    // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:948C X:0000 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD1E 8E 80 21    STX $2180  [$99:2180]  ", a, x, y, n, z, c);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(x);
+
+    // $80/BD21 86 08       STX $08    [$00:0008]   A:948C X:0000 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD21 86 08       STX $08    [$00:0008]  ", a, x, y, n, z, c);
+    mem08 = x;
+
+    // $80/BD23 85 6C       STA $6C    [$00:006C]   A:948C X:0000 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD23 85 6C       STA $6C    [$00:006C]  ", a, x, y, n, z, c);
+    mem6c = a;
+
+    // $80/BD25 A4 6D       LDY $6D    [$00:006D]   A:948C X:0000 Y:0025 P:envmxdizc
+    DebugPrint("$80/BD25 A4 6D       LDY $6D    [$00:006D]  ", a, x, y, n, z, c);
+    y = mem6c >> 8;
+
+    // $80/BD27 BE 00 06    LDX $0600,y[$99:0694]   A:948C X:0000 Y:0094 P:envmxdizc
+    DebugPrintWithAddress("$80/BD27 BE 00 06    LDX $0600,y[$99:", 0x600 + y, a, x, y, n, z, c);
+    x = mem7E0500_7E0700[0x100 + y];
+
+    // $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD41] A:948C X:0012 Y:0094 P:envmxdizc
+    if (x == 0x12)
+    {
+        DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD41]", a, x, y, n, z, c);
+        goto label_BD41;
+    }
+    else
+    {
+        __debugbreak();
+    }
+
+    __debugbreak();
+
+label_BD41:
+    // $80/BD41 A2 10       LDX #$10                A:948C X:0012 Y:0094 P:envmxdizc
+    DebugPrint("$80/BD41 A2 10       LDX #$10               ", a, x, y, n, z, c);
+    x = 0x10;
+
+    // $80/BD43 4C 7C C1    JMP $C17C  [$80:C17C]   A:948C X:0010 Y:0094 P:envmxdizc
+    DebugPrint("$80/BD43 4C 7C C1    JMP $C17C  [$80:C17C]  ", a, x, y, n, z, c);
+    goto label_C17C;
+
+    __debugbreak();
+
 label_BDBE:
 
     // $80/BDBE 85 6C       STA $6C    [$00:006C]   A:2508 X:000C Y:007F P:envmxdizc
@@ -996,8 +1071,19 @@ label_BF00:
     y |= loaded16.High8;
 
     // $80/BF04 BE 00 06    LDX $0600,y[$99:0625]   A:2500 X:0006 Y:0025 P:envmxdizc
+    DebugPrintWithAddress("$80/BF04 BE 00 06    LDX $0600,y[$99:", 0x600 + y, a, x, y, n, z, c);
+    x = mem7E0500_7E0700[0x100 + y];
     
     // $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2500 X:0002 Y:0025 P:envmxdizc
+    if (x == 2)
+    {
+        DebugPrint("$80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11]", a, x, y, n, z, c);
+        goto label_BD11;
+    }
+    else
+    {
+        __debugbreak();
+    }
 
     __debugbreak();
 
