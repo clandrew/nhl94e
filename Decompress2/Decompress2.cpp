@@ -1670,7 +1670,9 @@ void Fn_80C232()
 
     // $80/C236 0A          ASL A                   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C236 0A          ASL A                  ", a, x, y, n, z, c);
+    willCarry = a >= 0x8000;
     a *= 2;
+    c = willCarry;
 
     // $80/C237 CA          DEX                     A:10B8 X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C237 CA          DEX                    ", a, x, y, n, z, c);
@@ -1678,10 +1680,8 @@ void Fn_80C232()
 
     // $80/C238 CA          DEX                     A:10B8 X:000B Y:0000 P:envmxdizc
     DebugPrint("$80/C238 CA          DEX                    ", a, x, y, n, z, c);
-    willCarry = c == 0;
     x--;
     z = x == 0;
-    c = willCarry;
 
     // $80/C239 F0 15       BEQ $15    [$C250]      A:10B8 X:000A Y:0000 P:envmxdizc
     DebugPrint("$80/C239 F0 15       BEQ $15    [$C250]     ", a, x, y, n, z, c);
