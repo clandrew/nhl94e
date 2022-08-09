@@ -825,11 +825,29 @@ label_BCC5:
 label_BD0D:
 
     // $80/BD0D 0A          ASL A                   A:B8AC X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD0D 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD0E 0A          ASL A                   A:7158 X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD0E 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD0F 0A          ASL A                   A:E2B0 X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD0F 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD10 0A          ASL A                   A:C560 X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD10 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD11 0A          ASL A                   A:8AC0 X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD11 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD12 0A          ASL A                   A:1580 X:000A Y:00B8 P:envmxdizc
+    DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y, n, z, c);
+    a *= 2;
+
     // $80/BD13 E2 20       SEP #$20                A:2B00 X:000A Y:00B8 P:envmxdizc
     // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FD]   A:2B00 X:000A Y:00B8 P:envmxdizc
     // $80/BD17 C2 20       REP #$20                A:2BEB X:000A Y:00B8 P:envmxdizc
