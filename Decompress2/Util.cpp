@@ -121,24 +121,12 @@ void WriteDecompressedOutput(int address, unsigned short output)
     decompressed[outputElement] = output;
 }
 
-void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y)
 {
-    bool preserveFlags = false;
-    if (!preserveFlags)
-    {
-        negative = false;
-        zero = false;
-        carry = false;
-    }
-
     debugLog << " A:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << a;
     debugLog << " X:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << x;
     debugLog << " Y:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << y;
-    debugLog << " P:e";
-    debugLog << (negative ? "N" : "n");
-    debugLog << "vmxdi";
-    debugLog << (zero ? "Z" : "z");
-    debugLog << (carry ? "C" : "c");
+    debugLog << "P:envmxdizc";
 }
 
 void DebugPrintFinalize()
@@ -154,14 +142,14 @@ void DebugPrintFinalize()
     }
 }
 
-void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y)
 {
     debugLog << asmText;
-    DebugPrintRegs(a, x, y, negative, zero, carry);
+    DebugPrintRegs(a, x, y);
     DebugPrintFinalize();
 }
 
-void DebugPrintWithAddress(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry, bool longAddress)
+void DebugPrintWithIndex(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool longAddress)
 {
     debugLog << asmPrefix;
     debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
@@ -170,28 +158,28 @@ void DebugPrintWithAddress(const char* asmPrefix, unsigned short index, unsigned
     {
         debugLog << "  ";
     }
-    DebugPrintRegs(a, x, y, negative, zero, carry);
+    DebugPrintRegs(a, x, y);
     DebugPrintFinalize();
 }
 
-void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrintWithPC(unsigned char pc)
 {
-    DebugPrintWithAddress("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y, negative, zero, carry);
+
 }
 
-void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y)
 {
-    DebugPrintWithAddress("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
+    DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y);
 }
 
-void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y, bool negative, bool zero, bool carry)
+void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y)
 {
-    DebugPrintWithAddress("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y, negative, zero, carry);
+    DebugPrintWithIndex("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
 }
 
-void DebugPrintNewline()
+void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y)
 {
-    debugLog << "\n";
+    DebugPrintWithIndex("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
 }
 
 unsigned short ExchangeShortHighAndLow(unsigned short s)
