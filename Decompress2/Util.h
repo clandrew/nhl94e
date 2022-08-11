@@ -14,7 +14,10 @@ void WriteDecompressedOutput(int address, unsigned short output);
 
 void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y);
 void DebugPrintWithIndex(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool longAddress=false);
-void DebugPrintWithPC(unsigned char pc);
+
+void DebugPrintWithPC(unsigned short pc, const char* asmText, unsigned short a, unsigned short x, unsigned short y);
+void DebugPrintWithPCAndIndex(unsigned short pc, const char* asmText, unsigned short index, unsigned short a, unsigned short x, unsigned short y);
+
 void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y);
 void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y);
 void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y);

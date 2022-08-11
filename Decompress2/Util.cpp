@@ -126,7 +126,7 @@ void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y)
     debugLog << " A:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << a;
     debugLog << " X:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << x;
     debugLog << " Y:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << y;
-    debugLog << "P:envmxdizc";
+    debugLog << " P:envmxdizc";
 }
 
 void DebugPrintFinalize()
@@ -162,9 +162,24 @@ void DebugPrintWithIndex(const char* asmPrefix, unsigned short index, unsigned s
     DebugPrintFinalize();
 }
 
-void DebugPrintWithPC(unsigned char pc)
+void DebugPrintWithPC(unsigned short pc, const char* asmText, unsigned short a, unsigned short x, unsigned short y)
 {
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+    debugLog << asmText;
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
 
+void DebugPrintWithPCAndIndex(unsigned short pc, const char* asmText, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+    debugLog << asmText;
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
 }
 
 void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y)

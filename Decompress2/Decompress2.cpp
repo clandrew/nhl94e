@@ -85,19 +85,22 @@ bool willCarry = false;
 void LoadNextFrom0C(unsigned short pc)
 {
     // $80/BD13 E2 20       SEP #$20                A:9400 X:0002 Y:0025 P:envmxdizc 
-    DebugPrint("$80/BD13 E2 20       SEP #$20               ", a, x, y); // 8-bit acc
+    DebugPrintWithPC(pc, "E2 20       SEP #$20               ", a, x, y); 
+    pc += 2;
 
     // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithIndex("$80/BD15 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
+    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
     loaded = LoadFromROMFragment(0x990000 | mem0c);
     a &= 0xFF00;
     a |= loaded & 0xFF;
+    pc += 2;
 
     // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrint("$80/BD17 C2 20       REP #$20               ", a, x, y); // 16-bit acc
+    DebugPrintWithPC(pc, "C2 20       REP #$20               ", a, x, y); // 16-bit acc
+    pc += 2;
 
     // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrint("$80/BD19 E6 0C       INC $0C    [$00:000C]  ", a, x, y); //
+    DebugPrintWithPC(pc, "E6 0C       INC $0C    [$00:000C]  ", a, x, y);
     mem0c++;
 }
 
@@ -867,10 +870,8 @@ label_BD0D:
     DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    // $80/BD13 E2 20       SEP #$20                A:2B00 X:000A Y:00B8 P:envmxdizc
-    // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FD]   A:2B00 X:000A Y:00B8 P:envmxdizc
-    // $80/BD17 C2 20       REP #$20                A:2BEB X:000A Y:00B8 P:envmxdizc
-    // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:2BEB X:000A Y:00B8 P:envmxdizc
+    LoadNextFrom0C(0xBD13);
+
     // $80/BD1B BE 00 05    LDX $0500,y[$99:05B8]   A:2BEB X:000A Y:00B8 P:envmxdizc
     // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
     // $80/BD21 86 08       STX $08    [$00:0008]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
@@ -891,21 +892,7 @@ label_BD11:
     DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    // $80/BD13 E2 20       SEP #$20                A:9400 X:0002 Y:0025 P:envmxdizc 
-    DebugPrint("$80/BD13 E2 20       SEP #$20               ", a, x, y); // 8-bit acc
-    
-    // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithIndex("$80/BD15 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrint("$80/BD17 C2 20       REP #$20               ", a, x, y); // 16-bit acc
-
-    // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrint("$80/BD19 E6 0C       INC $0C    [$00:000C]  ", a, x, y); //
-    mem0c++;
+    LoadNextFrom0C(0xBD13);
 
     // $80/BD1B BE 00 05    LDX $0500,y[$99:0525]   A:948C X:0002 Y:0025 P:envmxdizc
     DebugPrintWithIndex("$80/BD1B BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y);
@@ -969,21 +956,7 @@ label_BDA9:
     DebugPrint("$80/BDAB 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    // $80/BDAC E2 20       SEP #$20                A:2E00 X:0008 Y:0085 P:envmxdizc
-    DebugPrint("$80/BDAC E2 20       SEP #$20               ", a, x, y); // 8-bit acc
-
-    // $80/BDAE B2 0C       LDA ($0C)  [$99:F8FC]   A:2E00 X:0008 Y:0085 P:envmxdizc    
-    DebugPrintWithIndex("$80/BDAE B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/BDB0 C2 20       REP #$20                A:2E2B X:0008 Y:0085 P:envmxdizc
-    DebugPrint("$80/BDB0 C2 20       REP #$20               ", a, x, y); // 16-bit acc
-
-    // $80/BDB2 E6 0C       INC $0C    [$00:000C]   A:2E2B X:0008 Y:0085 P:envmxdizc
-    DebugPrint("$80/BDB2 E6 0C       INC $0C    [$00:000C]  ", a, x, y); //
-    mem0c++;
+    LoadNextFrom0C(0xBDAC);
 
     // $80/BDB4 0A          ASL A                   A:2E2B X:0008 Y:0085 P:envmxdizc
     DebugPrint("$80/BDB4 0A          ASL A                  ", a, x, y);
@@ -1520,21 +1493,7 @@ label_C1C0:
 
 label_C1CB:
 
-    // $80/C1CB E2 20       SEP #$20                A:2200 X:0056 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1CB E2 20       SEP #$20               ", a, x, y); // 8bit acc
-
-    // $80/C1CD B2 0C       LDA ($0C)  [$99:F8C7]   A:2200 X:0056 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/C1CD B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C1CF C2 20       REP #$20                A:2212 X:0056 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1CF C2 20       REP #$20               ", a, x, y);
-
-    // $80/C1D1 E6 0C       INC $0C    [$00:000C]   A:2212 X:0056 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1D1 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC1CB);
 
     // $80/C1D3 A0 08       LDY #$08                A:2212 X:0056 Y:0000 P:envmxdizc
     DebugPrint("$80/C1D3 A0 08       LDY #$08               ", a, x, y);
@@ -1546,21 +1505,7 @@ label_C1CB:
 
 label_C1D7:
 
-    // $80/C1D7 E2 20       SEP #$20                A:6500 X:0004 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1D7 E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C1D9 B2 0C       LDA ($0C)  [$99:F8B4]   A:6500 X:0004 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/C1D9 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C1DB C2 20       REP #$20                A:653C X:0004 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1DB C2 20       REP #$20               ", a, x, y);
-
-    // $80/C1DD E6 0C       INC $0C    [$00:000C]   A:653C X:0004 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1DD E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC1D7);
 
     // $80/C1DF A0 08       LDY #$08                A:653C X:0004 Y:0000 P:envmxdizc
     DebugPrint("$80/C1DF A0 08       LDY #$08               ", a, x, y);
@@ -1574,21 +1519,7 @@ label_C1D7:
 
 label_C1E3:
 
-    // $80/C1E3 E2 20       SEP #$20                A:8100 X:0012 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1E3 E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C1E5 B2 0C       LDA ($0C)  [$99:F8B9]   A:8100 X:0012 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/C1E5 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C1E7 C2 20       REP #$20                A:811C X:0012 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1E7 C2 20       REP #$20               ", a, x, y);
-
-    // $80/C1E9 E6 0C       INC $0C    [$00:000C]   A:811C X:0012 Y:0000 P:envmxdizc
-    DebugPrint("$80/C1E9 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC1E3);
 
     // $80/C1EB A0 08       LDY #$08                A:811C X:0012 Y:0000 P:envmxdizc
     DebugPrint("$80/C1EB A0 08       LDY #$08               ", a, x, y);
@@ -1728,21 +1659,7 @@ label_C205:
 
 label_C21A:
 
-    // $80/C21A E2 20       SEP #$20                A:9100 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C21A E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C21C B2 0C       LDA ($0C)  [$99:F8B6]   A:9100 X:0002 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/C21C B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C21E C2 20       REP #$20                A:91D1 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C21E C2 20       REP #$20               ", a, x, y);
-
-    // $80/C220 E6 0C       INC $0C    [$00:000C]   A:91D1 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C220 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC21A);
 
     // $80/C222 A0 08       LDY #$08                A:91D1 X:0002 Y:0000 P:envmxdizc
     DebugPrint("$80/C222 A0 08       LDY #$08               ", a, x, y);
@@ -1755,21 +1672,7 @@ label_C21A:
 
 label_C226:
 
-    // $80/C226 E2 20       SEP #$20                A:3C00 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C226 E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C228 B2 0C       LDA ($0C)  [$99:F8B5]   A:3C00 X:0002 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/C228 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C22A C2 20       REP #$20                A:3C91 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C22A C2 20       REP #$20               ", a, x, y);
-
-    // $80/C22C E6 0C       INC $0C    [$00:000C]   A:3C91 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C22C E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC226);
 
     // $80/C22E A0 08       LDY #$08                A:3C91 X:0002 Y:0000 P:envmxdizc
     DebugPrint("$80/C22E A0 08       LDY #$08               ", a, x, y);
@@ -1988,21 +1891,7 @@ label_C28A:
 
 label_C2A2:
 
-    // $80/C2A2 E2 20       SEP #$20                A:8C00 X:0000 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2A2 E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C2A4 B2 0C       LDA ($0C)  [$99:F8FB]   A:8C00 X:0000 Y:0002 P:envmxdizc
-    DebugPrintWithIndex("$80/C2A4 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C2A6 C2 20       REP #$20                A:8C2E X:0000 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2A6 C2 20       REP #$20               ", a, x, y);
-
-    // $80/C2A8 E6 0C       INC $0C    [$00:000C]   A:8C2E X:0000 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2A8 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC2A2);
    
     // $80/C2AA A2 10       LDX #$10                A:8C2E X:0000 Y:0002 P:envmxdizc
     DebugPrint("$80/C2AA A2 10       LDX #$10               ", a, x, y);
@@ -2014,21 +1903,7 @@ label_C2A2:
 
 label_C2AE:
 
-    // $80/C2AE E2 20       SEP #$20                A:1700 X:0000 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2AE E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C2B0 B2 0C       LDA ($0C)  [$99:F8F8]   A:1700 X:0000 Y:0006 P:envmxdizc
-    DebugPrintWithIndex("$80/C2B0 B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C2B2 C2 20       REP #$20                A:178C X:0000 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2B2 C2 20       REP #$20               ", a, x, y);
-
-    // $80/C2B4 E6 0C       INC $0C    [$00:000C]   A:178C X:0000 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2B4 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC2AE);
 
     // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
     DebugPrint("$80/C2B6 A2 10       LDX #$10               ", a, x, y);
@@ -2083,21 +1958,7 @@ label_C2DC:
 
 label_C2E5:
 
-    // $80/C2E5 E2 20       SEP #$20                A:4200 X:0000 Y:0003 P:envmxdizc
-    DebugPrint("$80/C2E5 E2 20       SEP #$20               ", a, x, y);
-
-    // $80/C2E7 B2 0C       LDA ($0C)  [$99:F8F7]   A:4200 X:0000 Y:0003 P:envmxdizc    
-    DebugPrint("$80/C2E7 B2 0C       LDA ($0C)  [$99:F8F7]  ", a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
-    a &= 0xFF00;
-    a |= loaded & 0xFF;
-
-    // $80/C2E9 C2 20       REP #$20                A:4217 X:0000 Y:0003 P:envmxdizc
-    DebugPrint("$80/C2E9 C2 20       REP #$20               ", a, x, y);
-
-    // $80/C2EB E6 0C       INC $0C    [$00:000C]   A:4217 X:0000 Y:0003 P:envmxdizc
-    DebugPrint("$80/C2EB E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
+    LoadNextFrom0C(0xC2E5);
 
     // $80/C2ED A2 10       LDX #$10                A:4217 X:0000 Y:0003 P:envmxdizc
     DebugPrint("$80/C2ED A2 10       LDX #$10               ", a, x, y);
