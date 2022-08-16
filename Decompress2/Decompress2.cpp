@@ -862,33 +862,13 @@ label_BD0D:
     DebugPrint("$80/BD10 0A          ASL A                  ", a, x, y);
     a *= 2;
 
+label_BD11:
+
     // $80/BD11 0A          ASL A                   A:8AC0 X:000A Y:00B8 P:envmxdizc
     DebugPrint("$80/BD11 0A          ASL A                  ", a, x, y);
     a *= 2;
 
     // $80/BD12 0A          ASL A                   A:1580 X:000A Y:00B8 P:envmxdizc
-    DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y);
-    a *= 2;
-
-    LoadNextFrom0C(0xBD13);
-
-    // $80/BD1B BE 00 05    LDX $0500,y[$99:05B8]   A:2BEB X:000A Y:00B8 P:envmxdizc
-    // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
-    // $80/BD21 86 08       STX $08    [$00:0008]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
-    // $80/BD23 85 6C       STA $6C    [$00:006C]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
-    // $80/BD25 A4 6D       LDY $6D    [$00:006D]   A:2BEB X:00B9 Y:00B8 P:envmxdizc
-    // $80/BD27 BE 00 06    LDX $0600,y[$99:062B]   A:2BEB X:00B9 Y:002B P:envmxdizc
-    // $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BDB4] A:2BEB X:0002 Y:002B P:envmxdizc
-
-    __debugbreak();
-
-label_BD11:
-
-    // $80/BD11 0A          ASL A                   A:2500 X:0002 Y:0025 P:envmxdizc
-    DebugPrint("$80/BD11 0A          ASL A                  ", a, x, y);
-    a *= 2;
-
-    // $80/BD12 0A          ASL A                   A:4A00 X:0002 Y:0025 P:envmxdizc
     DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y);
     a *= 2;
 
