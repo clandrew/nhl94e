@@ -844,6 +844,13 @@ label_BCC5:
 
     __debugbreak();
 
+label_BD0B:
+    DebugPrint("$80/BD0B 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BD0C 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
 label_BD0D:
 
     // $80/BD0D 0A          ASL A                   A:B8AC X:000A Y:00B8 P:envmxdizc
@@ -909,6 +916,16 @@ label_BD11:
     {
         DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BDB4]", a, x, y);
         goto label_BDB4;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BEF2]", a, x, y);
+        goto label_BEF2;
+    }
+    else if (x == 0xE)
+    {
+        DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD0B]", a, x, y);
+        goto label_BD0B;
     }
     else
     {
@@ -995,6 +1012,24 @@ label_BDBE:
     {
         __debugbreak(); // notimpl
     }
+
+    __debugbreak();
+
+label_BE47:
+
+    DebugPrint("$80/BE47 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BE48 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    LoadNextFrom0C(0xBE49);
+
+    DebugPrint("$80/BE51 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BE52 0A          ASL A                  ", a, x, y);
+    a *= 2;
 
 label_BE53:
 
@@ -1141,6 +1176,36 @@ label_BED1:
 
     __debugbreak();
 
+label_BEF2:
+
+    DebugPrint("$80/BEF2 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEF3 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEF4 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEF5 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEF6 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEF7 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrintWithIndex("$80/BEF8 BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y);
+    x = mem7E0500_7E0700[y];
+
+    DebugPrint("$80/BEFB 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(x);
+
+    DebugPrint("$80/BEFE 86 08       STX $08    [$00:0008]  ", a, x, y);
+    mem08 = x;
+
 label_BF00:
 
     // $80/BF00 85 6C       STA $6C    [$00:006C]   A:2500 X:0006 Y:0000 P:envmxdizc
@@ -1162,6 +1227,11 @@ label_BF00:
     {
         DebugPrint("$80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11]", a, x, y);
         goto label_BD11;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BE47]", a, x, y);
+        goto label_BE47;
     }
     else
     {
