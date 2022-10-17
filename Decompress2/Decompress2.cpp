@@ -1,5 +1,5 @@
 // Decompress2.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// 17458 / 30876
 
 #include <vector>
 #include <fstream>
@@ -917,6 +917,11 @@ label_BD11:
         DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BDB4]", a, x, y);
         goto label_BDB4;
     }
+    else if (x == 0x8)
+    {
+        DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BEA1]", a, x, y);
+        goto label_BEA1;
+    }
     else if (x == 0xA)
     {
         DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BEF2]", a, x, y);
@@ -944,6 +949,10 @@ label_BD41:
     goto label_C17C;
 
     __debugbreak();
+
+label_BDA8:
+    DebugPrint("$80/BDA8 0A          ASL A                  ", a, x, y);
+    a *= 2;
 
 label_BDA9:
     // $80/BDA9 0A          ASL A                   A:85C0 X:0008 Y:0085 P:envmxdizc
@@ -1015,6 +1024,38 @@ label_BDBE:
 
     __debugbreak();
 
+label_BDF7:
+
+/*
+$80/BDF7 0A          ASL A                   A:B3E0 X:000A Y:00B3 P:envmxdizc
+$80/BDF8 0A          ASL A                   A:67C0 X:000A Y:00B3 P:envmxdizc
+$80/BDF9 0A          ASL A                   A:CF80 X:000A Y:00B3 P:envmxdizc
+$80/BDFA E2 20       SEP #$20                A:9F00 X:000A Y:00B3 P:envmxdizc
+$80/BDFC B2 0C       LDA ($0C)  [$99:F906]   A:9F00 X:000A Y:00B3 P:envmxdizc
+$80/BDFE C2 20       REP #$20                A:9F5C X:000A Y:00B3 P:envmxdizc
+$80/BE00 E6 0C       INC $0C    [$00:000C]   A:9F5C X:000A Y:00B3 P:envmxdizc
+$80/BE02 0A          ASL A                   A:9F5C X:000A Y:00B3 P:envmxdizc
+$80/BE03 0A          ASL A                   A:3EB8 X:000A Y:00B3 P:envmxdizc
+$80/BE04 0A          ASL A                   A:7D70 X:000A Y:00B3 P:envmxdizc
+$80/BE05 BE 00 05    LDX $0500,y[$99:05B3]   A:FAE0 X:000A Y:00B3 P:envmxdizc
+$80/BE08 8E 80 21    STX $2180  [$99:2180]   A:FAE0 X:009B Y:00B3 P:envmxdizc
+$80/BE0B 86 08       STX $08    [$00:0008]   A:FAE0 X:009B Y:00B3 P:envmxdizc
+$80/BE0D 85 6C       STA $6C    [$00:006C]   A:FAE0 X:009B Y:00B3 P:envmxdizc
+$80/BE0F A4 6D       LDY $6D    [$00:006D]   A:FAE0 X:009B Y:00B3 P:envmxdizc
+$80/BE11 BE 00 06    LDX $0600,y[$99:06FA]   A:FAE0 X:009B Y:00FA P:envmxdizc
+$80/BE14 7C 17 BE    JMP ($BE17,x)[$80:BE30] A:FAE0 X:0010 Y:00FA P:envmxdizc
+
+*/
+
+    __debugbreak();
+
+label_BE45:
+    DebugPrint("$80/BE45 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BE46 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
 label_BE47:
 
     DebugPrint("$80/BE47 0A          ASL A                  ", a, x, y);
@@ -1072,6 +1113,16 @@ label_BE53:
         DebugPrint("$80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BE7B]", a, x, y);
         goto label_BE7B;
     }
+    else if (x == 0xE)
+    {
+        DebugPrint("$80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BE45]", a, x, y);
+        goto label_BE45;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BDA8]", a, x, y);
+        goto label_BDA8;
+    }
     else
     {
         __debugbreak(); // notimpl
@@ -1090,6 +1141,46 @@ label_BE7B:
 
     __debugbreak();
     // notimpl
+
+label_BE96:
+
+    DebugPrint("$80/BE96 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BE97 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BE98 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    LoadNextFrom0C(0xBE99);
+
+label_BEA1:
+
+    DebugPrint("$80/BEA1 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEA2 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEA3 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEA4 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/BEA5 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrintWithIndex("$80/BEA6 BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y);
+    x = mem7E0500_7E0700[y];
+
+    DebugPrint("$80/BEA9 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
+    indirectRAMAccess += 2;
+    indirectStores7E0100.push_back(x);
+
+    DebugPrint("$80/BEAC 86 08       STX $08    [$00:0008]  ", a, x, y);
+    mem08 = x;
 
 label_BEAE:
 
@@ -1115,6 +1206,16 @@ label_BEAE:
     {
         DebugPrint("$80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BDA9]", a, x, y);
         goto label_BDA9;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BDF7]", a, x, y);
+        goto label_BDF7;
+    }
+    else if (x == 0xE)
+    {
+        DebugPrint("$80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BE96]", a, x, y);
+        goto label_BE96;
     }
     else
     {
