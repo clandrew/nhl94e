@@ -905,6 +905,11 @@ label_BD11:
         DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD41]", a, x, y);
         goto label_BD41;
     }
+    else if (x == 0x2)
+    {
+        DebugPrint("$80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BDB4]", a, x, y);
+        goto label_BDB4;
+    }
     else
     {
         __debugbreak();
@@ -938,6 +943,7 @@ label_BDA9:
 
     LoadNextFrom0C(0xBDAC);
 
+label_BDB4:
     // $80/BDB4 0A          ASL A                   A:2E2B X:0008 Y:0085 P:envmxdizc
     DebugPrint("$80/BDB4 0A          ASL A                  ", a, x, y);
     a *= 2;
