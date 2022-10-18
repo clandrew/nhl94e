@@ -149,6 +149,16 @@ void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigne
     DebugPrintFinalize();
 }
 
+void DebugPrintWithPCAndImm8(unsigned short pc, const char* asmByte, const char* asmOp, unsigned char imm8, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+    debugLog << asmByte << ' ' << std::hex << std::setw(2) << std::setfill('0') << (int)imm8 << "       ";
+    debugLog << asmOp << " #$" << std::hex << std::setw(2) << std::setfill('0') << (int)imm8 << "               ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
 void DebugPrintWithIndex(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool longAddress)
 {
     debugLog << asmPrefix;
