@@ -51,10 +51,12 @@ std::vector<unsigned char> mem7E0500_7E0700;
 
 // Input snapshot
 std::vector<unsigned char> ram7E0700_7E1000;
+std::vector<unsigned char> ram7E0700_7E1000_usage;
 
 int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
 std::vector<unsigned char> cache7E0100;
+std::vector<unsigned char> cache7E0700;
 
 // Loaded plainly
 std::vector<unsigned char> romFile;
@@ -408,6 +410,7 @@ label_BBD9:
     // $80/BBEA 9D 00 07    STA $0700,x[$99:0700]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrintWithIndex("$80/BBEA 9D 00 07    STA $0700,x[$99:", 0x700 + x, a, x, y);
     WriteStagingOutput(0x7E0700 + x, a);
+    cache7E0700[x] = a;
 
     // $80/BBED 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BBED 18          CLC                    ", a, x, y);
@@ -724,7 +727,8 @@ label_BC60:
 
     // $80/BC6A BD 00 07    LDA $0700,x[$99:0700]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrintWithIndex("$80/BC6A BD 00 07    LDA $0700,x[$99:", 0x700 + x, a, x, y);
-    a = ram7E0700_7E1000[x]; // X = 0x0-0x50
+    a = cache7E0700[x]; // X = 0x0-0x50
+    ram7E0700_7E1000_usage[x] = true;
     
     // $80/BC6D 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC6D 85 77       STA $77    [$00:0077]  ", a, x, y);
@@ -2824,6 +2828,12 @@ int main()
     // Initialize output.
     mem7E0500_7E0700.resize(0x200);
     memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
+
+    cache7E0700.resize(0x14);
+    memset(cache7E0700.data(), 0, cache7E0700.size());
+
+    ram7E0700_7E1000_usage.resize(0x200);
+    memset(ram7E0700_7E1000_usage.data(), 0, ram7E0700_7E1000_usage.size());
 
     Fn_80BBB3();
 
