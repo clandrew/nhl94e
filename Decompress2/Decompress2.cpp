@@ -65,8 +65,14 @@ unsigned short mem77 = 0;
 unsigned short mem79 = 0;
 unsigned short mem7b = 0;
 unsigned short mem7d = 0;
+
+// Input snapshot
 std::vector<unsigned char> ram7E0100_7E0200;
+
+// Output.
 std::vector<unsigned char> mem7E0500_7E0700;
+
+// Input snapshot
 std::vector<unsigned char> ram7E0700_7E1000;
 
 int indirectRAMAccess = 0;
@@ -2845,12 +2851,13 @@ int main()
     LoadROMFragment();
     rom80BC7B = LoadBinaryFile8("rom80BC7B.bin");
 
-    mem7E0500_7E0700.resize(0x200);
-    memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
-
     // Have to initialize this from snapshot-- not 0.
     ram7E0100_7E0200 = LoadBinaryFile8("ram_stagex_7E0100.bin");
     ram7E0700_7E1000 = LoadBinaryFile8("ram_stagex_7E0700.bin");
+
+    // Initialize output.
+    mem7E0500_7E0700.resize(0x200);
+    memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
 
     Fn_80BBB3();
 
