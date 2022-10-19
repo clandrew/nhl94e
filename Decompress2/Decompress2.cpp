@@ -66,9 +66,6 @@ unsigned short mem79 = 0;
 unsigned short mem7b = 0;
 unsigned short mem7d = 0;
 
-// Input snapshot
-std::vector<unsigned char> ram7E0100_7E0200;
-
 // Output.
 std::vector<unsigned char> mem7E0500_7E0700;
 
@@ -77,6 +74,7 @@ std::vector<unsigned char> ram7E0700_7E1000;
 
 int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
+std::vector<unsigned char> cache7E0100;
 
 std::vector<unsigned char> romFile;
 
@@ -85,7 +83,23 @@ Mem16 loaded16{};
 unsigned char low = 0;
 bool willCarry = false;
 
-unsigned short LoadFromROMFragment(int address)
+Mem16 LoadMem6b()
+{
+    Mem16 mem6b;
+    mem6b.Low8 = mem6a >> 8;
+    mem6b.High8 = mem6c & 0xFF;
+    return mem6b;
+}
+
+void SaveMem6b(Mem16 const& v)
+{
+    mem6a &= 0xFF;
+    mem6a |= (v.Low8 << 8);
+    mem6c &= 0xFF00;
+    mem6c |= v.High8;
+}
+
+unsigned short LoadFromROM99F8B1(int address)
 {
     if (address < 0x99F8B1 || address > 0x99FAB4)
     {
@@ -110,7 +124,7 @@ void LoadNextFrom0CInc(unsigned short pc)
 
     // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
     DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROMFragment(0x990000 | mem0c);
+    loaded = LoadFromROM99F8B1(0x990000 | mem0c);
     a &= 0xFF00;
     a |= loaded & 0xFF;
     pc += 2;
@@ -172,7 +186,7 @@ void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shif
 
     // $80/BED5 B2 0C       LDA ($0C)  [$99:F8F9]   A:F180 X:0006 Y:00F1 P:envmxdizc
     DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    a = LoadFromROMFragment(0x990000 | mem0c);
+    a = LoadFromROM99F8B1(0x990000 | mem0c);
     pc += 2;
 
     // $80/BED7 29 FF 00    AND #$00FF              A:8C94 X:0006 Y:00F1 P:envmxdizc
@@ -248,7 +262,7 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
 
     // $80/BF9D B9 00 01    LDA $0100,y[$99:013C]   A:003C X:0006 Y:003C P:envmxdizc
     DebugPrintWithPCAndIndex(pc, "B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
-    a = ram7E0100_7E0200[y];
+    a = cache7E0100[y];
     pc += 3;
 
     if (nextY == 1)
@@ -324,7 +338,7 @@ void Fn_80BBB3()
     mem0c = a;
 
     DebugPrint("$80/BBBD B2 0C       LDA ($0C)  [$99:F8B1]  ", a, x, y);
-    a = LoadFromROMFragment(0x990000 | mem0c);
+    a = LoadFromROM99F8B1(0x990000 | mem0c);
 
     // $80/BBBF 85 73       STA $73    [$00:0073]   A:960F X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBBF 85 73       STA $73    [$00:0073]  ", a, x, y);
@@ -336,7 +350,7 @@ void Fn_80BBB3()
 
     // $80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]   A:960F X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]  ", a, x, y);
-    a = LoadFromROMFragment(0x990000 | mem0c);
+    a = LoadFromROM99F8B1(0x990000 | mem0c);
 
     // $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBC5 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
@@ -661,6 +675,11 @@ label_BC40:
     DebugPrint("$80/BC4E 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
     indirectRAMAccess += 2;
     indirectStores7E0100.push_back(x);
+    if (x > 0xFF)
+    {
+        __debugbreak();
+    }
+    cache7E0100.push_back(x);
 
     // $80/BC51 C6 77       DEC $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC51 C6 77       DEC $77    [$00:0077]  ", a, x, y);
@@ -779,7 +798,7 @@ label_BC83:
     // $80/BC88 B9 00 01    LDA $0100,y[$99:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
     // 8bit load of RAM
     DebugPrintWithIndex("$80/BC88 B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
-    a = ram7E0100_7E0200[y];
+    a = cache7E0100[y];
 
     // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC8B 85 01       STA $01    [$00:0001]  ", a, x, y);
@@ -2845,7 +2864,6 @@ int main()
     romFile = LoadBinaryFile8("nhl94.sfc");
 
     // Have to initialize this from snapshot-- not 0.
-    ram7E0100_7E0200 = LoadBinaryFile8("ram_stagex_7E0100.bin");
     ram7E0700_7E1000 = LoadBinaryFile8("ram_stagex_7E0700.bin");
 
     // Initialize output.
@@ -2855,20 +2873,4 @@ int main()
     Fn_80BBB3();
 
     return 0;
-}
-
-Mem16 LoadMem6b()
-{
-    Mem16 mem6b;
-    mem6b.Low8 = mem6a >> 8;
-    mem6b.High8 = mem6c & 0xFF;
-    return mem6b;
-}
-
-void SaveMem6b(Mem16 const& v)
-{
-    mem6a &= 0xFF;
-    mem6a |= (v.Low8 << 8);
-    mem6c &= 0xFF00;
-    mem6c |= v.High8;
 }
