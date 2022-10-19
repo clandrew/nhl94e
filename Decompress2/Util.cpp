@@ -10,7 +10,7 @@ std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
 std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
-int instructionLimit = 30000;
+int instructionLimit = 30900;
 int printedInstructionCount = 0;
 
 void OpenDebugLog()
@@ -77,7 +77,7 @@ unsigned short LoadFromRAM(int address)
 
 unsigned short LoadFromROMFragment(int address)
 {
-    if (address < 0x99F8B1 || address > 0x99FAB4 - 1)
+    if (address < 0x99F8B1 || address > 0x99FAB4)
     {
         __debugbreak();
         return 0xFF;

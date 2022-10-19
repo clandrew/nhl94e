@@ -1820,10 +1820,23 @@ label_BF53:
         DebugPrint("$80/BF5A 7C 5D BF    JMP ($BF5D,x)[$80:BF76]", a, x, y);
         goto label_BF76;
     }
+    else if (x == 0x12)
+    {
+        DebugPrint("$80/BF5A 7C 5D BF    JMP ($BF5D,x)[$80:BF71]", a, x, y);
+        goto label_BF71;
+    }
     else
     {
         __debugbreak();
     }
+
+label_BF71:
+
+    DebugPrint("$80/BF71 A2 02       LDX #$02               ", a, x, y);
+    x = 2;
+
+    DebugPrint("$80/BF73 4C 7C C1    JMP $C17C  [$80:C17C]  ", a, x, y);
+    goto label_C17C;
 
 label_BF76:
 
@@ -2137,7 +2150,7 @@ label_C17C:
     DebugPrint("$80/C186 F0 0D       BEQ $0D    [$C195]     ", a, x, y);
     if (z)
     {
-        __debugbreak(); // notimpl
+        goto label_C195;
     }
 
     // $80/C188 A4 08       LDY $08    [$00:0008]   A:003E X:0006 Y:0006 P:envmxdizc
@@ -2212,7 +2225,24 @@ label_C18A:
         __debugbreak(); // notimpl
     }
 
-    __debugbreak();
+label_C195:
+
+    DebugPrint("$80/C195 A5 6C       LDA $6C    [$00:006C]  ", a, x, y);
+    a = mem6c;
+    n = mem6c >= 0x8000;
+
+    DebugPrint("$80/C197 30 16       BMI $16    [$C1AF]     ", a, x, y);
+    if (n)
+    {
+        goto label_C1AF;
+    }
+
+    __debugbreak(); // notimpl
+
+label_C1AF:
+
+    DebugPrint("$80/C1AF 60          RTS                    ", a, x, y);
+    return;
 }
 
 
@@ -2528,6 +2558,7 @@ label_C244:
 
     DebugPrint("$80/C24D A5 6F       LDA $6F    [$00:006F]  ", a, x, y);
     a = mem6f;
+    z = a == 0;
 
     DebugPrint("$80/C24F 60          RTS                    ", a, x, y);
     return;
@@ -2553,7 +2584,21 @@ label_C25C:
 
 label_C268:
 
-    __debugbreak();
+    LoadNextFrom0CInc(0xC268);
+
+    DebugPrint("$80/C270 A2 10       LDX #$10               ", a, x, y);
+    x = 0x10;
+
+    DebugPrint("$80/C272 85 6C       STA $6C    [$00:006C]  ", a, x, y);
+    mem6c = a;
+
+    DebugPrint("$80/C274 A5 6F       LDA $6F    [$00:006F]  ", a, x, y);
+    a = mem6f;
+    z = a == 0;
+
+    // $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmxdizc
+    DebugPrint("$80/C276 60          RTS                    ", a, x, y);
+    return;
 
 label_C277:
 
