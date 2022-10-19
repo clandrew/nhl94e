@@ -6,7 +6,6 @@
 #include <iomanip>
 
 std::ofstream debugLog;
-std::vector<unsigned char> romFragment; //0x99F8B1 to 99FAB4.
 std::vector<unsigned char> ram;
 std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
@@ -50,9 +49,8 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     return result;
 }
 
-void LoadROMFragment()
+void InitializeStaging()
 {
-    romFragment = LoadBinaryFile8("rom_fragment.bin");
     staging.resize(0x300);
 }
 
@@ -74,23 +72,6 @@ unsigned short LoadFromRAM(int address)
     unsigned short result = (ch1 << 8) | ch0;
     return result;
 }
-
-unsigned short LoadFromROMFragment(int address)
-{
-    if (address < 0x99F8B1 || address > 0x99FAB4)
-    {
-        __debugbreak();
-        return 0xFF;
-    }
-
-    int offs = address - 0x99F8B1;
-
-    unsigned char ch0 = romFragment[offs];
-    unsigned char ch1 = romFragment[offs+1];
-    unsigned short result = (ch1 << 8) | ch0;
-    return result;
-}
-
 
 void WriteStagingOutput(int address, unsigned short output)
 {

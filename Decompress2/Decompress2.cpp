@@ -78,12 +78,31 @@ std::vector<unsigned char> ram7E0700_7E1000;
 int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
 
+std::vector<unsigned char> romFile;
+
 std::vector<unsigned char> rom80BC7B;
+std::vector<unsigned char> rom99F8B1; //0x99F8B1 to 99FAB4.
 
 unsigned short loaded = 0;
 Mem16 loaded16{};
 unsigned char low = 0;
 bool willCarry = false;
+
+unsigned short LoadFromROMFragment(int address)
+{
+    if (address < 0x99F8B1 || address > 0x99FAB4)
+    {
+        __debugbreak();
+        return 0xFF;
+    }
+
+    int offs = address - 0x99F8B1;
+
+    unsigned char ch0 = rom99F8B1[offs];
+    unsigned char ch1 = rom99F8B1[offs + 1];
+    unsigned short result = (ch1 << 8) | ch0;
+    return result;
+}
 
 void LoadNextFrom0CInc(unsigned short pc)
 {
@@ -2848,8 +2867,20 @@ label_C2E5:
 int main()
 {
     OpenDebugLog();
-    LoadROMFragment();
-    rom80BC7B = LoadBinaryFile8("rom80BC7B.bin");
+    InitializeStaging();
+
+    // Load ROM file
+    romFile = LoadBinaryFile8("nhl94.sfc");
+
+    for (int i = 0; i < 0x30; ++i)
+    {
+        rom80BC7B.push_back(romFile[0x3C7B + i]);
+    }
+
+    for (int i = 0; i < 0x206; ++i)
+    {
+        rom99F8B1.push_back(romFile[0xCF8B1 + i]);
+    }
 
     // Have to initialize this from snapshot-- not 0.
     ram7E0100_7E0200 = LoadBinaryFile8("ram_stagex_7E0100.bin");
