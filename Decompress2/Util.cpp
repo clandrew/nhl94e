@@ -197,3 +197,22 @@ unsigned short ExchangeShortHighAndLow(unsigned short s)
     s = part0 | part1;
     return s;
 }
+
+unsigned short IncLow8(unsigned short s)
+{
+    unsigned char ch = s & 0xFF;
+    ++ch;
+    s = ch;
+    return s;
+}
+
+void RotateLeft(unsigned short* pS, bool* pC)
+{
+    bool c = *pS >= 0x8000;
+    *pS = *pS << 1;
+    if (*pC)
+    {
+        *pS |= 0x1;
+    }
+    *pC = c;
+}

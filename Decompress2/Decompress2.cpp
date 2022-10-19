@@ -9,25 +9,6 @@ void Fn_80C1B0();
 void Fn_80C232();
 void Fn_80C2DC();
 
-unsigned short IncLow8(unsigned short s)
-{
-    unsigned char ch = s & 0xFF;
-    ++ch;
-    s = ch;
-    return s;
-}
-
-void RotateLeft(unsigned short* pS, bool* pC)
-{
-    bool c = *pS >= 0x8000;
-    *pS = *pS << 1;
-    if (*pC)
-    {
-        *pS |= 0x1;
-    }
-    *pC = c;
-}
-
 unsigned short a = 0xFB30;
 unsigned short x = 0x0480;
 unsigned short y = 0xF8AE;
@@ -201,19 +182,16 @@ void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shif
         pc++;
     }
 
-    // $80/BEDF 05 6B       ORA $6B    [$00:006B]   A:1280 X:0006 Y:00F1 P:envmxdizc
     DebugPrintWithPC(pc, "05 6B       ORA $6B    [$00:006B]  ", a, x, y);
     loaded16 = LoadMem6b();
     a |= loaded16.Data16;
     pc += 2;
 
-    // $80/BEE1 85 6B       STA $6B    [$00:006B]   A:9280 X:0006 Y:00F1 P:envmxdizc
     DebugPrintWithPC(pc, "85 6B       STA $6B    [$00:006B]  ", a, x, y);
     loaded16.Data16 = a;
     SaveMem6b(loaded16);
     pc += 2;
 
-    // $80/BEE3 A5 6C       LDA $6C    [$00:006C]   A:9280 X:0006 Y:00F1 P:envmxdizc
     DebugPrintWithPC(pc, "A5 6C       LDA $6C    [$00:006C]  ", a, x, y);
     a = mem6c;
 }
@@ -317,7 +295,7 @@ void Fn_80BBB3()
 {
     // This function writes to 7F0000-7F0484.
     // This is a sizeable function, a.k.a. 'the monstrosity'.
-    // It does a buch of sequential-ish (skipping a couple bytes) starting from ROM offset 99F8B1, ending at 99FAB4.
+    // It does a buch of sequential-ish (skipping a couple bytes) reads starting from ROM offset 99F8B1, ending at 99FAB4.
     // That corresponds to file offset 0xCF8B1, through to 0xCFAB4.
 
     // Use 8bit X and Y
@@ -380,13 +358,11 @@ void Fn_80BBB3()
     DebugPrint("$80/BBD0 64 75       STZ $75    [$00:0075]  ", a, x, y);
     mem75 = 0;
 
-    // $80/BBD2 A9 10 00    LDA #$0010              A:9665 X:0080 Y:0008 P:envmxdizc
     DebugPrint("$80/BBD2 A9 10 00    LDA #$0010             ", a, x, y);
     a = 0x10;
 
-    // $80/BBD5 85 14       STA $14    [$00:0014]   A:0010 X:0080 Y:0008 P:envmxdizc
     DebugPrint("$80/BBD5 85 14       STA $14    [$00:0014]  ", a, x, y);
-    mem14 = a;
+    mem14 = 0x10;
 
     // $80/BBD7 A2 FE       LDX #$FE                A:0010 X:0080 Y:0008 P:envmxdizc
     DebugPrint("$80/BBD7 A2 FE       LDX #$FE               ", a, x, y);
@@ -582,18 +558,15 @@ label_BC1D:
     mem7E0500_7E0700[0xC0 + x] = 0;
     mem7E0500_7E0700[0xC0 + x+1] = 0;
     
-    // $80/BC29 CA          DEX                     A:0009 X:003E Y:0008 P:envmxdizc
     DebugPrint("$80/BC29 CA          DEX                    ", a, x, y);
     --x;
     x &= 0xFF;
 
-    // $80/BC2A CA          DEX                     A:0009 X:003D Y:0008 P:envmxdizc
     DebugPrint("$80/BC2A CA          DEX                    ", a, x, y);
     --x;
     x &= 0xFF;
     n = x >= 0x80;
 
-    // $80/BC2B 10 F0       BPL $F0    [$BC1D]      A:0009 X:003C Y:0008 P:envmxdizc
     DebugPrint("$80/BC2B 10 F0       BPL $F0    [$BC1D]     ", a, x, y);
     if (!n)
     {
@@ -2164,30 +2137,24 @@ label_C15C:
     goto label_BD23;
 
 label_C17C:
-    // $80/C17C A4 74       LDY $74    [$00:0074]   A:9420 X:0008 Y:0094 P:envmxdizc
     DebugPrint("$80/C17C A4 74       LDY $74    [$00:0074]  ", a, x, y);
     y = mem73 >> 8;
 
-    // $80/C17E 20 DC C2    JSR $C2DC  [$80:C2DC]   A:9420 X:0008 Y:0006 P:envmxdizc
     DebugPrint("$80/C17E 20 DC C2    JSR $C2DC  [$80:C2DC]  ", a, x, y);
     Fn_80C2DC();
 
-    // $80/C181 85 6C       STA $6C    [$00:006C]   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C181 85 6C       STA $6C    [$00:006C]  ", a, x, y);
     mem6c = a;
 
-    // $80/C183 20 32 C2    JSR $C232  [$80:C232]   A:085C X:000C Y:0000 P:envmxdizc
     DebugPrint("$80/C183 20 32 C2    JSR $C232  [$80:C232]  ", a, x, y);
     Fn_80C232();
 
-    // $80/C186 F0 0D       BEQ $0D    [$C195]      A:003E X:0006 Y:0006 P:envmxdizc
     DebugPrint("$80/C186 F0 0D       BEQ $0D    [$C195]     ", a, x, y);
     if (z)
     {
         goto label_C195;
     }
 
-    // $80/C188 A4 08       LDY $08    [$00:0008]   A:003E X:0006 Y:0006 P:envmxdizc
     DebugPrint("$80/C188 A4 08       LDY $08    [$00:0008]  ", a, x, y);
     y = mem08;
 

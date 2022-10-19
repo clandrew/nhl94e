@@ -23,3 +23,6 @@ void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y);
 void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y);
 
 unsigned short ExchangeShortHighAndLow(unsigned short s);
+
+unsigned short IncLow8(unsigned short s);
+void RotateLeft(unsigned short* pS, bool* pC);
