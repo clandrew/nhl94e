@@ -35,7 +35,6 @@ bool n = false;
 bool z = false;
 bool c = false;
 
-// WRAM data
 union Mem16
 {
     unsigned short Data16;
@@ -76,6 +75,7 @@ int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
 std::vector<unsigned char> cache7E0100;
 
+// Loaded plainly
 std::vector<unsigned char> romFile;
 
 unsigned short loaded = 0;
@@ -2643,7 +2643,14 @@ label_C279:
     DebugPrint("$80/C27C F0 24       BEQ $24    [$C2A2]     ", a, x, y);
     if (z)
     {
-        goto label_C2A2;
+        LoadNextFrom0CInc(0xC2A2);
+
+        // $80/C2AA A2 10       LDX #$10                A:8C2E X:0000 Y:0002 P:envmxdizc
+        DebugPrint("$80/C2AA A2 10       LDX #$10               ", a, x, y);
+        x = 0x10;
+
+        // $80/C2AC 80 D0       BRA $D0    [$C27E]      A:8C2E X:0010 Y:0002 P:envmxdizc
+        DebugPrint("$80/C2AC 80 D0       BRA $D0    [$C27E]     ", a, x, y);
     }
 
 label_C27E:
@@ -2671,7 +2678,14 @@ label_C283:
     DebugPrint("$80/C288 F0 24       BEQ $24    [$C2AE]     ", a, x, y);
     if (z)
     {
-        goto label_C2AE;
+        LoadNextFrom0CInc(0xC2AE);
+
+        // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
+        DebugPrint("$80/C2B6 A2 10       LDX #$10               ", a, x, y);
+        x = 0x10;
+
+        // $80/C2B8 80 D0       BRA $D0    [$C28A]      A:178C X:0010 Y:0006 P:envmxdizc
+        DebugPrint("$80/C2B8 80 D0       BRA $D0    [$C28A]     ", a, x, y);
     }
 
 label_C28A:
@@ -2758,37 +2772,11 @@ label_C28A:
     // $80/C29F 85 6F       STA $6F    [$00:006F]   A:003E X:0006 Y:0006 P:envmxdizc
     DebugPrint("$80/C29F 85 6F       STA $6F    [$00:006F]  ", a, x, y);
     mem6f = a;
-    z = a == 0;
+    z = a == 0; // Caller expects this.
 
     // $80/C2A1 60          RTS                     A:003E X:0006 Y:0006 P:envmxdizc
     DebugPrint("$80/C2A1 60          RTS                    ", a, x, y);
     return;
-
-label_C2A2:
-
-    LoadNextFrom0CInc(0xC2A2);
-   
-    // $80/C2AA A2 10       LDX #$10                A:8C2E X:0000 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2AA A2 10       LDX #$10               ", a, x, y);
-    x = 0x10;
-    
-    // $80/C2AC 80 D0       BRA $D0    [$C27E]      A:8C2E X:0010 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2AC 80 D0       BRA $D0    [$C27E]     ", a, x, y);
-    goto label_C27E;
-
-label_C2AE:
-
-    LoadNextFrom0CInc(0xC2AE);
-
-    // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2B6 A2 10       LDX #$10               ", a, x, y);
-    x = 0x10;
-
-    // $80/C2B8 80 D0       BRA $D0    [$C28A]      A:178C X:0010 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2B8 80 D0       BRA $D0    [$C28A]     ", a, x, y);
-    goto label_C28A;
-
-    __debugbreak(); // notimpl
 }
 
 void Fn_80C2DC()
