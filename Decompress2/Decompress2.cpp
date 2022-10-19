@@ -307,28 +307,22 @@ void Fn_80BBB3()
     // That corresponds to file offset 0xCF8B1, through to 0xCFAB4.
 
     // Use 8bit X and Y
-    // $80/BBB3 E2 10       SEP #$10                A:FB30 X:0480 Y:F8AE P:envmxdizc
     DebugPrint("$80/BBB3 E2 10       SEP #$10               ", a, x, y);
     x &= 0xFF;
     y &= 0xFF;
     
-    // $80/BBB5 A5 0C       LDA $0C    [$00:000C]   A:FB30 X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBB5 A5 0C       LDA $0C    [$00:000C]  ", a, x, y);
     a = mem0c;
 
-    // $80/BBB7 18          CLC                     A:F8AC X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBB7 18          CLC                    ", a, x, y);
     c = false;
 
-    // $80/BBB8 69 05 00    ADC #$0005              A:F8AC X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBB8 69 05 00    ADC #$0005             ", a, x, y);
     a += 5;
 
-    // $80/BBBB 85 0C       STA $0C    [$00:000C]   A:F8B1 X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBBB 85 0C       STA $0C    [$00:000C]  ", a, x, y);
     mem0c = a;
 
-    // $80/BBBD B2 0C       LDA ($0C)  [$99:F8B1]   A:F8B1 X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBBD B2 0C       LDA ($0C)  [$99:F8B1]  ", a, x, y);
     a = LoadFromROMFragment(0x990000 | mem0c);
 
@@ -1036,8 +1030,6 @@ label_BCC5:
     {
         __debugbreak();
     }
-
-    __debugbreak();
 
 label_BD0B:
     DebugPrint("$80/BD0B 0A          ASL A                  ", a, x, y);
@@ -2408,7 +2400,15 @@ label_C1F6:
     DebugPrint("$80/C1F8 F0 20       BEQ $20    [$C21A]     ", a, x, y);
     if (z)
     {
-        goto label_C21A;
+        LoadNextFrom0CInc(0xC21A);
+
+        // $80/C222 A0 08       LDY #$08                A:91D1 X:0002 Y:0000 P:envmxdizc
+        DebugPrint("$80/C222 A0 08       LDY #$08               ", a, x, y);
+        y = 0x8;
+
+        // $80/C224 80 D4       BRA $D4    [$C1FA]      A:91D1 X:0002 Y:0008 P:envmxdizc
+        DebugPrint("$80/C224 80 D4       BRA $D4    [$C1FA]     ", a, x, y);
+        goto label_C1FA;
     }
 
 label_C1FA:
@@ -2427,18 +2427,21 @@ label_C1FA:
     DebugPrint("$80/C1FD 86 04       STX $04    [$00:0004]  ", a, x, y);
     mem04 = x;
 
-label_C1FF:
+label_C1FF_Finish:
 
     ShiftRotateDecrement(0xC1FF, 0, 1);
 
-    // $80/C203 F0 21       BEQ $21    [$C226]      A:9E00 X:0003 Y:0001 P:envmxdizc
     DebugPrint("$80/C203 F0 21       BEQ $21    [$C226]     ", a, x, y);
     if (z)
     {
-        goto label_C226;
+        LoadNextFrom0CInc(0xC226);
+
+        DebugPrint("$80/C22E A0 08       LDY #$08               ", a, x, y);
+        y = 0x8;
+
+        DebugPrint("$80/C230 80 D3       BRA $D3    [$C205]     ", a, x, y);
     }
 
-label_C205:
     // $80/C205 CA          DEX                     A:9E00 X:0003 Y:0001 P:envmxdizc
     DebugPrint("$80/C205 CA          DEX                    ", a, x, y);
     --x;
@@ -2448,7 +2451,7 @@ label_C205:
     DebugPrint("$80/C206 D0 F7       BNE $F7    [$C1FF]     ", a, x, y);
     if (!z)
     {
-        goto label_C1FF;
+        goto label_C1FF_Finish;
     }
 
     // $80/C208 85 6C       STA $6C    [$00:006C]   A:7922 X:0000 Y:0007 P:envmxdizc
@@ -2488,35 +2491,6 @@ label_C205:
     // $80/C219 60          RTS                     A:0006 X:0008 Y:0007 P:envmxdizc
     DebugPrint("$80/C219 60          RTS                    ", a, x, y);
     return;
-
-    __debugbreak(); // notimpl
-
-label_C21A:
-
-    LoadNextFrom0CInc(0xC21A);
-
-    // $80/C222 A0 08       LDY #$08                A:91D1 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C222 A0 08       LDY #$08               ", a, x, y);
-    y = 0x8;
-
-    // $80/C224 80 D4       BRA $D4    [$C1FA]      A:91D1 X:0002 Y:0008 P:envmxdizc
-    DebugPrint("$80/C224 80 D4       BRA $D4    [$C1FA]     ", a, x, y);
-    goto label_C1FA;
-    __debugbreak();
-
-label_C226:
-
-    LoadNextFrom0CInc(0xC226);
-
-    // $80/C22E A0 08       LDY #$08                A:3C91 X:0002 Y:0000 P:envmxdizc
-    DebugPrint("$80/C22E A0 08       LDY #$08               ", a, x, y);
-    y = 0x8;
-
-    // $80/C230 80 D3       BRA $D3    [$C205]      A:3C91 X:0002 Y:0008 P:envmxdizc
-    DebugPrint("$80/C230 80 D3       BRA $D3    [$C205]     ", a, x, y);
-    goto label_C205;
-
-    __debugbreak();
 }
 
 void Fn_80C232()
@@ -2801,7 +2775,7 @@ label_C2AE:
 void Fn_80C2DC()
 {
 
-label_C2DC:
+label_C2DC_Start:
     // $80/C2DC 0A          ASL A                   A:9420 X:0008 Y:0006 P:envmxdizc
     DebugPrint("$80/C2DC 0A          ASL A                  ", a, x, y);
     a *= 2;
@@ -2831,7 +2805,7 @@ label_C2DC:
     DebugPrint("$80/C2E2 D0 F8       BNE $F8    [$C2DC]     ", a, x, y);
     if (!z)
     {
-        goto label_C2DC;
+        goto label_C2DC_Start;
     }
 
     // $80/C2E4 60          RTS                     A:085C X:000C Y:0000 P:envmxdizc
@@ -2855,7 +2829,7 @@ label_C2E5:
     DebugPrint("$80/C2F0 D0 EA       BNE $EA    [$C2DC]     ", a, x, y);
     if (!z)
     {
-        goto label_C2DC;
+        goto label_C2DC_Start;
     }
 
     DebugPrint("$80/C2F2 60          RTS                    ", a, x, y);
