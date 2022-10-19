@@ -49,14 +49,13 @@ unsigned short mem7d = 0;
 // Output.
 std::vector<unsigned char> mem7E0500_7E0700;
 
-// Input snapshot
-std::vector<unsigned char> ram7E0700_7E1000;
-std::vector<unsigned char> ram7E0700_7E1000_usage;
-
 int indirectRAMAccess = 0;
 std::vector<unsigned short> indirectStores7E0100;
 std::vector<unsigned char> cache7E0100;
 std::vector<unsigned char> cache7E0700;
+std::vector<unsigned char> cache7E0720;
+std::vector<unsigned char> cache7E0740;
+std::vector<unsigned char> cache7E0760;
 
 // Loaded plainly
 std::vector<unsigned char> romFile;
@@ -215,14 +214,14 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
     if (subtractDataAddress == 0x0730)
     {
         DebugPrintWithPC(pc, "ED 30 07    SBC $0730  [$99:0730]  ", a, x, y);
-        loaded16.Low8 = ram7E0700_7E1000[0x30];
-        loaded16.High8 = ram7E0700_7E1000[0x31];
+        loaded16.Low8 = cache7E0720[0x10];
+        loaded16.High8 = cache7E0720[0x11];
     }
     else if (subtractDataAddress == 0x732)
     {
         DebugPrintWithPC(pc, "ED 32 07    SBC $0732  [$99:0732]  ", a, x, y);
-        loaded16.Low8 = ram7E0700_7E1000[0x32];
-        loaded16.High8 = ram7E0700_7E1000[0x33];
+        loaded16.Low8 = cache7E0720[0x12];
+        loaded16.High8 = cache7E0720[0x13];
     }
     else
     {
@@ -401,7 +400,9 @@ label_BBD9:
 
     // $80/BBE4 9D 20 07    STA $0720,x[$99:0720]   A:0000 X:0000 Y:0008 P:envmxdizc
     DebugPrintWithIndex("$80/BBE4 9D 20 07    STA $0720,x[$99:", 0x720 + x, a, x, y);
-    WriteStagingOutput(0x7E0720 + x, a); // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
+    loaded16.Data16 = a;
+    cache7E0720[x] = loaded16.Low8; // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
+    cache7E0720[x+1] = loaded16.High8;
 
     // $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmxdizc
     DebugPrint("$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]  ", a, x, y);
@@ -409,7 +410,6 @@ label_BBD9:
 
     // $80/BBEA 9D 00 07    STA $0700,x[$99:0700]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrintWithIndex("$80/BBEA 9D 00 07    STA $0700,x[$99:", 0x700 + x, a, x, y);
-    WriteStagingOutput(0x7E0700 + x, a);
     cache7E0700[x] = a;
 
     // $80/BBED 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
@@ -454,7 +454,9 @@ label_BBD9:
 
     // $80/BBFD 9E 40 07    STZ $0740,x[$99:0740]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrintWithIndex("$80/BBFD 9E 40 07    STZ $0740,x[$99:", 0x740+x, a, x, y);
-    WriteStagingOutput(0x7E0740 + x, a);
+    loaded16.Data16 = a;
+    cache7E0740[x] = loaded16.Low8;
+    cache7E0740[x+1] = loaded16.High8;
 
     // $80/BC00 80 D7       BRA $D7    [$BBD9]      A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC00 80 D7       BRA $D7    [$BBD9]     ", a, x, y);
@@ -512,7 +514,9 @@ label_BC0B:
 
     // $80/BC12 9D 40 07    STA $0740,x[$99:0742]   A:4000 X:0002 Y:0002 P:envmxdizc
     DebugPrintWithIndex("$80/BC12 9D 40 07    STA $0740,x[$99:", 0x740 + x, a, x, y);
-    WriteStagingOutput(0x7E0740 + x, a); 
+    loaded16.Data16 = a;
+    cache7E0740[x] = loaded16.Low8;
+    cache7E0740[x+1] = loaded16.High8;
 
     // $80/BC15 90 C2       BCC $C2    [$BBD9]      A:4000 X:0002 Y:0002 P:envmxdizc
     DebugPrint("$80/BC15 90 C2       BCC $C2    [$BBD9]     ", a, x, y);
@@ -728,7 +732,6 @@ label_BC60:
     // $80/BC6A BD 00 07    LDA $0700,x[$99:0700]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrintWithIndex("$80/BC6A BD 00 07    LDA $0700,x[$99:", 0x700 + x, a, x, y);
     a = cache7E0700[x]; // X = 0x0-0x50
-    ram7E0700_7E1000_usage[x] = true;
     
     // $80/BC6D 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC6D 85 77       STA $77    [$00:0077]  ", a, x, y);
@@ -976,7 +979,9 @@ label_BCC5:
 
     // $80/BCD5 8D 60 07    STA $0760  [$99:0760]   A:BFC8 X:0012 Y:003B P:envmxdizc
     DebugPrint("$80/BCD5 8D 60 07    STA $0760  [$99:0760]  ", a, x, y);
-    ram7E0700_7E1000[0x60] = a;
+    loaded16.Data16 = a;
+    cache7E0760[0] = loaded16.Low8;
+    cache7E0760[1] = loaded16.High8;
 
     // $80/BCD8 A4 12       LDY $12    [$00:0012]   A:BFC8 X:0012 Y:003B P:envmxdizc
     DebugPrint("$80/BCD8 A4 12       LDY $12    [$00:0012]  ", a, x, y);
@@ -1892,8 +1897,8 @@ label_BFC8:
 
     // $80/BFC8 CD 50 07    CMP $0750  [$99:0750]   A:F192 X:0006 Y:00F1 P:envmxdizc
     DebugPrint("$80/BFC8 CD 50 07    CMP $0750  [$99:0750]  ", a, x, y);
-    loaded16.Low8 =  ram7E0700_7E1000[0x50];
-    loaded16.High8 = ram7E0700_7E1000[0x51];
+    loaded16.Low8 = cache7E0740[0x10];
+    loaded16.High8 = cache7E0740[0x11];
     c = a >= loaded16.Data16;
 
     // $80/BFCB 90 C2       BCC $C2    [$BF8F]      A:F192 X:0006 Y:00F1 P:envmxdizc
@@ -2817,13 +2822,9 @@ label_C2E5:
 int main()
 {
     OpenDebugLog();
-    InitializeStaging();
 
     // Load ROM file
     romFile = LoadBinaryFile8("nhl94.sfc");
-
-    // Have to initialize this from snapshot-- not 0.
-    ram7E0700_7E1000 = LoadBinaryFile8("ram_stagex_7E0700.bin");
 
     // Initialize output.
     mem7E0500_7E0700.resize(0x200);
@@ -2832,8 +2833,14 @@ int main()
     cache7E0700.resize(0x14);
     memset(cache7E0700.data(), 0, cache7E0700.size());
 
-    ram7E0700_7E1000_usage.resize(0x200);
-    memset(ram7E0700_7E1000_usage.data(), 0, ram7E0700_7E1000_usage.size());
+    cache7E0720.resize(0x20);
+    memset(cache7E0720.data(), 0, cache7E0720.size());
+
+    cache7E0740.resize(0x20);
+    memset(cache7E0740.data(), 0, cache7E0740.size());
+
+    cache7E0760.resize(0x2);
+    memset(cache7E0760.data(), 0, cache7E0760.size());
 
     Fn_80BBB3();
 

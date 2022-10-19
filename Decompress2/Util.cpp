@@ -7,7 +7,6 @@
 
 std::ofstream debugLog;
 std::vector<unsigned char> ram;
-std::vector<unsigned short> staging;
 std::vector<unsigned short> decompressed;
 int instructionLimit = 30900;
 int printedInstructionCount = 0;
@@ -49,11 +48,6 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     return result;
 }
 
-void InitializeStaging()
-{
-    staging.resize(0x300);
-}
-
 std::vector<int> ramReads;
 
 unsigned short LoadFromRAM(int address)
@@ -71,19 +65,6 @@ unsigned short LoadFromRAM(int address)
 
     unsigned short result = (ch1 << 8) | ch0;
     return result;
-}
-
-void WriteStagingOutput(int address, unsigned short output)
-{
-    if (address < 0x7E0500 || address >= 0x7E0800)
-    {
-        __debugbreak();
-        return;
-    }
-
-    int offs = address - 0x7E0500;
-    int index = offs / 2;
-    staging[index] = output;
 }
 
 void WriteDecompressedOutput(int address, unsigned short output)

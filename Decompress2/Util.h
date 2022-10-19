@@ -6,7 +6,6 @@ void OpenDebugLog();
 unsigned short LoadFromRAM(int address);
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName);
 
-void InitializeStaging();
 void WriteStagingOutput(int address, unsigned short output);
 
 void WriteDecompressedOutput(int address, unsigned short output);
