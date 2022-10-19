@@ -80,9 +80,6 @@ std::vector<unsigned short> indirectStores7E0100;
 
 std::vector<unsigned char> romFile;
 
-std::vector<unsigned char> rom80BC7B;
-std::vector<unsigned char> rom99F8B1; //0x99F8B1 to 99FAB4.
-
 unsigned short loaded = 0;
 Mem16 loaded16{};
 unsigned char low = 0;
@@ -98,8 +95,9 @@ unsigned short LoadFromROMFragment(int address)
 
     int offs = address - 0x99F8B1;
 
-    unsigned char ch0 = rom99F8B1[offs];
-    unsigned char ch1 = rom99F8B1[offs + 1];
+    unsigned char ch0 = romFile[0xCF8B1 + offs];
+    unsigned char ch1 = romFile[0xCF8B1 + offs + 1];       
+
     unsigned short result = (ch1 << 8) | ch0;
     return result;
 }
@@ -754,7 +752,7 @@ label_BC60:
     // x=0..25
     // Load from ROM. 8bit load
     DebugPrintWithIndex("$80/BC71 BF 7B BC 80 LDA $80BC7B,x[$80:", 0xBC7B + x, a, x, y, true);
-    a = rom80BC7B[x];
+    a = romFile[0x3C7B + x];
     
     // $80/BC75 85 7D       STA $7D    [$00:007D]   A:0081 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC75 85 7D       STA $7D    [$00:007D]  ", a, x, y);
@@ -2871,16 +2869,6 @@ int main()
 
     // Load ROM file
     romFile = LoadBinaryFile8("nhl94.sfc");
-
-    for (int i = 0; i < 0x30; ++i)
-    {
-        rom80BC7B.push_back(romFile[0x3C7B + i]);
-    }
-
-    for (int i = 0; i < 0x206; ++i)
-    {
-        rom99F8B1.push_back(romFile[0xCF8B1 + i]);
-    }
 
     // Have to initialize this from snapshot-- not 0.
     ram7E0100_7E0200 = LoadBinaryFile8("ram_stagex_7E0100.bin");
