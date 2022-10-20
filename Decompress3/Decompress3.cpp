@@ -7,7 +7,7 @@
 
 void Fn_80C1B0();
 void Fn_80C232();
-void Fn_80C2DC();
+unsigned short Fn_80C2DC(unsigned short initialValue);
 
 unsigned short a = 0xFB30;
 unsigned short x = 0x0480;
@@ -104,6 +104,13 @@ void LoadNextFrom0CInc()
     a &= 0xFF00;
     a |= loaded & 0xFF;
     mem0c++;
+}
+
+unsigned short LoadNextResultFrom0CInc()
+{
+    unsigned short result = LoadFromROM99F8B1(0x990000 | mem0c);
+    mem0c++;
+    return result;
 }
 
 void LoadNextFrom0500()
@@ -2012,13 +2019,8 @@ label_C17C:
     DebugPrint("$80/C17C A4 74       LDY $74    [$00:0074]  ", a, x, y);
     y = mem73 >> 8;
 
-    DebugPrint("$80/C17E 20 DC C2    JSR $C2DC  [$80:C2DC]  ", a, x, y);
-    Fn_80C2DC();
+    mem6c = Fn_80C2DC(a);
 
-    DebugPrint("$80/C181 85 6C       STA $6C    [$00:006C]  ", a, x, y);
-    mem6c = a;
-
-    DebugPrint("$80/C183 20 32 C2    JSR $C232  [$80:C232]  ", a, x, y);
     Fn_80C232();
 
     DebugPrint("$80/C186 F0 0D       BEQ $0D    [$C195]     ", a, x, y);
@@ -2618,68 +2620,25 @@ label_C28A:
     return;
 }
 
-void Fn_80C2DC()
+unsigned short Fn_80C2DC(unsigned short initialValue)
 {
+    // Takes parameters a, x, y.
+    // Loads data based on mem0c.
+    // Returns the resulting value in 'a'.
 
-label_C2DC_Start:
-    // $80/C2DC 0A          ASL A                   A:9420 X:0008 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2DC 0A          ASL A                  ", a, x, y);
-    a *= 2;
-
-    // $80/C2DD CA          DEX                     A:2840 X:0008 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2DD CA          DEX                    ", a, x, y);
-    --x;
-
-    // $80/C2DE CA          DEX                     A:2840 X:0007 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2DE CA          DEX                    ", a, x, y);
-    --x;
-    z = x == 0;
-
-    // $80/C2DF F0 04       BEQ $04    [$C2E5]      A:2840 X:0006 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2DF F0 04       BEQ $04    [$C2E5]     ", a, x, y);
-    if (z)
+    unsigned short result = initialValue;
+    for (int i = 0; i < y; ++i)
     {
-        goto label_C2E5;
+        x -= 2;
+        result *= 2;
+        if (x == 0)
+        {
+            result = LoadNextResultFrom0CInc();
+            x = 0x10;
+        }
     }
 
-    // $80/C2E1 88          DEY                     A:2840 X:0006 Y:0006 P:envmxdizc
-    DebugPrint("$80/C2E1 88          DEY                    ", a, x, y);
-    y--;
-    z = y == 0;
-
-    // $80/C2E2 D0 F8       BNE $F8    [$C2DC]      A:2840 X:0006 Y:0005 P:envmxdizc
-    DebugPrint("$80/C2E2 D0 F8       BNE $F8    [$C2DC]     ", a, x, y);
-    if (!z)
-    {
-        goto label_C2DC_Start;
-    }
-
-    // $80/C2E4 60          RTS                     A:085C X:000C Y:0000 P:envmxdizc
-    DebugPrint("$80/C2E4 60          RTS                    ", a, x, y);
-    return;
-
-label_C2E5:
-
-    LoadNextFrom0CInc();
-
-    // $80/C2ED A2 10       LDX #$10                A:4217 X:0000 Y:0003 P:envmxdizc
-    DebugPrint("$80/C2ED A2 10       LDX #$10               ", a, x, y);
-    x = 0x10;
-
-    // $80/C2EF 88          DEY                     A:4217 X:0010 Y:0003 P:envmxdizc
-    DebugPrint("$80/C2EF 88          DEY                    ", a, x, y);
-    --y;
-    z = y == 0;
-
-    // $80/C2F0 D0 EA       BNE $EA    [$C2DC]      A:4217 X:0010 Y:0002 P:envmxdizc
-    DebugPrint("$80/C2F0 D0 EA       BNE $EA    [$C2DC]     ", a, x, y);
-    if (!z)
-    {
-        goto label_C2DC_Start;
-    }
-
-    DebugPrint("$80/C2F2 60          RTS                    ", a, x, y);
-    return;
+    return result;
 }
 
 int main()
