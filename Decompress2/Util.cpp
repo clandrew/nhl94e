@@ -6,7 +6,6 @@
 #include <iomanip>
 
 std::ofstream debugLog;
-std::vector<unsigned char> ram;
 std::vector<unsigned short> decompressed;
 int instructionLimit = 30900;
 int printedInstructionCount = 0;
@@ -45,25 +44,6 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     fread(result.data(), 1, length, file);
     fclose(file);
 
-    return result;
-}
-
-std::vector<int> ramReads;
-
-unsigned short LoadFromRAM(int address)
-{
-    if (address < 0x7F0000 || address > 0x7F0000 + ram.size())
-    {
-        __debugbreak();
-        return 0xFF;
-    }
-
-    ramReads.push_back(address);
-
-    unsigned char ch0 = ram[address - 0x7F0000];
-    unsigned char ch1 = ram[address - 0x7F0000 + 1];
-
-    unsigned short result = (ch1 << 8) | ch0;
     return result;
 }
 

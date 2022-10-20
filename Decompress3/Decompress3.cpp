@@ -2509,27 +2509,22 @@ label_C28A:
     // x is one of {6, 8, A, C, 10}
     if (x == 0x6)
     {
-        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2BC]", a, x, y);
         a = 0x4;
     }
     else if (x == 0x8)
     {
-        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2BE]", a, x, y);
         a = 0xC;
     }
     else if (x == 0xA)
     {
-        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C0]", a, x, y);
         a = 0x1C;
     }
     else if (x == 0xC)
     {
-        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2]", a, x, y);
         a = 0x3C;
     }
     else if (x == 0xE)
     {
-        DebugPrint("$80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C4]", a, x, y);
         a = 0x7C;
     }
     else
