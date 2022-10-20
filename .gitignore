@@ -27,3 +27,7 @@ template.png
 /Decompress2/ram_stagex_7E0100.bin
 *.sfc
 /Decompress2/cpulog_pre/*
+/Decompress3/.vs/*
+/Decompress3/Debug/*
+/Decompress3/Verification.txt
+/Decompress3/output.txt
