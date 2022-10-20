@@ -100,100 +100,48 @@ unsigned short LoadFromROM99F8B1(int address)
 
 void LoadNextFrom0CInc(unsigned short pc)
 {
-    // $80/BD13 E2 20       SEP #$20                A:9400 X:0002 Y:0025 P:envmxdizc 
-    DebugPrintWithPC(pc, "E2 20       SEP #$20               ", a, x, y); 
-    pc += 2;
-
-    // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
     loaded = LoadFromROM99F8B1(0x990000 | mem0c);
     a &= 0xFF00;
     a |= loaded & 0xFF;
-    pc += 2;
-
-    // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "C2 20       REP #$20               ", a, x, y); // 16-bit acc
-    pc += 2;
-
-    // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "E6 0C       INC $0C    [$00:000C]  ", a, x, y);
     mem0c++;
 }
 
 void LoadNextFrom0500(unsigned short pc)
 {
-    // $80/BD1B BE 00 05    LDX $0500,y[$99:0525]   A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y);
     x = mem7E0500_7E0700[y];
-    pc += 3;
 
-    // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:948C X:0000 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
     indirectRAMAccess += 2;
     indirectStores7E0100.push_back(x);
-    pc += 3;
 
-    // $80/BD21 86 08       STX $08    [$00:0008]   A:948C X:0000 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "86 08       STX $08    [$00:0008]  ", a, x, y);
     mem08 = x;
 }
 
 void LoadNextFrom0600(unsigned short pc)
 {
-    // $80/BE5D 85 6C       STA $6C    [$00:006C]   A:9420 X:0000 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "85 6C       STA $6C    [$00:006C]  ", a, x, y);
     mem6c = a;
-    pc += 2;
-
-    // $80/BE5F A4 6D       LDY $6D    [$00:006D]   A:9420 X:0000 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "A4 6D       LDY $6D    [$00:006D]  ", a, x, y);
     y = mem6c >> 8;
-    pc += 2;
-
-    // $80/BE61 BE 00 06    LDX $0600,y[$99:0694]   A:9420 X:0000 Y:0094 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "BE 00 06    LDX $0600,y[$99:", 0x600 + y, a, x, y);
     x = mem7E0500_7E0700[0x100 + y];
 }
 
 void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shifts)
 {
-    DebugPrintWithPCAndImm8(pc, "A2", "LDX", nextX, a, x, y);
     x = nextX;
-    pc += 2;
-
-    // $80/BED3 64 6A       STZ $6A    [$00:006A]   A:F180 X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPC(pc, "64 6A       STZ $6A    [$00:006A]  ", a, x, y);
     mem6a = 0;
-    pc += 2;
 
-    // $80/BED5 B2 0C       LDA ($0C)  [$99:F8F9]   A:F180 X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
     a = LoadFromROM99F8B1(0x990000 | mem0c);
-    pc += 2;
-
-    // $80/BED7 29 FF 00    AND #$00FF              A:8C94 X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPC(pc, "29 FF 00    AND #$00FF             ", a, x, y);
     a &= 0xFF;
-    pc += 3;
 
     for (int i = 0; i < shifts; ++i)
     {
-        DebugPrintWithPC(pc, "0A          ASL A                  ", a, x, y);
         a *= 2;
-        pc++;
     }
 
-    DebugPrintWithPC(pc, "05 6B       ORA $6B    [$00:006B]  ", a, x, y);
     loaded16 = LoadMem6b();
     a |= loaded16.Data16;
-    pc += 2;
 
-    DebugPrintWithPC(pc, "85 6B       STA $6B    [$00:006B]  ", a, x, y);
     loaded16.Data16 = a;
     SaveMem6b(loaded16);
-    pc += 2;
 
-    DebugPrintWithPC(pc, "A5 6C       LDA $6C    [$00:006C]  ", a, x, y);
     a = mem6c;
 }
 
@@ -201,25 +149,16 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
 {
     for (int i = 0; i < shifts; ++i)
     {
-        // $80/BF8F 4A          LSR A                   A:F192 X:0006 Y:00F1 P:envmxdizc
-        DebugPrintWithPC(pc, "4A          LSR A                  ", a, x, y);
         a >>= 1;
-        ++pc;
     }
-
-    // $80/BF96 38          SEC                     A:01E3 X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPC(pc, "38          SEC                    ", a, x, y);
-    ++pc;
 
     if (subtractDataAddress == 0x0730)
     {
-        DebugPrintWithPC(pc, "ED 30 07    SBC $0730  [$99:0730]  ", a, x, y);
         loaded16.Low8 = cache7E0720[0x10];
         loaded16.High8 = cache7E0720[0x11];
     }
     else if (subtractDataAddress == 0x732)
     {
-        DebugPrintWithPC(pc, "ED 32 07    SBC $0732  [$99:0732]  ", a, x, y);
         loaded16.Low8 = cache7E0720[0x12];
         loaded16.High8 = cache7E0720[0x13];
     }
@@ -228,146 +167,70 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
         __debugbreak(); // notimpl
     }
     a -= loaded16.Data16;
-    pc += 3;
 
-    // $80/BF9A A8          TAY                     A:003C X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPC(pc, "A8          TAY                    ", a, x, y);
     y = a;
-    ++pc;
 
-    // $80/BF9B E2 20       SEP #$20                A:003C X:0006 Y:003C P:envmxdizc
-    DebugPrintWithPC(pc, "E2 20       SEP #$20               ", a, x, y);
-    pc += 2;
-
-    // $80/BF9D B9 00 01    LDA $0100,y[$99:013C]   A:003C X:0006 Y:003C P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
     a = cache7E0100[y];
-    pc += 3;
 
-    if (nextY == 1)
-    {
-        DebugPrintWithPC(pc, "A0 01       LDY #$01               ", a, x, y);
-    }
-    else if (nextY == 2)
-    {
-        DebugPrintWithPC(pc, "A0 02       LDY #$02               ", a, x, y);
-    }
-    else
-    {
-        __debugbreak();
-    }
     y = nextY;
-    pc += 2;
 
-    // $80/BFA2 C5 73       CMP $73    [$00:0073]   A:0008 X:0006 Y:0001 P:envmxdizc
-    DebugPrintWithPC(pc, "C5 73       CMP $73    [$00:0073]  ", a, x, y);
     z = a == (mem73 & 0xFF); // we are in 8bit mode
 }
 
 void ShiftRotateDecrement(unsigned short pc, int xDecAmt, int yDecAmt)
 {
-    DebugPrintWithPC(pc, "0A          ASL A                  ", a, x, y);
     c = a >= 0x8000;
     a *= 2;
-    pc++;
 
-    DebugPrintWithPC(pc, "26 6F       ROL $6F    [$00:006F]  ", a, x, y);
     RotateLeft(&mem6f, &c);
-    pc += 2;
 
     for (int i = 0; i < xDecAmt; ++i)
     {
-        DebugPrintWithPC(pc, "CA          DEX                    ", a, x, y);
         --x;
         z = x == 0;
-        ++pc;
     }
 
     for (int i = 0; i < yDecAmt; ++i)
     {
-        DebugPrintWithPC(pc, "88          DEY                    ", a, x, y);
         --y;
         z = y == 0;
-        ++pc;
     }
 }
 
-void Fn_80BBB3()
+void Fn_80BBB3(unsigned short romSourceOffset)
 {
+    // Arguments:
+    //  mem0c is an offset to source data in ROM within bank 0x99.
+
+    // Notes:
+    //  A, X and Y are unimportant.
+
     // This function writes to 7F0000-7F0484.
     // This is a sizeable function, a.k.a. 'the monstrosity'.
     // It does a buch of sequential-ish (skipping a couple bytes) reads starting from ROM offset 99F8B1, ending at 99FAB4.
     // That corresponds to file offset 0xCF8B1, through to 0xCFAB4.
 
-    // Use 8bit X and Y
-    DebugPrint("$80/BBB3 E2 10       SEP #$10               ", a, x, y);
-    x &= 0xFF;
-    y &= 0xFF;
-    
-    DebugPrint("$80/BBB5 A5 0C       LDA $0C    [$00:000C]  ", a, x, y);
-    a = mem0c;
-
-    DebugPrint("$80/BBB7 18          CLC                    ", a, x, y);
+    // Initialize some values
     c = false;
-
-    DebugPrint("$80/BBB8 69 05 00    ADC #$0005             ", a, x, y);
-    a += 5;
-
-    DebugPrint("$80/BBBB 85 0C       STA $0C    [$00:000C]  ", a, x, y);
-    mem0c = a;
-
-    DebugPrint("$80/BBBD B2 0C       LDA ($0C)  [$99:F8B1]  ", a, x, y);
-    a = LoadFromROM99F8B1(0x990000 | mem0c);
-
-    // $80/BBBF 85 73       STA $73    [$00:0073]   A:960F X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBBF 85 73       STA $73    [$00:0073]  ", a, x, y);
-    mem73 = a;
-
-    // $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:960F X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC1 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
-
-    // $80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]   A:960F X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]  ", a, x, y);
-    a = LoadFromROM99F8B1(0x990000 | mem0c);
-
-    // $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC5 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
-
-    // $80/BBC7 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC7 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
-    mem0c++;
-
-    // $80/BBC9 EB          XBA                     A:6596 X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC9 EB          XBA                    ", a, x, y);
-    a = ExchangeShortHighAndLow(a);
-
-    // $80/BBCA 85 6C       STA $6C    [$00:006C]   A:9665 X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBCA 85 6C       STA $6C    [$00:006C]  ", a, x, y);
-    mem6c = a;
-
-    // $80/BBCC A0 08       LDY #$08                A:9665 X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBCC A0 08       LDY #$08               ", a, x, y);
+    mem14 = 0x10;
+    mem75 = 0;
+    mem77 = 0;
+    x = 0xFE;
     y = 8;
 
-    // $80/BBCE 64 77       STZ $77    [$00:0077]   A:9665 X:0080 Y:0008 P:envmxdizc
-    DebugPrint("$80/BBCE 64 77       STZ $77    [$00:0077]  ", a, x, y);
-    mem77 = 0;
+    mem0c += 5;
 
-    // $80/BBD0 64 75       STZ $75    [$00:0075]   A:9665 X:0080 Y:0008 P:envmxdizc
-    DebugPrint("$80/BBD0 64 75       STZ $75    [$00:0075]  ", a, x, y);
-    mem75 = 0;
+    mem73 = LoadFromROM99F8B1(0x990000 | mem0c);
+    mem0c++;
 
-    DebugPrint("$80/BBD2 A9 10 00    LDA #$0010             ", a, x, y);
+    {
+        unsigned short key = LoadFromROM99F8B1(0x990000 | mem0c);
+        mem0c++;
+        mem0c++;
+        mem6c = ExchangeShortHighAndLow(key);
+    }
+
     a = 0x10;
-
-    DebugPrint("$80/BBD5 85 14       STA $14    [$00:0014]  ", a, x, y);
-    mem14 = 0x10;
-
-    // $80/BBD7 A2 FE       LDX #$FE                A:0010 X:0080 Y:0008 P:envmxdizc
-    DebugPrint("$80/BBD7 A2 FE       LDX #$FE               ", a, x, y);
-    x = 0xFE;
 
 label_BBD9:
     // $80/BBD9 E8          INX                     A:0010 X:00FE Y:0008 P:envmxdizc
@@ -2842,7 +2705,7 @@ int main()
     cache7E0760.resize(0x2);
     memset(cache7E0760.data(), 0, cache7E0760.size());
 
-    Fn_80BBB3();
+    Fn_80BBB3(0xF80C);
 
     return 0;
 }
