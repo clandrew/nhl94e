@@ -55,7 +55,6 @@ std::vector<unsigned char> mem7E0500_7E0700;
 unsigned short indirectHigh;
 unsigned short indirectLow;
 
-std::vector<unsigned short> indirectStores7E0100;
 std::vector<unsigned char> cache7F0000;
 std::vector<unsigned char> cache7E0100;
 std::vector<unsigned char> cache7E0700;
@@ -138,13 +137,14 @@ void LoadNextFrom0500(unsigned short pc)
 
     // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:948C X:0000 Y:0025 P:envmxdizc
     DebugPrintWithPC(pc, "8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
+    loaded16.Data16 = x;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
-        indirectStores7E0100.push_back(x);
+        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
-        loaded16.Data16 = x;
         cache7F0000[indirectLow] = loaded16.Low8;
         cache7F0000[indirectLow+1] = loaded16.High8;
     }
@@ -683,16 +683,18 @@ label_BC40:
     DebugPrint("$80/BC4C C2 20       REP #$20               ", a, x, y);
 
     // $80/BC4E 8E 80 21    STX $2180  [$99:2180]   A:0000 X:0000 Y:0005 P:envmxdizc
+    // This is running in 8 bit index mode.
     DebugPrint("$80/BC4E 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
-        cache7E0100.push_back(x);
+        loaded16.Data16 = x;
+        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
     }
     else
     {
         __debugbreak();
     }
-    indirectLow += 2;
+    indirectLow += 1;
 
     // $80/BC51 C6 77       DEC $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC51 C6 77       DEC $77    [$00:0077]  ", a, x, y);
@@ -809,9 +811,11 @@ label_BC83:
     mem00.Data16 = a;
 
     // $80/BC88 B9 00 01    LDA $0100,y[$99:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
-    // 8bit load of RAM
+    // This is running in 8 bit accumulator and index mode.
     DebugPrintWithIndex("$80/BC88 B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
-    a = cache7E0100[y];
+    loaded16.Data16 = a;
+    loaded16.Low8 = cache7E0100[y];
+    a = loaded16.Data16;
 
     // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC8B 85 01       STA $01    [$00:0001]  ", a, x, y);
@@ -1951,13 +1955,14 @@ label_C0E8:
     // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
     DebugPrint("$80/C0E8 8D 80 21    STA $2180  [$99:2180]  ", a, x, y);
 
+    loaded16.Data16 = a;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
-        indirectStores7E0100.push_back(a);
+        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
-        loaded16.Data16 = a;
         cache7F0000[indirectLow] = loaded16.Low8;
         cache7F0000[indirectLow + 1] = loaded16.High8;
     }
@@ -2220,13 +2225,14 @@ label_C18A:
     // $80/C18A 8C 80 21    STY $2180  [$99:2180]   A:003E X:0006 Y:0000 P:envmxdizc
     DebugPrint("$80/C18A 8C 80 21    STY $2180  [$99:2180]  ", a, x, y);
 
+    loaded16.Data16 = y;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
-        indirectStores7E0100.push_back(y);
+        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
-        loaded16.Data16 = y;
         cache7F0000[indirectLow] = loaded16.Low8;
         cache7F0000[indirectLow + 1] = loaded16.High8;
     }
@@ -3396,6 +3402,8 @@ label_8647:
 
 void Filler()
 {
+    // There's a PLB that does this
+    x = 0x480;
 
     DebugPrint("$9D/CC7F 86 00       STX $00    [$00:0000]  ", a, x, y);
     mem00.Data16 = x;
@@ -3451,6 +3459,9 @@ label_CC8D:
 
 void InitializeCaches()
 {
+    cache7E0100.resize(0x100);
+    memset(cache7E0100.data(), 0, cache7E0100.size());
+
     // Initialize output.
     mem7E0500_7E0700.resize(0x200);
     memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
