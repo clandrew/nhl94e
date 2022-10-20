@@ -7,7 +7,7 @@
 
 void Fn_80C1B0();
 void Fn_80C232();
-unsigned short Fn_80C2DC(unsigned short initialValue);
+unsigned short LoadFromAlignedAddress(unsigned short initialValue, unsigned short stepLimit);
 
 unsigned short a = 0xFB30;
 unsigned short x = 0x0480;
@@ -227,7 +227,8 @@ void Fn_80BBB3(unsigned short romSourceOffset)
 
     mem0c += 5;
 
-    mem73 = LoadFromROM99F8B1(0x990000 | mem0c);
+    unsigned short loadStepLimit = LoadFromROM99F8B1(0x990000 | mem0c);
+    mem73 = loadStepLimit;
     mem0c++;
 
     {
@@ -2016,10 +2017,7 @@ label_C15C:
     goto label_BD23;
 
 label_C17C:
-    DebugPrint("$80/C17C A4 74       LDY $74    [$00:0074]  ", a, x, y);
-    y = mem73 >> 8;
-
-    mem6c = Fn_80C2DC(a);
+    mem6c = LoadFromAlignedAddress(a, mem73 >> 8);
 
     Fn_80C232();
 
@@ -2620,14 +2618,10 @@ label_C28A:
     return;
 }
 
-unsigned short Fn_80C2DC(unsigned short initialValue)
+unsigned short LoadFromAlignedAddress(unsigned short initialValue, unsigned short stepLimit) // 80C2DC
 {
-    // Takes parameters a, x, y.
-    // Loads data based on mem0c.
-    // Returns the resulting value in 'a'.
-
     unsigned short result = initialValue;
-    for (int i = 0; i < y; ++i)
+    for (int i = 0; i < stepLimit; ++i)
     {
         x -= 2;
         result *= 2;
