@@ -98,7 +98,7 @@ unsigned short LoadFromROM99F8B1(int address)
     return result;
 }
 
-void LoadNextFrom0CInc(unsigned short pc)
+void LoadNextFrom0CInc()
 {
     loaded = LoadFromROM99F8B1(0x990000 | mem0c);
     a &= 0xFF00;
@@ -106,7 +106,7 @@ void LoadNextFrom0CInc(unsigned short pc)
     mem0c++;
 }
 
-void LoadNextFrom0500(unsigned short pc)
+void LoadNextFrom0500()
 {
     x = mem7E0500_7E0700[y];
 
@@ -116,7 +116,7 @@ void LoadNextFrom0500(unsigned short pc)
     mem08 = x;
 }
 
-void LoadNextFrom0600(unsigned short pc)
+void LoadNextFrom0600()
 {
     mem6c = a;
     y = mem6c >> 8;
@@ -934,12 +934,12 @@ label_BD11:
     DebugPrint("$80/BD12 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBD13);
+    LoadNextFrom0CInc();
 
-    LoadNextFrom0500(0xBD1B);
+    LoadNextFrom0500();
 
 label_BD23:
-    LoadNextFrom0600(0xBD23);
+    LoadNextFrom0600();
 
     // $80/BD2A 7C 2D BD    JMP ($BD2D,x)[$80:BD41] A:948C X:0012 Y:0094 P:envmxdizc
     if (x == 0x12)
@@ -1033,15 +1033,15 @@ label_BD5E:
     DebugPrint("$80/BD5E 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBD5F);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/BD67 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBD68);
+    LoadNextFrom0500();
 
 label_BD70:
-    LoadNextFrom0600(0xBD70);
+    LoadNextFrom0600();
 
     if (x == 0xE)
     {
@@ -1128,7 +1128,7 @@ label_BDAA:
     DebugPrint("$80/BDAB 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBDAC);
+    LoadNextFrom0CInc();
 
 label_BDB4:
     // $80/BDB4 0A          ASL A                   A:2E2B X:0008 Y:0085 P:envmxdizc
@@ -1139,11 +1139,11 @@ label_BDB4:
     DebugPrint("$80/BDB5 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBDB6);
+    LoadNextFrom0500();
 
 label_BDBE:
 
-    LoadNextFrom0600(0xBDBE);
+    LoadNextFrom0600();
 
     // $80/BDC5 7C C8 BD    JMP ($BDC8,x)[$80:BE53] A:2508 X:0002 Y:0025 P:envmxdizc
     if (x == 2)
@@ -1228,7 +1228,7 @@ label_BDF9:
     DebugPrint("$80/BDF9 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBDFA);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/BE02 0A          ASL A                  ", a, x, y);
     a *= 2;
@@ -1240,10 +1240,10 @@ label_BE03:
     DebugPrint("$80/BE04 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBE05);
+    LoadNextFrom0500();
 
 label_BE0D:
-    LoadNextFrom0600(0xBE0D);
+    LoadNextFrom0600();
 
     if (x == 0x10)
     {
@@ -1323,7 +1323,7 @@ label_BE48:
     DebugPrint("$80/BE48 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBE49);
+    LoadNextFrom0CInc();
 
 label_BE51:
     DebugPrint("$80/BE51 0A          ASL A                  ", a, x, y);
@@ -1342,10 +1342,10 @@ label_BE53:
     DebugPrint("$80/BE54 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBE55);
+    LoadNextFrom0500();
 
 label_BE5D:
-    LoadNextFrom0600(0xBE5D);
+    LoadNextFrom0600();
 
     // $80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BE7B] A:9420 X:0012 Y:0094 P:envmxdizc
     if (x == 0x12)
@@ -1424,7 +1424,7 @@ label_BE98:
     DebugPrint("$80/BE98 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBE99);
+    LoadNextFrom0CInc();
 
 label_BEA1:
 
@@ -1447,11 +1447,11 @@ label_BEA4:
     DebugPrint("$80/BEA5 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBEA6);
+    LoadNextFrom0500();
 
 label_BEAE:
 
-    LoadNextFrom0600(0xBEAE);
+    LoadNextFrom0600();
 
     // $80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BED1] A:F180 X:0010 Y:00F1 P:envmxdizc
     if (x == 0x10)
@@ -1527,7 +1527,7 @@ label_BEE9:
     DebugPrint("$80/BEE9 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBEEA);
+    LoadNextFrom0CInc();
 
 label_BEF2:
 
@@ -1553,11 +1553,11 @@ label_BEF6:
     DebugPrint("$80/BEF7 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBEF8);
+    LoadNextFrom0500();
 
 label_BF00:
 
-    LoadNextFrom0600(0xBF00);
+    LoadNextFrom0600();
     
     // $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2500 X:0002 Y:0025 P:envmxdizc
     if (x == 2)
@@ -1627,7 +1627,7 @@ label_BF3B:
     DebugPrint("$80/BF3B 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xBF3C);
+    LoadNextFrom0CInc();
 
 label_BF44:
 
@@ -1659,10 +1659,10 @@ label_BF49:
     DebugPrint("$80/BF4A 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0500(0xBF4B);
+    LoadNextFrom0500();
 
 label_BF53:
-    LoadNextFrom0600(0xBF53);
+    LoadNextFrom0600();
 
     if (x == 8)
     {
@@ -1961,7 +1961,7 @@ label_C122:
     DebugPrint("$80/C122 0A          ASL A                  ", a, x, y);
     a *= 2;
 
-    LoadNextFrom0CInc(0xC123);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/C12B 88          DEY                    ", a, x, y);
     y--;
@@ -2189,7 +2189,7 @@ label_C1C0:
 
 label_C1CB:
 
-    LoadNextFrom0CInc(0xC1CB);
+    LoadNextFrom0CInc();
 
     // $80/C1D3 A0 08       LDY #$08                A:2212 X:0056 Y:0000 P:envmxdizc
     DebugPrint("$80/C1D3 A0 08       LDY #$08               ", a, x, y);
@@ -2201,7 +2201,7 @@ label_C1CB:
 
 label_C1D7:
 
-    LoadNextFrom0CInc(0xC1D7);
+    LoadNextFrom0CInc();
 
     // $80/C1DF A0 08       LDY #$08                A:653C X:0004 Y:0000 P:envmxdizc
     DebugPrint("$80/C1DF A0 08       LDY #$08               ", a, x, y);
@@ -2215,7 +2215,7 @@ label_C1D7:
 
 label_C1E3:
 
-    LoadNextFrom0CInc(0xC1E3);
+    LoadNextFrom0CInc();
 
     // $80/C1EB A0 08       LDY #$08                A:811C X:0012 Y:0000 P:envmxdizc
     DebugPrint("$80/C1EB A0 08       LDY #$08               ", a, x, y);
@@ -2258,7 +2258,7 @@ label_C1F6:
     DebugPrint("$80/C1F8 F0 20       BEQ $20    [$C21A]     ", a, x, y);
     if (z)
     {
-        LoadNextFrom0CInc(0xC21A);
+        LoadNextFrom0CInc();
 
         // $80/C222 A0 08       LDY #$08                A:91D1 X:0002 Y:0000 P:envmxdizc
         DebugPrint("$80/C222 A0 08       LDY #$08               ", a, x, y);
@@ -2292,7 +2292,7 @@ label_C1FF_Finish:
     DebugPrint("$80/C203 F0 21       BEQ $21    [$C226]     ", a, x, y);
     if (z)
     {
-        LoadNextFrom0CInc(0xC226);
+        LoadNextFrom0CInc();
 
         DebugPrint("$80/C22E A0 08       LDY #$08               ", a, x, y);
         y = 0x8;
@@ -2420,7 +2420,7 @@ label_C244:
 
 label_C250:
 
-    LoadNextFrom0CInc(0xC250);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/C258 A2 10       LDX #$10               ", a, x, y);
     x = 0x10;
@@ -2429,7 +2429,7 @@ label_C250:
     goto label_C23B;
 
 label_C25C:
-    LoadNextFrom0CInc(0xC25C);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/C264 A2 10       LDX #$10               ", a, x, y);
     x = 0x10;
@@ -2439,7 +2439,7 @@ label_C25C:
 
 label_C268:
 
-    LoadNextFrom0CInc(0xC268);
+    LoadNextFrom0CInc();
 
     DebugPrint("$80/C270 A2 10       LDX #$10               ", a, x, y);
     x = 0x10;
@@ -2482,7 +2482,7 @@ label_C279:
     DebugPrint("$80/C27C F0 24       BEQ $24    [$C2A2]     ", a, x, y);
     if (z)
     {
-        LoadNextFrom0CInc(0xC2A2);
+        LoadNextFrom0CInc();
 
         // $80/C2AA A2 10       LDX #$10                A:8C2E X:0000 Y:0002 P:envmxdizc
         DebugPrint("$80/C2AA A2 10       LDX #$10               ", a, x, y);
@@ -2517,7 +2517,7 @@ label_C283:
     DebugPrint("$80/C288 F0 24       BEQ $24    [$C2AE]     ", a, x, y);
     if (z)
     {
-        LoadNextFrom0CInc(0xC2AE);
+        LoadNextFrom0CInc();
 
         // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
         DebugPrint("$80/C2B6 A2 10       LDX #$10               ", a, x, y);
@@ -2660,7 +2660,7 @@ label_C2DC_Start:
 
 label_C2E5:
 
-    LoadNextFrom0CInc(0xC2E5);
+    LoadNextFrom0CInc();
 
     // $80/C2ED A2 10       LDX #$10                A:4217 X:0000 Y:0003 P:envmxdizc
     DebugPrint("$80/C2ED A2 10       LDX #$10               ", a, x, y);
