@@ -52,8 +52,11 @@ unsigned short mem7d = 0;
 // Output.
 std::vector<unsigned char> mem7E0500_7E0700;
 
-int indirectRAMAccess = 0;
+unsigned short indirectHigh;
+unsigned short indirectLow;
+
 std::vector<unsigned short> indirectStores7E0100;
+std::vector<unsigned char> cache7F0000;
 std::vector<unsigned char> cache7E0100;
 std::vector<unsigned char> cache7E0700;
 std::vector<unsigned char> cache7E0720;
@@ -135,8 +138,21 @@ void LoadNextFrom0500(unsigned short pc)
 
     // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:948C X:0000 Y:0025 P:envmxdizc
     DebugPrintWithPC(pc, "8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
-    indirectRAMAccess += 2;
-    indirectStores7E0100.push_back(x);
+    if (indirectHigh == 0x7E && indirectLow >= 0x100)
+    {
+        indirectStores7E0100.push_back(x);
+    }
+    else if (indirectHigh == 0x7F)
+    {
+        loaded16.Data16 = x;
+        cache7F0000[indirectLow] = loaded16.Low8;
+        cache7F0000[indirectLow+1] = loaded16.High8;
+    }
+    else
+    {
+        __debugbreak();
+    }
+    indirectLow += 2;
     pc += 3;
 
     // $80/BD21 86 08       STX $08    [$00:0008]   A:948C X:0000 Y:0025 P:envmxdizc
@@ -309,6 +325,7 @@ void Fn_80BBB3()
     //
     // Postconditions:
     //     Decompressed staging data is written to the destination address.
+    //     Mem0C is scrambled.
     //
     // Notes:
     //     A, X, Y are ignored and stomped on.
@@ -601,6 +618,7 @@ label_BC1D:
 
     // $80/BC2F 8E 83 21    STX $2183  [$99:2183]   A:0009 X:007E Y:0008 P:envmxdizc
     DebugPrint("$80/BC2F 8E 83 21    STX $2183  [$99:2183]  ", a, x, y);
+    indirectHigh = x;
 
     // $80/BC32 A9 00 01    LDA #$0100              A:0009 X:007E Y:0008 P:envmxdizc
     DebugPrint("$80/BC32 A9 00 01    LDA #$0100             ", a, x, y);
@@ -608,12 +626,11 @@ label_BC1D:
 
     // $80/BC35 8D 81 21    STA $2181  [$99:2181]   A:0100 X:007E Y:0008 P:envmxdizc
     DebugPrint("$80/BC35 8D 81 21    STA $2181  [$99:2181]  ", a, x, y);
+    indirectLow = a;
 
     // $80/BC38 A2 FF       LDX #$FF                A:0100 X:007E Y:0008 P:envmxdizc
     DebugPrint("$80/BC38 A2 FF       LDX #$FF               ", a, x, y);
     x = 0xFF;
-
-    indirectRAMAccess = 0x7E0100;
 
 label_BC3A:
 
@@ -667,13 +684,15 @@ label_BC40:
 
     // $80/BC4E 8E 80 21    STX $2180  [$99:2180]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC4E 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
-    indirectRAMAccess += 2;
-    indirectStores7E0100.push_back(x);
-    if (x > 0xFF)
+    if (indirectHigh == 0x7E && indirectLow >= 0x100)
+    {
+        cache7E0100.push_back(x);
+    }
+    else
     {
         __debugbreak();
     }
-    cache7E0100.push_back(x);
+    indirectLow += 2;
 
     // $80/BC51 C6 77       DEC $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC51 C6 77       DEC $77    [$00:0077]  ", a, x, y);
@@ -1003,6 +1022,7 @@ label_BCC5:
 
     // $80/BCDA 8C 83 21    STY $2183  [$99:2183]   A:BFC8 X:0012 Y:007F P:envmxdizc    
     DebugPrint("$80/BCDA 8C 83 21    STY $2183  [$99:2183]  ", a, x, y); // Indirect wram high bit
+    indirectHigh = mem12;
 
     // $80/BCDD A5 10       LDA $10    [$00:0010]   A:BFC8 X:0012 Y:007F P:envmxdizc
     DebugPrint("$80/BCDD A5 10       LDA $10    [$00:0010]  ", a, x, y);
@@ -1010,6 +1030,7 @@ label_BCC5:
 
     // $80/BCDF 8D 81 21    STA $2181  [$99:2181]   A:0000 X:0012 Y:007F P:envmxdizc
     DebugPrint("$80/BCDF 8D 81 21    STA $2181  [$99:2181]  ", a, x, y);   // Indirect wram low and mid byte
+    indirectLow = mem10;
 
     // $80/BCE2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0012 Y:007F P:envmxdizc
     DebugPrint("$80/BCE2 A5 6C       LDA $6C    [$00:006C]  ", a, x, y);
@@ -1929,8 +1950,22 @@ label_C0E8:
 
     // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
     DebugPrint("$80/C0E8 8D 80 21    STA $2180  [$99:2180]  ", a, x, y);
-    indirectRAMAccess += 2;
-    indirectStores7E0100.push_back(a);
+
+    if (indirectHigh == 0x7E && indirectLow >= 0x100)
+    {
+        indirectStores7E0100.push_back(a);
+    }
+    else if (indirectHigh == 0x7F)
+    {
+        loaded16.Data16 = a;
+        cache7F0000[indirectLow] = loaded16.Low8;
+        cache7F0000[indirectLow + 1] = loaded16.High8;
+    }
+    else
+    {
+        __debugbreak();
+    }
+    indirectLow += 2;
 
     // $80/C0EB 85 08       STA $08    [$00:0008]   A:0008 X:0006 Y:0001 P:envmxdizc
     DebugPrint("$80/C0EB 85 08       STA $08    [$00:0008]  ", a, x, y);
@@ -2184,8 +2219,22 @@ label_C17C:
 label_C18A:
     // $80/C18A 8C 80 21    STY $2180  [$99:2180]   A:003E X:0006 Y:0000 P:envmxdizc
     DebugPrint("$80/C18A 8C 80 21    STY $2180  [$99:2180]  ", a, x, y);
-    indirectRAMAccess += 2;
-    indirectStores7E0100.push_back(y);
+
+    if (indirectHigh == 0x7E && indirectLow >= 0x100)
+    {
+        indirectStores7E0100.push_back(y);
+    }
+    else if (indirectHigh == 0x7F)
+    {
+        loaded16.Data16 = y;
+        cache7F0000[indirectLow] = loaded16.Low8;
+        cache7F0000[indirectLow + 1] = loaded16.High8;
+    }
+    else
+    {
+        __debugbreak();
+    }
+    indirectLow += 2;
 
     // $80/C18D 3A          DEC A                   A:003E X:0006 Y:0000 P:envmxdizc
     DebugPrint("$80/C18D 3A          DEC A                  ", a, x, y);
@@ -2993,9 +3042,9 @@ label_85F4:
     {
         // $9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]   A:0008 X:0008 Y:0006 P:envmxdizc
         DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]  ", mem0c, a, x, y);
-        loaded = LoadFromROM99F8B1(0x7F0000 | mem0c); // xxx This needs to load from RAM not ROM.
-        a &= 0xFF00;
-        a |= loaded & 0xFF;
+        loaded16.Low8 = cache7F0000[mem0c];
+        loaded16.High8 = cache7F0000[mem0c+1];
+        a = loaded16.Data16;
         z = a == 0;
 
         // $9B/85F6 F0 E4       BEQ $E4    [$85DC]      A:0000 X:0008 Y:0006 P:envmxdiZc
@@ -3400,13 +3449,8 @@ label_CC8D:
     mem0c = a;
 }
 
-int main()
+void InitializeCaches()
 {
-    OpenDebugLog();
-
-    // Load ROM file
-    romFile = LoadBinaryFile8("nhl94.sfc");
-
     // Initialize output.
     mem7E0500_7E0700.resize(0x200);
     memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
@@ -3422,6 +3466,19 @@ int main()
 
     cache7E0760.resize(0x2);
     memset(cache7E0760.data(), 0, cache7E0760.size());
+
+    cache7F0000.resize(0x1000);
+    memset(cache7F0000.data(), 0, cache7F0000.size());
+}
+
+int main()
+{
+    OpenDebugLog();
+
+    // Load ROM file
+    romFile = LoadBinaryFile8("nhl94.sfc");
+
+    InitializeCaches();
 
     Fn_80BBB3();
 
