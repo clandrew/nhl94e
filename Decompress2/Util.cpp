@@ -75,13 +75,6 @@ void DebugPrintFinalize()
 {
     debugLog << "\n";
     debugLog.flush();
-
-    ++printedInstructionCount;
-
-    if (printedInstructionCount > instructionLimit)
-    {
-        exit(0);
-    }
 }
 
 void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y)

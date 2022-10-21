@@ -55,14 +55,13 @@ std::vector<unsigned char> mem7E0500_7E0700;
 unsigned short indirectHigh;
 unsigned short indirectLow;
 
-std::vector<unsigned char> cache7F0000;
 std::vector<unsigned char> cache7E0100;
 std::vector<unsigned char> cache7E0700;
 std::vector<unsigned char> cache7E0720;
 std::vector<unsigned char> cache7E0740;
 std::vector<unsigned char> cache7E0760;
 
-// TODO: Need to represent 7Fxxxx.
+std::vector<unsigned char> cache7F0000;
 
 // Loaded plainly
 std::vector<unsigned char> romFile;
@@ -2887,6 +2886,15 @@ label_C2E5:
 
 void Fn_9B85C2()
 {
+    // Precondition: compressed staging data is written in memory.
+    //     Mem0C contains the low short of the source data address.
+    //     Mem0E contains the high short of the source data address.
+    // 
+    //     Mem10 contains the destination offset. It's always within bank $7F.
+    // 
+    // Postcondition: Final indexed data is written to the destination.
+    //                It's all in WRAM. This function doesn't do any of the work of DMA transfer to VRAM.
+
     // The profile images are loaded in "backwards" order. The earliest memory offset one gets loaded last.
     // The output is saved out 2 bytes at a time.
     //
@@ -2895,22 +2903,6 @@ void Fn_9B85C2()
     // The 6th invocation writes to 7F5100-7F7380. <-- this run goes through here. This is Kirk Muller's profile image
     //
     // At a high level, this function reads from RAM at 7F0000-7F0484 and writes the final output.
-    // The required data must be present in RAM.
-
-    /*
-    int pointer0C = 0x7F0000;
-    int pointer10 = 0x7F5100;   // For output
-    unsigned short mem00 = 0x480;
-    unsigned short mem04 = 1;
-    unsigned short mem14 = 0;
-    unsigned short a = 0x0;
-    unsigned short x = 0x0;
-    unsigned short y = 0x0;
-    bool n = false;
-    bool z = false;
-    bool c = false;
-    bool willCarry = false;
-    */
 
     // Impl
     // $9B/85C2 A6 00       LDX $00    [$00:0000]   A:0000 X:0000 Y:0000 P:envmxdiZc
@@ -2969,11 +2961,6 @@ void Fn_9B85C2()
     goto label_85E8;
 
 label_85DC:
-    // $9B/85DC 8A          TXA                     A:0000 X:0080 Y:0004 P:envmxdiZc
-    // $9B/85DD 4A          LSR A                   A:0080 X:0080 Y:0004 P:envmxdizc
-    // $9B/85DE 4A          LSR A                   A:0040 X:0080 Y:0004 P:envmxdizc
-    // $9B/85DF 4A          LSR A                   A:0020 X:0080 Y:0004 P:envmxdizc
-    // $9B/85E0 4A          LSR A                   A:0010 X:0080 Y:0004 P:envmxdizc
     DebugPrint("$9B/85DC 8A          TXA                    ", a, x, y);
     willCarry = x < 16;
     a = x;
@@ -3027,10 +3014,6 @@ label_85E8:
     DebugPrint("$9B/85ED 64 16       STZ $16    [$00:0016]  ", a, x, y);
     mem16 = 0;
     {
-        // $9B/85EF A5 04       LDA $04    [$00:0004]   A:0000 X:0080 Y:0010 P:envmxdizc
-        // $9B/85F1 0A          ASL A                   A:0001 X:0080 Y:0010 P:envmxdizc
-        // $9B/85F2 0A          ASL A                   A:0002 X:0080 Y:0010 P:envmxdizc
-        // $9B/85F3 A8          TAY                     A:0004 X:0080 Y:0010 P:envmxdizc
         DebugPrint("$9B/85EF A5 04       LDA $04    [$00:0004]  ", a, x, y);
         a = mem04;
 
@@ -3344,8 +3327,9 @@ label_8647:
 
     // $9B/864B 91 10       STA ($10),y[$7F:5102]   A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint864B(a, x, y);
-
-    //WriteDecompressedOutput(pointer10 + y, mem16); // xxx
+    loaded16.Data16 = a;
+    cache7F0000[mem10] = loaded16.Low8;
+    cache7F0000[mem10 + 1] = loaded16.High8;
 
     // $9B/864D 98          TYA                     A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint("$9B/864D 98          TYA                    ", a, x, y);
@@ -3372,7 +3356,9 @@ label_8647:
 
     DebugPrint8655(a, x, y);
 
-    //WriteDecompressedOutput(pointer10 + y, mem14); // xxx
+    loaded16.Data16 = a;
+    cache7F0000[mem10] = loaded16.Low8;
+    cache7F0000[mem10 + 1] = loaded16.High8;
 
     DebugPrint("$9B/8657 E6 04       INC $04    [$00:0004]  ", a, x, y);
     mem04++;
@@ -3398,8 +3384,10 @@ label_8647:
 
 void Filler()
 {
-    // There's a PLB that does this
+    // There's a PLX that does this
     x = 0x480;
+
+    // There's also 0x9F pushed to the stack, so PLB pulls 0x9F.
 
     DebugPrint("$9D/CC7F 86 00       STX $00    [$00:0000]  ", a, x, y);
     mem00.Data16 = x;
@@ -3451,6 +3439,8 @@ label_CC8D:
 
     DebugPrint("$9D/CC9F 85 0C       STA $0C    [$00:000C]  ", a, x, y);
     mem0c = a;
+
+    DebugPrint("$9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]  ", a, x, y);
 }
 
 void InitializeCaches()
@@ -3474,7 +3464,7 @@ void InitializeCaches()
     cache7E0760.resize(0x2);
     memset(cache7E0760.data(), 0, cache7E0760.size());
 
-    cache7F0000.resize(0x1000);
+    cache7F0000.resize(0xFFFF);
     memset(cache7F0000.data(), 0, cache7F0000.size());
 }
 
@@ -3491,8 +3481,19 @@ int main()
 
     Filler();
 
-    DebugPrint("$9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]  ", a, x, y);
     Fn_9B85C2();
+
+    // Here: load indexed color data from cache7F0000[0x5100] - cache7F0000[0x7380]
+    {
+        std::vector<unsigned char> buffer;
+
+        FILE* file{};
+        fopen_s(&file, "out.bin", "wb");
+        unsigned char* pData = cache7F0000.data();
+        fwrite(pData + 0x5100, 1, 0x2280, file);
+        fclose(file);
+    }
+
 
     return 0;
 }
