@@ -3370,22 +3370,18 @@ label_8647:
     z = a == 0;
     c = false;
 
-    // $9B/8655 91 10       STA ($10),y[$7F:5112]   A:0000 X:0008 Y:0012 P:envmxdiZc
     DebugPrint8655(a, x, y);
 
     //WriteDecompressedOutput(pointer10 + y, mem14); // xxx
 
-    // $9B/8657 E6 04       INC $04    [$00:0004]   A:0000 X:0008 Y:0012 P:envmxdiZc
     DebugPrint("$9B/8657 E6 04       INC $04    [$00:0004]  ", a, x, y);
     mem04++;
     z = mem04 == 0;
 
-    // $9B/8659 C6 00       DEC $00    [$00:0000]   A:0000 X:0008 Y:0012 P:envmxdizc
     DebugPrint("$9B/8659 C6 00       DEC $00    [$00:0000]  ", a, x, y);
     mem00.Data16--;
     n = mem00.Data16 >= 0x8000;
 
-    // $9B/865B 10 8B       BPL $8B    [$85E8]      A:0000 X:0008 Y:0012 P:envmxdizc
     DebugPrint("$9B/865B 10 8B       BPL $8B    [$85E8]     ", a, x, y);
 
     if (!n)
