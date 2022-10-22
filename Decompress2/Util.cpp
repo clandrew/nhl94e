@@ -6,9 +6,6 @@
 #include <iomanip>
 
 std::ofstream debugLog;
-std::vector<unsigned short> decompressed;
-int instructionLimit = 30900;
-int printedInstructionCount = 0;
 
 void OpenDebugLog()
 {
@@ -45,22 +42,6 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     fclose(file);
 
     return result;
-}
-
-void WriteDecompressedOutput(int address, unsigned short output)
-{
-    if (address < 0x7F5100 || address > 0x7F7390)
-    {
-        __debugbreak();
-        return;
-    }
-
-    int outputOffset = address - 0x7F5100;
-    assert(outputOffset % 2 == 0);
-
-    int outputElement = outputOffset / 2;
-
-    decompressed[outputElement] = output;
 }
 
 void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y)

@@ -88,6 +88,44 @@ void SaveMem6b(Mem16 const& v)
     mem6c |= v.High8;
 }
 
+Mem16 LoadFromROM16(unsigned short bank, unsigned short offset)
+{
+    Mem16 result;
+
+    if (bank == 0x9A)
+    {
+        if (offset >= 0x8000)
+        {
+            int local = offset - 0x8000;
+            result.Low8 = romFile[0xD0000 + local];
+            result.High8 = romFile[0xD0000 + local + 1];
+        }
+        else
+        {
+            __debugbreak(); // notimpl
+        }
+    }
+    else if (bank == 0x9D)
+    {
+        if (offset >= 0x8000)
+        {
+            int local = offset - 0x8000;
+            result.Low8 = romFile[0xE8000 + local];
+            result.High8 = romFile[0xE8000 + local + 1];
+        }
+        else
+        {
+            __debugbreak(); // notimpl
+        }
+    }
+    else
+    {
+        __debugbreak(); // notimpl
+    }
+
+    return result;
+}
+
 unsigned short LoadFromROM99F8B1(int address)
 {
     if (address < 0x99F8B1 || address > 0x99FAB4)
@@ -111,11 +149,11 @@ void LoadNextFrom0CInc(unsigned short pc)
     DebugPrintWithPC(pc, "E2 20       SEP #$20               ", a, x, y); 
     pc += 2;
 
-    // $80/BD15 B2 0C       LDA ($0C)  [$99:F8FA]   A:9400 X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    loaded = LoadFromROM99F8B1(0x990000 | mem0c);
+    // This runs in 8 bit mode.
+    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$9A:", mem0c, a, x, y);
+    loaded16 = LoadFromROM16(0x9A, mem0c);
     a &= 0xFF00;
-    a |= loaded & 0xFF;
+    a |= loaded16.Low8;
     pc += 2;
 
     // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
@@ -129,29 +167,29 @@ void LoadNextFrom0CInc(unsigned short pc)
 
 void LoadNextFrom0500(unsigned short pc)
 {
-    // $80/BD1B BE 00 05    LDX $0500,y[$99:0525]   A:948C X:0002 Y:0025 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "BE 00 05    LDX $0500,y[$99:", 0x500 + y, a, x, y);
+    // 16bit A, 8bit index
+
+    // $80/BD1B BE 00 05    LDX $0500,y[$9A:0525]   A:948C X:0002 Y:0025 P:envmxdizc
+    DebugPrintWithPCAndIndex(pc, "BE 00 05    LDX $0500,y[$9A:", 0x500 + y, a, x, y);
     x = mem7E0500_7E0700[y];
     pc += 3;
 
-    // $80/BD1E 8E 80 21    STX $2180  [$99:2180]   A:948C X:0000 Y:0025 P:envmxdizc
-    DebugPrintWithPC(pc, "8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
+    // $80/BD1E 8E 80 21    STX $2180  [$9A:2180]   A:948C X:0000 Y:0025 P:envmxdizc
+    DebugPrintWithPC(pc, "8E 80 21    STX $2180  [$9A:2180]  ", a, x, y);
     loaded16.Data16 = x;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
         cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
         cache7F0000[indirectLow] = loaded16.Low8;
-        cache7F0000[indirectLow+1] = loaded16.High8;
     }
     else
     {
         __debugbreak();
     }
-    indirectLow += 2;
+    indirectLow++;
     pc += 3;
 
     // $80/BD21 86 08       STX $08    [$00:0008]   A:948C X:0000 Y:0025 P:envmxdizc
@@ -171,8 +209,8 @@ void LoadNextFrom0600(unsigned short pc)
     y = mem6c >> 8;
     pc += 2;
 
-    // $80/BE61 BE 00 06    LDX $0600,y[$99:0694]   A:9420 X:0000 Y:0094 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "BE 00 06    LDX $0600,y[$99:", 0x600 + y, a, x, y);
+    // $80/BE61 BE 00 06    LDX $0600,y[$9A:0694]   A:9420 X:0000 Y:0094 P:envmxdizc
+    DebugPrintWithPCAndIndex(pc, "BE 00 06    LDX $0600,y[$9A:", 0x600 + y, a, x, y);
     x = mem7E0500_7E0700[0x100 + y];
 }
 
@@ -187,9 +225,10 @@ void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shif
     mem6a = 0;
     pc += 2;
 
-    // $80/BED5 B2 0C       LDA ($0C)  [$99:F8F9]   A:F180 X:0006 Y:00F1 P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$99:", mem0c, a, x, y);
-    a = LoadFromROM99F8B1(0x990000 | mem0c);
+    // $80/BED5 B2 0C       LDA ($0C)  [$9A:F8F9]   A:F180 X:0006 Y:00F1 P:envmxdizc
+    DebugPrintWithPCAndIndex(pc, "B2 0C       LDA ($0C)  [$9A:", mem0c, a, x, y);
+    loaded16 = LoadFromROM16(0x9A, mem0c);
+    a = loaded16.Data16;
     pc += 2;
 
     // $80/BED7 29 FF 00    AND #$00FF              A:8C94 X:0006 Y:00F1 P:envmxdizc
@@ -234,13 +273,13 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
 
     if (subtractDataAddress == 0x0730)
     {
-        DebugPrintWithPC(pc, "ED 30 07    SBC $0730  [$99:0730]  ", a, x, y);
+        DebugPrintWithPC(pc, "ED 30 07    SBC $0730  [$9A:0730]  ", a, x, y);
         loaded16.Low8 = cache7E0720[0x10];
         loaded16.High8 = cache7E0720[0x11];
     }
     else if (subtractDataAddress == 0x732)
     {
-        DebugPrintWithPC(pc, "ED 32 07    SBC $0732  [$99:0732]  ", a, x, y);
+        DebugPrintWithPC(pc, "ED 32 07    SBC $0732  [$9A:0732]  ", a, x, y);
         loaded16.Low8 = cache7E0720[0x12];
         loaded16.High8 = cache7E0720[0x13];
     }
@@ -260,8 +299,8 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
     DebugPrintWithPC(pc, "E2 20       SEP #$20               ", a, x, y);
     pc += 2;
 
-    // $80/BF9D B9 00 01    LDA $0100,y[$99:013C]   A:003C X:0006 Y:003C P:envmxdizc
-    DebugPrintWithPCAndIndex(pc, "B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
+    // $80/BF9D B9 00 01    LDA $0100,y[$9A:013C]   A:003C X:0006 Y:003C P:envmxdizc
+    DebugPrintWithPCAndIndex(pc, "B9 00 01    LDA $0100,y[$9A:", 0x100 + y, a, x, y);
     a = cache7E0100[y];
     pc += 3;
 
@@ -328,6 +367,28 @@ void Fn_80BBB3()
     //
     // Notes:
     //     A, X, Y are ignored and stomped on.
+    //     When loading the GAME SETUP screen, this function is called 17 times, with the following values
+    //     Call#            Mem0C-F
+    //     -----            -----
+    //     0                81ABDE
+    //     1                9AC1F3
+    //     2                938000
+    //     3                9AB7A1
+    //     4                9AE972
+    //     5                9A862E <-- Montreal 0
+    //     6                9988EC <-- Montreal 1
+    //     7                99DFCF <-- Montreal 2
+    //     8                98CAC0 <-- Montreal 3
+    //     9                97D557 <-- Montreal 4
+    //     10               99F8AC <-- Montreal 5
+    //     11               97E40B <-- LA 0
+    //     12               97C8FE <-- LA 1
+    //     13               97A887 <-- LA 2
+    //     14               97D7CC <-- LA 3
+    //     15               98D62E <-- LA 4
+    //     16               97DF28 <-- LA 5
+    //
+    // In local testing for now, we execute compared to a trace through of Montreal 0 (9A862E).
 
     // Use 8bit X and Y
     DebugPrint("$80/BBB3 E2 10       SEP #$10               ", a, x, y);
@@ -346,8 +407,9 @@ void Fn_80BBB3()
     DebugPrint("$80/BBBB 85 0C       STA $0C    [$00:000C]  ", a, x, y);
     mem0c = a;
 
-    DebugPrint("$80/BBBD B2 0C       LDA ($0C)  [$99:F8B1]  ", a, x, y);
-    a = LoadFromROM99F8B1(0x990000 | mem0c);
+    DebugPrintWithIndex("$80/BBBD B2 0C       LDA ($0C)  [$9A:", mem0c, a, x, y);
+    loaded16 = LoadFromROM16(0x9A, mem0c);
+    a = loaded16.Data16;
 
     // $80/BBBF 85 73       STA $73    [$00:0073]   A:960F X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBBF 85 73       STA $73    [$00:0073]  ", a, x, y);
@@ -357,9 +419,9 @@ void Fn_80BBB3()
     DebugPrint("$80/BBC1 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
     mem0c++;
 
-    // $80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]   A:960F X:0080 Y:00AE P:envmxdizc
-    DebugPrint("$80/BBC3 B2 0C       LDA ($0C)  [$99:F8B2]  ", a, x, y);
-    a = LoadFromROM99F8B1(0x990000 | mem0c);
+    DebugPrintWithIndex("$80/BBC3 B2 0C       LDA ($0C)  [$9A:", mem0c, a, x, y);
+    loaded16 = LoadFromROM16(0x9A, mem0c);
+    a = loaded16.Data16;
 
     // $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
     DebugPrint("$80/BBC5 E6 0C       INC $0C    [$00:000C]  ", a, x, y);
@@ -428,8 +490,8 @@ label_BBD9:
     DebugPrint("$80/BBE2 E5 77       SBC $77    [$00:0077]  ", a, x, y);
     a -= mem77;
 
-    // $80/BBE4 9D 20 07    STA $0720,x[$99:0720]   A:0000 X:0000 Y:0008 P:envmxdizc
-    DebugPrintWithIndex("$80/BBE4 9D 20 07    STA $0720,x[$99:", 0x720 + x, a, x, y);
+    // $80/BBE4 9D 20 07    STA $0720,x[$9A:0720]   A:0000 X:0000 Y:0008 P:envmxdizc
+    DebugPrintWithIndex("$80/BBE4 9D 20 07    STA $0720,x[$9A:", 0x720 + x, a, x, y);
     loaded16.Data16 = a;
     cache7E0720[x] = loaded16.Low8; // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
     cache7E0720[x+1] = loaded16.High8;
@@ -438,8 +500,8 @@ label_BBD9:
     DebugPrint("$80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]  ", a, x, y);
     Fn_80C1B0();
 
-    // $80/BBEA 9D 00 07    STA $0700,x[$99:0700]   A:0000 X:0000 Y:0005 P:envmxdizc
-    DebugPrintWithIndex("$80/BBEA 9D 00 07    STA $0700,x[$99:", 0x700 + x, a, x, y);
+    // $80/BBEA 9D 00 07    STA $0700,x[$9A:0700]   A:0000 X:0000 Y:0005 P:envmxdizc
+    DebugPrintWithIndex("$80/BBEA 9D 00 07    STA $0700,x[$9A:", 0x700 + x, a, x, y);
     cache7E0700[x] = a;
 
     // $80/BBED 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
@@ -482,8 +544,8 @@ label_BBD9:
         goto label_BC02;
     }
 
-    // $80/BBFD 9E 40 07    STZ $0740,x[$99:0740]   A:0000 X:0000 Y:0005 P:envmxdizc
-    DebugPrintWithIndex("$80/BBFD 9E 40 07    STZ $0740,x[$99:", 0x740+x, a, x, y);
+    // $80/BBFD 9E 40 07    STZ $0740,x[$9A:0740]   A:0000 X:0000 Y:0005 P:envmxdizc
+    DebugPrintWithIndex("$80/BBFD 9E 40 07    STZ $0740,x[$9A:", 0x740+x, a, x, y);
     loaded16.Data16 = a;
     cache7E0740[x] = loaded16.Low8;
     cache7E0740[x+1] = loaded16.High8;
@@ -542,8 +604,8 @@ label_BC0B:
     DebugPrint("$80/BC10 A5 00       LDA $00    [$00:0000]  ", a, x, y);
     a = mem00.Data16;
 
-    // $80/BC12 9D 40 07    STA $0740,x[$99:0742]   A:4000 X:0002 Y:0002 P:envmxdizc
-    DebugPrintWithIndex("$80/BC12 9D 40 07    STA $0740,x[$99:", 0x740 + x, a, x, y);
+    // $80/BC12 9D 40 07    STA $0740,x[$9A:0742]   A:4000 X:0002 Y:0002 P:envmxdizc
+    DebugPrintWithIndex("$80/BC12 9D 40 07    STA $0740,x[$9A:", 0x740 + x, a, x, y);
     loaded16.Data16 = a;
     cache7E0740[x] = loaded16.Low8;
     cache7E0740[x+1] = loaded16.High8;
@@ -574,24 +636,24 @@ label_BC0B:
     x = 0x3E;
 
 label_BC1D:
-    // $80/BC1D 9E 00 05    STZ $0500,x[$99:053E]   A:0009 X:003E Y:0008 P:envmxdizc
+    // $80/BC1D 9E 00 05    STZ $0500,x[$9A:053E]   A:0009 X:003E Y:0008 P:envmxdizc
     // X = 0x3E, 0x3C, 0x3A, ... 6, 4, 2, 0
-    DebugPrintWithIndex("$80/BC1D 9E 00 05    STZ $0500,x[$99:", 0x990500 + x, a, x, y);
+    DebugPrintWithIndex("$80/BC1D 9E 00 05    STZ $0500,x[$9A:", 0x990500 + x, a, x, y);
     mem7E0500_7E0700[x] = 0;
     mem7E0500_7E0700[x+1] = 0;
 
-    // $80/BC20 9E 40 05    STZ $0540,x[$99:057E]   A:0009 X:003E Y:0008 P:envmxdizc
-    DebugPrintWithIndex("$80/BC20 9E 40 05    STZ $0540,x[$99:", 0x990540 + x, a, x, y);
+    // $80/BC20 9E 40 05    STZ $0540,x[$9A:057E]   A:0009 X:003E Y:0008 P:envmxdizc
+    DebugPrintWithIndex("$80/BC20 9E 40 05    STZ $0540,x[$9A:", 0x990540 + x, a, x, y);
     mem7E0500_7E0700[0x40 + x] = 0;
     mem7E0500_7E0700[0x40 + x+1] = 0;
 
-    // $80/BC23 9E 80 05    STZ $0580,x[$99:05BE]   A:0009 X:003E Y:0008 P:envmxdizc
-    DebugPrintWithIndex("$80/BC23 9E 80 05    STZ $0580,x[$99:", 0x990580 + x, a, x, y);
+    // $80/BC23 9E 80 05    STZ $0580,x[$9A:05BE]   A:0009 X:003E Y:0008 P:envmxdizc
+    DebugPrintWithIndex("$80/BC23 9E 80 05    STZ $0580,x[$9A:", 0x990580 + x, a, x, y);
     mem7E0500_7E0700[0x80 + x] = 0;
     mem7E0500_7E0700[0x80 + x+1] = 0;
 
-    // $80/BC26 9E C0 05    STZ $05C0,x[$99:05FE]   A:0009 X:003E Y:0008 P:envmxdizc
-    DebugPrintWithIndex("$80/BC26 9E C0 05    STZ $05C0,x[$99:", 0x9905C0 + x, a, x, y);
+    // $80/BC26 9E C0 05    STZ $05C0,x[$9A:05FE]   A:0009 X:003E Y:0008 P:envmxdizc
+    DebugPrintWithIndex("$80/BC26 9E C0 05    STZ $05C0,x[$9A:", 0x9905C0 + x, a, x, y);
     mem7E0500_7E0700[0xC0 + x] = 0;
     mem7E0500_7E0700[0xC0 + x+1] = 0;
     
@@ -615,16 +677,16 @@ label_BC1D:
     DebugPrint("$80/BC2D A2 7E       LDX #$7E               ", a, x, y);
     x = 0x7E;
 
-    // $80/BC2F 8E 83 21    STX $2183  [$99:2183]   A:0009 X:007E Y:0008 P:envmxdizc
-    DebugPrint("$80/BC2F 8E 83 21    STX $2183  [$99:2183]  ", a, x, y);
+    // $80/BC2F 8E 83 21    STX $2183  [$9A:2183]   A:0009 X:007E Y:0008 P:envmxdizc
+    DebugPrint("$80/BC2F 8E 83 21    STX $2183  [$9A:2183]  ", a, x, y);
     indirectHigh = x;
 
     // $80/BC32 A9 00 01    LDA #$0100              A:0009 X:007E Y:0008 P:envmxdizc
     DebugPrint("$80/BC32 A9 00 01    LDA #$0100             ", a, x, y);
     a = 0x100;
 
-    // $80/BC35 8D 81 21    STA $2181  [$99:2181]   A:0100 X:007E Y:0008 P:envmxdizc
-    DebugPrint("$80/BC35 8D 81 21    STA $2181  [$99:2181]  ", a, x, y);
+    // $80/BC35 8D 81 21    STA $2181  [$9A:2181]   A:0100 X:007E Y:0008 P:envmxdizc
+    DebugPrint("$80/BC35 8D 81 21    STA $2181  [$9A:2181]  ", a, x, y);
     indirectLow = a;
 
     // $80/BC38 A2 FF       LDX #$FF                A:0100 X:007E Y:0008 P:envmxdizc
@@ -651,8 +713,8 @@ label_BC40:
     ++x;
     x &= 0xFF;
 
-    // $80/BC41 3C 00 05    BIT $0500,x[$99:0500]   A:0001 X:0000 Y:0005 P:envmxdizc
-    DebugPrintWithIndex("$80/BC41 3C 00 05    BIT $0500,x[$99:", 0x500 + x, a, x, y);
+    // $80/BC41 3C 00 05    BIT $0500,x[$9A:0500]   A:0001 X:0000 Y:0005 P:envmxdizc
+    DebugPrintWithIndex("$80/BC41 3C 00 05    BIT $0500,x[$9A:", 0x500 + x, a, x, y);
     n = mem7E0500_7E0700[x] >= 0x80;
 
     // $80/BC44 30 FA       BMI $FA    [$BC40]      A:0012 X:0022 Y:0006 P:envMXdiZc
@@ -674,16 +736,16 @@ label_BC40:
         goto label_BC40;
     }
 
-    // $80/BC49 DE 00 05    DEC $0500,x[$99:0500]   A:0000 X:0000 Y:0005 P:envmxdizc
-    DebugPrintWithIndex("$80/BC49 DE 00 05    DEC $0500,x[$99:", 0x500 + x, a, x, y);
+    // $80/BC49 DE 00 05    DEC $0500,x[$9A:0500]   A:0000 X:0000 Y:0005 P:envmxdizc
+    DebugPrintWithIndex("$80/BC49 DE 00 05    DEC $0500,x[$9A:", 0x500 + x, a, x, y);
     mem7E0500_7E0700[x]--;
 
     // $80/BC4C C2 20       REP #$20                A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BC4C C2 20       REP #$20               ", a, x, y);
 
-    // $80/BC4E 8E 80 21    STX $2180  [$99:2180]   A:0000 X:0000 Y:0005 P:envmxdizc
+    // $80/BC4E 8E 80 21    STX $2180  [$9A:2180]   A:0000 X:0000 Y:0005 P:envmxdizc
     // This is running in 8 bit index mode.
-    DebugPrint("$80/BC4E 8E 80 21    STX $2180  [$99:2180]  ", a, x, y);
+    DebugPrint("$80/BC4E 8E 80 21    STX $2180  [$9A:2180]  ", a, x, y);
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
         loaded16.Data16 = x;
@@ -763,8 +825,8 @@ label_BC60:
         goto label_BCBF;
     }
 
-    // $80/BC6A BD 00 07    LDA $0700,x[$99:0700]   A:0000 X:0000 Y:0000 P:envmxdizc
-    DebugPrintWithIndex("$80/BC6A BD 00 07    LDA $0700,x[$99:", 0x700 + x, a, x, y);
+    // $80/BC6A BD 00 07    LDA $0700,x[$9A:0700]   A:0000 X:0000 Y:0000 P:envmxdizc
+    DebugPrintWithIndex("$80/BC6A BD 00 07    LDA $0700,x[$9A:", 0x700 + x, a, x, y);
     a = cache7E0700[x]; // X = 0x0-0x50
     
     // $80/BC6D 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0000 P:envmxdizc
@@ -809,9 +871,9 @@ label_BC83:
     DebugPrint("$80/BC86 85 00       STA $00    [$00:0000]  ", a, x, y);
     mem00.Data16 = a;
 
-    // $80/BC88 B9 00 01    LDA $0100,y[$99:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
+    // $80/BC88 B9 00 01    LDA $0100,y[$9A:0100]   A:0002 X:0000 Y:0000 P:envmxdizc
     // This is running in 8 bit accumulator and index mode.
-    DebugPrintWithIndex("$80/BC88 B9 00 01    LDA $0100,y[$99:", 0x100 + y, a, x, y);
+    DebugPrintWithIndex("$80/BC88 B9 00 01    LDA $0100,y[$9A:", 0x100 + y, a, x, y);
     loaded16.Data16 = a;
     loaded16.Low8 = cache7E0100[y];
     a = loaded16.Data16;
@@ -877,16 +939,16 @@ label_BCA1:
     // Select the upper byte of mem0
     a = mem00.High8;
 
-    // $80/BCA3 9D 00 05    STA $0500,x[$99:0500]   A:0000 X:0000 Y:0040 P:envmxdizc
-    DebugPrintWithIndex("$80/BCA3 9D 00 05    STA $0500,x[$99:", 0x500 + x, a, x, y);
+    // $80/BCA3 9D 00 05    STA $0500,x[$9A:0500]   A:0000 X:0000 Y:0040 P:envmxdizc
+    DebugPrintWithIndex("$80/BCA3 9D 00 05    STA $0500,x[$9A:", 0x500 + x, a, x, y);
     mem7E0500_7E0700[x] = (a & 0xFF); // Is this right?
 
     // $80/BCA6 A5 00       LDA $00    [$00:0000]   A:0000 X:0000 Y:0040 P:envmxdizc
     DebugPrint("$80/BCA6 A5 00       LDA $00    [$00:0000]  ", a, x, y);
     a = mem00.Low8;
 
-    // $80/BCA8 9D 00 06    STA $0600,x[$99:0600]   A:0002 X:0000 Y:0040 P:envmxdizc
-    DebugPrintWithIndex("$80/BCA8 9D 00 06    STA $0600,x[$99:", 0x600 + x, a, x, y);
+    // $80/BCA8 9D 00 06    STA $0600,x[$9A:0600]   A:0002 X:0000 Y:0040 P:envmxdizc
+    DebugPrintWithIndex("$80/BCA8 9D 00 06    STA $0600,x[$9A:", 0x600 + x, a, x, y);
     mem7E0500_7E0700[0x100 + x] = (a & 0xFF);
 
     // $80/BCAB E8          INX                     A:0002 X:0000 Y:0040 P:envmxdizc
@@ -966,8 +1028,8 @@ label_BCBF:
 
 label_BCC5:
 
-    // $80/BCC5 9D 00 06    STA $0600,x[$99:06F1]   A:0010 X:00F1 Y:003B P:envmxdizc
-    DebugPrintWithIndex("$80/BCC5 9D 00 06    STA $0600,x[$99:", 0x600 + x, a, x, y);
+    // $80/BCC5 9D 00 06    STA $0600,x[$9A:06F1]   A:0010 X:00F1 Y:003B P:envmxdizc
+    DebugPrintWithIndex("$80/BCC5 9D 00 06    STA $0600,x[$9A:", 0x600 + x, a, x, y);
     mem7E0500_7E0700[0x100 + x] = a;
 
     // $80/BCC8 E8          INX                     A:0010 X:00F1 Y:003B P:envmxdizc
@@ -1013,8 +1075,8 @@ label_BCC5:
         __debugbreak(); // notimpl
     }
 
-    // $80/BCD5 8D 60 07    STA $0760  [$99:0760]   A:BFC8 X:0012 Y:003B P:envmxdizc
-    DebugPrint("$80/BCD5 8D 60 07    STA $0760  [$99:0760]  ", a, x, y);
+    // $80/BCD5 8D 60 07    STA $0760  [$9A:0760]   A:BFC8 X:0012 Y:003B P:envmxdizc
+    DebugPrint("$80/BCD5 8D 60 07    STA $0760  [$9A:0760]  ", a, x, y);
     loaded16.Data16 = a;
     cache7E0760[0] = loaded16.Low8;
     cache7E0760[1] = loaded16.High8;
@@ -1023,16 +1085,16 @@ label_BCC5:
     DebugPrint("$80/BCD8 A4 12       LDY $12    [$00:0012]  ", a, x, y);
     y = mem12;
 
-    // $80/BCDA 8C 83 21    STY $2183  [$99:2183]   A:BFC8 X:0012 Y:007F P:envmxdizc    
-    DebugPrint("$80/BCDA 8C 83 21    STY $2183  [$99:2183]  ", a, x, y); // Indirect wram high bit
+    // $80/BCDA 8C 83 21    STY $2183  [$9A:2183]   A:BFC8 X:0012 Y:007F P:envmxdizc    
+    DebugPrint("$80/BCDA 8C 83 21    STY $2183  [$9A:2183]  ", a, x, y); // Indirect wram high bit
     indirectHigh = mem12;
 
     // $80/BCDD A5 10       LDA $10    [$00:0010]   A:BFC8 X:0012 Y:007F P:envmxdizc
     DebugPrint("$80/BCDD A5 10       LDA $10    [$00:0010]  ", a, x, y);
     a = mem10;
 
-    // $80/BCDF 8D 81 21    STA $2181  [$99:2181]   A:0000 X:0012 Y:007F P:envmxdizc
-    DebugPrint("$80/BCDF 8D 81 21    STA $2181  [$99:2181]  ", a, x, y);   // Indirect wram low and mid byte
+    // $80/BCDF 8D 81 21    STA $2181  [$9A:2181]   A:0000 X:0012 Y:007F P:envmxdizc
+    DebugPrint("$80/BCDF 8D 81 21    STA $2181  [$9A:2181]  ", a, x, y);   // Indirect wram low and mid byte
     indirectLow = mem10;
 
     // $80/BCE2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0012 Y:007F P:envmxdizc
@@ -1062,8 +1124,8 @@ label_BCC5:
     }
     else if (x == 0xE)
     {
-        // goto 80:BD70
-        __debugbreak();
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BD70]", a, x, y);
+        goto label_BD70;
     }
     else
     {
@@ -1415,6 +1477,7 @@ label_BE03:
     DebugPrint("$80/BE04 0A          ASL A                  ", a, x, y);
     a *= 2;
 
+    // Includes $80/BE08.
     LoadNextFrom0500(0xBE05);
 
 label_BE0D:
@@ -1933,8 +1996,8 @@ label_BFA9:
 
 label_BFC8:
 
-    // $80/BFC8 CD 50 07    CMP $0750  [$99:0750]   A:F192 X:0006 Y:00F1 P:envmxdizc
-    DebugPrint("$80/BFC8 CD 50 07    CMP $0750  [$99:0750]  ", a, x, y);
+    // $80/BFC8 CD 50 07    CMP $0750  [$9A:0750]   A:F192 X:0006 Y:00F1 P:envmxdizc
+    DebugPrint("$80/BFC8 CD 50 07    CMP $0750  [$9A:0750]  ", a, x, y);
     loaded16.Low8 = cache7E0740[0x10];
     loaded16.High8 = cache7E0740[0x11];
     c = a >= loaded16.Data16;
@@ -1951,25 +2014,23 @@ label_BFC8:
 
 label_C0E8:
 
-    // $80/C0E8 8D 80 21    STA $2180  [$99:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
-    DebugPrint("$80/C0E8 8D 80 21    STA $2180  [$99:2180]  ", a, x, y);
-
+    // $80/C0E8 8D 80 21    STA $2180  [$9A:2180]   A:0008 X:0006 Y:0001 P:envmxdizc
+    DebugPrint("$80/C0E8 8D 80 21    STA $2180  [$9A:2180]  ", a, x, y);
+    // This is 8 bit acc.
     loaded16.Data16 = a;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
         cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
         cache7F0000[indirectLow] = loaded16.Low8;
-        cache7F0000[indirectLow + 1] = loaded16.High8;
     }
     else
     {
         __debugbreak();
     }
-    indirectLow += 2;
+    indirectLow += 1;
 
     // $80/C0EB 85 08       STA $08    [$00:0008]   A:0008 X:0006 Y:0001 P:envmxdizc
     DebugPrint("$80/C0EB 85 08       STA $08    [$00:0008]  ", a, x, y);
@@ -2163,6 +2224,19 @@ label_C122:
         goto label_C15C;
     }
 
+    DebugPrint("$80/C12E 0A          ASL A                  ", a, x, y);
+    a *= 2;
+
+    DebugPrint("$80/C12F 88          DEY                    ", a, x, y);
+    y--;
+    z = y == 0;
+
+    DebugPrint("$80/C130 F0 27       BEQ $27    [$C159]     ", a, x, y);
+    if (z)
+    {
+        goto label_C159;
+    }
+
     __debugbreak();
 
 label_C147:
@@ -2221,25 +2295,23 @@ label_C17C:
     y = mem08;
 
 label_C18A:
-    // $80/C18A 8C 80 21    STY $2180  [$99:2180]   A:003E X:0006 Y:0000 P:envmxdizc
-    DebugPrint("$80/C18A 8C 80 21    STY $2180  [$99:2180]  ", a, x, y);
-
+    // $80/C18A 8C 80 21    STY $2180  [$9A:2180]   A:003E X:0006 Y:0000 P:envmxdizc
+    DebugPrint("$80/C18A 8C 80 21    STY $2180  [$9A:2180]  ", a, x, y);
+    // This is 8 bit index.
     loaded16.Data16 = y;
     if (indirectHigh == 0x7E && indirectLow >= 0x100)
     {
         cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        cache7E0100[indirectLow + 1 - 0x100] = loaded16.High8;
     }
     else if (indirectHigh == 0x7F)
     {
         cache7F0000[indirectLow] = loaded16.Low8;
-        cache7F0000[indirectLow + 1] = loaded16.High8;
     }
     else
     {
         __debugbreak();
     }
-    indirectLow += 2;
+    indirectLow += 1;
 
     // $80/C18D 3A          DEC A                   A:003E X:0006 Y:0000 P:envmxdizc
     DebugPrint("$80/C18D 3A          DEC A                  ", a, x, y);
@@ -3029,10 +3101,9 @@ label_85E8:
 
 label_85F4:
     {
-        // $9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]   A:0008 X:0008 Y:0006 P:envmxdizc
-        DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:0006]  ", mem0c, a, x, y);
-        loaded16.Low8 = cache7F0000[mem0c];
-        loaded16.High8 = cache7F0000[mem0c+1];
+        DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", mem0c + y, a, x, y);
+        loaded16.Low8 = cache7F0000[mem0c + y];
+        loaded16.High8 = cache7F0000[mem0c + y+1];
         a = loaded16.Data16;
         z = a == 0;
 
@@ -3326,10 +3397,10 @@ label_8647:
     z = a == 0;
 
     // $9B/864B 91 10       STA ($10),y[$7F:5102]   A:0000 X:0008 Y:0002 P:envmxdiZC
-    DebugPrint864B(a, x, y);
+    DebugPrintWithIndex("$9B/864B 91 10       STA ($10),y[$7F:", mem10 + y, a, x, y);
     loaded16.Data16 = a;
-    cache7F0000[mem10] = loaded16.Low8;
-    cache7F0000[mem10 + 1] = loaded16.High8;
+    cache7F0000[mem10 + y] = loaded16.Low8;
+    cache7F0000[mem10 + y + 1] = loaded16.High8;
 
     // $9B/864D 98          TYA                     A:0000 X:0008 Y:0002 P:envmxdiZC
     DebugPrint("$9B/864D 98          TYA                    ", a, x, y);
@@ -3354,11 +3425,10 @@ label_8647:
     z = a == 0;
     c = false;
 
-    DebugPrint8655(a, x, y);
-
+    DebugPrintWithIndex("$9B/8655 91 10       STA ($10),y[$7F:", mem10 + y, a, x, y);
     loaded16.Data16 = a;
-    cache7F0000[mem10] = loaded16.Low8;
-    cache7F0000[mem10 + 1] = loaded16.High8;
+    cache7F0000[mem10 + y] = loaded16.Low8;
+    cache7F0000[mem10 + y + 1] = loaded16.High8;
 
     DebugPrint("$9B/8657 E6 04       INC $04    [$00:0004]  ", a, x, y);
     mem04++;
@@ -3384,8 +3454,17 @@ label_8647:
 
 void Filler()
 {
-    // There's a PLX that does this
+    DebugPrint("$80/C3B2 80 11       BRA $11    [$C3C5]     ", a, x, y);
+
+    DebugPrint("$80/C3C5 C2 30       REP #$30               ", a, x, y);
+
+    DebugPrint("$80/C3C7 FA          PLX                    ", a, x, y);
     x = 0x480;
+
+    DebugPrint("$80/C3C8 AB          PLB                    ", a, x, y);
+    DebugPrint("$80/C3C9 28          PLP                    ", a, x, y);
+    DebugPrint("$80/C3CA 6B          RTL                    ", a, x, y);
+
 
     // There's also 0x9F pushed to the stack, so PLB pulls 0x9F.
 
@@ -3393,7 +3472,7 @@ void Filler()
     mem00.Data16 = x;
 
     DebugPrint("$9D/CC81 A3 01       LDA $01,s  [$00:1FF6]  ", a, x, y);
-    a = 0; // Need to check what actually gets pushed
+    a = 0xA; // Need to check what actually gets pushed
 
     DebugPrint("$9D/CC83 AA          TAX                    ", a, x, y);
     x = a;
@@ -3415,15 +3494,9 @@ label_CC8D:
 
     DebugPrint("$9D/CC90 18          CLC                    ", a, x, y);
 
-    DebugPrint("$9D/CC91 7F AE CC 9D ADC $9DCCAE,x[$9D:CCAE]", a, x, y);
-    if (x == 0)
-    {
-        a += 0;
-    }
-    else
-    {
-        __debugbreak();
-    }
+    DebugPrintWithIndex("$9D/CC91 7F AE CC 9D ADC $9DCCAE,x[$9D:", 0xCCAE + x, a, x, y, true);
+    loaded16 = LoadFromROM16(0x9D, 0xCCAE + x);
+    a += loaded16.Data16;
 
     DebugPrint("$9D/CC95 85 10       STA $10    [$00:0010]  ", a, x, y);
     mem10 = a;
@@ -3476,6 +3549,10 @@ int main()
     romFile = LoadBinaryFile8("nhl94.sfc");
 
     InitializeCaches();
+
+    x = 0x0478;
+    y = 0x8630;
+    mem0c = 0x862E;
 
     Fn_80BBB3();
 

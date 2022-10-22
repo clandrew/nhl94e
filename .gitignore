@@ -32,3 +32,6 @@ template.png
 /Decompress3/Verification.txt
 /Decompress3/output.txt
 /Decompress2/out.bin
+/Decompress2/cpulog_montreal0/*
+/Decompress2/VerificationZ_Full_Noflags_NoIRQ.txt
+/Decompress2/nhl940000.noirq.noflag.log
