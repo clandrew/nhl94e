@@ -75,6 +75,18 @@ void DebugPrintWithPCAndImm8(unsigned short pc, const char* asmByte, const char*
     DebugPrintFinalize();
 }
 
+void DebugPrintWithBankAndIndex(const char* asmPrefix, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << asmPrefix;
+    debugLog << "[$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank;
+    debugLog << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
 void DebugPrintWithIndex(const char* asmPrefix, unsigned short index, unsigned short a, unsigned short x, unsigned short y, bool longAddress)
 {
     debugLog << asmPrefix;
@@ -104,6 +116,40 @@ void DebugPrintWithPCAndIndex(unsigned short pc, const char* asmText, unsigned s
     debugLog << asmText;
     debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
     debugLog << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
+void DebugPrintWithPCAndBankAndIndex(unsigned short pc, const char* asmText, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+    debugLog << asmText;
+    debugLog << "[$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank;
+    debugLog << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
+void DebugPrintSBCAbsolute(unsigned short pc, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+
+    unsigned short indexAcc = index;
+    unsigned char indexLow = indexAcc & 0xFF;
+    indexAcc >>= 8;
+    unsigned char indexHigh = indexAcc;
+
+    debugLog << "ED ";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)indexLow << " ";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)indexHigh << "    SBC $";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index << "  [$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index << "]  ";
     DebugPrintRegs(a, x, y);
     DebugPrintFinalize();
 }
