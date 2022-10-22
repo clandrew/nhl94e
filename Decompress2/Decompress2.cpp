@@ -1468,8 +1468,8 @@ label_BDE1:
 
     LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
 
-    DebugPrint("$80/BDF2 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrint("$80/BDF2 6C 60 07    JMP ($0760)[$80:BFC5]  ", a, x, y);
+    goto label_BFC5;
 
 label_BDF5:
     DebugPrint("$80/BDF5 0A          ASL A                  ", a, x, y);
@@ -1572,9 +1572,8 @@ label_BE30:
     LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
     // Includes B340
 
-    DebugPrint("$80/BE42 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-
-goto label_BFC8;
+    DebugPrint("$80/BE42 6C 60 07    JMP ($0760)[$80:BFC5]  ", a, x, y);
+    goto label_BFC5;
 
 label_BE45:
     DebugPrint("$80/BE45 0A          ASL A                  ", a, x, y);
@@ -1685,7 +1684,7 @@ label_BE80:
 
     LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
 
-    DebugPrint("$80/BE93 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
+    DebugPrint("$80/BE93 6C 60 07    JMP ($0760)[$80:BFC5]  ", a, x, y);
     goto label_BFC8;
 
 label_BE96:
@@ -1904,8 +1903,8 @@ label_BF23:
 
     LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
 
-    DebugPrint("$80/BF38 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrint("$80/BF38 6C 60 07    JMP ($0760)[$80:BFC5]  ", a, x, y);
+    goto label_BFC5;
 
 label_BF3B:
 
@@ -2012,8 +2011,8 @@ label_BF76:
 
     LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
 
-    DebugPrint("$80/BF8C 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrint("$80/BF8C 6C 60 07    JMP ($0760)[$80:BFC5]  ", a, x, y);
+    goto label_BFC5;
 
 label_BF8F:
 
