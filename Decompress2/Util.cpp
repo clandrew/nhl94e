@@ -108,21 +108,6 @@ void DebugPrintWithPCAndIndex(unsigned short pc, const char* asmText, unsigned s
     DebugPrintFinalize();
 }
 
-void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y)
-{
-    DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y);
-}
-
-void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y)
-{
-    DebugPrintWithIndex("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
-}
-
-void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y)
-{
-    DebugPrintWithIndex("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
-}
-
 unsigned short ExchangeShortHighAndLow(unsigned short s)
 {
     unsigned short part0 = s & 0x00FF;

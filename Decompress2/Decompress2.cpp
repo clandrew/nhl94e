@@ -501,8 +501,10 @@ label_BBD9:
     Fn_80C1B0();
 
     // $80/BBEA 9D 00 07    STA $0700,x[$9A:0700]   A:0000 X:0000 Y:0005 P:envmxdizc
+    // 8bit index
     DebugPrintWithIndex("$80/BBEA 9D 00 07    STA $0700,x[$9A:", 0x700 + x, a, x, y);
-    cache7E0700[x] = a;
+    loaded16.Data16 = a;
+    cache7E0700[x] = loaded16.Low8;
 
     // $80/BBED 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
     DebugPrint("$80/BBED 18          CLC                    ", a, x, y);
@@ -880,7 +882,8 @@ label_BC83:
 
     // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC8B 85 01       STA $01    [$00:0001]  ", a, x, y);
-    mem00.High8 = a;
+    loaded16.Data16 = a;
+    mem00.High8 = loaded16.Low8;
 
     // $80/BC8D C8          INY                     A:0000 X:0000 Y:0000 P:envmxdizc
     DebugPrint("$80/BC8D C8          INY                    ", a, x, y);
@@ -916,7 +919,8 @@ label_BC83:
 
     // $80/BC99 85 00       STA $00    [$00:0000]   A:0012 X:0094 Y:000B P:envmxdizc
     DebugPrint("$80/BC99 85 00       STA $00    [$00:0000]  ", a, x, y);
-    mem00.Low8 = a;
+    loaded16.Data16 = a;
+    mem00.Low8 = loaded16.Low8;
 
 label_BC9B:
 
@@ -1027,10 +1031,10 @@ label_BCBF:
     a = 0x10;
 
 label_BCC5:
-
-    // $80/BCC5 9D 00 06    STA $0600,x[$9A:06F1]   A:0010 X:00F1 Y:003B P:envmxdizc
+    // 8bit acc
     DebugPrintWithIndex("$80/BCC5 9D 00 06    STA $0600,x[$9A:", 0x600 + x, a, x, y);
-    mem7E0500_7E0700[0x100 + x] = a;
+    loaded16.Data16 = a;
+    mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
 
     // $80/BCC8 E8          INX                     A:0010 X:00F1 Y:003B P:envmxdizc
     DebugPrint("$80/BCC8 E8          INX                    ", a, x, y);
