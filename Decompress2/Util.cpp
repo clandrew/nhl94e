@@ -154,6 +154,15 @@ void DebugPrintSBCAbsolute(unsigned short pc, unsigned char bank, unsigned short
     DebugPrintFinalize();
 }
 
+void DebugPrintJMPAbsolute0760(unsigned short pc, unsigned short mem0760Value, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " 6C 60 07    JMP ($0760)[$80:";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << mem0760Value << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
 unsigned short ExchangeShortHighAndLow(unsigned short s)
 {
     unsigned short part0 = s & 0x00FF;

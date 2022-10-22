@@ -15,6 +15,7 @@ void DebugPrintWithPCAndBankAndIndex(unsigned short pc, const char* asmText, uns
 void DebugPrintWithPCAndImm8(unsigned short pc, const char* asmByte, const char* asmOp, unsigned char imm8, unsigned short a, unsigned short x, unsigned short y);
 
 void DebugPrintSBCAbsolute(unsigned short pc, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y);
+void DebugPrintJMPAbsolute0760(unsigned short pc, unsigned short mem0760Value, unsigned short a, unsigned short x, unsigned short y);
 
 unsigned short ExchangeShortHighAndLow(unsigned short s);
 

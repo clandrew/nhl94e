@@ -50,6 +50,7 @@ unsigned short mem77 = 0;
 unsigned short mem79 = 0;
 unsigned short mem7b = 0;
 unsigned short mem7d = 0;
+unsigned short mem0760 = 0;
 
 // Output.
 std::vector<unsigned char> mem7E0500_7E0700;
@@ -1251,8 +1252,8 @@ label_BD46:
 
     LoadNextFrom0CMaskAndShift(0xBD46, 0x10, 0);
 
-    DebugPrint("$80/BD55 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBD55, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BD58:
 
@@ -1356,8 +1357,8 @@ label_BD8E:
 label_BD93:
     LoadNextFrom0CMaskAndShift(0xBD93, 0xE, 1);
 
-    DebugPrint("$80/BDA3 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBDA3, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BDA6:
     DebugPrint("$80/BDA6 0A          ASL A                  ", a, x, y);
@@ -1468,8 +1469,8 @@ label_BDE1:
 
     LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
 
-    DebugPrint("$80/BDF2 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBDF2, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BDF5:
     DebugPrint("$80/BDF5 0A          ASL A                  ", a, x, y);
@@ -1569,12 +1570,11 @@ label_BE2B:
     goto label_C17C;
 
 label_BE30:
-    LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
     // Includes B340
+    LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
 
-    DebugPrint("$80/BE42 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-
-goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBE42, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BE45:
     DebugPrint("$80/BE45 0A          ASL A                  ", a, x, y);
@@ -1685,8 +1685,8 @@ label_BE80:
 
     LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
 
-    DebugPrint("$80/BE93 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBE93, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BE96:
 
@@ -1794,9 +1794,8 @@ label_BED1:
 
     LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
 
-    // $80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]   A:F192 X:0006 Y:00F1 P:envmxdizc
-    DebugPrint("$80/BEE5 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBEE5, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BEE8:
 
@@ -1904,8 +1903,8 @@ label_BF23:
 
     LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
 
-    DebugPrint("$80/BF38 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBF38, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BF3B:
 
@@ -2012,8 +2011,8 @@ label_BF76:
 
     LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
 
-    DebugPrint("$80/BF8C 6C 60 07    JMP ($0760)[$80:BFC8]  ", a, x, y);
-    goto label_BFC8;
+    DebugPrintJMPAbsolute0760(0xBF8C, mem0760, a, x, y);
+    goto label_JumpAbsolute760;
 
 label_BF8F:
 
@@ -2448,6 +2447,14 @@ label_C1AF:
     // Return from monstrosity
     DebugPrint("$80/C1AF 60          RTS                    ", a, x, y); // Done
     return;
+
+label_JumpAbsolute760:
+    switch (mem0760)
+    {
+    case 0xBFC5: goto label_BFC5;
+    case 0xBFC8: goto label_BFC8;
+    default: __debugbreak();
+    }
 }
 
 
@@ -3604,6 +3611,7 @@ void Montreal0()
     mem0c = 0x862E;
     dbr = 0x9A;
     stackArgument = 0xA;
+    mem0760 = 0xBFC8;
 }
 
 void Montreal1()
@@ -3612,7 +3620,7 @@ void Montreal1()
     mem0c = 0x88EC;
     dbr = 0x99;
     stackArgument = 0x8;
-
+    mem0760 = 0xBFC8;
 }
 
 void Montreal2()
@@ -3621,6 +3629,7 @@ void Montreal2()
     mem0c = 0xDFCF;
     dbr = 0x99;
     stackArgument = 0x6;
+    mem0760 = 0xBFC5;
 }
 
 int main()
@@ -3632,9 +3641,9 @@ int main()
 
     InitializeCaches();
 
-    //Montreal0();
+    Montreal0();
     //Montreal1();
-    Montreal2();
+    //Montreal2();
 
     y = mem0c + 2;
     Fn_80BBB3();
