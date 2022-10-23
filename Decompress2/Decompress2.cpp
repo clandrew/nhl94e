@@ -17,6 +17,7 @@ bool z = false;
 bool c = false;
 unsigned char dbr = 0x9A;
 unsigned short currentProfileImageIndex = 0;
+std::string outputCpuLogFileName;
 
 union Mem16
 {
@@ -3581,6 +3582,7 @@ void Montreal0()
     mem0c = 0x862E;
     dbr = 0x9A;
     currentProfileImageIndex = 0xA;
+    outputCpuLogFileName = "montreal0.out.log";
 }
 
 void Montreal1()
@@ -3589,6 +3591,7 @@ void Montreal1()
     mem0c = 0x88EC;
     dbr = 0x99;
     currentProfileImageIndex = 0x8;
+    outputCpuLogFileName = "montreal1.out.log";
 }
 
 void Montreal2()
@@ -3597,6 +3600,7 @@ void Montreal2()
     mem0c = 0xDFCF;
     dbr = 0x99;
     currentProfileImageIndex = 0x6;
+    outputCpuLogFileName = "montreal2.out.log";
 }
 
 void Montreal3()
@@ -3605,6 +3609,7 @@ void Montreal3()
     mem0c = 0xCAC0;
     dbr = 0x98;
     currentProfileImageIndex = 0x4;
+    outputCpuLogFileName = "montreal3.out.log";
 }
 
 void Montreal4()
@@ -3613,6 +3618,7 @@ void Montreal4()
     mem0c = 0xD557;
     dbr = 0x97;
     currentProfileImageIndex = 0x2;
+    outputCpuLogFileName = "montreal4.out.log";
 }
 
 void Montreal5()
@@ -3621,25 +3627,27 @@ void Montreal5()
     mem0c = 0xF8AC;
     dbr = 0x99;
     currentProfileImageIndex = 0x0;
+    outputCpuLogFileName = "montreal5.out.log";
 }
 
 int main()
 {
-    OpenDebugLog();
-
     // Load ROM file
     romFile = LoadBinaryFile8("nhl94.sfc");
 
     InitializeCaches();
 
-    // The initial value of X doesn't matter for functionality. This program sets certain initial values of X simply to produce cleaner diffs to the reference.
+    // The initial value of X doesn't actually matter for functionality. It's garbage from the previous thing. This program sets 
+    // initial values of X to produce cleaner diffs to the reference.
 
-    //Montreal0();
+    Montreal0();
     //Montreal1();
     //Montreal2();
     //Montreal3();
     //Montreal4();
-    Montreal5();
+    //Montreal5();
+
+    OpenDebugLog(outputCpuLogFileName.c_str());
 
     y = mem0c + 2;
     Fn_80BBB3();

@@ -7,9 +7,9 @@
 
 std::ofstream debugLog;
 
-void OpenDebugLog()
+void OpenDebugLog(char const* fileName)
 {
-    debugLog.open("output.txt", std::ofstream::out | std::ofstream::trunc);
+    debugLog.open(fileName, std::ofstream::out | std::ofstream::trunc);
 }
 
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName)

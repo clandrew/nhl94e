@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-void OpenDebugLog();
+void OpenDebugLog(char const* fileName);
 
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName);
 
