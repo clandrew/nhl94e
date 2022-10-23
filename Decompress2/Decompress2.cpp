@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "Util.h"
 
 void Fn_80C1B0();
@@ -19,6 +20,7 @@ unsigned char dbr = 0x9A;
 unsigned short currentProfileImageIndex = 0;
 std::string outputCpuLogFileName;
 std::string outputIndexedColorFileName;
+std::string goldIndexedColorFileName;
 
 union Mem16
 {
@@ -55,7 +57,7 @@ unsigned short mem7d = 0;
 unsigned short mem91_HomeOrAway = 0;
 unsigned short mem0760 = 0;
 
-// Output.
+// Staging output.
 std::vector<unsigned char> mem7E0500_7E0700;
 
 unsigned short indirectHigh;
@@ -66,7 +68,11 @@ std::vector<unsigned char> cache7E0700;
 std::vector<unsigned char> cache7E0720;
 std::vector<unsigned char> cache7E0740;
 
+// Final output
 std::vector<unsigned char> cache7F0000;
+
+// Gold reference output
+std::vector<unsigned char> goldReferenceIndexedColor;
 
 // Loaded plainly
 std::vector<unsigned char> romFile;
@@ -276,7 +282,7 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
         if (subtractDataAddress >= 0x720)
         {
             int local = subtractDataAddress - 0x720;
-            if (local >= cache7E0720.size())
+            if (local >= (int)cache7E0720.size())
             {
                 __debugbreak(); // notimpl
             }
@@ -3522,7 +3528,7 @@ void Filler()
     mem00.Data16 = x;
 
     DebugPrint("$9D/CC81 A3 01       LDA $01,s  [$00:1FF6]  ", a, x, y);
-    a = currentProfileImageIndex;
+    a = 0xA - (currentProfileImageIndex * 2);
 
     DebugPrint("$9D/CC83 AA          TAX                    ", a, x, y);
     x = a;
@@ -3573,215 +3579,60 @@ label_CC90:
     DebugPrint("$9D/CCA1 22 C2 85 9B JSL $9B85C2[$9B:85C2]  ", a, x, y);
 }
 
-void InitializeCaches()
+void CreateCaches()
 {
     cache7E0100.resize(0x100);
-    memset(cache7E0100.data(), 0, cache7E0100.size());
-
-    // Initialize output.
     mem7E0500_7E0700.resize(0x200);
-    memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
-
     cache7E0700.resize(0x14);
-    memset(cache7E0700.data(), 0, cache7E0700.size());
-
     cache7E0720.resize(0x20);
-    memset(cache7E0720.data(), 0, cache7E0720.size());
-
     cache7E0740.resize(0x20);
-    memset(cache7E0740.data(), 0, cache7E0740.size());
-
     cache7F0000.resize(0xFFFF);
-    memset(cache7F0000.data(), 0, cache7F0000.size());
+    goldReferenceIndexedColor.resize(0x600);
 }
 
-/*
+void InitializeCaches()
+{
+    memset(cache7E0100.data(), 0, cache7E0100.size());
+    memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
+    memset(cache7E0700.data(), 0, cache7E0700.size());
+    memset(cache7E0720.data(), 0, cache7E0720.size());
+    memset(cache7E0740.data(), 0, cache7E0740.size());
+    memset(cache7F0000.data(), 0, cache7F0000.size());
+    memset(goldReferenceIndexedColor.data(), 0, goldReferenceIndexedColor.size());
+}
 
-
-0x99AC36  Anaheim0
-0x99BFD5  Anaheim1
-0x98CD0A  Anaheim2
-0x98D19D  Anaheim3
-0x979931  Anaheim4
-0x98BCF3  Anaheim5
-
-97F28A  Boston0
-998000  Boston1
-99D102  Boston2
-999867  Boston3
-98E3CD  Boston4
-98F814  Boston5
-
-998D5D  Buffalo0
-98B16A  Buffalo1
-98A5CD  Buffalo2
-99C1FE  Buffalo3
-989A18  Buffalo4
-99B2C7  Buffalo5
-
-97BA0D  Calgary0
-97E8E8  Calgary1
-978E95  Calgary2
-97EB52  Calgary3
-99AA05  Calgary4
-99CCBA  Calgary5
-
-97A600  Chicago0
-99B4F7  Chicago1
-998B25  Chicago2
-97CDF3  Chicago3
-98A821  Chicago4
-98EA95  Chicago5
-
-96FD81  Dallas0
-98A120  Dallas1
-98ECD6  Dallas2
-97F023  Dallas3
-9A8C2C  Dallas4
-97AD8B  Dallas5
-
-98F5D7  Detroit0
-9A940F  Detroit1
-99FAB4  Detroit2
-979BC5  Detroit3
-90FDE2  Detroit4
-99C426  Detroit5
-
-9993FD  Edmonton0
-99B097  Edmonton1
-98898F  Edmonton2
-97C682  Edmonton3
-97BC8C  Edmonton4
-98D876  Edmonton5
-
-97C188  Forida0
-97F9BC  Forida1
-97D06C  Forida2
-998479  Forida3
-97A0E8  Forida4
-989EC9  Forida5
-
-98DD01	Hartford0
-98AF19	Hartford1
-999F04	Hartford2
-98B608	Hartford3
-98ACC7	Hartford4
-99EE68	Hartford5
-
-9AA329  NewJersey0
-98F158  NewJersey1
-988264  NewJersey2
-97AB0A  NewJersey3
-9AA6D6  NewJersey4
-99D545  NewJersey5
-
-9986B3  NYIslanders0
-99F079  NYIslanders1
-97C405  NYIslanders2
-9991C8  NYIslanders3
-98A377  NYIslanders4
-9A8225  NYIslanders5
-
-9A8E26  NYRangers0
-979406  NYRangers1
-9884C8  NYRangers2
-98CF54  NYRangers3
-97B28D  NYRangers4
-98BF41  NYRangers5
-
-8CFDEC  Ottawa0
-99EA44  Ottawa1
-99DB9B  Ottawa2
-99F498  Ottawa3
-99AE67  Ottawa4
-99E619  Ottawa5
-
-988E50  Philly0
-98C18E  Philly1
-99E831  Philly2
-9897BF  Philly3
-98FC8E  Philly4
-98DABC  Philly5
-
-99F6A3  Pittsburgh0
-989566  Pittsburgh1
-9A8A31  Pittsburgh2
-9A9F70  Pittsburgh3
-98E610  Pittsburgh4
-9AA500  Pittsburgh5
-
-98EF17  Quebec0
-99D325  Quebec1
-97A374  Quebec2
-9A801F  Quebec3
-99A5A0  Quebec4
-9A901F  Quebec5
-
-98AA74  SJ0
-98872C  SJ1
-97F757  SJ2
-98930C  SJ3
-98FA51  SJ4
-98B3B9  SJ5
-
-9A9218  STLouis0
-98E18A  STLouis1
-99E401  STLouis2
-98F399  STLouis3
-99A36C  STLouis4
-9A99C9  STLouis5
-
-97EDBC  TampaBay0
-988000  TampaBay1
-9A8832  TampaBay2
-99A138  TampaBay3
-99F289  TampaBay4
-99BDAC  TampaBay5
-
-998F93  Toronto0
-99D981  Toronto1
-98D3E6  Toronto2
-979E57  Toronto3
-99FCBA  Toronto4
-9AA8AB  Toronto5
-
-98C3DB  Vancouver0
-99DDB5  Vancouver1
-97BF0A  Vancouver2
-98B857  Vancouver3
-98BAA5  Vancouver4
-99B954  Vancouver5
-
-97DCB5  Washington0
-98E853  Washington1
-98C628  Washington2
-99EC56  Washington3
-988BF0  Washington4
-97B00C  Washington5
-
-999632  Winnipeg0
-9A9D91  Winnipeg1
-99823D  Winnipeg2
-9A842A  Winnipeg3
-97D2E2  Winnipeg4
-99A7D3  Winnipeg5
-
-9A862E  ASE0
-9A8A31  ASE1
-998000  ASE2
-99C1FE  ASE3
-98F814  ASE4
-9AA500  ASE5
-
-97A600  ASW0
-9A9D91  ASW1
-9A940F  ASW2
-9A842A  ASW3
-98D62E  ASW4
-99C426  ASW5
-
-
-*/
+enum class Team
+{
+    Anaheim = 0x0,
+    Boston = 0x1,
+    Buffalo = 0x2,
+    Calgary = 0x3,
+    Chicago = 0x4,
+    Dallas = 0x5,
+    Detroit = 0x6,
+    Edmonton = 0x7,
+    Florida = 0x8,
+    Hartford = 0x9,
+    LAKings = 0xA,
+    Montreal = 0xB,
+    NewJersey = 0xC,
+    NYIslanders = 0xD,
+    NYRangers = 0xE,
+    Ottawa = 0xF,
+    Philly = 0x10,
+    Pittsburgh = 0x11,
+    Quebec = 0x12,
+    SanJose = 0x13,
+    StLouis = 0x14,
+    TampaBay = 0x15,
+    Toronto = 0x16,
+    Vancouver = 0x17,
+    Washington = 0x18,
+    Winnepeg = 0x19,
+    AllStarsEast = 0x1A,
+    AllStarsWest = 0x1B,
+    Count
+};
 
 struct TeamInfo
 {
@@ -3795,18 +3646,27 @@ TeamInfo s_teams[] = {
     { "Calgary",    0x97BA0D, 0x97E8E8, 0x978E95, 0x97EB52, 0x99AA05, 0x99CCBA },
     { "Chicago",    0x97A600, 0x99B4F7, 0x998B25, 0x97CDF3, 0x98A821, 0x98EA95 },
     { "Dallas",     0x96FD81, 0x98A120, 0x98ECD6, 0x97F023, 0x9A8C2C, 0x97AD8B },
+    
+    //                                                                Yzerman
     { "Detroit",    0x98F5D7, 0x9A940F, 0x99FAB4, 0x979BC5, 0x90FDE2, 0x99C426 },
+
     { "Edmonton",   0x9993FD, 0x99B097, 0x98898F, 0x97C682, 0x97BC8C, 0x98D876 },
     { "Florida",    0x97C188, 0x97F9BC, 0x97D06C, 0x998479, 0x97A0E8, 0x989EC9 },
     { "Hartford",   0x98DD01, 0x98AF19, 0x999F04, 0x98B608, 0x98ACC7, 0x99EE68 },
-    { "Montreal",   0x9A862E, 0x9988EC, 0x99DFCF, 0x98CAC0, 0x97D557, 0x99F8AC },
     { "LA",         0x97E40B, 0x97C8FE, 0x97A887, 0x97D7CC, 0x98D62E, 0x97DF28 },
+
+    //              P.Roy                                             Muller
+    { "Montreal",   0x9A862E, 0x9988EC, 0x99DFCF, 0x98CAC0, 0x97D557, 0x99F8AC },
+
     { "NewJersey",  0x9AA329, 0x98F158, 0x988264, 0x97AB0A, 0x9AA6D6, 0x99D545 },
     { "NYIslanders",0x9986B3, 0x99F079, 0x97C405, 0x9991C8, 0x98A377, 0x9A8225 },
     { "NWRangers",  0x9A8E26, 0x979406, 0x9884C8, 0x98CF54, 0x97B28D, 0x98BF41 },
     { "Ottawa",     0x8CFDEC, 0x99EA44, 0x99DB9B, 0x99F498, 0x99AE67, 0x99E619 },
     { "Philly",     0x988E50, 0x98C18E, 0x99E831, 0x9897BF, 0x98FC8E, 0x98DABC },
+
+    //                                                                Lemieux
     { "Pittsburgh", 0x99F6A3, 0x989566, 0x9A8A31, 0x9A9F70, 0x98E610, 0x9AA500 },
+
     { "Quebec",     0x98EF17, 0x99D325, 0x97A374, 0x9A801F, 0x99A5A0, 0x9A901F },
     { "SJ",         0x98AA74, 0x98872C, 0x97F757, 0x98930C, 0x98FA51, 0x98B3B9 },
     { "STLouis",    0x9A9218, 0x98E18A, 0x99E401, 0x98F399, 0x99A36C, 0x9A99C9 },
@@ -3815,140 +3675,112 @@ TeamInfo s_teams[] = {
     { "Vancouver",  0x98C3DB, 0x99DDB5, 0x97BF0A, 0x98B857, 0x98BAA5, 0x99B954 },
     { "Washington", 0x97DCB5, 0x98E853, 0x98C628, 0x99EC56, 0x988BF0, 0x97B00C },
     { "Winnipeg",   0x999632, 0x9A9D91, 0x99823D, 0x9A842A, 0x97D2E2, 0x99A7D3 },
+
+    //              P.Roy                                             Lemieux
     { "ASE",        0x9A862E, 0x9A8A31, 0x998000, 0x99C1FE, 0x98F814, 0x9AA500 },
+
+    //                                                                Yzerman
     { "ASW",        0x97A600, 0x9A9D91, 0x9A940F, 0x9A842A, 0x98D62E, 0x99C426 },
 };
 
-void Montreal0()
+void SplitBankAndOffset(int n, unsigned char* pBank, unsigned short* pOffset)
 {
-    x = 0x0478;
-    mem0c = 0x862E;
-    mem91_HomeOrAway = 0;
-    dbr = 0x9A;
-    currentProfileImageIndex = 0xA;
-    outputCpuLogFileName = "montreal0.out.log";
-    outputIndexedColorFileName = "montreal0.out.bin";
+    *pOffset = n & 0xFFFF;
+    n >>= 16;
+    *pBank = n & 0xFF;
+    n >>= 8;
+    if (n) __debugbreak();
 }
 
-void Montreal1()
+void InitializeDecompress(int teamIndex, int playerIndex)
 {
-    x = 0x04B8;
-    mem0c = 0x88EC;
-    mem91_HomeOrAway = 0;
-    dbr = 0x99;
-    currentProfileImageIndex = 0x8;
-    outputCpuLogFileName = "montreal1.out.log";
-    outputIndexedColorFileName = "montreal1.out.bin";
+    if (playerIndex < 0 || playerIndex > 5)
+        __debugbreak();
+
+    TeamInfo* pTeam = &s_teams[teamIndex];
+
+    SplitBankAndOffset(pTeam->CompressedDataLocations[playerIndex], &dbr, &mem0c);
+    currentProfileImageIndex = playerIndex;
+    
+    {
+        std::stringstream strm;
+        strm << pTeam->Name << playerIndex << ".out.log";
+        outputCpuLogFileName = strm.str();
+    }
+    {
+        std::stringstream strm;
+        strm << pTeam->Name << playerIndex << ".out.bin";
+        outputIndexedColorFileName = strm.str();
+    }
+    {
+        std::stringstream strm;
+        strm << "D:\\repos\\nhl94e\\ImageData\\" << pTeam->Name << ".bin";
+        goldIndexedColorFileName = strm.str();
+    }
 }
 
-void Montreal2()
+void InitializeCPUAndOtherWRAM()
 {
-    x = 0x04BC;
-    mem0c = 0xDFCF;
-    mem91_HomeOrAway = 0;
-    dbr = 0x99;
-    currentProfileImageIndex = 0x6;
-    outputCpuLogFileName = "montreal2.out.log";
-    outputIndexedColorFileName = "montreal2.out.bin";
+    a = 0xFB30;
+    y = 0xF8AE;
+    n = false;
+    z = false;
+    c = false;
+    mem00.Data16 = 0;
+    mem04 = 0;
+    mem06 = 0;
+    mem08 = 0;
+    mem0c = 0;
+    mem0e = 0;
+    mem10 = 0;
+    mem12 = 0x007F;
+    mem14 = 0;
+    mem16 = 0;
+    mem6a = 0;
+    mem6c = 0;
+    mem6f = 0;
+    mem71 = 0;
+    mem73 = 0;
+    mem75 = 0;
+    mem79 = 0;
+    mem7b = 0;
+    mem7d = 0;
+    mem0760 = 0;
+    loaded = 0;
+    loaded16.Data16 = 0;
+    low = 0;
+    willCarry = false;
+    willSetNegative = false;
 }
 
-void Montreal3()
+// Player indices are in chronological written order, not some other order.
+int GetFinalWriteLocation()
 {
-    x = 0x04A4;
-    mem0c = 0xCAC0;
-    mem91_HomeOrAway = 0;
-    dbr = 0x98;
-    currentProfileImageIndex = 0x4;
-    outputCpuLogFileName = "montreal3.out.log";
-    outputIndexedColorFileName = "montreal3.out.bin";
+    int finalResultWriteLocation;
+    int localIndex = 5 - currentProfileImageIndex;
+    if (mem91_HomeOrAway == 0)
+    {
+        finalResultWriteLocation = 0x5100 + (0x600 * localIndex);
+    }
+    else if (mem91_HomeOrAway == 2)
+    {
+        finalResultWriteLocation = 0x2D00 + (0x600 * localIndex);
+    }
+    else
+    {
+        __debugbreak();
+    }
+
+    return finalResultWriteLocation;
 }
 
-void Montreal4()
+void DumpDecompressedResult(int finalResultWriteLocation)
 {
-    x = 0x0490;
-    mem0c = 0xD557;
-    mem91_HomeOrAway = 0;
-    dbr = 0x97;
-    currentProfileImageIndex = 0x2;
-    outputCpuLogFileName = "montreal4.out.log";
-    outputIndexedColorFileName = "montreal4.out.bin";
-}
-
-void Montreal5()
-{
-    x = 0x0480;
-    mem0c = 0xF8AC;
-    mem91_HomeOrAway = 0;
-    dbr = 0x99;
-    currentProfileImageIndex = 0x0;
-    outputCpuLogFileName = "montreal5.out.log";
-    outputIndexedColorFileName = "montreal5.out.bin";
-}
-
-void LA0()
-{
-    x = 0x0410;
-    mem0c = 0xE40B;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x97;
-    currentProfileImageIndex = 0xA;
-    outputCpuLogFileName = "la0.out.log";
-    outputIndexedColorFileName = "la0.out.bin";
-}
-
-void LA1()
-{
-    x = 0x0450;
-    mem0c = 0xC8FE;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x97;
-    currentProfileImageIndex = 0x8;
-    outputCpuLogFileName = "la1.out.log";
-    outputIndexedColorFileName = "la1.out.bin";
-}
-
-void LA2()
-{
-    x = 0x044C;
-    mem0c = 0xA887;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x97;
-    currentProfileImageIndex = 0x6;
-    outputCpuLogFileName = "la2.out.log";
-    outputIndexedColorFileName = "la2.out.bin";
-}
-
-void LA3()
-{
-    x = 0x043C;
-    mem0c = 0xD7CC;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x97;
-    currentProfileImageIndex = 0x4;
-    outputCpuLogFileName = "la3.out.log";
-    outputIndexedColorFileName = "la3.out.bin";
-}
-
-void LA4()
-{
-    x = 0x042C;
-    mem0c = 0xD62E;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x98;
-    currentProfileImageIndex = 0x2;
-    outputCpuLogFileName = "la4.out.log";
-    outputIndexedColorFileName = "la4.out.bin";
-}
-
-void LA5()
-{
-    x = 0x041C;
-    mem0c = 0xDF28;
-    mem91_HomeOrAway = 0x2;
-    dbr = 0x97;
-    currentProfileImageIndex = 0x0;
-    outputCpuLogFileName = "la5.out.log";
-    outputIndexedColorFileName = "la5.out.bin";
+    FILE* file{};
+    fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
+    unsigned char* pData = cache7F0000.data();
+    fwrite(pData + finalResultWriteLocation, 1, 0x600, file);
+    fclose(file);
 }
 
 int main()
@@ -3956,39 +3788,51 @@ int main()
     // Load ROM file
     romFile = LoadBinaryFile8("nhl94.sfc");
 
-    InitializeCaches();
+    CreateCaches();
 
-    // The initial value of X doesn't actually matter for functionality. It's garbage from the previous thing. This program sets 
-    // initial values of X to produce cleaner diffs to the reference.
-
-    //Montreal0();
-    //Montreal1();
-    //Montreal2();
-    //Montreal3();
-    //Montreal4();
-    //Montreal5();
-    //LA0();
-    //LA1();
-    //LA2();
-    //LA3();
-    //LA4();
-    LA5();
-
-    OpenDebugLog(outputCpuLogFileName.c_str());
-    y = mem0c + 2;
-    Fn_80BBB3();
-    Filler();
-    Fn_9B85C2();
-
-    // Here: load indexed color data from cache7F0000[0x5100] - cache7F0000[0x7380]
+    // Write all the Montreal files
+    for (int i = 0; i < 6; ++i)
     {
-        std::vector<unsigned char> buffer;
+        InitializeCaches();
+        InitializeCPUAndOtherWRAM();
 
-        FILE* file{};
-        fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
-        unsigned char* pData = cache7F0000.data();
-        fwrite(pData + 0x5100, 1, 0x2280, file);
-        fclose(file);
+        InitializeDecompress((int)Team::Montreal, i);
+        x = 0;
+        y = mem0c + 2;
+        mem91_HomeOrAway = 0;
+
+        OpenDebugLog(outputCpuLogFileName.c_str());
+        
+        Fn_80BBB3();
+        Filler();
+        Fn_9B85C2();
+
+        int finalResultWriteLocation = GetFinalWriteLocation();
+        DumpDecompressedResult(finalResultWriteLocation);
+
+        // Diff decompressed result against the reference-- validate they're the same
+        // Open the reference
+        {
+            FILE* file{};
+            fopen_s(&file, goldIndexedColorFileName.c_str(), "rb");
+            fseek(file, 0x600 * (5 - currentProfileImageIndex), SEEK_SET);
+            fread(goldReferenceIndexedColor.data(), 1, 0x600, file);
+            fclose(file);
+        }
+
+        // Diff decompressed result against the reference
+        {
+            unsigned char* pData = cache7F0000.data();
+            unsigned char* pDecompressed = pData + finalResultWriteLocation;
+            for (int i = 0; i < 0x600; ++i)
+            {
+                if (pDecompressed[i] != goldReferenceIndexedColor[i])
+                {
+                    // Mismatch
+                    __debugbreak();
+                }
+            }
+        }
     }
 
     return 0;
