@@ -93,51 +93,27 @@ void SaveMem6b(Mem16 const& v)
 
 Mem16 LoadFromROM16(unsigned short bank, unsigned short offset)
 {
-    Mem16 result;
+    Mem16 result{};
 
-    if (bank == 0x9A)
+    if (offset < 0x8000)
     {
-        if (offset >= 0x8000)
-        {
-            int local = offset - 0x8000;
-            result.Low8 = romFile[0xD0000 + local];
-            result.High8 = romFile[0xD0000 + local + 1];
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
+        // Not supported using this method currently.
+        __debugbreak();
+        return result;
     }
-    else if (bank == 0x9D)
+
+    if (bank < 0x80)
     {
-        if (offset >= 0x8000)
-        {
-            int local = offset - 0x8000;
-            result.Low8 = romFile[0xE8000 + local];
-            result.High8 = romFile[0xE8000 + local + 1];
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
+        __debugbreak();
+        return result;
     }
-    else if (bank == 0x99)
-    {
-        if (offset >= 0x8000)
-        {
-            int local = offset - 0x8000;
-            result.Low8 = romFile[0xC8000 + local];
-            result.High8 = romFile[0xC8000 + local + 1];
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
-    }
-    else
-    {
-        __debugbreak(); // notimpl
-    }
+
+    int local = offset - 0x8000;
+    int bankMultiplier = bank - 0x80;
+
+    int fileOffset = 0x8000 * bankMultiplier;
+    result.Low8 = romFile[fileOffset + local];
+    result.High8 = romFile[fileOffset + local + 1];
 
     return result;
 }
@@ -286,7 +262,7 @@ void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractData
     bool shadowBank7E = false;
     if (subtractDataAddress < 0x8000)
     {
-        if (dbr == 0x9A || dbr == 0x99)
+        if (dbr >= 0x80 && dbr <= 0xBF)
         {
             shadowBank7E = true;
         }
@@ -1124,8 +1100,8 @@ label_BCC5:
     }
     else if (x == 6)
     {
-        // goto 80:BEAE
-        __debugbreak();
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BEAE]", a, x, y);
+        goto label_BEAE;
     }
     else if (x == 0xC)
     {
@@ -3632,6 +3608,33 @@ void Montreal2()
     mem0760 = 0xBFC5;
 }
 
+void Montreal3()
+{
+    x = 0x04A4;
+    mem0c = 0xCAC0;
+    dbr = 0x98;
+    stackArgument = 0x4;
+    mem0760 = 0xBFC8;
+}
+
+void Montreal4()
+{
+    x = 0x0490;
+    mem0c = 0xD557;
+    dbr = 0x97;
+    stackArgument = 0x2;
+    mem0760 = 0xBFC8;
+}
+
+void Montreal5()
+{
+    x = 0x0480;
+    mem0c = 0xF8AC;
+    dbr = 0x99;
+    stackArgument = 0x0;
+    mem0760 = 0xBFC8;
+}
+
 int main()
 {
     OpenDebugLog();
@@ -3641,9 +3644,12 @@ int main()
 
     InitializeCaches();
 
-    Montreal0();
+    //Montreal0();
     //Montreal1();
     //Montreal2();
+    //Montreal3();
+    //Montreal4();
+    Montreal5();
 
     y = mem0c + 2;
     Fn_80BBB3();
