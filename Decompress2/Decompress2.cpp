@@ -18,6 +18,7 @@ bool c = false;
 unsigned char dbr = 0x9A;
 unsigned short currentProfileImageIndex = 0;
 std::string outputCpuLogFileName;
+std::string outputIndexedColorFileName;
 
 union Mem16
 {
@@ -51,6 +52,7 @@ unsigned short mem77 = 0;
 unsigned short mem79 = 0;
 unsigned short mem7b = 0;
 unsigned short mem7d = 0;
+unsigned short mem91_HomeOrAway = 0;
 unsigned short mem0760 = 0;
 
 // Output.
@@ -1110,6 +1112,16 @@ label_BCC5:
     {
         DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BD70]", a, x, y);
         goto label_BD70;
+    }
+    else if (x == 0x10)
+    {
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BD23]", a, x, y);
+        goto label_BD23;
+    }
+    else if (x == 0xA)
+    {
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BE0D]", a, x, y);
+        goto label_BE0D;
     }
     else
     {
@@ -3516,7 +3528,7 @@ void Filler()
     x = a;
 
     DebugPrint("$9D/CC84 A5 91       LDA $91    [$00:0091]  ", a, x, y);
-    a = 0; // Need to check it's actually this value
+    a = mem91_HomeOrAway; 
     z = a == 0;
 
     DebugPrint("$9D/CC86 F0 05       BEQ $05    [$CC8D]     ", a, x, y);
@@ -3524,12 +3536,19 @@ void Filler()
     {
         goto label_CC8D;
     }
-    __debugbreak(); // notimpl
+    
+    // For Away team
+    DebugPrint("$9D/CC88 A9 00 2D    LDA #$2D00             ", a, x, y);
+    a = 0x2D00;
 
-label_CC8D:
+    DebugPrint("$9D/CC8B 80 03       BRA $03    [$CC90]     ", a, x, y);
+    goto label_CC90;
+
+label_CC8D: // For Home team
     DebugPrint("$9D/CC8D A9 00 51    LDA #$5100             ", a, x, y);
     a = 0x5100;
 
+label_CC90:
     DebugPrint("$9D/CC90 18          CLC                    ", a, x, y);
 
     DebugPrintWithIndex("$9D/CC91 7F AE CC 9D ADC $9DCCAE,x[$9D:", 0xCCAE + x, a, x, y, true);
@@ -3580,54 +3599,132 @@ void Montreal0()
 {
     x = 0x0478;
     mem0c = 0x862E;
+    mem91_HomeOrAway = 0;
     dbr = 0x9A;
     currentProfileImageIndex = 0xA;
     outputCpuLogFileName = "montreal0.out.log";
+    outputIndexedColorFileName = "montreal0.out.bin";
 }
 
 void Montreal1()
 {
     x = 0x04B8;
     mem0c = 0x88EC;
+    mem91_HomeOrAway = 0;
     dbr = 0x99;
     currentProfileImageIndex = 0x8;
     outputCpuLogFileName = "montreal1.out.log";
+    outputIndexedColorFileName = "montreal1.out.bin";
 }
 
 void Montreal2()
 {
     x = 0x04BC;
     mem0c = 0xDFCF;
+    mem91_HomeOrAway = 0;
     dbr = 0x99;
     currentProfileImageIndex = 0x6;
     outputCpuLogFileName = "montreal2.out.log";
+    outputIndexedColorFileName = "montreal2.out.bin";
 }
 
 void Montreal3()
 {
     x = 0x04A4;
     mem0c = 0xCAC0;
+    mem91_HomeOrAway = 0;
     dbr = 0x98;
     currentProfileImageIndex = 0x4;
     outputCpuLogFileName = "montreal3.out.log";
+    outputIndexedColorFileName = "montreal3.out.bin";
 }
 
 void Montreal4()
 {
     x = 0x0490;
     mem0c = 0xD557;
+    mem91_HomeOrAway = 0;
     dbr = 0x97;
     currentProfileImageIndex = 0x2;
     outputCpuLogFileName = "montreal4.out.log";
+    outputIndexedColorFileName = "montreal4.out.bin";
 }
 
 void Montreal5()
 {
     x = 0x0480;
     mem0c = 0xF8AC;
+    mem91_HomeOrAway = 0;
     dbr = 0x99;
     currentProfileImageIndex = 0x0;
     outputCpuLogFileName = "montreal5.out.log";
+    outputIndexedColorFileName = "montreal5.out.bin";
+}
+
+void LA0()
+{
+    x = 0x0410;
+    mem0c = 0xE40B;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x97;
+    currentProfileImageIndex = 0xA;
+    outputCpuLogFileName = "la0.out.log";
+    outputIndexedColorFileName = "la0.out.bin";
+}
+
+void LA1()
+{
+    x = 0x0450;
+    mem0c = 0xC8FE;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x97;
+    currentProfileImageIndex = 0x8;
+    outputCpuLogFileName = "la1.out.log";
+    outputIndexedColorFileName = "la1.out.bin";
+}
+
+void LA2()
+{
+    x = 0x044C;
+    mem0c = 0xA887;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x97;
+    currentProfileImageIndex = 0x6;
+    outputCpuLogFileName = "la2.out.log";
+    outputIndexedColorFileName = "la2.out.bin";
+}
+
+void LA3()
+{
+    x = 0x043C;
+    mem0c = 0xD7CC;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x97;
+    currentProfileImageIndex = 0x4;
+    outputCpuLogFileName = "la3.out.log";
+    outputIndexedColorFileName = "la3.out.bin";
+}
+
+void LA4()
+{
+    x = 0x042C;
+    mem0c = 0xD62E;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x98;
+    currentProfileImageIndex = 0x2;
+    outputCpuLogFileName = "la4.out.log";
+    outputIndexedColorFileName = "la4.out.bin";
+}
+
+void LA5()
+{
+    x = 0x041C;
+    mem0c = 0xDF28;
+    mem91_HomeOrAway = 0x2;
+    dbr = 0x97;
+    currentProfileImageIndex = 0x0;
+    outputCpuLogFileName = "la5.out.log";
+    outputIndexedColorFileName = "la5.out.bin";
 }
 
 int main()
@@ -3640,12 +3737,18 @@ int main()
     // The initial value of X doesn't actually matter for functionality. It's garbage from the previous thing. This program sets 
     // initial values of X to produce cleaner diffs to the reference.
 
-    Montreal0();
+    //Montreal0();
     //Montreal1();
     //Montreal2();
     //Montreal3();
     //Montreal4();
     //Montreal5();
+    //LA0();
+    //LA1();
+    //LA2();
+    //LA3();
+    //LA4();
+    LA5();
 
     OpenDebugLog(outputCpuLogFileName.c_str());
 
@@ -3659,7 +3762,7 @@ int main()
         std::vector<unsigned char> buffer;
 
         FILE* file{};
-        fopen_s(&file, "out.bin", "wb");
+        fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
         unsigned char* pData = cache7F0000.data();
         fwrite(pData + 0x5100, 1, 0x2280, file);
         fclose(file);
