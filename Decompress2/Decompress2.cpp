@@ -3595,6 +3595,230 @@ void InitializeCaches()
     memset(cache7F0000.data(), 0, cache7F0000.size());
 }
 
+/*
+
+
+0x99AC36  Anaheim0
+0x99BFD5  Anaheim1
+0x98CD0A  Anaheim2
+0x98D19D  Anaheim3
+0x979931  Anaheim4
+0x98BCF3  Anaheim5
+
+97F28A  Boston0
+998000  Boston1
+99D102  Boston2
+999867  Boston3
+98E3CD  Boston4
+98F814  Boston5
+
+998D5D  Buffalo0
+98B16A  Buffalo1
+98A5CD  Buffalo2
+99C1FE  Buffalo3
+989A18  Buffalo4
+99B2C7  Buffalo5
+
+97BA0D  Calgary0
+97E8E8  Calgary1
+978E95  Calgary2
+97EB52  Calgary3
+99AA05  Calgary4
+99CCBA  Calgary5
+
+97A600  Chicago0
+99B4F7  Chicago1
+998B25  Chicago2
+97CDF3  Chicago3
+98A821  Chicago4
+98EA95  Chicago5
+
+96FD81  Dallas0
+98A120  Dallas1
+98ECD6  Dallas2
+97F023  Dallas3
+9A8C2C  Dallas4
+97AD8B  Dallas5
+
+98F5D7  Detroit0
+9A940F  Detroit1
+99FAB4  Detroit2
+979BC5  Detroit3
+90FDE2  Detroit4
+99C426  Detroit5
+
+9993FD  Edmonton0
+99B097  Edmonton1
+98898F  Edmonton2
+97C682  Edmonton3
+97BC8C  Edmonton4
+98D876  Edmonton5
+
+97C188  Forida0
+97F9BC  Forida1
+97D06C  Forida2
+998479  Forida3
+97A0E8  Forida4
+989EC9  Forida5
+
+98DD01	Hartford0
+98AF19	Hartford1
+999F04	Hartford2
+98B608	Hartford3
+98ACC7	Hartford4
+99EE68	Hartford5
+
+9AA329  NewJersey0
+98F158  NewJersey1
+988264  NewJersey2
+97AB0A  NewJersey3
+9AA6D6  NewJersey4
+99D545  NewJersey5
+
+9986B3  NYIslanders0
+99F079  NYIslanders1
+97C405  NYIslanders2
+9991C8  NYIslanders3
+98A377  NYIslanders4
+9A8225  NYIslanders5
+
+9A8E26  NYRangers0
+979406  NYRangers1
+9884C8  NYRangers2
+98CF54  NYRangers3
+97B28D  NYRangers4
+98BF41  NYRangers5
+
+8CFDEC  Ottawa0
+99EA44  Ottawa1
+99DB9B  Ottawa2
+99F498  Ottawa3
+99AE67  Ottawa4
+99E619  Ottawa5
+
+988E50  Philly0
+98C18E  Philly1
+99E831  Philly2
+9897BF  Philly3
+98FC8E  Philly4
+98DABC  Philly5
+
+99F6A3  Pittsburgh0
+989566  Pittsburgh1
+9A8A31  Pittsburgh2
+9A9F70  Pittsburgh3
+98E610  Pittsburgh4
+9AA500  Pittsburgh5
+
+98EF17  Quebec0
+99D325  Quebec1
+97A374  Quebec2
+9A801F  Quebec3
+99A5A0  Quebec4
+9A901F  Quebec5
+
+98AA74  SJ0
+98872C  SJ1
+97F757  SJ2
+98930C  SJ3
+98FA51  SJ4
+98B3B9  SJ5
+
+9A9218  STLouis0
+98E18A  STLouis1
+99E401  STLouis2
+98F399  STLouis3
+99A36C  STLouis4
+9A99C9  STLouis5
+
+97EDBC  TampaBay0
+988000  TampaBay1
+9A8832  TampaBay2
+99A138  TampaBay3
+99F289  TampaBay4
+99BDAC  TampaBay5
+
+998F93  Toronto0
+99D981  Toronto1
+98D3E6  Toronto2
+979E57  Toronto3
+99FCBA  Toronto4
+9AA8AB  Toronto5
+
+98C3DB  Vancouver0
+99DDB5  Vancouver1
+97BF0A  Vancouver2
+98B857  Vancouver3
+98BAA5  Vancouver4
+99B954  Vancouver5
+
+97DCB5  Washington0
+98E853  Washington1
+98C628  Washington2
+99EC56  Washington3
+988BF0  Washington4
+97B00C  Washington5
+
+999632  Winnipeg0
+9A9D91  Winnipeg1
+99823D  Winnipeg2
+9A842A  Winnipeg3
+97D2E2  Winnipeg4
+99A7D3  Winnipeg5
+
+9A862E  ASE0
+9A8A31  ASE1
+998000  ASE2
+99C1FE  ASE3
+98F814  ASE4
+9AA500  ASE5
+
+97A600  ASW0
+9A9D91  ASW1
+9A940F  ASW2
+9A842A  ASW3
+98D62E  ASW4
+99C426  ASW5
+
+
+*/
+
+struct TeamInfo
+{
+    std::string Name;
+    int CompressedDataLocations[6];
+};
+TeamInfo s_teams[] = { 
+    { "Anaheim",    0x99AC36, 0x99BFD5, 0x98CD0A, 0x98D19D, 0x979931, 0x98BCF3 }, 
+    { "Boston",     0x97F28A, 0x998000, 0x99D102, 0x999867, 0x98E3CD, 0x98F814 },
+    { "Buffalo",    0x998D5D, 0x98B16A, 0x98A5CD, 0x99C1FE, 0x989A18, 0x99B2C7 },
+    { "Calgary",    0x97BA0D, 0x97E8E8, 0x978E95, 0x97EB52, 0x99AA05, 0x99CCBA },
+    { "Chicago",    0x97A600, 0x99B4F7, 0x998B25, 0x97CDF3, 0x98A821, 0x98EA95 },
+    { "Dallas",     0x96FD81, 0x98A120, 0x98ECD6, 0x97F023, 0x9A8C2C, 0x97AD8B },
+    { "Detroit",    0x98F5D7, 0x9A940F, 0x99FAB4, 0x979BC5, 0x90FDE2, 0x99C426 },
+    { "Edmonton",   0x9993FD, 0x99B097, 0x98898F, 0x97C682, 0x97BC8C, 0x98D876 },
+    { "Florida",    0x97C188, 0x97F9BC, 0x97D06C, 0x998479, 0x97A0E8, 0x989EC9 },
+    { "Hartford",   0x98DD01, 0x98AF19, 0x999F04, 0x98B608, 0x98ACC7, 0x99EE68 },
+    { "Montreal",   0x9A862E, 0x9988EC, 0x99DFCF, 0x98CAC0, 0x97D557, 0x99F8AC },
+    { "LA",         0x97E40B, 0x97C8FE, 0x97A887, 0x97D7CC, 0x98D62E, 0x97DF28 },
+    { "NewJersey",  0x9AA329, 0x98F158, 0x988264, 0x97AB0A, 0x9AA6D6, 0x99D545 },
+    { "NYIslanders",0x9986B3, 0x99F079, 0x97C405, 0x9991C8, 0x98A377, 0x9A8225 },
+    { "NWRangers",  0x9A8E26, 0x979406, 0x9884C8, 0x98CF54, 0x97B28D, 0x98BF41 },
+    { "Ottawa",     0x8CFDEC, 0x99EA44, 0x99DB9B, 0x99F498, 0x99AE67, 0x99E619 },
+    { "Philly",     0x988E50, 0x98C18E, 0x99E831, 0x9897BF, 0x98FC8E, 0x98DABC },
+    { "Pittsburgh", 0x99F6A3, 0x989566, 0x9A8A31, 0x9A9F70, 0x98E610, 0x9AA500 },
+    { "Quebec",     0x98EF17, 0x99D325, 0x97A374, 0x9A801F, 0x99A5A0, 0x9A901F },
+    { "SJ",         0x98AA74, 0x98872C, 0x97F757, 0x98930C, 0x98FA51, 0x98B3B9 },
+    { "STLouis",    0x9A9218, 0x98E18A, 0x99E401, 0x98F399, 0x99A36C, 0x9A99C9 },
+    { "TampaBay",   0x97EDBC, 0x988000, 0x9A8832, 0x99A138, 0x99F289, 0x99BDAC },
+    { "Toronto",    0x998F93, 0x99D981, 0x98D3E6, 0x979E57, 0x99FCBA, 0x9AA8AB },
+    { "Vancouver",  0x98C3DB, 0x99DDB5, 0x97BF0A, 0x98B857, 0x98BAA5, 0x99B954 },
+    { "Washington", 0x97DCB5, 0x98E853, 0x98C628, 0x99EC56, 0x988BF0, 0x97B00C },
+    { "Winnipeg",   0x999632, 0x9A9D91, 0x99823D, 0x9A842A, 0x97D2E2, 0x99A7D3 },
+    { "ASE",        0x9A862E, 0x9A8A31, 0x998000, 0x99C1FE, 0x98F814, 0x9AA500 },
+    { "ASW",        0x97A600, 0x9A9D91, 0x9A940F, 0x9A842A, 0x98D62E, 0x99C426 },
+};
+
 void Montreal0()
 {
     x = 0x0478;
@@ -3751,7 +3975,6 @@ int main()
     LA5();
 
     OpenDebugLog(outputCpuLogFileName.c_str());
-
     y = mem0c + 2;
     Fn_80BBB3();
     Filler();
