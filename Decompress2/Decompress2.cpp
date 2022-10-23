@@ -3790,46 +3790,49 @@ int main()
 
     CreateCaches();
 
-    // Write all the Montreal files
-    for (int i = 0; i < 6; ++i)
+    for (int teamIndex = (int)Team::LAKings; teamIndex <= (int)Team::Montreal; ++teamIndex)
     {
-        InitializeCaches();
-        InitializeCPUAndOtherWRAM();
-
-        InitializeDecompress((int)Team::Montreal, i);
-        x = 0;
-        y = mem0c + 2;
-        mem91_HomeOrAway = 0;
-
-        OpenDebugLog(outputCpuLogFileName.c_str());
-        
-        Fn_80BBB3();
-        Filler();
-        Fn_9B85C2();
-
-        int finalResultWriteLocation = GetFinalWriteLocation();
-        DumpDecompressedResult(finalResultWriteLocation);
-
-        // Diff decompressed result against the reference-- validate they're the same
-        // Open the reference
+        for (int playerIndex = 0; playerIndex < 6; ++playerIndex)
         {
-            FILE* file{};
-            fopen_s(&file, goldIndexedColorFileName.c_str(), "rb");
-            fseek(file, 0x600 * (5 - currentProfileImageIndex), SEEK_SET);
-            fread(goldReferenceIndexedColor.data(), 1, 0x600, file);
-            fclose(file);
-        }
+            InitializeCaches();
+            InitializeCPUAndOtherWRAM();
 
-        // Diff decompressed result against the reference
-        {
-            unsigned char* pData = cache7F0000.data();
-            unsigned char* pDecompressed = pData + finalResultWriteLocation;
-            for (int i = 0; i < 0x600; ++i)
+            InitializeDecompress(teamIndex, playerIndex);
+            x = 0;
+            y = mem0c + 2;
+            mem91_HomeOrAway = 0;
+
+            OpenDebugLog(outputCpuLogFileName.c_str());
+
+            Fn_80BBB3();
+            Filler();
+            Fn_9B85C2();
+
+            int finalResultWriteLocation = GetFinalWriteLocation();
+            DumpDecompressedResult(finalResultWriteLocation);
+
+            // Diff decompressed result against the reference-- validate they're the same
+            // Open the reference
             {
-                if (pDecompressed[i] != goldReferenceIndexedColor[i])
+                FILE* file{};
+                fopen_s(&file, goldIndexedColorFileName.c_str(), "rb");
+                fseek(file, 0x600 * (5 - currentProfileImageIndex), SEEK_SET);
+                fread(goldReferenceIndexedColor.data(), 1, 0x600, file);
+                fclose(file);
+            }
+
+            // Diff decompressed result against the reference
+            {
+                unsigned char* pData = cache7F0000.data();
+                unsigned char* pDecompressed = pData + finalResultWriteLocation;
+                // There is garbage in memory stored past 0x480- although the entries are spaced 0x600 apart, only the first 0x480 are viable.
+                for (int i = 0; i < 0x480; ++i)
                 {
-                    // Mismatch
-                    __debugbreak();
+                    if (pDecompressed[i] != goldReferenceIndexedColor[i])
+                    {
+                        // Mismatch
+                        __debugbreak();
+                    }
                 }
             }
         }
