@@ -16,7 +16,7 @@ bool n = false;
 bool z = false;
 bool c = false;
 unsigned char dbr = 0x9A;
-unsigned short stackArgument = 0;
+unsigned short currentProfileImageIndex = 0;
 
 union Mem16
 {
@@ -62,7 +62,6 @@ std::vector<unsigned char> cache7E0100;
 std::vector<unsigned char> cache7E0700;
 std::vector<unsigned char> cache7E0720;
 std::vector<unsigned char> cache7E0740;
-std::vector<unsigned char> cache7E0760;
 
 std::vector<unsigned char> cache7F0000;
 
@@ -1065,9 +1064,7 @@ label_BCC5:
     }
 
     DebugPrintWithBankAndIndex("$80/BCD5 8D 60 07    STA $0760  ", dbr, 0x760, a, x, y);
-    loaded16.Data16 = a;
-    cache7E0760[0] = loaded16.Low8;
-    cache7E0760[1] = loaded16.High8;
+    mem0760 = a;
 
     // $80/BCD8 A4 12       LDY $12    [$00:0012]   A:BFC8 X:0012 Y:003B P:envmxdizc
     DebugPrint("$80/BCD8 A4 12       LDY $12    [$00:0012]  ", a, x, y);
@@ -3512,7 +3509,7 @@ void Filler()
     mem00.Data16 = x;
 
     DebugPrint("$9D/CC81 A3 01       LDA $01,s  [$00:1FF6]  ", a, x, y);
-    a = stackArgument;
+    a = currentProfileImageIndex;
 
     DebugPrint("$9D/CC83 AA          TAX                    ", a, x, y);
     x = a;
@@ -3574,9 +3571,6 @@ void InitializeCaches()
     cache7E0740.resize(0x20);
     memset(cache7E0740.data(), 0, cache7E0740.size());
 
-    cache7E0760.resize(0x2);
-    memset(cache7E0760.data(), 0, cache7E0760.size());
-
     cache7F0000.resize(0xFFFF);
     memset(cache7F0000.data(), 0, cache7F0000.size());
 }
@@ -3586,8 +3580,7 @@ void Montreal0()
     x = 0x0478;
     mem0c = 0x862E;
     dbr = 0x9A;
-    stackArgument = 0xA;
-    mem0760 = 0xBFC8;
+    currentProfileImageIndex = 0xA;
 }
 
 void Montreal1()
@@ -3595,8 +3588,7 @@ void Montreal1()
     x = 0x04B8;
     mem0c = 0x88EC;
     dbr = 0x99;
-    stackArgument = 0x8;
-    mem0760 = 0xBFC8;
+    currentProfileImageIndex = 0x8;
 }
 
 void Montreal2()
@@ -3604,8 +3596,7 @@ void Montreal2()
     x = 0x04BC;
     mem0c = 0xDFCF;
     dbr = 0x99;
-    stackArgument = 0x6;
-    mem0760 = 0xBFC5;
+    currentProfileImageIndex = 0x6;
 }
 
 void Montreal3()
@@ -3613,8 +3604,7 @@ void Montreal3()
     x = 0x04A4;
     mem0c = 0xCAC0;
     dbr = 0x98;
-    stackArgument = 0x4;
-    mem0760 = 0xBFC8;
+    currentProfileImageIndex = 0x4;
 }
 
 void Montreal4()
@@ -3622,8 +3612,7 @@ void Montreal4()
     x = 0x0490;
     mem0c = 0xD557;
     dbr = 0x97;
-    stackArgument = 0x2;
-    mem0760 = 0xBFC8;
+    currentProfileImageIndex = 0x2;
 }
 
 void Montreal5()
@@ -3631,8 +3620,7 @@ void Montreal5()
     x = 0x0480;
     mem0c = 0xF8AC;
     dbr = 0x99;
-    stackArgument = 0x0;
-    mem0760 = 0xBFC8;
+    currentProfileImageIndex = 0x0;
 }
 
 int main()
@@ -3643,6 +3631,8 @@ int main()
     romFile = LoadBinaryFile8("nhl94.sfc");
 
     InitializeCaches();
+
+    // The initial value of X doesn't matter for functionality. This program sets certain initial values of X simply to produce cleaner diffs to the reference.
 
     //Montreal0();
     //Montreal1();
