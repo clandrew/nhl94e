@@ -6,14 +6,10 @@
 #include <iomanip>
 
 std::ofstream debugLog;
-std::vector<unsigned char> ram;
-std::vector<unsigned short> decompressed;
-int instructionLimit = 30900;
-int printedInstructionCount = 0;
 
-void OpenDebugLog()
+void OpenDebugLog(char const* fileName)
 {
-    debugLog.open("output.txt", std::ofstream::out | std::ofstream::trunc);
+    debugLog.open(fileName, std::ofstream::out | std::ofstream::trunc);
 }
 
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName)
@@ -48,41 +44,6 @@ std::vector<unsigned short> LoadBinaryFile16(char const* fileName)
     return result;
 }
 
-std::vector<int> ramReads;
-
-unsigned short LoadFromRAM(int address)
-{
-    if (address < 0x7F0000 || address > 0x7F0000 + ram.size())
-    {
-        __debugbreak();
-        return 0xFF;
-    }
-
-    ramReads.push_back(address);
-
-    unsigned char ch0 = ram[address - 0x7F0000];
-    unsigned char ch1 = ram[address - 0x7F0000 + 1];
-
-    unsigned short result = (ch1 << 8) | ch0;
-    return result;
-}
-
-void WriteDecompressedOutput(int address, unsigned short output)
-{
-    if (address < 0x7F5100 || address > 0x7F7390)
-    {
-        __debugbreak();
-        return;
-    }
-
-    int outputOffset = address - 0x7F5100;
-    assert(outputOffset % 2 == 0);
-
-    int outputElement = outputOffset / 2;
-
-    decompressed[outputElement] = output;
-}
-
 void DebugPrintRegs(unsigned short a, unsigned short x, unsigned short y)
 {
     debugLog << " A:" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << a;
@@ -95,13 +56,6 @@ void DebugPrintFinalize()
 {
     debugLog << "\n";
     debugLog.flush();
-
-    ++printedInstructionCount;
-
-    if (printedInstructionCount > instructionLimit)
-    {
-        exit(0);
-    }
 }
 
 void DebugPrint(const char* asmText, unsigned short a, unsigned short x, unsigned short y)
@@ -117,6 +71,18 @@ void DebugPrintWithPCAndImm8(unsigned short pc, const char* asmByte, const char*
     debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
     debugLog << asmByte << ' ' << std::hex << std::setw(2) << std::setfill('0') << (int)imm8 << "       ";
     debugLog << asmOp << " #$" << std::hex << std::setw(2) << std::setfill('0') << (int)imm8 << "               ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
+}
+
+void DebugPrintWithBankAndIndex(const char* asmPrefix, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
+{
+    debugLog << asmPrefix;
+    debugLog << "[$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank;
+    debugLog << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
+    debugLog << "]  ";
     DebugPrintRegs(a, x, y);
     DebugPrintFinalize();
 }
@@ -154,19 +120,47 @@ void DebugPrintWithPCAndIndex(unsigned short pc, const char* asmText, unsigned s
     DebugPrintFinalize();
 }
 
-void DebugPrint85F4(unsigned short a, unsigned short x, unsigned short y)
+void DebugPrintWithPCAndBankAndIndex(unsigned short pc, const char* asmText, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
 {
-    DebugPrintWithIndex("$9B/85F4 B1 0C       LDA ($0C),y[$7F:", y, a, x, y);
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+    debugLog << asmText;
+    debugLog << "[$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank;
+    debugLog << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index;
+    debugLog << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
 }
 
-void DebugPrint864B(unsigned short a, unsigned short x, unsigned short y)
+void DebugPrintSBCAbsolute(unsigned short pc, unsigned char bank, unsigned short index, unsigned short a, unsigned short x, unsigned short y)
 {
-    DebugPrintWithIndex("$9B/864B 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " ";
+
+    unsigned short indexAcc = index;
+    unsigned char indexLow = indexAcc & 0xFF;
+    indexAcc >>= 8;
+    unsigned char indexHigh = indexAcc;
+
+    debugLog << "ED ";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)indexLow << " ";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)indexHigh << "    SBC $";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index << "  [$";
+    debugLog << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)bank << ":";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << index << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
 }
 
-void DebugPrint8655(unsigned short a, unsigned short x, unsigned short y)
+void DebugPrintJMPAbsolute0760(unsigned short pc, unsigned short mem0760Value, unsigned short a, unsigned short x, unsigned short y)
 {
-    DebugPrintWithIndex("$9B/8655 91 10       STA ($10),y[$7F:", 0x5100 + y, a, x, y);
+    debugLog << "$80/";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << pc << " 6C 60 07    JMP ($0760)[$80:";
+    debugLog << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << mem0760Value << "]  ";
+    DebugPrintRegs(a, x, y);
+    DebugPrintFinalize();
 }
 
 unsigned short ExchangeShortHighAndLow(unsigned short s)
