@@ -2,6 +2,7 @@
 #include <vector>
 
 void OpenDebugLog(char const* fileName);
+void CloseDebugLog();
 
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName);
 

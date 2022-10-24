@@ -12,6 +12,11 @@ void OpenDebugLog(char const* fileName)
     debugLog.open(fileName, std::ofstream::out | std::ofstream::trunc);
 }
 
+void CloseDebugLog()
+{
+    debugLog.close();
+}
+
 std::vector<unsigned char> LoadBinaryFile8(char const* fileName)
 {
     std::vector<unsigned char> result;
