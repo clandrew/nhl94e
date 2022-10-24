@@ -99,47 +99,42 @@ void SaveMem6b(Mem16 const& v)
     mem6c |= v.High8;
 }
 
-Mem16 LoadFromROM16(unsigned short bank, unsigned short offset)
+Mem16 Load16FromAddress(unsigned short bank, unsigned short offset)
 {
     Mem16 result{};
 
-    if (offset < 0x8000)
+    if (offset < 0x8000 && bank == 0x96)
     {
-        // Not supported using this method currently.
-        __debugbreak();
-        return result;
+        bank = 0x7E; // Shadowing
     }
 
-    if (bank < 0x80)
+    if (bank >= 0x80)
+    {
+        // ROM
+        int local = offset - 0x8000;
+        int bankMultiplier = bank - 0x80;
+
+        int fileOffset = 0x8000 * bankMultiplier;
+        result.Low8 = romFile[fileOffset + local];
+        result.High8 = romFile[fileOffset + local + 1];
+    }
+    else if (bank == 0x7E)
+    {
+        if (offset == 0)
+        {
+            result.Data16 = mem00.Data16;
+        }
+        else
+        {
+            __debugbreak();
+        }
+    }
+    else
     {
         __debugbreak();
-        return result;
     }
 
-    int local = offset - 0x8000;
-    int bankMultiplier = bank - 0x80;
 
-    int fileOffset = 0x8000 * bankMultiplier;
-    result.Low8 = romFile[fileOffset + local];
-    result.High8 = romFile[fileOffset + local + 1];
-
-    return result;
-}
-
-unsigned short LoadFromROM99F8B1(int address)
-{
-    if (address < 0x99F8B1 || address > 0x99FAB4)
-    {
-        __debugbreak();
-        return 0xFF;
-    }
-
-    int offs = address - 0x99F8B1;
-
-    unsigned char ch0 = romFile[0xCF8B1 + offs];
-    unsigned char ch1 = romFile[0xCF8B1 + offs + 1];       
-
-    unsigned short result = (ch1 << 8) | ch0;
     return result;
 }
 
@@ -151,7 +146,7 @@ void LoadNextFrom0CInc(unsigned short pc)
 
     // This runs in 8 bit mode.
     DebugPrintWithPCAndBankAndIndex(pc, "B2 0C       LDA ($0C)  ", dbr, mem0c, a, x, y);
-    loaded16 = LoadFromROM16(dbr, mem0c);
+    loaded16 = Load16FromAddress(dbr, mem0c);
     a &= 0xFF00;
     a |= loaded16.Low8;
     pc += 2;
@@ -223,7 +218,7 @@ void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shif
     pc += 2;
 
     DebugPrintWithPCAndBankAndIndex(pc, "B2 0C       LDA ($0C)  ", dbr, mem0c, a, x, y);
-    loaded16 = LoadFromROM16(dbr, mem0c);
+    loaded16 = Load16FromAddress(dbr, mem0c);
     a = loaded16.Data16;
     pc += 2;
 
@@ -418,7 +413,7 @@ void Fn_80BBB3()
     mem0c = a;
 
     DebugPrintWithBankAndIndex("$80/BBBD B2 0C       LDA ($0C)  ", dbr, mem0c, a, x, y);
-    loaded16 = LoadFromROM16(dbr, mem0c);
+    loaded16 = Load16FromAddress(dbr, mem0c);
     a = loaded16.Data16;
 
     // $80/BBBF 85 73       STA $73    [$00:0073]   A:960F X:0080 Y:00AE P:envmxdizc
@@ -430,7 +425,7 @@ void Fn_80BBB3()
     mem0c++;
 
     DebugPrintWithBankAndIndex("$80/BBC3 B2 0C       LDA ($0C)  ", dbr, mem0c, a, x, y);
-    loaded16 = LoadFromROM16(dbr, mem0c);
+    loaded16 = Load16FromAddress(dbr, mem0c);
     a = loaded16.Data16;
 
     // $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
@@ -3568,7 +3563,7 @@ label_CC90:
     DebugPrint("$9D/CC90 18          CLC                    ", a, x, y);
 
     DebugPrintWithIndex("$9D/CC91 7F AE CC 9D ADC $9DCCAE,x[$9D:", 0xCCAE + x, a, x, y, true);
-    loaded16 = LoadFromROM16(0x9D, 0xCCAE + x);
+    loaded16 = Load16FromAddress(0x9D, 0xCCAE + x);
     a += loaded16.Data16;
 
     DebugPrint("$9D/CC95 85 10       STA $10    [$00:0010]  ", a, x, y);
@@ -3800,7 +3795,7 @@ int main()
 
     CreateCaches();
 
-    for (int teamIndex = (int)Team::Hartford; teamIndex <= (int)Team::Montreal; ++teamIndex)
+    for (int teamIndex = (int)Team::Dallas; teamIndex <= (int)Team::Montreal; ++teamIndex)
     {
         for (int playerIndex = 0; playerIndex < 6; ++playerIndex)
         {
