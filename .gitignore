@@ -36,3 +36,5 @@ template.png
 /Decompress2/VerificationZ_Full_Noflags_NoIRQ.txt
 /Decompress2/nhl940000.noirq.noflag.log
 /Decompress2/Tests/*
+/Decompress2/*.bin
+/Decompress2/*.log
