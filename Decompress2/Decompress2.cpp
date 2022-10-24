@@ -1129,6 +1129,16 @@ label_BCC5:
         DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BE0D]", a, x, y);
         goto label_BE0D;
     }
+    else if (x == 0x4)
+    {
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BF00]", a, x, y);
+        goto label_BF00;
+    }
+    else if (x == 0x8)
+    {
+        DebugPrint("$80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BE5D]", a, x, y);
+        goto label_BE5D;
+    }
     else
     {
         __debugbreak();
@@ -3790,7 +3800,7 @@ int main()
 
     CreateCaches();
 
-    for (int teamIndex = (int)Team::LAKings; teamIndex <= (int)Team::Montreal; ++teamIndex)
+    for (int teamIndex = (int)Team::Hartford; teamIndex <= (int)Team::Montreal; ++teamIndex)
     {
         for (int playerIndex = 0; playerIndex < 6; ++playerIndex)
         {
@@ -3800,7 +3810,7 @@ int main()
             InitializeDecompress(teamIndex, playerIndex);
             x = 0;
             y = mem0c + 2;
-            mem91_HomeOrAway = 0;
+            mem91_HomeOrAway = 2;
 
             OpenDebugLog(outputCpuLogFileName.c_str());
 
@@ -3835,6 +3845,8 @@ int main()
                     }
                 }
             }
+
+            CloseDebugLog();
         }
     }
 
