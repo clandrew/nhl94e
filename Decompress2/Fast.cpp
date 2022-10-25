@@ -2930,46 +2930,45 @@ namespace Fast
             // x and y needs to be initialized for this section.
 
             // Two bytes are loaded at a time.
-            loaded16.Low8 = cache7F0000[sourceDataAddressLow + y + 1];
-            loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
 
-            if (loaded16.Data16 != 0)
+            while (true)
             {
-                // We loaded a nonzero element. Save it
-                y = loaded16.Data16;
-            }
-            else
-            {
-                // We loaded a zero element. If x is a multiple of 16 that means we write the zero. Otherwise, we load again.
-                if (x / 16 == 0)
+                loaded16.Low8 = cache7F0000[sourceDataAddressLow + y + 1];
+                loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
+
+                if (loaded16.Data16 != 0)
+                {
+                    break;
+                }
+
+                // We loaded a zero element. If x less than 16 that means we write the zero. Otherwise, we load again.
+                if (x < 16)
                 {
                     goto WriteOutput;
                 }
 
                 x >>= 4;
                 y += 2;
-                goto LoadSourceElement;
             }
+
+            // We loaded a nonzero element. Save it
+            y = loaded16.Data16;
 
         label_85FA:
             c = y >= 0x8000;
             a = y * 2;
-            if (c == false)
+            if (c)
             {
-                goto label_8603;
+                resultHigh |= (x << 8); // This is a bit sketchy
             }
-            resultHigh |= (x << 8); // This is a bit sketchy
 
-        label_8603:
             c = a >= 0x8000;
             a *= 2;
-            if (c == false)
+            if (c)
             {
-                goto label_860B;
+                resultHigh |= x;
             }
-            resultHigh |= x;
 
-        label_860B:
             c = a >= 0x8000;
             a *= 2;
 
