@@ -2927,26 +2927,27 @@ namespace Fast
             y = sourceDataElement * 4;
 
         LoadSourceElement:
+            // x and y needs to be initialized for this section.
+
+            loaded16.Low8 = cache7F0000[sourceDataAddressLow + y];
+            loaded16.High8 = cache7F0000[sourceDataAddressLow + y + 1];
+            a = loaded16.Data16;
+
+            if (loaded16.Data16 != 0) // We loaded a nonzero element
             {
-                // x and y needs to be initialized for this section.
-                loaded16.Low8 = cache7F0000[sourceDataAddressLow + y];
-                loaded16.High8 = cache7F0000[sourceDataAddressLow + y + 1];
-                a = loaded16.Data16;
-
-                if (loaded16.Data16 == 0)
-                {
-                    a = x >> 4;
-                    if (x / 16 == 0)
-                    {
-                        goto label_8637;
-                    }
-
-                    x = a;
-                    y += 2;
-                    goto LoadSourceElement;
-                }
+                y = ExchangeShortHighAndLow(a);
             }
-            y = ExchangeShortHighAndLow(a);
+            else
+            {
+                if (x / 16 == 0)
+                {
+                    goto WriteOutput;
+                }
+
+                x >>= 4;
+                y += 2;
+                goto LoadSourceElement;
+            }
 
         label_85FA:
             c = y >= 0x8000;
@@ -2998,7 +2999,7 @@ namespace Fast
 
             if (x == 0)
             {
-                goto label_8637;
+                goto WriteOutput;
             }
 
             if (x < 0x8)
@@ -3010,7 +3011,7 @@ namespace Fast
 
             goto LoadSourceElement;
 
-        label_8637:
+        WriteOutput:
             y = mem06 + 2;
 
             if ((y & 0x10) != 0)
