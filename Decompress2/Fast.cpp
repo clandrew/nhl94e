@@ -2930,6 +2930,7 @@ namespace Fast
         LoadSourceElement:
 
             // Two bytes are loaded at a time.
+            bool shouldWriteOutput = false;
             while (true)
             {
                 loaded16.Low8 = cache7F0000[sourceDataAddressLow + sourceDataOffset + 1];
@@ -2942,17 +2943,25 @@ namespace Fast
 
                 if (resultComponent < 16)
                 {
-                    goto WriteOutput;
+                    shouldWriteOutput = true;
+                    break;
                 }
 
                 resultComponent >>= 4;
                 sourceDataOffset += 2;
             }
 
+            if (shouldWriteOutput)
+            {
+                goto WriteOutput;
+            }
+
             // We loaded a nonzero element. Save it
             sourceDataOffset = loaded16.Data16;
 
         FormulateResult:
+            // This sets each of the four bytes of the result.
+
             c = sourceDataOffset >= 0x8000;
             nextSourceDataOffset = sourceDataOffset * 2;
             if (c)
@@ -2993,10 +3002,13 @@ namespace Fast
                 {
                     goto FormulateResult;
                 }
+                else
+                {
+                    // resultComponent is [8..15]
+                    sourceDataOffset = (sourceDataElement * 4) + 2;
 
-                sourceDataOffset = (sourceDataElement * 4) + 2;
-
-                goto LoadSourceElement;
+                    goto LoadSourceElement;
+                }
             }
 
         WriteOutput:
