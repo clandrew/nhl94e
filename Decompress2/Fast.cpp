@@ -2929,16 +2929,18 @@ namespace Fast
         LoadSourceElement:
             // x and y needs to be initialized for this section.
 
-            loaded16.Low8 = cache7F0000[sourceDataAddressLow + y];
-            loaded16.High8 = cache7F0000[sourceDataAddressLow + y + 1];
-            a = loaded16.Data16;
+            // Two bytes are loaded at a time.
+            loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
+            loaded16.Low8 = cache7F0000[sourceDataAddressLow + y + 1];
 
-            if (loaded16.Data16 != 0) // We loaded a nonzero element
+            if (loaded16.Data16 != 0)
             {
-                y = ExchangeShortHighAndLow(a);
+                // We loaded a nonzero element. Save it
+                y = loaded16.Data16;
             }
             else
             {
+                // We loaded a zero element. If x is a multiple of 16 that means we write the zero. Otherwise, we load again.
                 if (x / 16 == 0)
                 {
                     goto WriteOutput;
