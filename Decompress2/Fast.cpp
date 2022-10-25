@@ -2911,182 +2911,55 @@ namespace Fast
         //
         // At a high level, this function reads from RAM at 7F0000-7F0484 and writes the final output.
 
-        // Impl
-        
-
-        x = mem00.Data16;
-
-        
-
-        
-
-        
-
-        a = mem0e;
-
-        
-
-        
-
-        
-
-        
-
         mem04 = 0;
+        mem06 = 0xFFFE;
+        mem00.Data16 >>= 2;
 
-        
-
-        a = 0xFFFE;
-
-        
-
-        mem06 = a;
-
-        
-
-        a = mem00.Data16;
-
-        
-
-        a >>= 1;
-
-        
-
-        a >>= 1;
-
-        
-
-        mem00.Data16 = a;
-
-        
-
-        goto label_85E8;
-
-    label_85DC:
-
-        willCarry = x < 16;
-        a = x;
-        z = a == 0;
-
-        a >>= 1;
-
-        a >>= 1;
-
-        a >>= 1;
-
-        a >>= 1;
-
-        
-        z = a == 0;
-        c = willCarry;
-
-        if (x / 16 == 0)
-        {
-            goto label_8637;
-        }
-
-        x = a;
-
-        y++;
-
-        y++;
-
-        goto label_85F4;
-
-    label_85E8:
-        
-
+    WriteIndexed_Start:
         x = 0x80;
-
-        
-
         mem14 = 0;
-
-        
-
         mem16 = 0;
-        {
-
-            a = mem04;
-
-            a *= 2;
-
-            a *= 2;
-
-            y = a;
-        }
+        y = mem04 * 4;
 
     label_85F4:
         {
-
+            // y needs to be initialized for this section.
             loaded16.Low8 = cache7F0000[mem0c + y];
             loaded16.High8 = cache7F0000[mem0c + y + 1];
             a = loaded16.Data16;
-            z = a == 0;
 
-            
-
-            if (z)
+            if (loaded16.Data16 == 0)
             {
-                goto label_85DC;
+                a = x >> 4;
+                if (x / 16 == 0)
+                {
+                    goto label_8637;
+                }
+
+                x = a;
+                y += 2;
+                goto label_85F4;
             }
         }
-
-        
-
-        a = ExchangeShortHighAndLow(a);
-
-        
-
-        y = a;
+        y = ExchangeShortHighAndLow(a);
 
     label_85FA:
-        
-
-        a = y;
-        n = false;
-
-        
-
-        willCarry = a >= 0x8000;
-        a *= 2;
-        c = willCarry;
-
-        
-
+        c = y >= 0x8000;
+        a = y * 2;
         if (c == false)
         {
             goto label_8603;
         }
-
-        
-
-        y = a;
-
-        
-
-        a = x;
-
-        
-
-        mem14 |= (a << 8); // This is a bit sketchy
-
-        
-
-        a = y;
+        mem14 |= (x << 8); // This is a bit sketchy
 
     label_8603:
-        willCarry = a >= 0x8000;
+        c = a >= 0x8000;
         a *= 2;
-        c = willCarry;
         if (c == false)
         {
             goto label_860B;
         }
-        y = a;
-        a = x;
-        mem14 |= a;
-        a = y;
+        mem14 |= x;
 
     label_860B:
         c = a >= 0x8000;
@@ -3096,7 +2969,6 @@ namespace Fast
         {
             goto label_8613;
         }
-        y = a;
         mem16 |= (x << 8);
 
     label_8613:
@@ -3108,14 +2980,11 @@ namespace Fast
             goto label_861B;
         }        
 
-        y = a;
-        a = x;
-        mem16 |= a;   
-        a = y;
+        mem16 |= x;   
 
     label_861B:
         y = a;
-        x = x / 2;
+        x /= 2;
 
         if (x >= 0x10)
         {
@@ -3165,7 +3034,7 @@ namespace Fast
 
         if (!n)
         {
-            goto label_85E8;
+            goto WriteIndexed_Start;
         }
     }
 
