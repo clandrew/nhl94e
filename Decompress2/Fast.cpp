@@ -2924,17 +2924,16 @@ namespace Fast
             unsigned short resultLow = 0;
 
             x = 0x80;
-            y = sourceDataElement * 4;
+            unsigned short sourceDataOffset = sourceDataElement * 4;
+            unsigned short nextSourceDataOffset = 0;
 
         LoadSourceElement:
-            // x and y needs to be initialized for this section.
 
             // Two bytes are loaded at a time.
-
             while (true)
             {
-                loaded16.Low8 = cache7F0000[sourceDataAddressLow + y + 1];
-                loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
+                loaded16.Low8 = cache7F0000[sourceDataAddressLow + sourceDataOffset + 1];
+                loaded16.High8 = cache7F0000[sourceDataAddressLow + sourceDataOffset];
 
                 if (loaded16.Data16 != 0)
                 {
@@ -2948,44 +2947,44 @@ namespace Fast
                 }
 
                 x >>= 4;
-                y += 2;
+                sourceDataOffset += 2;
             }
 
             // We loaded a nonzero element. Save it
-            y = loaded16.Data16;
+            sourceDataOffset = loaded16.Data16;
 
         FormulateResult:
-            c = y >= 0x8000;
-            a = y * 2;
+            c = sourceDataOffset >= 0x8000;
+            nextSourceDataOffset = sourceDataOffset * 2;
             if (c)
             {
-                resultHigh |= (x << 8); // This is a bit sketchy
+                resultHigh |= (x << 8); 
             }
 
-            c = a >= 0x8000;
-            a *= 2;
+            c = nextSourceDataOffset >= 0x8000;
+            nextSourceDataOffset *= 2;
             if (c)
             {
                 resultHigh |= x;
             }
 
-            c = a >= 0x8000;
-            a *= 2;
+            c = nextSourceDataOffset >= 0x8000;
+            nextSourceDataOffset *= 2;
 
             if (c)
             {
                 resultLow |= (x << 8);
             }
 
-            c = a >= 0x8000;
-            a *= 2;
+            c = nextSourceDataOffset >= 0x8000;
+            nextSourceDataOffset *= 2;
 
             if (c)
             {
                 resultLow |= x;
             }
 
-            y = a;
+            sourceDataOffset = nextSourceDataOffset;
             x /= 2;
 
             if (x != 0)
@@ -2995,7 +2994,7 @@ namespace Fast
                     goto FormulateResult;
                 }
 
-                y = (sourceDataElement * 4) + 2;
+                sourceDataOffset = (sourceDataElement * 4) + 2;
 
                 goto LoadSourceElement;
             }
