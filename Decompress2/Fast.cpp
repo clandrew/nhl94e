@@ -3250,57 +3250,15 @@ namespace Fast
 
         goto label_85F4;
 
-    label_8637:
-        
+    label_8637:  
+        y = mem06 + 2;       
 
-        a = mem06;
-        z = a == 0;
-
-        
-
-        ++a;
-        z = a == 0;
-
-        
-
-        ++a;
-        z = a == 0;
-
-        
-
-        y = a;
-
-        y = mem06 + 2;
-
-        
-
-        a = a & 0x10;
-        z = a == 0;
-
-        unsigned short check = y & 0x10;
-
-        
-
-        if (check == 0)
+        if ((y & 0x10) == 0)
         {
             goto label_8647;
-        }
+        }               
 
-        
-
-        a = y;
-
-        
-
-        c = false;
-
-        
-
-        a += 0x10;
-
-        
-
-        y = a;
+        y += 0x10;
 
     label_8647:
         mem06 = y;
@@ -3309,26 +3267,13 @@ namespace Fast
         cache7F0000[mem10 + y] = loaded16.Low8;
         cache7F0000[mem10 + y + 1] = loaded16.High8;
 
-        a = y;
-        z = a == 0;
+        y += 0x10;
 
-        c = false;
-
-        a += 0x10;
-
-        y = a;
-
-        a = mem14;
-        z = a == 0;
-        c = false;
-
-        loaded16.Data16 = a;
+        loaded16.Data16 = mem14;
         cache7F0000[mem10 + y] = loaded16.Low8;
         cache7F0000[mem10 + y + 1] = loaded16.High8;
 
         mem04++;
-        z = mem04 == 0;
-
         mem00.Data16--;
         n = mem00.Data16 >= 0x8000;
 
