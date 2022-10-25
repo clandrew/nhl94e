@@ -2916,7 +2916,7 @@ namespace Fast
 
         unsigned short sourceDataAddressLow = 0;
         unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.        
-        mem06 = 0xFFFE;
+        unsigned short lastWrittenElement = 0xFFFE;
 
         for (int iter = 0; iter < 0x240; ++iter)
         {
@@ -3011,14 +3011,14 @@ namespace Fast
             goto LoadSourceElement;
 
         WriteOutput:
-            y = mem06 + 2;
+            y = lastWrittenElement + 2;
 
             if ((y & 0x10) != 0)
             {
                 y += 0x10;
             }
 
-            mem06 = y;
+            lastWrittenElement = y;
 
             // Write four bytes of output.
 
