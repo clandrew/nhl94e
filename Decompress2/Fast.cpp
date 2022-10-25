@@ -2889,10 +2889,8 @@ namespace Fast
         return;
     }
 
-    void Fn_9B85C2()
+    void WriteIndexed()
     {
-        // WriteIndexed().
-        //
         // Precondition: compressed staging data is written in memory.
         //     Mem0C contains the low short of the source data address.
         //     Mem0E contains the high short of the source data address.
@@ -2911,19 +2909,29 @@ namespace Fast
         //
         // At a high level, this function reads from RAM at 7F0000-7F0484 and writes the final output.
 
-        mem04 = 0;
+        // Figure out the destination offset based on profile index and whether we're home or away.
+        x = 0xA - (currentProfileImageIndex * 2);
+        mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
+        mem10 += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
+
+        mem0e = 0x7F;
+        mem0c = 0;
+
+        mem04 = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.
+        
         mem06 = 0xFFFE;
-        mem00.Data16 >>= 2;
+        mem00.Data16 = 0x240;
 
     WriteIndexed_Start:
-        x = 0x80;
         mem14 = 0;
         mem16 = 0;
+
+        x = 0x80;
         y = mem04 * 4;
 
     label_85F4:
         {
-            // y needs to be initialized for this section.
+            // x and y needs to be initialized for this section.
             loaded16.Low8 = cache7F0000[mem0c + y];
             loaded16.High8 = cache7F0000[mem0c + y + 1];
             a = loaded16.Data16;
@@ -3036,18 +3044,6 @@ namespace Fast
         {
             goto WriteIndexed_Start;
         }
-    }
-
-    void Filler()
-    {
-        mem00.Data16 = 0x480;
-        x = 0xA - (currentProfileImageIndex * 2);
-
-        mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
-        mem10 += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
-
-        mem0e = 0x7F;
-        mem0c = 0;
     }
 
     void CreateCaches()
@@ -3230,8 +3226,7 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3();
-        Filler();
-        Fn_9B85C2();
+        WriteIndexed();
 
         int finalResultWriteLocation = GetFinalWriteLocation();
         //DumpDecompressedResult(finalResultWriteLocation);
