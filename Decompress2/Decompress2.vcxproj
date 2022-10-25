@@ -141,9 +141,11 @@
   <ItemGroup>
     <ClCompile Include="Decompress2.cpp" />
     <ClCompile Include="Fn_9B85C2.cpp" />
+    <ClCompile Include="Slow.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Decompress2.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
