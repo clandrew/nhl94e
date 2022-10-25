@@ -2923,7 +2923,7 @@ namespace Fast
             unsigned short resultHigh = 0;
             unsigned short resultLow = 0;
 
-            x = 0x80;
+            unsigned short resultComponent = 0x80;
             unsigned short sourceDataOffset = sourceDataElement * 4;
             unsigned short nextSourceDataOffset = 0;
 
@@ -2940,13 +2940,12 @@ namespace Fast
                     break;
                 }
 
-                // We loaded a zero element. If x less than 16 that means we write the zero. Otherwise, we load again.
-                if (x < 16)
+                if (resultComponent < 16)
                 {
                     goto WriteOutput;
                 }
 
-                x >>= 4;
+                resultComponent >>= 4;
                 sourceDataOffset += 2;
             }
 
@@ -2958,22 +2957,14 @@ namespace Fast
             nextSourceDataOffset = sourceDataOffset * 2;
             if (c)
             {
-                resultHigh |= (x << 8); 
+                resultHigh |= (resultComponent << 8);
             }
 
             c = nextSourceDataOffset >= 0x8000;
             nextSourceDataOffset *= 2;
             if (c)
             {
-                resultHigh |= x;
-            }
-
-            c = nextSourceDataOffset >= 0x8000;
-            nextSourceDataOffset *= 2;
-
-            if (c)
-            {
-                resultLow |= (x << 8);
+                resultHigh |= resultComponent;
             }
 
             c = nextSourceDataOffset >= 0x8000;
@@ -2981,15 +2972,24 @@ namespace Fast
 
             if (c)
             {
-                resultLow |= x;
+                resultLow |= (resultComponent << 8);
+            }
+
+            c = nextSourceDataOffset >= 0x8000;
+            nextSourceDataOffset *= 2;
+
+            if (c)
+            {
+                resultLow |= resultComponent;
             }
 
             sourceDataOffset = nextSourceDataOffset;
-            x /= 2;
 
-            if (x != 0)
+            if (resultComponent >= 2)
             {
-                if (x < 0x8 || x >= 0x10)
+                resultComponent /= 2;
+
+                if (resultComponent < 0x8 || resultComponent >= 0x10)
                 {
                     goto FormulateResult;
                 }
