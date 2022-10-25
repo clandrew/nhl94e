@@ -3531,10 +3531,8 @@ namespace Fast
         a += loaded16.Data16;
 
         mem10 = a;
-        a = 0x7F;
-        mem0e = a;
-        a = 0;
-        mem0c = a;
+        mem0e = 0x7F;
+        mem0c = 0;
     }
 
     void CreateCaches()
