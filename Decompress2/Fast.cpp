@@ -3507,30 +3507,14 @@ namespace Fast
 
     void Filler()
     {
-        x = 0x480;
-        mem00.Data16 = x;
-        a = 0xA - (currentProfileImageIndex * 2);
-        x = a;
-        a = mem91_HomeOrAway;
-        z = a == 0;
-        if (z)
-        {
-            goto label_CC8D;
-        }
+        mem00.Data16 = 0x480;
+        x = 0xA - (currentProfileImageIndex * 2);
 
-        // For Away team
-        a = 0x2D00;
-
-        goto label_CC90;
-
-    label_CC8D: // For Home team
-        a = 0x5100;
-
-    label_CC90:
         loaded16 = Load16FromAddress(0x9D, 0xCCAE + x);
-        a += loaded16.Data16;
 
-        mem10 = a;
+        mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
+        mem10 += loaded16.Data16;
+
         mem0e = 0x7F;
         mem0c = 0;
     }
