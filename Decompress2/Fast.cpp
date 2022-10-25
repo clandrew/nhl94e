@@ -2920,130 +2920,125 @@ namespace Fast
         unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.
         
         mem06 = 0xFFFE;
-        mem00.Data16 = 0x240;
 
-    WriteIndexed_Start:
-        mem14 = 0;
-        mem16 = 0;
-
-        x = 0x80;
-        y = sourceDataElement * 4;
-
-    label_85F4:
+        for (int iter = 0; iter < 0x240; ++iter)
         {
-            // x and y needs to be initialized for this section.
-            loaded16.Low8 = cache7F0000[mem0c + y];
-            loaded16.High8 = cache7F0000[mem0c + y + 1];
-            a = loaded16.Data16;
+            mem14 = 0;
+            mem16 = 0;
 
-            if (loaded16.Data16 == 0)
+            x = 0x80;
+            y = sourceDataElement * 4;
+
+        label_85F4:
             {
-                a = x >> 4;
-                if (x / 16 == 0)
+                // x and y needs to be initialized for this section.
+                loaded16.Low8 = cache7F0000[mem0c + y];
+                loaded16.High8 = cache7F0000[mem0c + y + 1];
+                a = loaded16.Data16;
+
+                if (loaded16.Data16 == 0)
                 {
-                    goto label_8637;
+                    a = x >> 4;
+                    if (x / 16 == 0)
+                    {
+                        goto label_8637;
+                    }
+
+                    x = a;
+                    y += 2;
+                    goto label_85F4;
                 }
-
-                x = a;
-                y += 2;
-                goto label_85F4;
             }
+            y = ExchangeShortHighAndLow(a);
+
+        label_85FA:
+            c = y >= 0x8000;
+            a = y * 2;
+            if (c == false)
+            {
+                goto label_8603;
+            }
+            mem14 |= (x << 8); // This is a bit sketchy
+
+        label_8603:
+            c = a >= 0x8000;
+            a *= 2;
+            if (c == false)
+            {
+                goto label_860B;
+            }
+            mem14 |= x;
+
+        label_860B:
+            c = a >= 0x8000;
+            a *= 2;
+
+            if (c == false)
+            {
+                goto label_8613;
+            }
+            mem16 |= (x << 8);
+
+        label_8613:
+            c = a >= 0x8000;
+            a *= 2;
+
+            if (c == false)
+            {
+                goto label_861B;
+            }
+
+            mem16 |= x;
+
+        label_861B:
+            y = a;
+            x /= 2;
+
+            if (x >= 0x10)
+            {
+                goto label_85FA;
+            }
+
+            if (x == 0)
+            {
+                goto label_8637;
+            }
+
+            if (x < 0x8)
+            {
+                goto label_85FA;
+            }
+
+            y = (sourceDataElement * 4) + 2;
+
+            goto label_85F4;
+
+        label_8637:
+            y = mem06 + 2;
+
+            if ((y & 0x10) == 0)
+            {
+                goto label_8647;
+            }
+
+            y += 0x10;
+
+        label_8647:
+            mem06 = y;
+
+            loaded16.Data16 = mem16;
+            cache7F0000[mem10 + y] = loaded16.Low8;
+            cache7F0000[mem10 + y + 1] = loaded16.High8;
+
+            y += 0x10;
+
+            loaded16.Data16 = mem14;
+            cache7F0000[mem10 + y] = loaded16.Low8;
+            cache7F0000[mem10 + y + 1] = loaded16.High8;
+
+            sourceDataElement++;
         }
-        y = ExchangeShortHighAndLow(a);
 
-    label_85FA:
-        c = y >= 0x8000;
-        a = y * 2;
-        if (c == false)
-        {
-            goto label_8603;
-        }
-        mem14 |= (x << 8); // This is a bit sketchy
-
-    label_8603:
-        c = a >= 0x8000;
-        a *= 2;
-        if (c == false)
-        {
-            goto label_860B;
-        }
-        mem14 |= x;
-
-    label_860B:
-        c = a >= 0x8000;
-        a *= 2;
-
-        if (c == false)
-        {
-            goto label_8613;
-        }
-        mem16 |= (x << 8);
-
-    label_8613:
-        c = a >= 0x8000;
-        a *= 2;        
-
-        if (c == false)
-        {
-            goto label_861B;
-        }        
-
-        mem16 |= x;   
-
-    label_861B:
-        y = a;
-        x /= 2;
-
-        if (x >= 0x10)
-        {
-            goto label_85FA;
-        }
-
-        if (x == 0)
-        {
-            goto label_8637;
-        }
-
-        if (x < 0x8)
-        {
-            goto label_85FA;
-        }
-      
-        y = (sourceDataElement * 4) + 2;
-
-        goto label_85F4;
-
-    label_8637:  
-        y = mem06 + 2;       
-
-        if ((y & 0x10) == 0)
-        {
-            goto label_8647;
-        }               
-
-        y += 0x10;
-
-    label_8647:
-        mem06 = y;
-
-        loaded16.Data16 = mem16;
-        cache7F0000[mem10 + y] = loaded16.Low8;
-        cache7F0000[mem10 + y + 1] = loaded16.High8;
-
-        y += 0x10;
-
-        loaded16.Data16 = mem14;
-        cache7F0000[mem10 + y] = loaded16.Low8;
-        cache7F0000[mem10 + y + 1] = loaded16.High8;
-
-        sourceDataElement++;
-        mem00.Data16--;
-        n = mem00.Data16 >= 0x8000;
-
-        if (!n)
-        {
-            goto WriteIndexed_Start;
-        }
     }
 
     void CreateCaches()
