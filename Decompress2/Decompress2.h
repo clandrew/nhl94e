@@ -35,3 +35,6 @@ enum class Team
 
 void Decompress_Slow_Init();
 void Decompress_Slow_Run(int teamIndex, int playerIndex);
+
+void Decompress_Fast_Init();
+void Decompress_Fast_Run(int teamIndex, int playerIndex);

@@ -4,6 +4,9 @@
 #include "Util.h"
 #include "Decompress2.h"
 
+namespace Slow
+{
+
 void Fn_80C1B0();
 void Fn_80C232();
 void Fn_80C2DC();
@@ -3753,15 +3756,7 @@ void DumpDecompressedResult(int finalResultWriteLocation)
     fclose(file);
 }
 
-void Decompress_Slow_Init()
-{
-    // Load ROM file
-    romFile = LoadBinaryFile8("nhl94.sfc");
-
-    CreateCaches();
-}
-
-void Decompress_Slow_Run(int teamIndex, int playerIndex)
+void Decompress(int teamIndex, int playerIndex)
 {
     InitializeCaches();
     InitializeCPUAndOtherWRAM();
@@ -3806,4 +3801,19 @@ void Decompress_Slow_Run(int teamIndex, int playerIndex)
     }
 
     CloseDebugLog();
+}
+
+}
+
+void Decompress_Slow_Init()
+{
+    // Load ROM file
+    Slow::romFile = LoadBinaryFile8("nhl94.sfc");
+
+    Slow::CreateCaches();
+}
+
+void Decompress_Slow_Run(int teamIndex, int playerIndex)
+{
+    Slow::Decompress(teamIndex, playerIndex);
 }
