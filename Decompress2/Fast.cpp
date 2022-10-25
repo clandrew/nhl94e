@@ -2988,19 +2988,17 @@ namespace Fast
             y = a;
             x /= 2;
 
-            if (x == 0)
+            if (x != 0)
             {
-                goto WriteOutput;
+                if (x < 0x8 || x >= 0x10)
+                {
+                    goto FormulateResult;
+                }
+
+                y = (sourceDataElement * 4) + 2;
+
+                goto LoadSourceElement;
             }
-
-            if (x < 0x8 || x >= 0x10)
-            {
-                goto FormulateResult;
-            }
-
-            y = (sourceDataElement * 4) + 2;
-
-            goto LoadSourceElement;
 
         WriteOutput:
             unsigned short destinationElement = lastWrittenElement + 2;
