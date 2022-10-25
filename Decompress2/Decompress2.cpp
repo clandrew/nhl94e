@@ -3633,7 +3633,7 @@ enum class Team
     Toronto = 0x16,
     Vancouver = 0x17,
     Washington = 0x18,
-    Winnepeg = 0x19,
+    Winnipeg = 0x19,
     AllStarsEast = 0x1A,
     AllStarsWest = 0x1B,
     Count
@@ -3665,7 +3665,7 @@ TeamInfo s_teams[] = {
 
     { "NewJersey",  0x9AA329, 0x98F158, 0x988264, 0x97AB0A, 0x9AA6D6, 0x99D545 },
     { "NYIslanders",0x9986B3, 0x99F079, 0x97C405, 0x9991C8, 0x98A377, 0x9A8225 },
-    { "NWRangers",  0x9A8E26, 0x979406, 0x9884C8, 0x98CF54, 0x97B28D, 0x98BF41 },
+    { "NYRangers",  0x9A8E26, 0x979406, 0x9884C8, 0x98CF54, 0x97B28D, 0x98BF41 },
     { "Ottawa",     0x8CFDEC, 0x99EA44, 0x99DB9B, 0x99F498, 0x99AE67, 0x99E619 },
     { "Philly",     0x988E50, 0x98C18E, 0x99E831, 0x9897BF, 0x98FC8E, 0x98DABC },
 
@@ -3795,7 +3795,7 @@ int main()
 
     CreateCaches();
 
-    for (int teamIndex = (int)Team::Dallas; teamIndex <= (int)Team::Montreal; ++teamIndex)
+    for (int teamIndex = (int)Team::Anaheim; teamIndex <= (int)Team::AllStarsWest; ++teamIndex)
     {
         for (int playerIndex = 0; playerIndex < 6; ++playerIndex)
         {
