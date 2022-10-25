@@ -2911,8 +2911,8 @@ namespace Fast
 
         // Figure out the destination offset based on profile index and whether we're home or away.
         x = 0xA - (currentProfileImageIndex * 2);
-        mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
-        mem10 += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
+        unsigned short destDataAddressLow = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
+        destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
 
         unsigned short sourceDataAddressLow = 0;
         unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.        
@@ -3013,25 +3013,22 @@ namespace Fast
         label_8637:
             y = mem06 + 2;
 
-            if ((y & 0x10) == 0)
+            if ((y & 0x10) != 0)
             {
-                goto label_8647;
+                y += 0x10;
             }
 
-            y += 0x10;
-
-        label_8647:
             mem06 = y;
 
             loaded16.Data16 = mem16;
-            cache7F0000[mem10 + y] = loaded16.Low8;
-            cache7F0000[mem10 + y + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + y] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
 
             y += 0x10;
 
             loaded16.Data16 = mem14;
-            cache7F0000[mem10 + y] = loaded16.Low8;
-            cache7F0000[mem10 + y + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + y] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
 
             sourceDataElement++;
         }
