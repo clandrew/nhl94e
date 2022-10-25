@@ -2930,8 +2930,8 @@ namespace Fast
             // x and y needs to be initialized for this section.
 
             // Two bytes are loaded at a time.
-            loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
             loaded16.Low8 = cache7F0000[sourceDataAddressLow + y + 1];
+            loaded16.High8 = cache7F0000[sourceDataAddressLow + y];
 
             if (loaded16.Data16 != 0)
             {
@@ -2983,14 +2983,11 @@ namespace Fast
             c = a >= 0x8000;
             a *= 2;
 
-            if (c == false)
+            if (c)
             {
-                goto label_861B;
+                resultLow |= x;
             }
 
-            resultLow |= x;
-
-        label_861B:
             y = a;
             x /= 2;
 
