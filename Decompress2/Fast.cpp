@@ -2917,7 +2917,7 @@ namespace Fast
         mem0e = 0x7F;
         mem0c = 0;
 
-        mem04 = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.
+        unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.
         
         mem06 = 0xFFFE;
         mem00.Data16 = 0x240;
@@ -2927,7 +2927,7 @@ namespace Fast
         mem16 = 0;
 
         x = 0x80;
-        y = mem04 * 4;
+        y = sourceDataElement * 4;
 
     label_85F4:
         {
@@ -3009,7 +3009,7 @@ namespace Fast
             goto label_85FA;
         }
       
-        y = (mem04 * 4) + 2;
+        y = (sourceDataElement * 4) + 2;
 
         goto label_85F4;
 
@@ -3036,7 +3036,7 @@ namespace Fast
         cache7F0000[mem10 + y] = loaded16.Low8;
         cache7F0000[mem10 + y + 1] = loaded16.High8;
 
-        mem04++;
+        sourceDataElement++;
         mem00.Data16--;
         n = mem00.Data16 >= 0x8000;
 
