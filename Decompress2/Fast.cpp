@@ -134,7 +134,6 @@ namespace Fast
             __debugbreak();
         }
 
-
         return result;
     }
 
@@ -164,10 +163,8 @@ namespace Fast
     {
         // 16bit A, 8bit index
 
-
         x = mem7E0500_7E0700[y];
         pc += 3;
-
 
         loaded16.Data16 = x;
         if (indirectHigh == 0x7E && indirectLow >= 0x100)
@@ -202,7 +199,6 @@ namespace Fast
         y = mem6c >> 8;
         pc += 2;
 
-
         x = mem7E0500_7E0700[0x100 + y];
     }
 
@@ -216,7 +212,6 @@ namespace Fast
 
         mem6a = 0;
         pc += 2;
-
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
@@ -234,16 +229,13 @@ namespace Fast
             pc++;
         }
 
-
         loaded16 = LoadMem6b();
         a |= loaded16.Data16;
         pc += 2;
 
-
         loaded16.Data16 = a;
         SaveMem6b(loaded16);
         pc += 2;
-
 
         a = mem6c;
     }
@@ -305,7 +297,6 @@ namespace Fast
 
         pc += 2;
 
-
         a = cache7E0100[y];
         pc += 3;
 
@@ -335,7 +326,6 @@ namespace Fast
         c = a >= 0x8000;
         a *= 2;
         pc++;
-
 
         RotateLeft(&mem6f, &c);
         pc += 2;
@@ -400,18 +390,13 @@ namespace Fast
         x &= 0xFF;
         y &= 0xFF;
 
-
         a = mem0c;
-
 
         c = false;
 
-
         a += 5;
 
-
         mem0c = a;
-
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
@@ -423,7 +408,6 @@ namespace Fast
         // $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:960F X:0080 Y:00AE P:envmxdizc
 
         mem0c++;
-
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
@@ -456,9 +440,7 @@ namespace Fast
 
         mem75 = 0;
 
-
         a = 0x10;
-
 
         mem14 = 0x10;
 
@@ -494,7 +476,6 @@ namespace Fast
         // $80/BBE2 E5 77       SBC $77    [$00:0077]   A:0000 X:0000 Y:0008 P:envmxdizc
 
         a -= mem77;
-
 
         loaded16.Data16 = a;
         cache7E0720[x] = loaded16.Low8; // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
@@ -548,7 +529,6 @@ namespace Fast
         {
             goto label_BC02;
         }
-
 
         loaded16.Data16 = a;
         cache7E0740[x] = loaded16.Low8;
@@ -608,7 +588,6 @@ namespace Fast
 
         a = mem00.Data16;
 
-
         loaded16.Data16 = a;
         cache7E0740[x] = loaded16.Low8;
         cache7E0740[x + 1] = loaded16.High8;
@@ -644,27 +623,21 @@ namespace Fast
         mem7E0500_7E0700[x] = 0;
         mem7E0500_7E0700[x + 1] = 0;
 
-
         mem7E0500_7E0700[0x40 + x] = 0;
         mem7E0500_7E0700[0x40 + x + 1] = 0;
-
 
         mem7E0500_7E0700[0x80 + x] = 0;
         mem7E0500_7E0700[0x80 + x + 1] = 0;
 
-
         mem7E0500_7E0700[0xC0 + x] = 0;
         mem7E0500_7E0700[0xC0 + x + 1] = 0;
 
-
         --x;
         x &= 0xFF;
-
 
         --x;
         x &= 0xFF;
         n = x >= 0x80;
-
 
         if (!n)
         {
@@ -676,13 +649,11 @@ namespace Fast
 
         x = 0x7E;
 
-
         indirectHigh = x;
 
         // $80/BC32 A9 00 01    LDA #$0100              A:0009 X:007E Y:0008 P:envmxdizc
 
         a = 0x100;
-
 
         indirectLow = a;
 
@@ -698,7 +669,6 @@ namespace Fast
 
         // $80/BC3D E2 20       SEP #$20                A:0000 X:00FF Y:0005 P:envmxdizc
 
-
         // $80/BC3F 1A          INC A                   A:0000 X:00FF Y:0005 P:envmxdizc
 
         ++a;
@@ -709,7 +679,6 @@ namespace Fast
 
         ++x;
         x &= 0xFF;
-
 
         n = mem7E0500_7E0700[x] >= 0x80;
 
@@ -732,11 +701,9 @@ namespace Fast
             goto label_BC40;
         }
 
-
         mem7E0500_7E0700[x]--;
 
         // $80/BC4C C2 20       REP #$20                A:0000 X:0000 Y:0005 P:envmxdizc
-
 
         // This is running in 8 bit index mode.
 
@@ -776,7 +743,6 @@ namespace Fast
         mem71 = a;
 
         // $80/BC59 E2 20       SEP #$20                A:000C X:00AA Y:0006 P:envmxdizc
-
 
         // $80/BC5B A2 00       LDX #$00                A:000C X:00AA Y:0006 P:envmxdizc
 
@@ -818,7 +784,6 @@ namespace Fast
         {
             goto label_BCBF;
         }
-
 
         a = cache7E0700[x]; // X = 0x0-0x50
 
@@ -933,13 +898,11 @@ namespace Fast
         // Select the upper byte of mem0
         a = mem00.High8;
 
-
         mem7E0500_7E0700[x] = (a & 0xFF); // Is this right?
 
         // $80/BCA6 A5 00       LDA $00    [$00:0000]   A:0000 X:0000 Y:0040 P:envmxdizc
 
         a = mem00.Low8;
-
 
         mem7E0500_7E0700[0x100 + x] = (a & 0xFF);
 
@@ -989,7 +952,6 @@ namespace Fast
         // $80/BCB9 C5 7B       CMP $7B    [$00:007B]   A:0009 X:0000 Y:0000 P:envmxdizc
 
         c = a >= mem7b;
-
 
         // $80/BCBB B0 A3       BCS $A3    [$BC60]      A:0009 X:0000 Y:0000 P:envmxdizc
         if (c)
@@ -1051,7 +1013,6 @@ namespace Fast
 
         // $80/BCCF C2 20       REP #$20                A:0012 X:0012 Y:003B P:envmxdizc
 
-
         // $80/BCD1 BF D9 BC 80 LDA $80BCD9,x[$80:BCEB] A:0012 X:0012 Y:003B P:envmxdizc
 
         if (x == 0x10)
@@ -1067,20 +1028,17 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-
         mem0760 = a;
 
         // $80/BCD8 A4 12       LDY $12    [$00:0012]   A:BFC8 X:0012 Y:003B P:envmxdizc
 
         y = mem12;
 
-
         indirectHigh = mem12;
 
         // $80/BCDD A5 10       LDA $10    [$00:0010]   A:BFC8 X:0012 Y:007F P:envmxdizc
 
         a = mem10;
-
 
         indirectLow = mem10;
 
@@ -1242,18 +1200,15 @@ namespace Fast
 
         x = 0x10;
 
-
         goto label_C17C;
 
     label_BD46:
 
         LoadNextFrom0CMaskAndShift(0xBD46, 0x10, 0);
 
-
         goto label_JumpAbsolute760;
 
     label_BD58:
-
 
         a *= 2;
 
@@ -1263,11 +1218,9 @@ namespace Fast
 
     label_BD5A:
 
-
         a *= 2;
 
     label_BD5B:
-
 
         a *= 2;
 
@@ -1284,7 +1237,6 @@ namespace Fast
         a *= 2;
 
         LoadNextFrom0CInc(0xBD5F);
-
 
         a *= 2;
 
@@ -1345,15 +1297,12 @@ namespace Fast
 
     label_BD8E:
 
-
         x = 0xE;
-
 
         goto label_C17C;
 
     label_BD93:
         LoadNextFrom0CMaskAndShift(0xBD93, 0xE, 1);
-
 
         goto label_JumpAbsolute760;
 
@@ -1456,16 +1405,13 @@ namespace Fast
 
     label_BDDC:
 
-
         x = 0xC;
-
 
         goto label_C17C;
 
     label_BDE1:
 
         LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
-
 
         goto label_JumpAbsolute760;
 
@@ -1498,7 +1444,6 @@ namespace Fast
     label_BE03:
 
         a *= 2;
-
 
         a *= 2;
 
@@ -1560,16 +1505,13 @@ namespace Fast
 
     label_BE2B:
 
-
         x = 0xA;
-
 
         goto label_C17C;
 
     label_BE30:
         // Includes B340
         LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
-
 
         goto label_JumpAbsolute760;
 
@@ -1583,11 +1525,9 @@ namespace Fast
 
     label_BE47:
 
-
         a *= 2;
 
     label_BE48:
-
 
         a *= 2;
 
@@ -1682,11 +1622,9 @@ namespace Fast
 
         LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
 
-
         goto label_JumpAbsolute760;
 
     label_BE96:
-
 
         a *= 2;
 
@@ -1714,9 +1652,7 @@ namespace Fast
 
     label_BEA4:
 
-
         a *= 2;
-
 
         a *= 2;
 
@@ -1779,9 +1715,7 @@ namespace Fast
 
     label_BECC:
 
-
         x = 0x6;
-
 
         goto label_C17C;
 
@@ -1791,16 +1725,13 @@ namespace Fast
 
         LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
 
-
         goto label_JumpAbsolute760;
 
     label_BEE8:
 
-
         a *= 2;
 
     label_BEE9:
-
 
         a *= 2;
 
@@ -1825,7 +1756,6 @@ namespace Fast
     label_BEF6:
 
         a *= 2;
-
 
         a *= 2;
 
@@ -1888,9 +1818,7 @@ namespace Fast
 
     label_BF1E:
 
-
         x = 4;
-
 
         goto label_C17C;
 
@@ -1900,11 +1828,9 @@ namespace Fast
 
         LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
 
-
         goto label_JumpAbsolute760;
 
     label_BF3B:
-
 
         a *= 2;
 
@@ -1912,16 +1838,13 @@ namespace Fast
 
     label_BF44:
 
-
         a *= 2;
 
     label_BF45:
 
-
         a *= 2;
 
     label_BF46:
-
 
         a *= 2;
 
@@ -1935,9 +1858,7 @@ namespace Fast
 
     label_BF49:
 
-
         a *= 2;
-
 
         a *= 2;
 
@@ -1998,16 +1919,13 @@ namespace Fast
 
     label_BF71:
 
-
         x = 2;
-
 
         goto label_C17C;
 
     label_BF76:
 
         LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
-
 
         goto label_JumpAbsolute760;
 
@@ -2044,11 +1962,9 @@ namespace Fast
 
     label_BFC5:
 
-
         goto label_BF8F;
 
     label_BFC8:
-
 
         loaded16.Low8 = cache7E0740[0x10];
         loaded16.High8 = cache7E0740[0x11];
@@ -2061,11 +1977,9 @@ namespace Fast
             goto label_BF8F;
         }
 
-
         goto label_BFA9;
 
     label_C0E8:
-
 
         // This is 8 bit acc.
         loaded16.Data16 = a;
@@ -2153,10 +2067,8 @@ namespace Fast
 
         a *= 2;
 
-
         y--;
         z = y == 0;
-
 
         if (z)
         {
@@ -2167,10 +2079,8 @@ namespace Fast
 
         a *= 2;
 
-
         y--;
         z = y == 0;
-
 
         if (z)
         {
@@ -2181,10 +2091,8 @@ namespace Fast
 
         a *= 2;
 
-
         y--;
         z = y == 0;
-
 
         if (z)
         {
@@ -2202,7 +2110,6 @@ namespace Fast
         y--;
         z = y == 0;
 
-
         if (z)
         {
             goto label_C150;
@@ -2216,7 +2123,6 @@ namespace Fast
 
         y--;
         z = y == 0;
-
 
         if (z)
         {
@@ -2260,28 +2166,22 @@ namespace Fast
 
     label_C122:
 
-
         a *= 2;
 
         LoadNextFrom0CInc(0xC123);
 
-
         y--;
         z = y == 0;
-
 
         if (z)
         {
             goto label_C15C;
         }
 
-
         a *= 2;
-
 
         y--;
         z = y == 0;
-
 
         if (z)
         {
@@ -2327,21 +2227,16 @@ namespace Fast
 
         y = mem73 >> 8;
 
-
         Fn_80C2DC();
-
 
         mem6c = a;
 
-
         Fn_80C232();
-
 
         if (z)
         {
             goto label_C195;
         }
-
 
         y = mem08;
 
@@ -2427,10 +2322,8 @@ namespace Fast
 
     label_C195:
 
-
         a = mem6c;
         n = mem6c >= 0x8000;
-
 
         if (n)
         {
@@ -2453,7 +2346,6 @@ namespace Fast
         default: __debugbreak();
         }
     }
-
 
     void Fn_80C1B0()
     {
@@ -2625,14 +2517,11 @@ namespace Fast
 
         ShiftRotateDecrement(0xC1FF, 0, 1);
 
-
         if (z)
         {
             LoadNextFrom0CInc(0xC226);
 
-
             y = 0x8;
-
 
         }
 
@@ -2729,7 +2618,6 @@ namespace Fast
 
         ShiftRotateDecrement(0xC23D, 2, 0);
 
-
         if (z)
         {
             goto label_C25C;
@@ -2738,19 +2626,15 @@ namespace Fast
     label_C244:
         ShiftRotateDecrement(0xC244, 2, 0);
 
-
         if (z)
         {
             goto label_C268;
         }
 
-
         mem6c = a;
-
 
         a = mem6f;
         z = a == 0;
-
 
         return;
 
@@ -2758,18 +2642,14 @@ namespace Fast
 
         LoadNextFrom0CInc(0xC250);
 
-
         x = 0x10;
-
 
         goto label_C23B;
 
     label_C25C:
         LoadNextFrom0CInc(0xC25C);
 
-
         x = 0x10;
-
 
         goto label_C244;
 
@@ -2777,12 +2657,9 @@ namespace Fast
 
         LoadNextFrom0CInc(0xC268);
 
-
         x = 0x10;
 
-
         mem6c = a;
-
 
         a = mem6f;
         z = a == 0;
@@ -2935,7 +2812,6 @@ namespace Fast
 
         // $80/C29C 18          CLC                     A:003C X:0006 Y:0006 P:envmxdizc
 
-
         // $80/C29D 65 6F       ADC $6F    [$00:006F]   A:003C X:0006 Y:0006 P:envmxdizc
 
         a += mem6f;
@@ -3010,10 +2886,8 @@ namespace Fast
             goto label_C2DC_Start;
         }
 
-
         return;
     }
-
 
     void Fn_9B85C2()
     {
@@ -3038,58 +2912,53 @@ namespace Fast
         // At a high level, this function reads from RAM at 7F0000-7F0484 and writes the final output.
 
         // Impl
-        // $9B/85C2 A6 00       LDX $00    [$00:0000]   A:0000 X:0000 Y:0000 P:envmxdiZc
+        
 
         x = mem00.Data16;
 
-        // $9B/85C4 8B          PHB                     A:0000 X:0480 Y:0000 P:envmxdizc
+        
 
+        
 
-        // $9B/85C5 E2 20       SEP #$20                A:0000 X:0480 Y:0000 P:envmxdizc
-
-
-        // $9B/85C7 A5 0E       LDA $0E    [$00:000E]   A:0000 X:0480 Y:0000 P:envMxdizc
+        
 
         a = mem0e;
 
-        // $9B/85C9 48          PHA                     A:007F X:0480 Y:0000 P:envMxdizc
+        
 
+        
 
-        // $9B/85CA C2 20       REP #$20                A:007F X:0480 Y:0000 P:envMxdizc
+        
 
-
-        // $9B/85CC AB          PLB                     A:007F X:0480 Y:0000 P:envmxdizc
-
-
-        // $9B/85CD 64 04       STZ $04    [$00:0004]   A:007F X:0480 Y:0000 P:envmxdizc
+        
 
         mem04 = 0;
 
-        // $9B/85CF A9 FE FF    LDA #$FFFE              A:007F X:0480 Y:0000 P:envmxdizc
+        
 
         a = 0xFFFE;
 
-        // $9B/85D2 85 06       STA $06    [$00:0006]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+        
 
         mem06 = a;
 
-        // $9B/85D4 A5 00       LDA $00    [$00:0000]   A:FFFE X:0480 Y:0000 P:eNvmxdizc
+        
 
         a = mem00.Data16;
 
-        // $9B/85D6 4A          LSR A                   A:0480 X:0480 Y:0000 P:envmxdizc
+        
 
         a >>= 1;
 
-        // $9B/85D7 4A          LSR A                   A:0240 X:0480 Y:0000 P:envmxdizc
+        
 
         a >>= 1;
 
-        // $9B/85D8 85 00       STA $00    [$00:0000]   A:0120 X:0480 Y:0000 P:envmxdizc
+        
 
         mem00.Data16 = a;
 
-        // $9B/85DA 80 0C       BRA $0C    [$85E8]      A:0120 X:0480 Y:0000 P:envmxdizc
+        
 
         goto label_85E8;
 
@@ -3099,63 +2968,50 @@ namespace Fast
         a = x;
         z = a == 0;
 
+        a >>= 1;
 
         a >>= 1;
 
+        a >>= 1;
 
         a >>= 1;
 
-
-        a >>= 1;
-
-
-        a >>= 1;
-
-        // $9B/85E1 F0 54       BEQ $54    [$8637]      A:0008 X:0080 Y:0004 P:envmxdizc
+        
         z = a == 0;
         c = willCarry;
-
 
         if (x / 16 == 0)
         {
             goto label_8637;
         }
 
-
         x = a;
 
-
         y++;
 
-
         y++;
-
-
 
         goto label_85F4;
 
     label_85E8:
-        // $9B/85E8 A2 80 00    LDX #$0080              A:0000 X:0008 Y:0012 P:envmxdizc
+        
 
         x = 0x80;
 
-        // $9B/85EB 64 14       STZ $14    [$00:0014]   A:0000 X:0080 Y:0012 P:envmxdizc
+        
 
         mem14 = 0;
 
-        // $9B/85ED 64 16       STZ $16    [$00:0016]   A:0120 X:0080 Y:0000 P:envmxdizc
+        
 
         mem16 = 0;
         {
 
             a = mem04;
 
-
             a *= 2;
 
-
             a *= 2;
-
 
             y = a;
         }
@@ -3168,7 +3024,7 @@ namespace Fast
             a = loaded16.Data16;
             z = a == 0;
 
-            // $9B/85F6 F0 E4       BEQ $E4    [$85DC]      A:0000 X:0008 Y:0006 P:envmxdiZc
+            
 
             if (z)
             {
@@ -3176,111 +3032,111 @@ namespace Fast
             }
         }
 
-        // $9B/85F8 EB          XBA                     A:0800 X:0008 Y:003E P:envmxdizc
+        
 
         a = ExchangeShortHighAndLow(a);
 
-        // $9B/85F9 A8          TAY                     A:0008 X:0008 Y:003E P:envmxdizc
+        
 
         y = a;
 
     label_85FA:
-        // $9B/85FA 98          TYA                     A:0008 X:0008 Y:0008 P:envmxdizc
+        
 
         a = y;
         n = false;
 
-        // $9B/85FB 0A          ASL A                   A:0008 X:0008 Y:0008 P:envmxdizc
+        
 
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
 
-        // $9B/85FC 90 05       BCC $05    [$8603]      A:0010 X:0008 Y:0008 P:envmxdizc
+        
 
         if (c == false)
         {
             goto label_8603;
         }
 
-        // $9B/85FE A8          TAY                     A:0000 X:0001 Y:8000 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/85FF 8A          TXA                     A:0000 X:0001 Y:0000 P:envmxdizc
+        
 
         a = x;
 
-        // $9B/8600 04 15       TSB $15    [$00:0015]   A:0001 X:0001 Y:0000 P:envmxdizc
+        
 
         mem14 |= (a << 8); // This is a bit sketchy
 
-        // $9B/8602 98          TYA                     A:0001 X:0001 Y:0000 P:envmxdizc
+        
 
         a = y;
 
     label_8603:
-        // $9B/8603 0A          ASL A                   A:0000 X:0001 Y:0000 P:envmxdizc
+        
 
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
 
-        // $9B/8604 90 05       BCC $05    [$860B]      A:0020 X:0008 Y:0008 P:envmxdizc
+        
 
         if (c == false)
         {
             goto label_860B;
         }
 
-        // $9B/8606 A8          TAY                     A:2E6C X:0008 Y:9736 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/8607 8A          TXA                     A:2E6C X:0008 Y:2E6C P:envmxdizc
+        
 
         a = x;
 
-        // $9B/8608 04 14       TSB $14    [$00:0014]   A:0008 X:0008 Y:2E6C P:envmxdizc
+        
 
         mem14 |= a;
 
-        // $9B/860A 98          TYA                     A:0008 X:0008 Y:2E6C P:envmxdizc
+        
 
         a = y;
 
     label_860B:
-        // $9B/860B 0A          ASL A                   A:0010 X:0008 Y:0008 P:envmxdizc
+        
 
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
 
-        // $9B/860C 90 05       BCC $05    [$8613]      A:0040 X:0008 Y:0008 P:envmxdizc
+        
 
         if (c == false)
         {
             goto label_8613;
         }
 
-        // $9B/860E A8          TAY                     A:DDC8 X:0008 Y:7772 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/860F 8A          TXA                     A:DDC8 X:0008 Y:DDC8 P:envmxdizc
+        
 
         a = x;
 
-        // $9B/8610 04 17       TSB $17    [$00:0017]   A:0008 X:0008 Y:DDC8 P:envmxdizc
+        
 
         mem16 |= (a << 8);
 
-        // $9B/8612 98          TYA                     A:0008 X:0008 Y:DDC8 P:envmxdizc
+        
 
         a = y;
 
     label_8613:
-        // $9B/8613 0A          ASL A                   A:0040 X:0008 Y:0008 P:envmxdizc
+        
 
         willSetNegative = a >= 0x4000;
         willCarry = a >= 0x8000;
@@ -3288,216 +3144,193 @@ namespace Fast
         n = willSetNegative;
         c = willCarry;
 
-        // $9B/8614 90 05       BCC $05    [$861B]      A:0080 X:0008 Y:0008 P:envmxdizc
+        
 
         if (c == false)
         {
             goto label_861B;
         }
 
-        // $9B/8616 A8          TAY                     A:BB90 X:0008 Y:DDC8 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/8617 8A          TXA                     A:BB90 X:0008 Y:BB90 P:envmxdizc
+        
 
         a = x;
 
-        // $9B/8618 04 16       TSB $16    [$00:0016]   A:0008 X:0008 Y:BB90 P:envmxdizc
+        
 
         mem16 |= a;
 
-        // $9B/861A 98          TYA                     A:0008 X:0008 Y:BB90 P:envmxdizc
+        
 
         a = y;
 
     label_861B:
-        // $9B/861B A8          TAY                     A:0080 X:0008 Y:0008 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/861C 8A          TXA                     A:0080 X:0008 Y:0080 P:envmxdizc
+        
 
         a = x;
         n = false;
 
-        // $9B/861D 4A          LSR A                   A:0008 X:0008 Y:0080 P:envmxdizc
+        
 
         a >>= 1;
 
-        // $9B/861E AA          TAX                     A:0004 X:0008 Y:0080 P:envmxdizc
+        
 
         x = a;
 
-        // $9B/861F E0 10 00    CPX #$0010              A:0004 X:0004 Y:0080 P:envmxdizc
+        
 
         c = x >= 0x10;
         n = x < 0x10;
 
-        // $9B/8622 B0 D6       BCS $D6    [$85FA]      A:0004 X:0004 Y:0080 P:eNvmxdizc
+        
 
         if (c)
         {
             goto label_85FA;
         }
 
-        // $9B/8624 E0 00 00    CPX #$0000              A:0004 X:0004 Y:0080 P:eNvmxdizc
+        
 
         z = x == 0;
         c = x >= 0x0;
         n = x < 0x0;
 
-        // $9B/8627 F0 0E       BEQ $0E    [$8637]      A:0004 X:0004 Y:0080 P:envmxdizC
+        
 
         if (z)
         {
             goto label_8637;
         }
 
-        // $9B/8629 E0 08 00    CPX #$0008              A:0004 X:0004 Y:0080 P:envmxdizC
+        
 
         c = x >= 0x8;
         n = x < 0x8;
 
-        // $9B/862C 90 CC       BCC $CC    [$85FA]      A:0004 X:0004 Y:0080 P:eNvmxdizc
+        
 
         if (c == false)
         {
             goto label_85FA;
         }
 
-        // $9B/862E A5 04       LDA $04    [$00:0004]   A:0008 X:0008 Y:0000 P:envmxdizc
+        
 
         a = mem04;
 
-        // $9B/8630 0A          ASL A                   A:0014 X:0008 Y:0000 P:envmxdizc
+        
 
         a *= 2;
 
-        // $9B/8631 0A          ASL A                   A:0028 X:0008 Y:0000 P:envmxdizc
+        
 
         a *= 2;
 
-        // $9B/8632 A8          TAY                     A:0050 X:0008 Y:0000 P:envmxdizc
+        
 
         y = a;
 
-        // $9B/8633 C8          INY                     A:0050 X:0008 Y:0050 P:envmxdizc
+        
 
         ++y;
 
-        // $9B/8634 C8          INY                     A:0050 X:0008 Y:0051 P:envmxdizc
+        
 
         ++y;
 
-        // $9B/8635 80 BD       BRA $BD    [$85F4]      A:0050 X:0008 Y:0052 P:envmxdizc
+        
 
         goto label_85F4;
 
     label_8637:
-        // $9B/8637 A5 06       LDA $06    [$00:0006]   A:0000 X:0008 Y:0006 P:envmxdiZC
+        
 
         a = mem06;
         z = a == 0;
 
-        // $9B/8639 1A          INC A                   A:0000 X:0008 Y:0006 P:envmxdiZC
+        
 
         ++a;
         z = a == 0;
 
-        // $9B/863A 1A          INC A                   A:0001 X:0008 Y:0006 P:envmxdizC
+        
 
         ++a;
         z = a == 0;
 
-        // $9B/863B A8          TAY                     A:0002 X:0008 Y:0006 P:envmxdizC
+        
 
         y = a;
 
         y = mem06 + 2;
 
-        // $9B/863C 29 10 00    AND #$0010              A:0002 X:0008 Y:0002 P:envmxdizC
+        
 
         a = a & 0x10;
         z = a == 0;
 
         unsigned short check = y & 0x10;
 
-        // $9B/863F F0 06       BEQ $06    [$8647]      A:0000 X:0008 Y:0002 P:envmxdiZC
-
+        
 
         if (check == 0)
         {
             goto label_8647;
         }
 
-        // $9B/8641 98          TYA                     A:0010 X:0008 Y:0010 P:envmxdizC
+        
 
         a = y;
 
-        // $9B/8642 18          CLC                     A:0010 X:0008 Y:0010 P:envmxdizC
+        
 
         c = false;
 
-        // $9B/8643 69 10 00    ADC #$0010              A:0010 X:0008 Y:0010 P:envmxdizc
+        
 
         a += 0x10;
 
-        // $9B/8646 A8          TAY                     A:0020 X:0008 Y:0010 P:envmxdizc
+        
 
         y = a;
 
     label_8647:
-        // $9B/8647 84 06       STY $06    [$00:0006]   A:0000 X:0008 Y:0002 P:envmxdiZC
-
         mem06 = y;
 
-        // $9B/8649 A5 16       LDA $16    [$00:0016]   A:0000 X:0008 Y:0002 P:envmxdiZC
-
-        a = mem16;
-        z = a == 0;
-
-        // $9B/864B 91 10       STA ($10),y[$7F:5102]   A:0000 X:0008 Y:0002 P:envmxdiZC
-
-        loaded16.Data16 = a;
+        loaded16.Data16 = mem16;
         cache7F0000[mem10 + y] = loaded16.Low8;
         cache7F0000[mem10 + y + 1] = loaded16.High8;
-
-        // $9B/864D 98          TYA                     A:0000 X:0008 Y:0002 P:envmxdiZC
 
         a = y;
         z = a == 0;
 
-        // $9B/864E 18          CLC                     A:0002 X:0008 Y:0002 P:envmxdizC
-
         c = false;
-
-        // $9B/864F 69 10 00    ADC #$0010              A:0002 X:0008 Y:0002 P:envmxdizc
 
         a += 0x10;
 
-        // $9B/8652 A8          TAY                     A:0012 X:0008 Y:0002 P:envmxdizc
-
         y = a;
-
-        // $9B/8653 A5 14       LDA $14    [$00:0014]   A:0012 X:0008 Y:0012 P:envmxdizc
 
         a = mem14;
         z = a == 0;
         c = false;
 
-
         loaded16.Data16 = a;
         cache7F0000[mem10 + y] = loaded16.Low8;
         cache7F0000[mem10 + y + 1] = loaded16.High8;
-
 
         mem04++;
         z = mem04 == 0;
 
         mem00.Data16--;
         n = mem00.Data16 >= 0x8000;
-
 
         if (!n)
         {
@@ -3510,10 +3343,8 @@ namespace Fast
         mem00.Data16 = 0x480;
         x = 0xA - (currentProfileImageIndex * 2);
 
-        loaded16 = Load16FromAddress(0x9D, 0xCCAE + x);
-
         mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
-        mem10 += loaded16.Data16;
+        mem10 += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
 
         mem0e = 0x7F;
         mem0c = 0;
