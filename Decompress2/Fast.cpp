@@ -3011,26 +3011,26 @@ namespace Fast
             goto LoadSourceElement;
 
         WriteOutput:
-            y = lastWrittenElement + 2;
+            unsigned short destinationElement = lastWrittenElement + 2;
 
-            if ((y & 0x10) != 0)
+            if ((destinationElement & 0x10) != 0)
             {
-                y += 0x10;
+                destinationElement += 0x10;
             }
 
-            lastWrittenElement = y;
+            lastWrittenElement = destinationElement;
 
             // Write four bytes of output.
 
             loaded16.Data16 = resultLow;
-            cache7F0000[destDataAddressLow + y] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
 
-            y += 0x10;
+            destinationElement += 0x10;
 
             loaded16.Data16 = resultHigh;
-            cache7F0000[destDataAddressLow + y] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
 
             sourceDataElement++;
         }
