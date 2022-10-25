@@ -2893,7 +2893,7 @@ namespace Fast
     {
         // Precondition: compressed staging data is written in memory.
         //     Mem0C contains the low short of the source data address.
-        //     Mem0E contains the high short of the source data address.
+        //     Mem0E contains the high short of the source data address.  These are always hardcoded to be 0x7F0000.
         //
         //     Mem10 contains the destination offset. It's always within bank $7F.
         //
@@ -2914,11 +2914,8 @@ namespace Fast
         mem10 = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
         mem10 += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
 
-        mem0e = 0x7F;
-        mem0c = 0;
-
-        unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.
-        
+        unsigned short sourceDataAddressLow = 0;
+        unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.        
         mem06 = 0xFFFE;
 
         for (int iter = 0; iter < 0x240; ++iter)
@@ -2932,8 +2929,8 @@ namespace Fast
         label_85F4:
             {
                 // x and y needs to be initialized for this section.
-                loaded16.Low8 = cache7F0000[mem0c + y];
-                loaded16.High8 = cache7F0000[mem0c + y + 1];
+                loaded16.Low8 = cache7F0000[sourceDataAddressLow + y];
+                loaded16.High8 = cache7F0000[sourceDataAddressLow + y + 1];
                 a = loaded16.Data16;
 
                 if (loaded16.Data16 == 0)
