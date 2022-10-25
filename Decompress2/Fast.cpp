@@ -2926,7 +2926,7 @@ namespace Fast
             x = 0x80;
             y = sourceDataElement * 4;
 
-        label_85F4:
+        LoadSourceElement:
             {
                 // x and y needs to be initialized for this section.
                 loaded16.Low8 = cache7F0000[sourceDataAddressLow + y];
@@ -2943,7 +2943,7 @@ namespace Fast
 
                     x = a;
                     y += 2;
-                    goto label_85F4;
+                    goto LoadSourceElement;
                 }
             }
             y = ExchangeShortHighAndLow(a);
@@ -3008,7 +3008,7 @@ namespace Fast
 
             y = (sourceDataElement * 4) + 2;
 
-            goto label_85F4;
+            goto LoadSourceElement;
 
         label_8637:
             y = mem06 + 2;
@@ -3035,7 +3035,6 @@ namespace Fast
 
             sourceDataElement++;
         }
-
     }
 
     void CreateCaches()
