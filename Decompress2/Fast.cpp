@@ -2954,7 +2954,7 @@ namespace Fast
             // We loaded a nonzero element. Save it
             y = loaded16.Data16;
 
-        label_85FA:
+        FormulateResult:
             c = y >= 0x8000;
             a = y * 2;
             if (c)
@@ -2972,13 +2972,11 @@ namespace Fast
             c = a >= 0x8000;
             a *= 2;
 
-            if (c == false)
+            if (c)
             {
-                goto label_8613;
+                resultLow |= (x << 8);
             }
-            resultLow |= (x << 8);
 
-        label_8613:
             c = a >= 0x8000;
             a *= 2;
 
@@ -2990,19 +2988,14 @@ namespace Fast
             y = a;
             x /= 2;
 
-            if (x >= 0x10)
-            {
-                goto label_85FA;
-            }
-
             if (x == 0)
             {
                 goto WriteOutput;
             }
 
-            if (x < 0x8)
+            if (x < 0x8 || x >= 0x10)
             {
-                goto label_85FA;
+                goto FormulateResult;
             }
 
             y = (sourceDataElement * 4) + 2;
