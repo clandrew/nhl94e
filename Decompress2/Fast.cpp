@@ -2920,8 +2920,8 @@ namespace Fast
 
         for (int iter = 0; iter < 0x240; ++iter)
         {
-            mem14 = 0;
-            mem16 = 0;
+            unsigned short resultHigh = 0;
+            unsigned short resultLow = 0;
 
             x = 0x80;
             y = sourceDataElement * 4;
@@ -2955,7 +2955,7 @@ namespace Fast
             {
                 goto label_8603;
             }
-            mem14 |= (x << 8); // This is a bit sketchy
+            resultHigh |= (x << 8); // This is a bit sketchy
 
         label_8603:
             c = a >= 0x8000;
@@ -2964,7 +2964,7 @@ namespace Fast
             {
                 goto label_860B;
             }
-            mem14 |= x;
+            resultHigh |= x;
 
         label_860B:
             c = a >= 0x8000;
@@ -2974,7 +2974,7 @@ namespace Fast
             {
                 goto label_8613;
             }
-            mem16 |= (x << 8);
+            resultLow |= (x << 8);
 
         label_8613:
             c = a >= 0x8000;
@@ -2985,7 +2985,7 @@ namespace Fast
                 goto label_861B;
             }
 
-            mem16 |= x;
+            resultLow |= x;
 
         label_861B:
             y = a;
@@ -3020,13 +3020,15 @@ namespace Fast
 
             mem06 = y;
 
-            loaded16.Data16 = mem16;
+            // Write four bytes of output.
+
+            loaded16.Data16 = resultLow;
             cache7F0000[destDataAddressLow + y] = loaded16.Low8;
             cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
 
             y += 0x10;
 
-            loaded16.Data16 = mem14;
+            loaded16.Data16 = resultHigh;
             cache7F0000[destDataAddressLow + y] = loaded16.Low8;
             cache7F0000[destDataAddressLow + y + 1] = loaded16.High8;
 
