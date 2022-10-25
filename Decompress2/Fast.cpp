@@ -3076,177 +3076,63 @@ namespace Fast
         a = y;
 
     label_8603:
-        
-
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
-
-        
-
         if (c == false)
         {
             goto label_860B;
         }
-
-        
-
         y = a;
-
-        
-
         a = x;
-
-        
-
         mem14 |= a;
-
-        
-
         a = y;
 
     label_860B:
-        
-
-        willCarry = a >= 0x8000;
+        c = a >= 0x8000;
         a *= 2;
-        c = willCarry;
-
-        
 
         if (c == false)
         {
             goto label_8613;
         }
-
-        
-
         y = a;
-
-        
-
-        a = x;
-
-        
-
-        mem16 |= (a << 8);
-
-        
-
-        a = y;
+        mem16 |= (x << 8);
 
     label_8613:
-        
-
-        willSetNegative = a >= 0x4000;
-        willCarry = a >= 0x8000;
-        a *= 2;
-        n = willSetNegative;
-        c = willCarry;
-
-        
+        c = a >= 0x8000;
+        a *= 2;        
 
         if (c == false)
         {
             goto label_861B;
-        }
-
-        
+        }        
 
         y = a;
-
-        
-
         a = x;
-
-        
-
-        mem16 |= a;
-
-        
-
+        mem16 |= a;   
         a = y;
 
     label_861B:
-        
-
         y = a;
+        x = x / 2;
 
-        
-
-        a = x;
-        n = false;
-
-        
-
-        a >>= 1;
-
-        
-
-        x = a;
-
-        
-
-        c = x >= 0x10;
-        n = x < 0x10;
-
-        
-
-        if (c)
+        if (x >= 0x10)
         {
             goto label_85FA;
         }
 
-        
-
-        z = x == 0;
-        c = x >= 0x0;
-        n = x < 0x0;
-
-        
-
-        if (z)
+        if (x == 0)
         {
             goto label_8637;
         }
 
-        
-
-        c = x >= 0x8;
-        n = x < 0x8;
-
-        
-
-        if (c == false)
+        if (x < 0x8)
         {
             goto label_85FA;
         }
-
-        
-
-        a = mem04;
-
-        
-
-        a *= 2;
-
-        
-
-        a *= 2;
-
-        
-
-        y = a;
-
-        
-
-        ++y;
-
-        
-
-        ++y;
-
-        
+      
+        y = (mem04 * 4) + 2;
 
         goto label_85F4;
 
