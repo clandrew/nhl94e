@@ -2960,8 +2960,6 @@ namespace Fast
             // We loaded a nonzero element. Save it
             sourceDataOffset = loaded16.Data16;
 
-        FormulateResult:
-
             // This sets each of the four bytes of the result.
             // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
 
@@ -3001,22 +2999,21 @@ namespace Fast
                 sourceDataOffset = nextSourceDataOffset;
 
                 formulateResult = false;
-                if (resultComponent >= 2)
+                if (resultComponent < 2)
+                    continue;
+
+                resultComponent /= 2;
+
+                if (resultComponent < 0x8 || resultComponent >= 0x10)
                 {
-                    resultComponent /= 2;
-
-                    if (resultComponent < 0x8 || resultComponent >= 0x10)
-                    {
-                        formulateResult = true;
-                    }
-                    else
-                    {
-                        // resultComponent is [8..15]
-                        sourceDataOffset = (sourceDataElement * 4) + 2;
-
-                        goto LoadSourceElement;
-                    }
+                    formulateResult = true;
+                    continue;
                 }
+
+                // resultComponent is [8..15]
+                sourceDataOffset = (sourceDataElement * 4) + 2;
+
+                goto LoadSourceElement;
             }
 
         WriteOutput:
