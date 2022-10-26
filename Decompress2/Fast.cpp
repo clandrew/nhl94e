@@ -2926,6 +2926,7 @@ namespace Fast
             unsigned short resultComponent = 0x80;
             unsigned short sourceDataOffset = sourceDataElement * 4;
             unsigned short nextSourceDataOffset = 0;
+            bool formulateResult = true;
 
         LoadSourceElement:
 
@@ -2964,52 +2965,57 @@ namespace Fast
             // This sets each of the four bytes of the result.
             // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
 
-            c = sourceDataOffset >= 0x8000;
-            nextSourceDataOffset = sourceDataOffset * 2;
-            if (c)
+            formulateResult = true;
+            while (formulateResult)
             {
-                resultHigh |= (resultComponent << 8);
-            }
-
-            c = nextSourceDataOffset >= 0x8000;
-            nextSourceDataOffset *= 2;
-            if (c)
-            {
-                resultHigh |= resultComponent;
-            }
-
-            c = nextSourceDataOffset >= 0x8000;
-            nextSourceDataOffset *= 2;
-
-            if (c)
-            {
-                resultLow |= (resultComponent << 8);
-            }
-
-            c = nextSourceDataOffset >= 0x8000;
-            nextSourceDataOffset *= 2;
-
-            if (c)
-            {
-                resultLow |= resultComponent;
-            }
-
-            sourceDataOffset = nextSourceDataOffset;
-
-            if (resultComponent >= 2)
-            {
-                resultComponent /= 2;
-
-                if (resultComponent < 0x8 || resultComponent >= 0x10)
+                c = sourceDataOffset >= 0x8000;
+                nextSourceDataOffset = sourceDataOffset * 2;
+                if (c)
                 {
-                    goto FormulateResult;
+                    resultHigh |= (resultComponent << 8);
                 }
-                else
-                {
-                    // resultComponent is [8..15]
-                    sourceDataOffset = (sourceDataElement * 4) + 2;
 
-                    goto LoadSourceElement;
+                c = nextSourceDataOffset >= 0x8000;
+                nextSourceDataOffset *= 2;
+                if (c)
+                {
+                    resultHigh |= resultComponent;
+                }
+
+                c = nextSourceDataOffset >= 0x8000;
+                nextSourceDataOffset *= 2;
+
+                if (c)
+                {
+                    resultLow |= (resultComponent << 8);
+                }
+
+                c = nextSourceDataOffset >= 0x8000;
+                nextSourceDataOffset *= 2;
+
+                if (c)
+                {
+                    resultLow |= resultComponent;
+                }
+
+                sourceDataOffset = nextSourceDataOffset;
+
+                formulateResult = false;
+                if (resultComponent >= 2)
+                {
+                    resultComponent /= 2;
+
+                    if (resultComponent < 0x8 || resultComponent >= 0x10)
+                    {
+                        formulateResult = true;
+                    }
+                    else
+                    {
+                        // resultComponent is [8..15]
+                        sourceDataOffset = (sourceDataElement * 4) + 2;
+
+                        goto LoadSourceElement;
+                    }
                 }
             }
 
