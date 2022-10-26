@@ -2923,6 +2923,32 @@ namespace Fast
         }
     }
 
+    bool FnLoadSourceElement(unsigned short& sourceDataAddressLow, unsigned short& sourceDataOffset, unsigned short& resultComponent)
+    {
+        // Two bytes are loaded at a time.
+        while (true)
+        {
+            loaded16.Low8 = cache7F0000[sourceDataAddressLow + sourceDataOffset + 1];
+            loaded16.High8 = cache7F0000[sourceDataAddressLow + sourceDataOffset];
+
+            if (loaded16.Data16 != 0)
+            {
+                return true;
+            }
+
+            if (resultComponent < 16)
+            {
+                sourceDataOffset = 0;
+                return false;
+            }
+
+            resultComponent >>= 4;
+            sourceDataOffset += 2;
+        }
+
+        return true;
+    }
+
     void WriteIndexed()
     {
         // Precondition: compressed staging data is written in memory.
@@ -2960,29 +2986,7 @@ namespace Fast
             unsigned short sourceDataOffset = iter * 4;
 
         LoadSourceElement:
-
-            // Two bytes are loaded at a time.
-            bool formulateOutput = true;
-            while (true)
-            {
-                loaded16.Low8 = cache7F0000[sourceDataAddressLow + sourceDataOffset + 1];
-                loaded16.High8 = cache7F0000[sourceDataAddressLow + sourceDataOffset];
-
-                if (loaded16.Data16 != 0)
-                {
-                    break;
-                }
-
-                if (resultComponent < 16)
-                {
-                    formulateOutput = false;
-                    sourceDataOffset = 0;
-                    break;
-                }
-
-                resultComponent >>= 4;
-                sourceDataOffset += 2;
-            }
+            bool formulateOutput = FnLoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
 
             if (formulateOutput)
             {                
