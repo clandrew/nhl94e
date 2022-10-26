@@ -2949,7 +2949,7 @@ namespace Fast
         return true;
     }
 
-    bool Foo(unsigned short& resultComponent, 
+    bool FormulateOutput(unsigned short& resultComponent,
         unsigned short sourceDataElement,
         unsigned short& sourceDataOffset,
         unsigned short& resultLow,
@@ -3011,19 +3011,28 @@ namespace Fast
             unsigned short sourceDataOffset = iter * 4;
 
         LoadSourceElement:
-            bool formulateOutput = FnLoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
+            while (1)
+            {
+                bool loadSourceElement = false;
+                bool formulateOutput = FnLoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
 
-            if (formulateOutput)
-            {                
-                sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
+                if (formulateOutput)
+                {
+                    sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
 
-                bool loadSourceElement = Foo(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
+                    loadSourceElement = FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
+                }
 
                 if (loadSourceElement)
                 {
-                    goto LoadSourceElement;
+                    ;
+                }
+                else
+                {
+                    break;
                 }
             }
+
 
             unsigned short destinationElement = lastWrittenElement + 2;
 
