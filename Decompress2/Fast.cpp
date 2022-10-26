@@ -2956,10 +2956,8 @@ namespace Fast
         {
             unsigned short resultHigh = 0;
             unsigned short resultLow = 0;
-
             unsigned short resultComponent = 0x80;
-            unsigned short sourceDataOffset = sourceDataElement * 4;
-            bool formulateResult = true;
+            unsigned short sourceDataOffset = iter * 4;
 
         LoadSourceElement:
 
@@ -2986,12 +2984,8 @@ namespace Fast
             }
 
             if (!shouldWriteOutput)
-            {
-                // We loaded a nonzero element. Save it
-                sourceDataOffset = loaded16.Data16;
-
-                // This sets each of the four bytes of the result.
-                // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
+            {                
+                sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
 
                 while (true)
                 {
