@@ -2889,11 +2889,38 @@ namespace Fast
         return;
     }
 
-    bool DoubleAndCheckCarry(unsigned short& nextSourceDataOffset)
+    bool DoubleAndCheckCarry(unsigned short& sourceDataOffset)
     {
-        bool carry = nextSourceDataOffset >= 0x8000;
-        nextSourceDataOffset *= 2;
+        bool carry = sourceDataOffset >= 0x8000;
+        sourceDataOffset *= 2;
         return carry;
+    }
+
+    void GetIndexedColor(
+        unsigned short resultComponent,
+        unsigned short& sourceDataOffset,
+        unsigned short& resultLow,
+        unsigned short& resultHigh)
+    {
+        if (DoubleAndCheckCarry(sourceDataOffset))
+        {
+            resultHigh |= (resultComponent << 8);
+        }
+
+        if (DoubleAndCheckCarry(sourceDataOffset))
+        {
+            resultHigh |= resultComponent;
+        }
+
+        if (DoubleAndCheckCarry(sourceDataOffset))
+        {
+            resultLow |= (resultComponent << 8);
+        }
+
+        if (DoubleAndCheckCarry(sourceDataOffset))
+        {
+            resultLow |= resultComponent;
+        }
     }
 
     void WriteIndexed()
@@ -2969,25 +2996,7 @@ namespace Fast
                 formulateResult = true;
                 while (formulateResult)
                 {
-                    if (DoubleAndCheckCarry(sourceDataOffset))
-                    {
-                        resultHigh |= (resultComponent << 8);
-                    }
-
-                    if (DoubleAndCheckCarry(sourceDataOffset))
-                    {
-                        resultHigh |= resultComponent;
-                    }
-
-                    if (DoubleAndCheckCarry(sourceDataOffset))
-                    {
-                        resultLow |= (resultComponent << 8);
-                    }
-
-                    if (DoubleAndCheckCarry(sourceDataOffset))
-                    {
-                        resultLow |= resultComponent;
-                    }
+                    GetIndexedColor(resultComponent, sourceDataOffset, resultLow, resultHigh);
 
                     formulateResult = false;
                     if (resultComponent < 2)
