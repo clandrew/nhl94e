@@ -2889,6 +2889,8 @@ namespace Fast
         return;
     }
 
+
+
     void WriteIndexed()
     {
         // Precondition: compressed staging data is written in memory.
@@ -2952,71 +2954,68 @@ namespace Fast
                 sourceDataOffset += 2;
             }
 
-            if (shouldWriteOutput)
+            if (!shouldWriteOutput)
             {
-                goto WriteOutput;
+                // We loaded a nonzero element. Save it
+                sourceDataOffset = loaded16.Data16;
+
+                // This sets each of the four bytes of the result.
+                // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
+
+                formulateResult = true;
+                while (formulateResult)
+                {
+                    c = sourceDataOffset >= 0x8000;
+                    nextSourceDataOffset = sourceDataOffset * 2;
+                    if (c)
+                    {
+                        resultHigh |= (resultComponent << 8);
+                    }
+
+                    c = nextSourceDataOffset >= 0x8000;
+                    nextSourceDataOffset *= 2;
+                    if (c)
+                    {
+                        resultHigh |= resultComponent;
+                    }
+
+                    c = nextSourceDataOffset >= 0x8000;
+                    nextSourceDataOffset *= 2;
+
+                    if (c)
+                    {
+                        resultLow |= (resultComponent << 8);
+                    }
+
+                    c = nextSourceDataOffset >= 0x8000;
+                    nextSourceDataOffset *= 2;
+
+                    if (c)
+                    {
+                        resultLow |= resultComponent;
+                    }
+
+                    sourceDataOffset = nextSourceDataOffset;
+
+                    formulateResult = false;
+                    if (resultComponent < 2)
+                        continue;
+
+                    resultComponent /= 2;
+
+                    if (resultComponent < 0x8 || resultComponent >= 0x10)
+                    {
+                        formulateResult = true;
+                        continue;
+                    }
+
+                    // resultComponent is [8..15]
+                    sourceDataOffset = (sourceDataElement * 4) + 2;
+
+                    goto LoadSourceElement;
+                }
             }
 
-            // We loaded a nonzero element. Save it
-            sourceDataOffset = loaded16.Data16;
-
-            // This sets each of the four bytes of the result.
-            // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
-
-            formulateResult = true;
-            while (formulateResult)
-            {
-                c = sourceDataOffset >= 0x8000;
-                nextSourceDataOffset = sourceDataOffset * 2;
-                if (c)
-                {
-                    resultHigh |= (resultComponent << 8);
-                }
-
-                c = nextSourceDataOffset >= 0x8000;
-                nextSourceDataOffset *= 2;
-                if (c)
-                {
-                    resultHigh |= resultComponent;
-                }
-
-                c = nextSourceDataOffset >= 0x8000;
-                nextSourceDataOffset *= 2;
-
-                if (c)
-                {
-                    resultLow |= (resultComponent << 8);
-                }
-
-                c = nextSourceDataOffset >= 0x8000;
-                nextSourceDataOffset *= 2;
-
-                if (c)
-                {
-                    resultLow |= resultComponent;
-                }
-
-                sourceDataOffset = nextSourceDataOffset;
-
-                formulateResult = false;
-                if (resultComponent < 2)
-                    continue;
-
-                resultComponent /= 2;
-
-                if (resultComponent < 0x8 || resultComponent >= 0x10)
-                {
-                    formulateResult = true;
-                    continue;
-                }
-
-                // resultComponent is [8..15]
-                sourceDataOffset = (sourceDataElement * 4) + 2;
-
-                goto LoadSourceElement;
-            }
-
-        WriteOutput:
             unsigned short destinationElement = lastWrittenElement + 2;
 
             if ((destinationElement & 0x10) != 0)
