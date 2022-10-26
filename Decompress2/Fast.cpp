@@ -3011,9 +3011,10 @@ namespace Fast
             unsigned short sourceDataOffset = iter * 4;
 
         LoadSourceElement:
-            while (1)
+
+            bool loadSourceElement = true;
+            while (loadSourceElement)
             {
-                bool loadSourceElement = false;
                 bool formulateOutput = FnLoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
 
                 if (formulateOutput)
@@ -3022,17 +3023,11 @@ namespace Fast
 
                     loadSourceElement = FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
                 }
-
-                if (loadSourceElement)
-                {
-                    ;
-                }
                 else
                 {
-                    break;
+                    loadSourceElement = false;
                 }
             }
-
 
             unsigned short destinationElement = lastWrittenElement + 2;
 
