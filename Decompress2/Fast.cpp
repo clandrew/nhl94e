@@ -2923,7 +2923,7 @@ namespace Fast
         }
     }
 
-    bool FnLoadSourceElement(unsigned short& sourceDataAddressLow, unsigned short& sourceDataOffset, unsigned short& resultComponent)
+    bool LoadSourceElement(unsigned short& sourceDataAddressLow, unsigned short& sourceDataOffset, unsigned short& resultComponent)
     {
         // Two bytes are loaded at a time.
         while (true)
@@ -3010,17 +3010,13 @@ namespace Fast
             unsigned short resultComponent = 0x80;
             unsigned short sourceDataOffset = iter * 4;
 
-        LoadSourceElement:
-
             bool loadSourceElement = true;
             while (loadSourceElement)
             {
-                bool formulateOutput = FnLoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
-
+                bool formulateOutput = LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
                 if (formulateOutput)
                 {
                     sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
-
                     loadSourceElement = FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
                 }
                 else
