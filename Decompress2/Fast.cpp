@@ -2889,7 +2889,12 @@ namespace Fast
         return;
     }
 
-
+    bool DoubleAndCheckCarry(unsigned short& nextSourceDataOffset)
+    {
+        bool carry = nextSourceDataOffset >= 0x8000;
+        nextSourceDataOffset *= 2;
+        return carry;
+    }
 
     void WriteIndexed()
     {
@@ -2927,7 +2932,6 @@ namespace Fast
 
             unsigned short resultComponent = 0x80;
             unsigned short sourceDataOffset = sourceDataElement * 4;
-            unsigned short nextSourceDataOffset = 0;
             bool formulateResult = true;
 
         LoadSourceElement:
@@ -2965,37 +2969,25 @@ namespace Fast
                 formulateResult = true;
                 while (formulateResult)
                 {
-                    c = sourceDataOffset >= 0x8000;
-                    nextSourceDataOffset = sourceDataOffset * 2;
-                    if (c)
+                    if (DoubleAndCheckCarry(sourceDataOffset))
                     {
                         resultHigh |= (resultComponent << 8);
                     }
 
-                    c = nextSourceDataOffset >= 0x8000;
-                    nextSourceDataOffset *= 2;
-                    if (c)
+                    if (DoubleAndCheckCarry(sourceDataOffset))
                     {
                         resultHigh |= resultComponent;
                     }
 
-                    c = nextSourceDataOffset >= 0x8000;
-                    nextSourceDataOffset *= 2;
-
-                    if (c)
+                    if (DoubleAndCheckCarry(sourceDataOffset))
                     {
                         resultLow |= (resultComponent << 8);
                     }
 
-                    c = nextSourceDataOffset >= 0x8000;
-                    nextSourceDataOffset *= 2;
-
-                    if (c)
+                    if (DoubleAndCheckCarry(sourceDataOffset))
                     {
                         resultLow |= resultComponent;
                     }
-
-                    sourceDataOffset = nextSourceDataOffset;
 
                     formulateResult = false;
                     if (resultComponent < 2)
