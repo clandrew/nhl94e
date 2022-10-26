@@ -3010,23 +3010,17 @@ namespace Fast
             unsigned short resultComponent = 0x80;
             unsigned short sourceDataOffset = iter * 4;
 
-            bool loadSourceElement = true;
-            while (loadSourceElement)
+            while (true)
             {
-                bool formulateOutput = LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent);
-                if (formulateOutput)
-                {
-                    sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
-                    loadSourceElement = FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
-                }
-                else
-                {
-                    loadSourceElement = false;
-                }
+                if (!LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent))
+                    break;
+
+                sourceDataOffset = loaded16.Data16;
+                if (!FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh))
+                    break;
             }
 
             unsigned short destinationElement = lastWrittenElement + 2;
-
             if ((destinationElement & 0x10) != 0)
             {
                 destinationElement += 0x10;
