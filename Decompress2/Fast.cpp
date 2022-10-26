@@ -2949,6 +2949,31 @@ namespace Fast
         return true;
     }
 
+    bool Foo(unsigned short& resultComponent, 
+        unsigned short sourceDataElement,
+        unsigned short& sourceDataOffset,
+        unsigned short& resultLow,
+        unsigned short& resultHigh)
+    {
+        while (true)
+        {
+            GetIndexedColor(resultComponent, sourceDataOffset, resultLow, resultHigh);
+
+            if (resultComponent < 2)
+                return false;
+
+            resultComponent /= 2;
+
+            if (resultComponent >= 0x8 && resultComponent < 0x10)
+            {
+                // resultComponent is [8..15]
+                sourceDataOffset = (sourceDataElement * 4) + 2;
+
+                return true;
+            }
+        }
+    }
+
     void WriteIndexed()
     {
         // Precondition: compressed staging data is written in memory.
@@ -2992,22 +3017,11 @@ namespace Fast
             {                
                 sourceDataOffset = loaded16.Data16; // We loaded a nonzero element. Save it
 
-                while (true)
+                bool loadSourceElement = Foo(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh);
+
+                if (loadSourceElement)
                 {
-                    GetIndexedColor(resultComponent, sourceDataOffset, resultLow, resultHigh);
-
-                    if (resultComponent < 2)
-                        break;
-
-                    resultComponent /= 2;                    
-
-                    if (resultComponent >= 0x8 && resultComponent < 0x10)
-                    {
-                        // resultComponent is [8..15]
-                        sourceDataOffset = (sourceDataElement * 4) + 2;
-
-                        goto LoadSourceElement;
-                    }
+                    goto LoadSourceElement;
                 }
             }
 
