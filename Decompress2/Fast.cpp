@@ -2960,7 +2960,9 @@ namespace Fast
             sourceDataOffset = loaded16.Data16;
 
         FormulateResult:
+
             // This sets each of the four bytes of the result.
+            // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
 
             c = sourceDataOffset >= 0x8000;
             nextSourceDataOffset = sourceDataOffset * 2;
