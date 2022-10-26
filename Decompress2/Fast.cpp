@@ -2993,27 +2993,22 @@ namespace Fast
                 // This sets each of the four bytes of the result.
                 // Also, figure out the next source data offset. When it overflows, then we set a byte of the result.
 
-                formulateResult = true;
-                while (formulateResult)
+                while (true)
                 {
                     GetIndexedColor(resultComponent, sourceDataOffset, resultLow, resultHigh);
 
-                    formulateResult = false;
                     if (resultComponent < 2)
-                        continue;
+                        break;
 
-                    resultComponent /= 2;
+                    resultComponent /= 2;                    
 
-                    if (resultComponent < 0x8 || resultComponent >= 0x10)
+                    if (resultComponent >= 0x8 && resultComponent < 0x10)
                     {
-                        formulateResult = true;
-                        continue;
+                        // resultComponent is [8..15]
+                        sourceDataOffset = (sourceDataElement * 4) + 2;
+
+                        goto LoadSourceElement;
                     }
-
-                    // resultComponent is [8..15]
-                    sourceDataOffset = (sourceDataElement * 4) + 2;
-
-                    goto LoadSourceElement;
                 }
             }
 
