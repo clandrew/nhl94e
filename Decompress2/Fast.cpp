@@ -2923,13 +2923,13 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short& sourceDataAddressLow, unsigned short& sourceDataOffset, unsigned short& resultComponent)
+    bool LoadSourceElement(unsigned short* pSourceDataAddressLow, unsigned short* pSourceDataOffset, unsigned short& resultComponent)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
-            loaded16.Low8 = cache7F0000[sourceDataAddressLow + sourceDataOffset + 1];
-            loaded16.High8 = cache7F0000[sourceDataAddressLow + sourceDataOffset];
+            loaded16.Low8 = cache7F0000[*pSourceDataAddressLow + *pSourceDataOffset + 1];
+            loaded16.High8 = cache7F0000[*pSourceDataAddressLow + *pSourceDataOffset];
 
             if (loaded16.Data16 != 0)
             {
@@ -2938,18 +2938,18 @@ namespace Fast
 
             if (resultComponent < 16)
             {
-                sourceDataOffset = 0;
+                *pSourceDataOffset = 0;
                 return false;
             }
 
             resultComponent >>= 4;
-            sourceDataOffset += 2;
+            *pSourceDataOffset += 2;
         }
 
         return true;
     }
 
-    bool FormulateOutput(unsigned short& resultComponent,
+    bool FormulateOutput(unsigned short* pResultComponent,
         unsigned short sourceDataElement,
         unsigned short& sourceDataOffset,
         unsigned short& resultLow,
@@ -2957,18 +2957,17 @@ namespace Fast
     {
         while (true)
         {
-            GetIndexedColor(resultComponent, sourceDataOffset, resultLow, resultHigh);
+            GetIndexedColor(*pResultComponent, sourceDataOffset, resultLow, resultHigh);
 
-            if (resultComponent < 2)
+            if (*pResultComponent < 2)
                 return false;
 
-            resultComponent /= 2;
+            *pResultComponent /= 2;
 
-            if (resultComponent >= 0x8 && resultComponent < 0x10)
+            if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
             {
                 // resultComponent is [8..15]
                 sourceDataOffset = (sourceDataElement * 4) + 2;
-
                 return true;
             }
         }
@@ -2976,30 +2975,11 @@ namespace Fast
 
     void WriteIndexed()
     {
-        // Precondition: compressed staging data is written in memory.
-        //     Mem0C contains the low short of the source data address.
-        //     Mem0E contains the high short of the source data address.  These are always hardcoded to be 0x7F0000.
-        //
-        //     Mem10 contains the destination offset. It's always within bank $7F.
-        //
-        // Postcondition: Final indexed data is written to the destination.
-        //                It's all in WRAM. This function doesn't do any of the work of DMA transfer to VRAM.
-
-        // The profile images are loaded in "backwards" order. The earliest memory offset one gets loaded last.
-        // The output is saved out 2 bytes at a time.
-        //
-        // This function is called 10 times at the GAME SETUP screen.
-        // The 1st invocation writes to somewhere.
-        // The 6th invocation writes to 7F5100-7F7380. <-- this run goes through here. This is Kirk Muller's profile image
-        //
-        // At a high level, this function reads from RAM at 7F0000-7F0484 and writes the final output.
-
         // Figure out the destination offset based on profile index and whether we're home or away.
-        x = 0xA - (currentProfileImageIndex * 2);
+        unsigned short localIndex = 0xA - (currentProfileImageIndex * 2);
         unsigned short destDataAddressLow = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
-        destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
+        destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + localIndex).Data16;
 
-        unsigned short sourceDataAddressLow = 0;    
         unsigned short lastWrittenElement = 0xFFFE;
 
         for (int iter = 0; iter < 0x240; ++iter)
@@ -3008,20 +2988,22 @@ namespace Fast
             unsigned short resultLow = 0;
 
             {
+                unsigned short sourceDataAddressLow = 0;
                 unsigned short sourceDataOffset = iter * 4;
                 unsigned short resultComponent = 0x80;
                 while (true)
                 {
-                    if (!LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent))
+                    if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, resultComponent))
                         break;
 
                     sourceDataOffset = loaded16.Data16;
-                    if (!FormulateOutput(resultComponent, iter, sourceDataOffset, resultLow, resultHigh))
+                    if (!FormulateOutput(&resultComponent, iter, sourceDataOffset, resultLow, resultHigh))
                         break;
                 }
             }
 
             unsigned short destinationElement = lastWrittenElement + 2;
+
             if ((destinationElement & 0x10) != 0)
             {
                 destinationElement += 0x10;
