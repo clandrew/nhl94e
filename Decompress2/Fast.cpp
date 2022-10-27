@@ -3007,32 +3007,25 @@ namespace Fast
         unsigned short destDataAddressLow = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
         destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + localIndex).Data16;
 
-        unsigned short lastWrittenElement = 0xFFFE;
-
         for (int iter = 0; iter < 0x240; ++iter)
         {
             IndexedColorResult result = CalculateIndexedColorResult(iter);
 
-            unsigned short destinationElement = lastWrittenElement + 2;
-
-            if ((destinationElement & 0x10) != 0)
-            {
-                destinationElement += 0x10;
-            }
-
-            lastWrittenElement = destinationElement;
+            int highOrder = (iter / 8) * 0x20;
+            int lowOrder = (iter % 8) * 2;
+            int r = highOrder + lowOrder;
 
             // Write four bytes of output.
 
             loaded16.Data16 = result.Low;
-            cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + r] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + r + 1] = loaded16.High8;
 
-            destinationElement += 0x10;
+            r += 0x10;
 
             loaded16.Data16 = result.High;
-            cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
+            cache7F0000[destDataAddressLow + r] = loaded16.Low8;
+            cache7F0000[destDataAddressLow + r + 1] = loaded16.High8;
         }
     }
 
