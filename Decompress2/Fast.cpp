@@ -2923,7 +2923,7 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short* pSourceDataAddressLow, unsigned short* pSourceDataOffset, unsigned short& resultComponent)
+    bool LoadSourceElement(unsigned short* pSourceDataAddressLow, unsigned short* pSourceDataOffset, unsigned short* pResultComponent)
     {
         // Two bytes are loaded at a time.
         while (true)
@@ -2936,13 +2936,13 @@ namespace Fast
                 return true;
             }
 
-            if (resultComponent < 16)
+            if (*pResultComponent < 16)
             {
                 *pSourceDataOffset = 0;
                 return false;
             }
 
-            resultComponent >>= 4;
+            *pResultComponent >>= 4;
             *pSourceDataOffset += 2;
         }
 
@@ -2994,7 +2994,7 @@ namespace Fast
                 unsigned short resultComponent = 0x80;
                 while (true)
                 {
-                    if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, resultComponent))
+                    if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, &resultComponent))
                         break;
 
                     sourceDataOffset = loaded16.Data16;
