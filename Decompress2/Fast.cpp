@@ -2999,8 +2999,7 @@ namespace Fast
         unsigned short destDataAddressLow = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
         destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + x).Data16;
 
-        unsigned short sourceDataAddressLow = 0;
-        unsigned short sourceDataElement = 0; // Counted up. It's always multipled by four. It controls which element of the source data we load.        
+        unsigned short sourceDataAddressLow = 0;    
         unsigned short lastWrittenElement = 0xFFFE;
 
         for (int iter = 0; iter < 0x240; ++iter)
@@ -3017,7 +3016,7 @@ namespace Fast
                         break;
 
                     sourceDataOffset = loaded16.Data16;
-                    if (!FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh))
+                    if (!FormulateOutput(resultComponent, iter, sourceDataOffset, resultLow, resultHigh))
                         break;
                 }
             }
@@ -3041,8 +3040,6 @@ namespace Fast
             loaded16.Data16 = resultHigh;
             cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
             cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
-
-            sourceDataElement++;
         }
     }
 
