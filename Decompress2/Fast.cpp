@@ -2938,7 +2938,6 @@ namespace Fast
 
             if (*pResultComponent < 16)
             {
-                *pSourceDataOffset = 0;
                 return false;
             }
 
