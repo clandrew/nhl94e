@@ -2923,13 +2923,13 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short* pSourceDataAddressLow, unsigned short* pSourceDataOffset, unsigned short* pResultComponent)
+    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
-            loaded16.Low8 = cache7F0000[*pSourceDataAddressLow + *pSourceDataOffset + 1];
-            loaded16.High8 = cache7F0000[*pSourceDataAddressLow + *pSourceDataOffset];
+            loaded16.Low8 = cache7F0000[*pSourceDataOffset + 1];
+            loaded16.High8 = cache7F0000[*pSourceDataOffset];
 
             if (loaded16.Data16 != 0)
             {
@@ -2983,12 +2983,11 @@ namespace Fast
     {
         IndexedColorResult result{};
 
-        unsigned short sourceDataAddressLow = 0;
         unsigned short sourceDataOffset = iter * 4;
         unsigned short resultComponent = 0x80;
         while (true)
         {
-            if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, &resultComponent))
+            if (!LoadSourceElement(&sourceDataOffset, &resultComponent))
                 break;
 
             sourceDataOffset = loaded16.Data16;
