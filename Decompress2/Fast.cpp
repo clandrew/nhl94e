@@ -2896,30 +2896,35 @@ namespace Fast
         return carry;
     }
 
+    struct IndexedColorResult
+    {
+        unsigned short Low;
+        unsigned short High;
+    };
+
     void GetIndexedColor(
         unsigned short resultComponent,
         unsigned short* pSourceDataOffset,
-        unsigned short& resultLow,
-        unsigned short& resultHigh)
+        IndexedColorResult* pResult)
     {
         if (DoubleAndCheckCarry(pSourceDataOffset))
         {
-            resultHigh |= (resultComponent << 8);
+            pResult->High |= (resultComponent << 8);
         }
 
         if (DoubleAndCheckCarry(pSourceDataOffset))
         {
-            resultHigh |= resultComponent;
+            pResult->High |= resultComponent;
         }
 
         if (DoubleAndCheckCarry(pSourceDataOffset))
         {
-            resultLow |= (resultComponent << 8);
+            pResult->Low |= (resultComponent << 8);
         }
 
         if (DoubleAndCheckCarry(pSourceDataOffset))
         {
-            resultLow |= resultComponent;
+            pResult->Low |= resultComponent;
         }
     }
 
@@ -2952,12 +2957,11 @@ namespace Fast
         unsigned short iter,
         unsigned short* pResultComponent,
         unsigned short* pSourceDataOffset,
-        unsigned short& resultLow,
-        unsigned short& resultHigh)
+        IndexedColorResult* pResult)
     {
         while (true)
         {
-            GetIndexedColor(*pResultComponent, pSourceDataOffset, resultLow, resultHigh);
+            GetIndexedColor(*pResultComponent, pSourceDataOffset, pResult);
 
             if (*pResultComponent < 2)
                 return false;
@@ -2973,12 +2977,6 @@ namespace Fast
         }
     }
 
-    struct IndexedColorResult
-    {
-        unsigned short Low;
-        unsigned short High;
-    };
-
     IndexedColorResult CalculateIndexedColorResult(int iter)
     {
         IndexedColorResult result{};
@@ -2991,7 +2989,7 @@ namespace Fast
                 break;
 
             sourceDataOffset = loaded16.Data16;
-            if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, result.Low, result.High))
+            if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, &result))
                 break;
         }
 
