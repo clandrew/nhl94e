@@ -2889,35 +2889,35 @@ namespace Fast
         return;
     }
 
-    bool DoubleAndCheckCarry(unsigned short& sourceDataOffset)
+    bool DoubleAndCheckCarry(unsigned short* pSourceDataOffset)
     {
-        bool carry = sourceDataOffset >= 0x8000;
-        sourceDataOffset *= 2;
+        bool carry = *pSourceDataOffset >= 0x8000;
+        *pSourceDataOffset *= 2;
         return carry;
     }
 
     void GetIndexedColor(
         unsigned short resultComponent,
-        unsigned short& sourceDataOffset,
+        unsigned short* pSourceDataOffset,
         unsigned short& resultLow,
         unsigned short& resultHigh)
     {
-        if (DoubleAndCheckCarry(sourceDataOffset))
+        if (DoubleAndCheckCarry(pSourceDataOffset))
         {
             resultHigh |= (resultComponent << 8);
         }
 
-        if (DoubleAndCheckCarry(sourceDataOffset))
+        if (DoubleAndCheckCarry(pSourceDataOffset))
         {
             resultHigh |= resultComponent;
         }
 
-        if (DoubleAndCheckCarry(sourceDataOffset))
+        if (DoubleAndCheckCarry(pSourceDataOffset))
         {
             resultLow |= (resultComponent << 8);
         }
 
-        if (DoubleAndCheckCarry(sourceDataOffset))
+        if (DoubleAndCheckCarry(pSourceDataOffset))
         {
             resultLow |= resultComponent;
         }
@@ -2949,15 +2949,16 @@ namespace Fast
         return true;
     }
 
-    bool FormulateOutput(unsigned short* pResultComponent,
-        unsigned short sourceDataElement,
-        unsigned short& sourceDataOffset,
+    bool FormulateOutput(
+        unsigned short iter,
+        unsigned short* pResultComponent,
+        unsigned short* pSourceDataOffset,
         unsigned short& resultLow,
         unsigned short& resultHigh)
     {
         while (true)
         {
-            GetIndexedColor(*pResultComponent, sourceDataOffset, resultLow, resultHigh);
+            GetIndexedColor(*pResultComponent, pSourceDataOffset, resultLow, resultHigh);
 
             if (*pResultComponent < 2)
                 return false;
@@ -2967,7 +2968,7 @@ namespace Fast
             if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
             {
                 // resultComponent is [8..15]
-                sourceDataOffset = (sourceDataElement * 4) + 2;
+                *pSourceDataOffset = (iter * 4) + 2;
                 return true;
             }
         }
@@ -2997,7 +2998,7 @@ namespace Fast
                         break;
 
                     sourceDataOffset = loaded16.Data16;
-                    if (!FormulateOutput(&resultComponent, iter, sourceDataOffset, resultLow, resultHigh))
+                    if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, resultLow, resultHigh))
                         break;
                 }
             }
