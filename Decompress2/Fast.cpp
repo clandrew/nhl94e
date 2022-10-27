@@ -3007,17 +3007,19 @@ namespace Fast
         {
             unsigned short resultHigh = 0;
             unsigned short resultLow = 0;
-            unsigned short resultComponent = 0x80;
-            unsigned short sourceDataOffset = iter * 4;
 
-            while (true)
             {
-                if (!LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent))
-                    break;
+                unsigned short sourceDataOffset = iter * 4;
+                unsigned short resultComponent = 0x80;
+                while (true)
+                {
+                    if (!LoadSourceElement(sourceDataAddressLow, sourceDataOffset, resultComponent))
+                        break;
 
-                sourceDataOffset = loaded16.Data16;
-                if (!FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh))
-                    break;
+                    sourceDataOffset = loaded16.Data16;
+                    if (!FormulateOutput(resultComponent, sourceDataElement, sourceDataOffset, resultLow, resultHigh))
+                        break;
+                }
             }
 
             unsigned short destinationElement = lastWrittenElement + 2;
