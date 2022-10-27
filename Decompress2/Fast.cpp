@@ -2974,6 +2974,32 @@ namespace Fast
         }
     }
 
+    struct IndexedColorResult
+    {
+        unsigned short Low;
+        unsigned short High;
+    };
+
+    IndexedColorResult CalculateIndexedColorResult(int iter)
+    {
+        IndexedColorResult result{};
+
+        unsigned short sourceDataAddressLow = 0;
+        unsigned short sourceDataOffset = iter * 4;
+        unsigned short resultComponent = 0x80;
+        while (true)
+        {
+            if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, &resultComponent))
+                break;
+
+            sourceDataOffset = loaded16.Data16;
+            if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, result.Low, result.High))
+                break;
+        }
+
+        return result;
+    }
+
     void WriteIndexed()
     {
         // Figure out the destination offset based on profile index and whether we're home or away.
@@ -2985,23 +3011,7 @@ namespace Fast
 
         for (int iter = 0; iter < 0x240; ++iter)
         {
-            unsigned short resultHigh = 0;
-            unsigned short resultLow = 0;
-
-            {
-                unsigned short sourceDataAddressLow = 0;
-                unsigned short sourceDataOffset = iter * 4;
-                unsigned short resultComponent = 0x80;
-                while (true)
-                {
-                    if (!LoadSourceElement(&sourceDataAddressLow, &sourceDataOffset, &resultComponent))
-                        break;
-
-                    sourceDataOffset = loaded16.Data16;
-                    if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, resultLow, resultHigh))
-                        break;
-                }
-            }
+            IndexedColorResult result = CalculateIndexedColorResult(iter);
 
             unsigned short destinationElement = lastWrittenElement + 2;
 
@@ -3014,13 +3024,13 @@ namespace Fast
 
             // Write four bytes of output.
 
-            loaded16.Data16 = resultLow;
+            loaded16.Data16 = result.Low;
             cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
             cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
 
             destinationElement += 0x10;
 
-            loaded16.Data16 = resultHigh;
+            loaded16.Data16 = result.High;
             cache7F0000[destDataAddressLow + destinationElement] = loaded16.Low8;
             cache7F0000[destDataAddressLow + destinationElement + 1] = loaded16.High8;
         }
