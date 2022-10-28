@@ -2820,32 +2820,16 @@ namespace Fast
     {
         // Input: a, x and y
 
-        while (true)
+        while (y != 0)
         {
             a *= 2;
             x -= 2;
-            if (x != 0)
+            if (x == 0)
             {
-                y--;
-                if (y == 0)
-                {
-                    return;
-                }
-                else
-                {
-                    continue;
-                }
+                LoadNextFrom0CInc(0xC2E5);
+                x = 0x10;
             }
-
-            LoadNextFrom0CInc(0xC2E5);
-            x = 0x10;
             --y;
-            if (y != 0)
-            {
-                continue;
-            }
-
-            return;
         }
     }
 
