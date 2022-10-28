@@ -1688,8 +1688,9 @@ namespace Fast
         }
         else if (x == 0x10)
         {
+            LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
 
-            goto label_BF76;
+            goto label_JumpAbsolute760;
         }
         else if (x == 0x12)
         {
@@ -1710,27 +1711,11 @@ namespace Fast
         x = 2;
         goto label_C17C;
 
-    label_BF76:
-
-        LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
-
-        goto label_JumpAbsolute760;
-
-    label_BF8F:
+    label_BFC5:
 
         ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
 
         goto label_C0E8;
-
-    label_BFA9:
-
-        ShiftThenLoad100ThenCompare(6, 0x732, 2);
-
-        goto label_C0E8;
-
-    label_BFC5:
-
-        goto label_BF8F;
 
     label_BFC8:
 
@@ -1738,14 +1723,14 @@ namespace Fast
         loaded16.High8 = cache7E0740[0x11];
         c = a >= loaded16.Data16;
 
-        // $80/BFCB 90 C2       BCC $C2    [$BF8F]      A:F192 X:0006 Y:00F1 P:envmxdizc
-
-        if (!c)
+        if (c)
         {
-            goto label_BF8F;
+            ShiftThenLoad100ThenCompare(6, 0x732, 2);
         }
-
-        goto label_BFA9;
+        else
+        {
+            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+        }
 
     label_C0E8:
 
