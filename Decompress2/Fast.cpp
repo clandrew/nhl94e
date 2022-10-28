@@ -2818,65 +2818,36 @@ namespace Fast
 
     void Fn_80C2DC()
     {
+        // Input: a, x and y
 
-    label_C2DC_Start:
-        // $80/C2DC 0A          ASL A                   A:9420 X:0008 Y:0006 P:envmxdizc
-
-        a *= 2;
-
-        // $80/C2DD CA          DEX                     A:2840 X:0008 Y:0006 P:envmxdizc
-
-        --x;
-
-        // $80/C2DE CA          DEX                     A:2840 X:0007 Y:0006 P:envmxdizc
-
-        --x;
-        z = x == 0;
-
-        // $80/C2DF F0 04       BEQ $04    [$C2E5]      A:2840 X:0006 Y:0006 P:envmxdizc
-
-        if (z)
+        while (true)
         {
-            goto label_C2E5;
+            a *= 2;
+            x -= 2;
+            if (x == 0)
+            {
+                goto label_C2E5;
+            }
+
+            y--;
+            if (y != 0)
+            {
+                continue;
+            }
+            return;
+
+
+        label_C2E5:
+            LoadNextFrom0CInc(0xC2E5);
+            x = 0x10;
+            --y;
+            if (y != 0)
+            {
+                continue;
+            }
+
+            return;
         }
-
-        // $80/C2E1 88          DEY                     A:2840 X:0006 Y:0006 P:envmxdizc
-
-        y--;
-        z = y == 0;
-
-        // $80/C2E2 D0 F8       BNE $F8    [$C2DC]      A:2840 X:0006 Y:0005 P:envmxdizc
-
-        if (!z)
-        {
-            goto label_C2DC_Start;
-        }
-
-        // $80/C2E4 60          RTS                     A:085C X:000C Y:0000 P:envmxdizc
-
-        return;
-
-    label_C2E5:
-
-        LoadNextFrom0CInc(0xC2E5);
-
-        // $80/C2ED A2 10       LDX #$10                A:4217 X:0000 Y:0003 P:envmxdizc
-
-        x = 0x10;
-
-        // $80/C2EF 88          DEY                     A:4217 X:0010 Y:0003 P:envmxdizc
-
-        --y;
-        z = y == 0;
-
-        // $80/C2F0 D0 EA       BNE $EA    [$C2DC]      A:4217 X:0010 Y:0002 P:envmxdizc
-
-        if (!z)
-        {
-            goto label_C2DC_Start;
-        }
-
-        return;
     }
 
     bool DoubleAndCheckCarry(unsigned short* pSourceDataOffset)
