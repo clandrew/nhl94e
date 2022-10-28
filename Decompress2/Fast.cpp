@@ -1811,53 +1811,33 @@ namespace Fast
         __debugbreak();
 
     label_C106:
-
         a *= 2;
-
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_C159;
         }
 
     label_C10A:
-
         a *= 2;
-
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_C156;
         }
 
     label_C10E:
-
         a *= 2;
-
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_C153;
         }
 
     label_C112:
-
-        // $80/C112 0A          ASL A                   A:9280 X:0006 Y:0001 P:envmxdizc
-
         a *= 2;
-
-        // $80/C113 88          DEY                     A:2500 X:0006 Y:0001 P:envmxdizc
-
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_C150;
         }
