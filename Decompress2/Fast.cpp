@@ -7,7 +7,7 @@
 namespace Fast
 {
     void Fn_80C1B0();
-    void Fn_80C232();
+    bool Fn_80C232();
     void Fn_80C2DC();
 
     unsigned short a = 0xFB30;
@@ -351,6 +351,7 @@ namespace Fast
         mem14 = 0x10;
         a = 0x10;
         x = 0xFE;
+        bool continueDecompression = true;
 
     label_BBD9:
         x = IncLow8(x);
@@ -1288,9 +1289,8 @@ namespace Fast
 
         mem6c = a;
 
-        Fn_80C232();
-
-        if (z)
+        continueDecompression = Fn_80C232();
+        if (!continueDecompression)
         {
             return; // return from monstrosity
         }
@@ -1445,7 +1445,7 @@ namespace Fast
         mem6f = a;
     }
 
-    void Fn_80C232()
+    bool Fn_80C232() // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
         mem6f = 0;
@@ -1480,7 +1480,7 @@ namespace Fast
                 mem6c = a;
                 a = mem6f;
                 z = mem6f == 0;
-                return;
+                return !z;
             }
 
             LoadNextFrom0CInc();
@@ -1489,7 +1489,7 @@ namespace Fast
             mem6c = a;
             a = mem6f;
             z = a == 0;
-            return;
+            return !z;
         }
 
         y = 2;
@@ -1532,6 +1532,7 @@ namespace Fast
 
         a = mem6f;
         z = mem6f == 0; // Caller expects this.
+        return !z;
     }
 
     void Fn_80C2DC()
