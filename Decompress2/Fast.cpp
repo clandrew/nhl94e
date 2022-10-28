@@ -745,7 +745,8 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            goto label_BD93;
+            LoadNextFrom0CMaskAndShift(0xBD93, 0xE, 1);
+            goto label_JumpAbsolute760;
         }
         else if (x == 0xC)
         {
@@ -753,7 +754,8 @@ namespace Fast
         }
         else if (x == 0x12)
         {
-            goto label_BD8E;
+            x = 0xE;
+            goto label_C17C;
         }
         else if (x == 6)
         {
@@ -769,17 +771,6 @@ namespace Fast
         {
             __debugbreak();
         }
-
-    label_BD8E:
-
-        x = 0xE;
-
-        goto label_C17C;
-
-    label_BD93:
-        LoadNextFrom0CMaskAndShift(0xBD93, 0xE, 1);
-
-        goto label_JumpAbsolute760;
 
     label_BDA6:
         a *= 2;
