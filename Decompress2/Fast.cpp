@@ -772,21 +772,6 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BDA6:
-        a *= 2;
-
-    label_BDA7:
-        a *= 2;
-
-    label_BDA8:
-        a *= 2;
-
-    label_BDA9:
-        a *= 2;
-
-    label_BDAA:
-        a *= 2;
-
     label_BDAB:
         a *= 2;
         LoadNextFrom0CInc();
@@ -824,7 +809,8 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            goto label_BDA6;
+            a *= 32;
+            goto label_BDAB;
         }
         else if (x == 6)
         {
@@ -874,7 +860,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BDA7;
+            a *= 16;
+            goto label_BDAB;
         }
         else if (x == 8)
         {
@@ -934,7 +921,8 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            goto label_BDA8;
+            a *= 8;
+            goto label_BDAB;
         }
         else if (x == 0xC)
         {
@@ -992,7 +980,8 @@ namespace Fast
         }
         else if (x == 0x8)
         {
-            goto label_BDA9;
+            a *= 4;
+            goto label_BDAB;
         }
         else if (x == 0xA)
         {
@@ -1069,7 +1058,8 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BDAA;
+            a *= 2;
+            goto label_BDAB;
         }
         else if (x == 0x10)
         {
