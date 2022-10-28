@@ -2555,39 +2555,22 @@ namespace Fast
 
     void Fn_80C232()
     {
-        // $80/C232 64 6F       STZ $6F    [$00:006F]   A:085C X:000C Y:0000 P:envmxdizc
-
         mem6f = 0;
 
-        // $80/C234 A5 6C       LDA $6C    [$00:006C]   A:085C X:000C Y:0000 P:envmxdizc
-
         a = mem6c;
-
-        // $80/C236 0A          ASL A                   A:085C X:000C Y:0000 P:envmxdizc
 
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
 
-        // $80/C237 CA          DEX                     A:10B8 X:000C Y:0000 P:envmxdizc
+        x -= 2;
 
-        x--;
-
-        // $80/C238 CA          DEX                     A:10B8 X:000B Y:0000 P:envmxdizc
-
-        x--;
-        z = x == 0;
-
-        // $80/C239 F0 15       BEQ $15    [$C250]      A:10B8 X:000A Y:0000 P:envmxdizc
-
-        if (z)
+        if (x == 0)
         {
             goto label_C250;
         }
 
     label_C23B:
-        // $80/C23B 90 3A       BCC $3A    [$C277]      A:10B8 X:000A Y:0000 P:envmxdizc
-
         if (!c)
         {
             goto label_C277;
@@ -2597,7 +2580,9 @@ namespace Fast
 
         if (z)
         {
-            goto label_C25C;
+            LoadNextFrom0CInc(0xC25C);
+
+            x = 0x10;
         }
 
     label_C244:
@@ -2623,13 +2608,6 @@ namespace Fast
 
         goto label_C23B;
 
-    label_C25C:
-        LoadNextFrom0CInc(0xC25C);
-
-        x = 0x10;
-
-        goto label_C244;
-
     label_C268:
 
         LoadNextFrom0CInc(0xC268);
@@ -2641,59 +2619,30 @@ namespace Fast
         a = mem6f;
         z = a == 0;
 
-        // $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmxdizc
-
         return;
 
     label_C277:
-
-        // $80/C277 A0 02       LDY #$02                A:10B8 X:000A Y:0000 P:envmxdizc
-
         y = 2;
 
     label_C279:
-
-        // $80/C279 0A          ASL A                   A:10B8 X:000A Y:0002 P:envmxdizc
-
         willCarry = a >= 0x8000;
         a *= 2;
         c = willCarry;
 
-        // $80/C27A CA          DEX                     A:2170 X:000A Y:0002 P:envmxdizc
-
-        --x;
-
-        // $80/C27B CA          DEX                     A:2170 X:0009 Y:0002 P:envmxdizc
-
-        --x;
-        z = x == 0;
-
-        // $80/C27C F0 24       BEQ $24    [$C2A2]      A:2170 X:0008 Y:0002 P:envmxdizc
-
-        if (z)
+        x -= 2;
+        if (x == 0)
         {
             LoadNextFrom0CInc(0xC2A2);
-
-            // $80/C2AA A2 10       LDX #$10                A:8C2E X:0000 Y:0002 P:envmxdizc
-
             x = 0x10;
-
-            // $80/C2AC 80 D0       BRA $D0    [$C27E]      A:8C2E X:0010 Y:0002 P:envmxdizc
-
         }
 
-        // $80/C27E C8          INY                     A:2170 X:0008 Y:0002 P:envmxdizc
-
         y++;
-
-        // $80/C27F 90 F8       BCC $F8    [$C279]      A:2170 X:0008 Y:0003 P:envmxdizc
 
         if (!c)
         {
             goto label_C279;
         }
 
-        // $80/C281 84 14       STY $14    [$00:0014]   A:0B80 X:0002 Y:0006 P:envmxdizc
 
         mem14 = y;
 
@@ -2708,7 +2657,6 @@ namespace Fast
             }
 
         }
-        y = 0;
 
         mem6c = a;
 
