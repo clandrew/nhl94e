@@ -297,30 +297,24 @@ namespace Fast
         z = a == (mem73 & 0xFF); // we are in 8bit mode
     }
 
-    void ShiftRotateDecrement(unsigned short pc, int xDecAmt, int yDecAmt)
+    void ShiftRotateDecrement(int xDecAmt, int yDecAmt)
     {
 
         c = a >= 0x8000;
         a *= 2;
-        pc++;
 
         RotateLeft(&mem6f, &c);
-        pc += 2;
 
         for (int i = 0; i < xDecAmt; ++i)
         {
-
             --x;
             z = x == 0;
-            ++pc;
         }
 
         for (int i = 0; i < yDecAmt; ++i)
         {
-
             --y;
             z = y == 0;
-            ++pc;
         }
     }
 
@@ -2341,7 +2335,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrement(0xC1BA, 0, 1);
+            ShiftRotateDecrement(0, 1);
 
             if (z)
             {
@@ -2349,7 +2343,7 @@ namespace Fast
                 y = 0x8;
             }
 
-            ShiftRotateDecrement(0xC1C0, 0, 1);
+            ShiftRotateDecrement(0, 1);
 
             if (z)
             {
@@ -2385,7 +2379,7 @@ namespace Fast
 
         for (int i = 0; i < mem04; ++i)
         {
-            ShiftRotateDecrement(0xC1FF, 0, 1);
+            ShiftRotateDecrement(0, 1);
 
             if (z)
             {
@@ -2423,7 +2417,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrement(0xC23D, 2, 0);
+            ShiftRotateDecrement(2, 0);
 
             if (z)
             {
@@ -2431,7 +2425,7 @@ namespace Fast
                 x = 0x10;
             }
 
-            ShiftRotateDecrement(0xC244, 2, 0);
+            ShiftRotateDecrement(2, 0);
 
             if (!z)
             {
@@ -2473,7 +2467,7 @@ namespace Fast
 
         for (int i = 0; i < y; ++i)
         {
-            ShiftRotateDecrement(0xC283, 2, 0);
+            ShiftRotateDecrement(2, 0);
 
             if (z)
             {
