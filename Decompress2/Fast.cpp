@@ -2556,7 +2556,6 @@ namespace Fast
     void Fn_80C232()
     {
         // Input: x, mem6c
-
         mem6f = 0;
         a = mem6c;
 
@@ -2569,7 +2568,6 @@ namespace Fast
         if (x == 0)
         {
             LoadNextFrom0CInc(0xC250);
-
             x = 0x10;
         }
 
@@ -2607,15 +2605,12 @@ namespace Fast
 
             return;
         }
-        else
-        {
-            y = 2;
-        }
+
+        y = 2;
 
         c = false;
         while (!c)
         {
-        label_C279:
             willCarry = a >= 0x8000;
             a *= 2;
             c = willCarry;
@@ -2641,7 +2636,6 @@ namespace Fast
                 LoadNextFrom0CInc(0xC2AE);
                 x = 0x10;
             }
-
         }
 
         mem6c = a;
@@ -2653,8 +2647,6 @@ namespace Fast
 
         a = mem6f;
         z = mem6f == 0; // Caller expects this.
-
-        return; // Return from WriteIndexed
     }
 
     void Fn_80C2DC()
