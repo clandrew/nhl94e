@@ -2366,22 +2366,25 @@ namespace Fast
         mem00.Data16 = x;
         x = 0x2;
 
-    label_C1F6:
-        c = a >= 0x8000;
-        a *= 2;
-
-        --y;
-        if (y == 0)
+        while (1)
         {
-            LoadNextFrom0CInc(0xC21A);
-            y = 0x8;
-        }
+            c = a >= 0x8000;
+            a *= 2;
 
-        ++x;
+            --y;
+            if (y == 0)
+            {
+                LoadNextFrom0CInc(0xC21A);
+                y = 0x8;
+            }
 
-        if (!c)
-        {
-            goto label_C1F6;
+            ++x;
+
+            if (c)
+            {
+                break;
+            }
+            continue;
         }
 
         mem04 = x;
