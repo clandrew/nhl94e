@@ -129,23 +129,10 @@ namespace Fast
 
     void LoadNextFrom0CInc(unsigned short pc)
     {
-        // $80/BD13 E2 20       SEP #$20                A:9400 X:0002 Y:0025 P:envmxdizc
-
-        pc += 2;
-
         // This runs in 8 bit mode.
-
         loaded16 = Load16FromAddress(dbr, mem0c);
         a &= 0xFF00;
         a |= loaded16.Low8;
-        pc += 2;
-
-        // $80/BD17 C2 20       REP #$20                A:948C X:0002 Y:0025 P:envmxdizc
-
-        pc += 2;
-
-        // $80/BD19 E6 0C       INC $0C    [$00:000C]   A:948C X:0002 Y:0025 P:envmxdizc
-
         mem0c++;
     }
 
@@ -2819,17 +2806,16 @@ namespace Fast
     void Fn_80C2DC()
     {
         // Input: a, x and y
-
-        while (y != 0)
+        // Output: a, mem0c, y
+        for (int i = 0; i < y; ++i)
         {
             a *= 2;
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(0xC2E5);
+                LoadNextFrom0CInc(0xC2E5); // Updates a, mem0c
                 x = 0x10;
             }
-            --y;
         }
     }
 
