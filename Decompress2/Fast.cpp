@@ -299,7 +299,6 @@ namespace Fast
 
     void ShiftRotateDecrement(int xDecAmt, int yDecAmt)
     {
-
         c = a >= 0x8000;
         a *= 2;
 
@@ -372,87 +371,42 @@ namespace Fast
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
 
-        // $80/BBBF 85 73       STA $73    [$00:0073]   A:960F X:0080 Y:00AE P:envmxdizc
-
         mem73 = a;
-
-        // $80/BBC1 E6 0C       INC $0C    [$00:000C]   A:960F X:0080 Y:00AE P:envmxdizc
-
         mem0c++;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
 
-        // $80/BBC5 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
-
-        mem0c++;
-
-        // $80/BBC7 E6 0C       INC $0C    [$00:000C]   A:6596 X:0080 Y:00AE P:envmxdizc
-
-        mem0c++;
-
-        // $80/BBC9 EB          XBA                     A:6596 X:0080 Y:00AE P:envmxdizc
+        mem0c+=2;
 
         a = ExchangeShortHighAndLow(a);
 
-        // $80/BBCA 85 6C       STA $6C    [$00:006C]   A:9665 X:0080 Y:00AE P:envmxdizc
-
         mem6c = a;
-
-        // $80/BBCC A0 08       LDY #$08                A:9665 X:0080 Y:00AE P:envmxdizc
 
         y = 8;
 
-        // $80/BBCE 64 77       STZ $77    [$00:0077]   A:9665 X:0080 Y:0008 P:envmxdizc
-
         mem77 = 0;
-
-        // $80/BBD0 64 75       STZ $75    [$00:0075]   A:9665 X:0080 Y:0008 P:envmxdizc
-
         mem75 = 0;
-
-        a = 0x10;
-
         mem14 = 0x10;
 
-        // $80/BBD7 A2 FE       LDX #$FE                A:0010 X:0080 Y:0008 P:envmxdizc
-
+        a = 0x10;
         x = 0xFE;
 
     label_BBD9:
-        // $80/BBD9 E8          INX                     A:0010 X:00FE Y:0008 P:envmxdizc
-
         x = IncLow8(x);
-
-        // $80/BBDA E8          INX                     A:0010 X:00FF Y:0008 P:envmxdizc
-
         x = IncLow8(x);
-
-        // $80/BBDB C6 14       DEC $14    [$00:0014]   A:0010 X:0000 Y:0008 P:envmxdizc
-
         mem14--;
 
-        // $80/BBDD 06 75       ASL $75    [$00:0075]   A:0010 X:0000 Y:0008 P:envmxdizc
-
         mem75 *= 2;
-
-        // $80/BBDF A5 75       LDA $75    [$00:0075]   A:0010 X:0000 Y:0008 P:envmxdizc
-
         a = mem75;
 
-        // $80/BBE1 38          SEC                     A:0000 X:0000 Y:0008 P:envmxdizc
-
         c = true;
-
-        // $80/BBE2 E5 77       SBC $77    [$00:0077]   A:0000 X:0000 Y:0008 P:envmxdizc
 
         a -= mem77;
 
         loaded16.Data16 = a;
         cache7E0720[x] = loaded16.Low8; // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
         cache7E0720[x + 1] = loaded16.High8;
-
-        // $80/BBE7 20 B0 C1    JSR $C1B0  [$80:C1B0]   A:0000 X:0000 Y:0008 P:envmxdizc
 
         Fn_80C1B0();
 
@@ -461,47 +415,22 @@ namespace Fast
         loaded16.Data16 = a;
         cache7E0700[x] = loaded16.Low8;
 
-        // $80/BBED 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
-
-        c = false;
-
-        // $80/BBEE 65 77       ADC $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
-
         a += mem77;
-
-        // $80/BBF0 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
 
         mem77 = a;
 
-        // $80/BBF2 A5 6F       LDA $6F    [$00:006F]   A:0000 X:0000 Y:0005 P:envmxdizc
-
         a = mem6f;
-
-        // $80/BBF4 18          CLC                     A:0000 X:0000 Y:0005 P:envmxdizc
-
-        c = false;
-
-        // $80/BBF5 65 75       ADC $75    [$00:0075]   A:0000 X:0000 Y:0005 P:envmxdizc
 
         a += mem75;
 
-        // $80/BBF7 85 75       STA $75    [$00:0075]   A:0000 X:0000 Y:0005 P:envmxdizc
-
         mem75 = a;
 
-        // $80/BBF9 A5 6F       LDA $6F    [$00:006F]   A:0000 X:0000 Y:0005 P:envmxdizc
-
-        a = mem6f;
-        z = a == 0;
-
-        // $80/BBFB D0 05       BNE $05    [$BC02]      A:0000 X:0000 Y:0005 P:envmxdizc
-
-        if (!z)
+        if (mem6f != 0)
         {
             goto label_BC02;
         }
 
-        loaded16.Data16 = a;
+        loaded16.Data16 = mem6f;
         cache7E0740[x] = loaded16.Low8;
         cache7E0740[x + 1] = loaded16.High8;
 
