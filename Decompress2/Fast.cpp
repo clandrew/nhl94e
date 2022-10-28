@@ -2005,26 +2005,16 @@ namespace Fast
         }
         indirectLow += 1;
 
-        // $80/C18D 3A          DEC A                   A:003E X:0006 Y:0000 P:envmxdizc
-
         a--;
-        z = a == 0;
-
-        // $80/C18E D0 FA       BNE $FA    [$C18A]      A:003D X:0006 Y:0000 P:envmxdizc
-
-        if (!z)
+        if (a != 0)
         {
             goto label_C18A;
         }
 
-        // $80/C190 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0006 Y:0000 P:envmxdizc
-
         a = mem6c;
 
-        // $80/C192 7C F9 BC    JMP ($BCF9,x)[$80:BEAE] A:F180 X:0006 Y:0000 P:envmxdizc
         if (x == 6)
         {
-
             goto label_BEAE;
         }
         else if (x == 2)
