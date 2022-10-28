@@ -506,317 +506,119 @@ namespace Fast
 
         mem7E0500_7E0700[x]--;
 
-        // $80/BC4C C2 20       REP #$20                A:0000 X:0000 Y:0005 P:envmxdizc
-
         // This is running in 8 bit index mode.
-
-        if (indirectHigh == 0x7E && indirectLow >= 0x100)
-        {
-            loaded16.Data16 = x;
-            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        }
-        else
-        {
-            __debugbreak();
-        }
+        loaded16.Data16 = x;
+        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
         indirectLow += 1;
 
-        // $80/BC51 C6 77       DEC $77    [$00:0077]   A:0000 X:0000 Y:0005 P:envmxdizc
-
         mem77--;
-        z = mem77 == 0;
-
-        // $80/BC53 D0 E5       BNE $E5    [$BC3A]      A:0000 X:0000 Y:0005 P:envmxdizc
-
-        if (!z)
+        if (mem77 != 0)
         {
             goto label_BC3A;
         }
 
-        // $80/BC55 98          TYA                     A:0000 X:00AA Y:0006 P:envmxdizc
-
-        a = y;
-
-        // $80/BC56 0A          ASL A                   A:0006 X:00AA Y:0006 P:envmxdizc
-
-        a *= 2;
-
-        // $80/BC57 85 71       STA $71    [$00:0071]   A:000C X:00AA Y:0006 P:envmxdizc
-
-        mem71 = a;
-
-        // $80/BC59 E2 20       SEP #$20                A:000C X:00AA Y:0006 P:envmxdizc
-
-        // $80/BC5B A2 00       LDX #$00                A:000C X:00AA Y:0006 P:envmxdizc
-
+        mem71 = y * 2;
         x = 0;
-
-        // $80/BC5D 9B          TXY                     A:000C X:0000 Y:0006 P:envmxdizc
-
-        y = x;
-
-        // $80/BC5E 64 7B       STZ $7B    [$00:007B]   A:000C X:0000 Y:0000 P:envmxdizc
-
+        y = 0;
         mem7b = 0;
 
     label_BC60:
-
-        // $80/BC60 86 00       STX $00    [$00:0000]   A:000C X:0000 Y:0000 P:envmxdizc
-
         mem00.Data16 = x;
+        x = mem7b * 2;
 
-        // $80/BC62 A5 7B       LDA $7B    [$00:007B]   A:000C X:0000 Y:0000 P:envmxdizc
-
-        a = mem7b;
-
-        // $80/BC64 0A          ASL A                   A:0000 X:0000 Y:0000 P:envmxdizc
-
-        a *= 2;
-
-        // $80/BC65 AA          TAX                     A:0000 X:0000 Y:0000 P:envmxdizc
-
-        x = a;
-
-        // $80/BC66 E0 10       CPX #$10                A:0000 X:0000 Y:0000 P:envmxdizc
-
-        z = x == 0x10;
-
-        // $80/BC68 F0 55       BEQ $55    [$BCBF]      A:0000 X:0000 Y:0000 P:envmxdizc
-
-        if (z)
+        if (x == 0x10)
         {
             goto label_BCBF;
         }
 
-        a = cache7E0700[x]; // X = 0x0-0x50
-
-        // $80/BC6D 85 77       STA $77    [$00:0077]   A:0000 X:0000 Y:0000 P:envmxdizc
-
-        mem77 = a;
-
-        // $80/BC6F A6 7B       LDX $7B    [$00:007B]   A:0000 X:0000 Y:0000 P:envmxdizc
-
-        x = mem7b;
-
-        // $80/BC71 BF 7B BC 80 LDA $80BC7B,x[$80:BC7B] A:0000 X:0000 Y:0000 P:envmxdizc
-        // x=0..25
-        // Load from ROM. 8bit load
-
-        a = romFile[0x3C7B + x];
-
-        // $80/BC75 85 7D       STA $7D    [$00:007D]   A:0081 X:0000 Y:0000 P:envmxdizc
-
-        mem7d = a;
-
-        // $80/BC77 A6 00       LDX $00    [$00:0000]   A:0081 X:0000 Y:0000 P:envmxdizc
+        mem77 = cache7E0700[x];
+        mem7d = romFile[0x3C7B + mem7b];
 
         x = mem00.Data16;
 
-        // $80/BC79 80 36       BRA $36    [$BCB1]      A:0081 X:0000 Y:0000 P:envmxdizc
-
         goto label_BCB1;
 
-        __debugbreak();
-
     label_BC83:
-
-        // $80/BC83 A5 7B       LDA $7B    [$00:007B]   A:0041 X:0000 Y:0000 P:envmxdizc
-
-        a = mem7b;
-
-        // $80/BC85 0A          ASL A                   A:0001 X:0000 Y:0000 P:envmxdizc
-
-        a *= 2;
-
-        // $80/BC86 85 00       STA $00    [$00:0000]   A:0002 X:0000 Y:0000 P:envmxdizc
+        a = mem7b * 2;
 
         mem00.Data16 = a;
 
         // This is running in 8 bit accumulator and index mode.
-
         loaded16.Data16 = a;
         loaded16.Low8 = cache7E0100[y];
         a = loaded16.Data16;
 
-        // $80/BC8B 85 01       STA $01    [$00:0001]   A:0000 X:0000 Y:0000 P:envmxdizc
-
         loaded16.Data16 = a;
         mem00.High8 = loaded16.Low8;
 
-        // $80/BC8D C8          INY                     A:0000 X:0000 Y:0000 P:envmxdizc
-
         ++y;
 
-        // $80/BC8E C5 73       CMP $73    [$00:0073]   A:0000 X:0000 Y:0001 P:envmxdizc
-
         z = a == (mem73 & 0xFF); // we are in 8bit mode
-
-        // $80/BC90 D0 09       BNE $09    [$BC9B]      A:0000 X:0000 Y:0001 P:envmxdizc
 
         if (!z)
         {
             goto label_BC9B;
         }
 
-        // $80/BC92 A5 7B       LDA $7B    [$00:007B]   A:000F X:0094 Y:000B P:envmxdizc
-
-        a = mem7b;
-
-        // $80/BC94 1A          INC A                   A:0005 X:0094 Y:000B P:envmxdizc
-
-        ++a;
-
-        // $80/BC95 85 74       STA $74    [$00:0074]   A:0006 X:0094 Y:000B P:envmxdizc
+        a = mem7b + 1;
 
         mem73 &= 0x00FF; // Keep the first, lower byte
         mem73 |= (a << 8); // Replace the upper byte, second byte
 
-        // $80/BC97 A9 12       LDA #$12                A:0006 X:0094 Y:000B P:envmxdizc
-
         a = 0x12;
-
-        // $80/BC99 85 00       STA $00    [$00:0000]   A:0012 X:0094 Y:000B P:envmxdizc
 
         loaded16.Data16 = a;
         mem00.Low8 = loaded16.Low8;
 
     label_BC9B:
-
-        // $80/BC9B 84 04       STY $04    [$00:0004]   A:0000 X:0000 Y:0001 P:envmxdizc
-
         mem04 = y;
-
-        // $80/BC9D A4 7D       LDY $7D    [$00:007D]   A:0000 X:0000 Y:0001 P:envmxdizc
-
         y = mem7d;
-
-        // $80/BC9F 80 0B       BRA $0B    [$BCAC]      A:0000 X:0000 Y:0041 P:envmxdizc
-
         goto label_BCAC;
 
     label_BCA1:
-
-        // $80/BCA1 A5 01       LDA $01    [$00:0001]   A:0000 X:0000 Y:0040 P:envmxdizc
-
-        // Select the upper byte of mem0
-        a = mem00.High8;
-
-        mem7E0500_7E0700[x] = (a & 0xFF); // Is this right?
-
-        // $80/BCA6 A5 00       LDA $00    [$00:0000]   A:0000 X:0000 Y:0040 P:envmxdizc
-
-        a = mem00.Low8;
-
-        mem7E0500_7E0700[0x100 + x] = (a & 0xFF);
-
-        // $80/BCAB E8          INX                     A:0002 X:0000 Y:0040 P:envmxdizc
-
+        mem7E0500_7E0700[x] = (mem00.High8 & 0xFF); 
+        mem7E0500_7E0700[0x100 + x] = (mem00.Low8 & 0xFF);
         ++x;
 
     label_BCAC:
-        // $80/BCAC 88          DEY                     A:0000 X:0000 Y:0041 P:envmxdizc
-
         --y;
-        z = y == 0;
-
-        // $80/BCAD D0 F2       BNE $F2    [$BCA1]      A:0000 X:0000 Y:0040 P:envmxdizc
-
-        if (!z)
+        if (y != 0)
         {
             goto label_BCA1;
         }
 
-        // $80/BCAF A4 04       LDY $04    [$00:0004]   A:0002 X:0040 Y:0000 P:envmxdizc
-
         y = mem04;
 
     label_BCB1:
-
-        // $80/BCB1 C6 77       DEC $77    [$00:0077]   A:0081 X:0000 Y:0000 P:envmxdizc
-
         mem77--;
         n = mem77 >= 0x8000;
-
-        // $80/BCB3 10 CE       BPL $CE    [$BC83]      A:0081 X:0000 Y:0000 P:envmxdizc
 
         if (!n)
         {
             goto label_BC83;
         }
 
-        // $80/BCB5 E6 7B       INC $7B    [$00:007B]   A:0081 X:0000 Y:0000 P:envmxdizc
-
         mem7b++;
-
-        // $80/BCB7 A5 79       LDA $79    [$00:0079]   A:0081 X:0000 Y:0000 P:envmxdizc
-
-        a = mem79;
-
-        // $80/BCB9 C5 7B       CMP $7B    [$00:007B]   A:0009 X:0000 Y:0000 P:envmxdizc
-
-        c = a >= mem7b;
-
-        // $80/BCBB B0 A3       BCS $A3    [$BC60]      A:0009 X:0000 Y:0000 P:envmxdizc
-        if (c)
-        {
-            goto label_BC60;
-        }
-
-        __debugbreak();
+        goto label_BC60;
 
     label_BCBF:
-
-        // $80/BCBF A6 00       LDX $00    [$00:0000]   A:0010 X:0010 Y:003B P:envmxdizc
-
         x = mem00.Low8;
-        z = x == 0;
-
-        // $80/BCC1 F0 08       BEQ $08    [$BCCB]      A:0010 X:00F1 Y:003B P:envmxdizc
-
-        if (z)
-        {
-            __debugbreak();
-            //goto label_BCCB;
-        }
-
-        // $80/BCC3 A9 10       LDA #$10                A:0010 X:00F1 Y:003B P:envmxdizc
-
         a = 0x10;
 
     label_BCC5:
         // 8bit acc
-
         loaded16.Data16 = a;
         mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
 
-        // $80/BCC8 E8          INX                     A:0010 X:00F1 Y:003B P:envmxdizc
-
         ++x;
         x &= 0x00FF;
-        z = x == 0;
 
-        // $80/BCC9 D0 FA       BNE $FA    [$BCC5]      A:0010 X:00F2 Y:003B P:envmxdizc
-
-        if (!z)
+        if (x != 0)
         {
             goto label_BCC5;
         }
 
-        // $80/BCCB A5 79       LDA $79    [$00:0079]   A:0010 X:0000 Y:003B P:envmxdizc
-
-        a = mem79;
-
-        // $80/BCCD 0A          ASL A                   A:0009 X:0000 Y:003B P:envmxdizc
-
-        a *= 2;
-
-        // $80/BCCE AA          TAX                     A:0012 X:0000 Y:003B P:envmxdizc
-
-        x = a;
-
-        // $80/BCCF C2 20       REP #$20                A:0012 X:0012 Y:003B P:envmxdizc
-
-        // $80/BCD1 BF D9 BC 80 LDA $80BCD9,x[$80:BCEB] A:0012 X:0012 Y:003B P:envmxdizc
+        x = mem79 * 2;
 
         if (x == 0x10)
         {
@@ -833,31 +635,13 @@ namespace Fast
 
         mem0760 = a;
 
-        // $80/BCD8 A4 12       LDY $12    [$00:0012]   A:BFC8 X:0012 Y:003B P:envmxdizc
-
-        y = mem12;
-
         indirectHigh = mem12;
-
-        // $80/BCDD A5 10       LDA $10    [$00:0010]   A:BFC8 X:0012 Y:007F P:envmxdizc
-
-        a = mem10;
-
         indirectLow = mem10;
 
-        // $80/BCE2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0012 Y:007F P:envmxdizc
-
         a = mem6c;
-
-        // $80/BCE4 A6 71       LDX $71    [$00:0071]   A:2508 X:0012 Y:007F P:envmxdizc
-
         x = mem71;
-
-        // $80/BCE6 7C F9 BC    JMP ($BCF9,x)[$80:BDBE] A:2508 X:000C Y:007F P:envmxdizc
-        // x = {2, 6, C, E}
         if (x == 2)
         {
-
             goto label_BF53;
         }
         else if (x == 6)
@@ -1066,7 +850,6 @@ namespace Fast
         LoadNextFrom0500(0xBDB6);
 
     label_BDBE:
-
         LoadNextFrom0600(0xBDBE);
 
         if (x == 2)
@@ -1131,8 +914,7 @@ namespace Fast
         a *= 2;
 
     label_BE03:
-        a *= 2;
-        a *= 2;
+        a *= 4;
 
         // Includes $80/BE08.
         LoadNextFrom0500(0xBE05);
@@ -1152,12 +934,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-
             goto label_BDA7;
         }
         else if (x == 8)
         {
-
             goto label_BD0E;
         }
         else if (x == 0xA)
