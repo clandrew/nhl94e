@@ -383,7 +383,6 @@ namespace Fast
             goto label_BBD9;
         }
 
-    label_BC02:
         mem00.Data16 = mem75;
         a = mem14;
 
@@ -523,22 +522,13 @@ namespace Fast
 
     label_BC9B:
         mem04 = y;
-        y = mem7d;
-        goto label_BCAC;
 
-    label_BCA1:
-        mem7E0500_7E0700[x] = (mem00.High8 & 0xFF); 
-        mem7E0500_7E0700[0x100 + x] = (mem00.Low8 & 0xFF);
-        ++x;
-
-    label_BCAC:
-        --y;
-        if (y != 0)
+        for (int i = 0; i < mem7d - 1; ++i)
         {
-            goto label_BCA1;
+            mem7E0500_7E0700[x] = (mem00.High8 & 0xFF);
+            mem7E0500_7E0700[0x100 + x] = (mem00.Low8 & 0xFF);
+            ++x;
         }
-
-        y = mem04;
 
     label_BCB1:
         mem77--;
