@@ -1016,7 +1016,8 @@ namespace Fast
 
         if (x == 0x10)
         {
-            goto label_BED1;
+            LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
+            goto label_JumpAbsolute760;
         }
         else if (x == 0x8)
         {
@@ -1047,8 +1048,8 @@ namespace Fast
         }
         else if (x == 0x12)
         {
-
-            goto label_BECC;
+            x = 0x6;
+            goto label_C17C;
         }
         else if (x == 4)
         {
@@ -1059,14 +1060,6 @@ namespace Fast
         {
             __debugbreak(); // notimpl
         }
-
-    label_BECC:
-        x = 0x6;
-        goto label_C17C;
-
-    label_BED1:
-        LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
-        goto label_JumpAbsolute760;
 
     label_BEE9:
         a *= 2;
