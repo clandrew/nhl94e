@@ -1297,7 +1297,7 @@ namespace Fast
 
         y = mem08;
 
-        for (int i = 0; i < a; ++i)
+        for (int i = 0; i < mem6f; ++i)
         {
             // This is 8 bit index.
             loaded16.Data16 = y;
