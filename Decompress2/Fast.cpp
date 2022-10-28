@@ -1297,7 +1297,7 @@ namespace Fast
 
         y = mem08;
 
-        while (a != 0)
+        for (int i = 0; i < a; ++i)
         {
             // This is 8 bit index.
             loaded16.Data16 = y;
@@ -1314,8 +1314,6 @@ namespace Fast
                 __debugbreak();
             }
             indirectLow += 1;
-
-            a--;
         }
 
         a = mem6c;
