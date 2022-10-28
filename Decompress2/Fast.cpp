@@ -2555,8 +2555,9 @@ namespace Fast
 
     void Fn_80C232()
     {
-        mem6f = 0;
+        // Input: x, mem6c
 
+        mem6f = 0;
         a = mem6c;
 
         willCarry = a >= 0x8000;
@@ -2572,24 +2573,33 @@ namespace Fast
             x = 0x10;
         }
 
-        if (!c)
+        if (c)
         {
-            goto label_C277;
-        }
+            ShiftRotateDecrement(0xC23D, 2, 0);
 
-        ShiftRotateDecrement(0xC23D, 2, 0);
+            if (z)
+            {
+                LoadNextFrom0CInc(0xC25C);
 
-        if (z)
-        {
-            LoadNextFrom0CInc(0xC25C);
+                x = 0x10;
+            }
+
+            ShiftRotateDecrement(0xC244, 2, 0);
+
+            if (!z)
+            {
+                mem6c = a;
+
+                a = mem6f;
+                z = mem6f == 0;
+
+                return;
+            }
+
+            LoadNextFrom0CInc(0xC268);
 
             x = 0x10;
-        }
 
-        ShiftRotateDecrement(0xC244, 2, 0);
-
-        if (!z)
-        {
             mem6c = a;
 
             a = mem6f;
@@ -2597,42 +2607,28 @@ namespace Fast
 
             return;
         }
-
-    label_C268:
-
-        LoadNextFrom0CInc(0xC268);
-
-        x = 0x10;
-
-        mem6c = a;
-
-        a = mem6f;
-        z = a == 0;
-
-        return;
-
-    label_C277:
-        y = 2;
-
-    label_C279:
-        willCarry = a >= 0x8000;
-        a *= 2;
-        c = willCarry;
-
-        x -= 2;
-        if (x == 0)
+        else
         {
-            LoadNextFrom0CInc(0xC2A2);
-            x = 0x10;
+            y = 2;
         }
 
-        y++;
-
-        if (!c)
+        c = false;
+        while (!c)
         {
-            goto label_C279;
-        }
+        label_C279:
+            willCarry = a >= 0x8000;
+            a *= 2;
+            c = willCarry;
 
+            x -= 2;
+            if (x == 0)
+            {
+                LoadNextFrom0CInc(0xC2A2);
+                x = 0x10;
+            }
+
+            y++;
+        }
 
         mem14 = y;
 
