@@ -2759,9 +2759,8 @@ namespace Fast
 
         x = y;
 
-        a = mem6f + lookup[lookupIndex];
-
         mem6f += lookup[lookupIndex];
+        a = mem6f;
         z = mem6f == 0; // Caller expects this.
 
         return; // Return from WriteIndexed
