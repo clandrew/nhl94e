@@ -2348,7 +2348,9 @@ namespace Fast
 
         if (z)
         {
-            goto label_C1CB;
+            LoadNextFrom0CInc(0xC1CB);
+            y = 0x8;
+            goto label_C1B8;
         }
 
     label_C1B8:
@@ -2373,8 +2375,6 @@ namespace Fast
 
         ShiftRotateDecrement(0xC1C0, 0, 1);
 
-        // $80/C1C4 F0 1D       BEQ $1D    [$C1E3]      A:B328 X:0000 Y:0005 P:envmxdizc
-
         if (z)
         {
             LoadNextFrom0CInc(0xC1E3);
@@ -2384,29 +2384,9 @@ namespace Fast
             return;
         }
 
-        // $80/C1C6 85 6C       STA $6C    [$00:006C]   A:B328 X:0000 Y:0005 P:envmxdizc
-
         mem6c = a;
-
-        // $80/C1C8 A5 6F       LDA $6F    [$00:006F]   A:B328 X:0000 Y:0005 P:envmxdizc
-
         a = mem6f;
-
-        // $80/C1CA 60          RTS                     A:0000 X:0000 Y:0005 P:envmxdizc
-
         return;
-
-    label_C1CB:
-
-        LoadNextFrom0CInc(0xC1CB);
-
-        // $80/C1D3 A0 08       LDY #$08                A:2212 X:0056 Y:0000 P:envmxdizc
-
-        y = 0x8;
-
-        // $80/C1D5 80 E1       BRA $E1    [$C1B8]      A:2212 X:0056 Y:0008 P:envmxdizc
-
-        goto label_C1B8;
 
     label_C1D7:
 
