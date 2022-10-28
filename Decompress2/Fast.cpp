@@ -2340,32 +2340,29 @@ namespace Fast
             y = 0x8;
         }
 
-        if (!c)
+        if (c)
         {
-            goto label_C1F2;
+            ShiftRotateDecrement(0xC1BA, 0, 1);
+
+            if (z)
+            {
+                LoadNextFrom0CInc(0xC1D7);
+                y = 0x8;
+            }
+
+            ShiftRotateDecrement(0xC1C0, 0, 1);
+
+            if (z)
+            {
+                LoadNextFrom0CInc(0xC1E3);
+                y = 8;
+            }
+
+            mem6c = a;
+            a = mem6f;
+            return;
         }
 
-        ShiftRotateDecrement(0xC1BA, 0, 1);
-
-        if (z)
-        {
-            LoadNextFrom0CInc(0xC1D7);
-            y = 0x8;
-        }
-
-        ShiftRotateDecrement(0xC1C0, 0, 1);
-
-        if (z)
-        {
-            LoadNextFrom0CInc(0xC1E3);
-            y = 8;
-        }
-
-        mem6c = a;
-        a = mem6f;
-        return;
-
-    label_C1F2:
         mem00.Data16 = x;
         x = 0x2;
 
