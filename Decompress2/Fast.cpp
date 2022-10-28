@@ -1083,8 +1083,8 @@ namespace Fast
         }
         else if (x == 0x12)
         {
-
-            goto label_BDDC;
+            x = 0xC;
+            goto label_C17C;
         }
         else if (x == 0xC)
         {
@@ -1118,10 +1118,6 @@ namespace Fast
 
         __debugbreak();
 
-    label_BDDC:
-        x = 0xC;
-        goto label_C17C;
-
     label_BDE1:
 
         LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
@@ -1144,7 +1140,6 @@ namespace Fast
 
         if (x == 0x10)
         {
-
             goto label_BE30;
         }
         else if (x == 0xE)
