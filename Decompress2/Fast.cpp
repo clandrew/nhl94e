@@ -2567,10 +2567,11 @@ namespace Fast
 
         if (x == 0)
         {
-            goto label_C250;
+            LoadNextFrom0CInc(0xC250);
+
+            x = 0x10;
         }
 
-    label_C23B:
         if (!c)
         {
             goto label_C277;
@@ -2585,28 +2586,17 @@ namespace Fast
             x = 0x10;
         }
 
-    label_C244:
         ShiftRotateDecrement(0xC244, 2, 0);
 
-        if (z)
+        if (!z)
         {
-            goto label_C268;
+            mem6c = a;
+
+            a = mem6f;
+            z = a == 0;
+
+            return;
         }
-
-        mem6c = a;
-
-        a = mem6f;
-        z = a == 0;
-
-        return;
-
-    label_C250:
-
-        LoadNextFrom0CInc(0xC250);
-
-        x = 0x10;
-
-        goto label_C23B;
 
     label_C268:
 
