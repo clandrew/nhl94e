@@ -2824,20 +2824,19 @@ namespace Fast
         {
             a *= 2;
             x -= 2;
-            if (x == 0)
+            if (x != 0)
             {
-                goto label_C2E5;
+                y--;
+                if (y == 0)
+                {
+                    return;
+                }
+                else
+                {
+                    continue;
+                }
             }
 
-            y--;
-            if (y != 0)
-            {
-                continue;
-            }
-            return;
-
-
-        label_C2E5:
             LoadNextFrom0CInc(0xC2E5);
             x = 0x10;
             --y;
