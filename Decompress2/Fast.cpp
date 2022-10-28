@@ -2355,8 +2355,6 @@ namespace Fast
 
     label_C1B8:
 
-        // $80/C1B8 90 38       BCC $38    [$C1F2]      A:2CCA X:0000 Y:0007 P:envmxdizc
-
         if (!c)
         {
             goto label_C1F2;
@@ -2364,14 +2362,11 @@ namespace Fast
 
         ShiftRotateDecrement(0xC1BA, 0, 1);
 
-        // $80/C1BE F0 17       BEQ $17    [$C1D7]      A:5994 X:0000 Y:0006 P:envmxdizc
-
         if (z)
         {
-            goto label_C1D7;
+            LoadNextFrom0CInc(0xC1D7);
+            y = 0x8;
         }
-
-    label_C1C0:
 
         ShiftRotateDecrement(0xC1C0, 0, 1);
 
@@ -2387,14 +2382,6 @@ namespace Fast
         mem6c = a;
         a = mem6f;
         return;
-
-    label_C1D7:
-
-        LoadNextFrom0CInc(0xC1D7);
-
-        y = 0x8;
-
-        goto label_C1C0;
 
     label_C1F2:
         mem00.Data16 = x;
