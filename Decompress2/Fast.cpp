@@ -2326,34 +2326,19 @@ namespace Fast
 
     void Fn_80C1B0()
     {
-        // $80/C1B0 64 6F       STZ $6F    [$00:006F]   A:0000 X:0000 Y:0008 P:envmxdizc
-
         mem6f = 0;
-
-        // $80/C1B2 A5 6C       LDA $6C    [$00:006C]   A:0000 X:0000 Y:0008 P:envmxdizc
-
         a = mem6c;
-
-        // $80/C1B4 0A          ASL A                   A:9665 X:0000 Y:0008 P:envmxdizc
 
         c = a >= 0x8000;
         a *= 2;
 
-        // $80/C1B5 88          DEY                     A:2CCA X:0000 Y:0008 P:envmxdizc
-
         --y;
-        z = y == 0;
 
-        // $80/C1B6 F0 13       BEQ $13    [$C1CB]      A:2CCA X:0000 Y:0007 P:envmxdizc
-
-        if (z)
+        if (y == 0)
         {
             LoadNextFrom0CInc(0xC1CB);
             y = 0x8;
-            goto label_C1B8;
         }
-
-    label_C1B8:
 
         if (!c)
         {
