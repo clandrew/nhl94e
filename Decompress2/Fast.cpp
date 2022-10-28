@@ -1142,7 +1142,8 @@ namespace Fast
 
         if (x == 0x10)
         {
-            goto label_BE30;
+            LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
+            goto label_JumpAbsolute760;
         }
         else if (x == 0xE)
         {
@@ -1194,12 +1195,6 @@ namespace Fast
         x = 0xA;
 
         goto label_C17C;
-
-    label_BE30:
-        // Includes B340
-        LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
-
-        goto label_JumpAbsolute760;
 
     label_BE48:
         a *= 2;
