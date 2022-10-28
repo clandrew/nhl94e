@@ -217,19 +217,14 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftThenLoad100ThenCompare(unsigned short pc, int shifts, int subtractDataAddress, int nextY)
+    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY)
     {
         for (int i = 0; i < shifts; ++i)
         {
             // $80/BF8F 4A          LSR A                   A:F192 X:0006 Y:00F1 P:envmxdizc
 
             a >>= 1;
-            ++pc;
         }
-
-        // $80/BF96 38          SEC                     A:01E3 X:0006 Y:00F1 P:envmxdizc
-
-        ++pc;
 
         bool shadowBank7E = false;
         if (subtractDataAddress < 0x8000)
@@ -263,34 +258,12 @@ namespace Fast
         }
 
         a -= loaded16.Data16;
-        pc += 3;
-
-        // $80/BF9A A8          TAY                     A:003C X:0006 Y:00F1 P:envmxdizc
 
         y = a;
-        ++pc;
-
-        // $80/BF9B E2 20       SEP #$20                A:003C X:0006 Y:003C P:envmxdizc
-
-        pc += 2;
 
         a = cache7E0100[y];
-        pc += 3;
 
-        if (nextY == 1)
-        {
-
-        }
-        else if (nextY == 2)
-        {
-
-        }
-        else
-        {
-            __debugbreak();
-        }
         y = nextY;
-        pc += 2;
 
         // $80/BFA2 C5 73       CMP $73    [$00:0073]   A:0008 X:0006 Y:0001 P:envmxdizc
 
@@ -419,11 +392,7 @@ namespace Fast
 
         mem77 = a;
 
-        a = mem6f;
-
-        a += mem75;
-
-        mem75 = a;
+        mem75 += mem6f;
 
         if (mem6f != 0)
         {
@@ -434,57 +403,21 @@ namespace Fast
         cache7E0740[x] = loaded16.Low8;
         cache7E0740[x + 1] = loaded16.High8;
 
-        // $80/BC00 80 D7       BRA $D7    [$BBD9]      A:0000 X:0000 Y:0005 P:envmxdizc
-
         goto label_BBD9;
 
-        __debugbreak(); // notimpl
-
     label_BC02:
-        // $80/BC02 A5 75       LDA $75    [$00:0075]   A:0001 X:0002 Y:0002 P:envmxdizc
-
-        a = mem75;
-
-        // $80/BC04 85 00       STA $00    [$00:0000]   A:0001 X:0002 Y:0002 P:envmxdizc
-
-        mem00.Data16 = a;
-
-        // $80/BC06 A5 14       LDA $14    [$00:0014]   A:0001 X:0002 Y:0002 P:envmxdizc
-
+        mem00.Data16 = mem75;
         a = mem14;
-        z = a == 0;
-
-        // $80/BC08 18          CLC                     A:000E X:0002 Y:0002 P:envmxdizc
-
-        c = false;
-
-        // $80/BC09 F0 05       BEQ $05    [$BC10]      A:000E X:0002 Y:0002 P:envmxdizc
-
-        if (z)
-        {
-            __debugbreak(); // notimpl
-            //goto label_BC10;
-        }
 
     label_BC0B:
-        // $80/BC0B 06 00       ASL $00    [$00:0000]   A:000E X:0002 Y:0002 P:envmxdizc
-
         c = mem00.Data16 >= 0x8000;
         mem00.Data16 *= 2;
 
-        // $80/BC0D 3A          DEC A                   A:000E X:0002 Y:0002 P:envmxdizc
-
         --a;
-        z = a == 0;
-
-        // $80/BC0E D0 FB       BNE $FB    [$BC0B]      A:000D X:0002 Y:0002 P:envmxdizc
-
-        if (!z)
+        if (a != 0)
         {
             goto label_BC0B;
         }
-
-        // $80/BC10 A5 00       LDA $00    [$00:0000]   A:0000 X:0002 Y:0002 P:envmxdizc
 
         a = mem00.Data16;
 
@@ -492,34 +425,16 @@ namespace Fast
         cache7E0740[x] = loaded16.Low8;
         cache7E0740[x + 1] = loaded16.High8;
 
-        // $80/BC15 90 C2       BCC $C2    [$BBD9]      A:4000 X:0002 Y:0002 P:envmxdizc
-
         if (!c)
         {
             goto label_BBD9;
         }
 
-        // Can fall through-- cary can be set by ASL on mem00 earlier
-
-        // $80/BC17 8A          TXA                     A:0000 X:0012 Y:0008 P:envmxdizc
-
-        a = x;
-
-        // $80/BC18 4A          LSR A                   A:0012 X:0012 Y:0008 P:envmxdizc
-
-        a >>= 1;
-
-        // $80/BC19 85 79       STA $79    [$00:0079]   A:0009 X:0012 Y:0008 P:envmxdizc
-
-        mem79 = a;
-
-        // $80/BC1B A2 3E       LDX #$3E                A:0009 X:0012 Y:0008 P:envmxdizc
+        mem79 = x >> 1;
 
         x = 0x3E;
 
     label_BC1D:
-        // X = 0x3E, 0x3C, 0x3A, ... 6, 4, 2, 0
-
         mem7E0500_7E0700[x] = 0;
         mem7E0500_7E0700[x + 1] = 0;
 
@@ -544,20 +459,8 @@ namespace Fast
             goto label_BC1D;
         }
 
-        // Indirect RAM access -- hardcoded access 0x7E0100
-        // $80/BC2D A2 7E       LDX #$7E                A:0009 X:00FE Y:0008 P:envmxdizc
-
-        x = 0x7E;
-
-        indirectHigh = x;
-
-        // $80/BC32 A9 00 01    LDA #$0100              A:0009 X:007E Y:0008 P:envmxdizc
-
-        a = 0x100;
-
-        indirectLow = a;
-
-        // $80/BC38 A2 FF       LDX #$FF                A:0100 X:007E Y:0008 P:envmxdizc
+        indirectHigh = 0x7E;
+        indirectLow = 0x100;
 
         x = 0xFF;
 
@@ -1665,50 +1568,40 @@ namespace Fast
 
         LoadNextFrom0600(0xBF00);
 
-        // $80/BF07 7C 0A BF    JMP ($BF0A,x)[$80:BD11] A:2500 X:0002 Y:0025 P:envmxdizc
         if (x == 2)
         {
-
             goto label_BD11;
         }
         else if (x == 0xA)
         {
-
             goto label_BE47;
         }
         else if (x == 0xE)
         {
-
             goto label_BEE8;
         }
         else if (x == 0xC)
         {
-
             goto label_BE97;
         }
         else if (x == 8)
         {
-
             goto label_BDF8;
         }
         else if (x == 6)
         {
-
             goto label_BDAA;
         }
         else if (x == 0x10)
         {
-
             goto label_BF23;
         }
         else if (x == 0x12)
         {
-
             goto label_BF1E;
         }
         else if (x == 4)
         {
-
             goto label_BD5D;
         }
         else
@@ -1717,12 +1610,8 @@ namespace Fast
         }
 
     label_BF1E:
-
         x = 4;
-
         goto label_C17C;
-
-        __debugbreak();
 
     label_BF23:
 
@@ -1818,9 +1707,7 @@ namespace Fast
         }
 
     label_BF71:
-
         x = 2;
-
         goto label_C17C;
 
     label_BF76:
@@ -1831,32 +1718,13 @@ namespace Fast
 
     label_BF8F:
 
-        ShiftThenLoad100ThenCompare(0xBF8F, 7, 0x0730, 0x1);
-
-        // $80/BFA4 F0 1C       BEQ $1C    [$BFC2]      A:0008 X:0006 Y:0001 P:envmxdizc
-
-        if (z)
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // $80/BFA6 4C E8 C0    JMP $C0E8  [$80:C0E8]   A:0008 X:0006 Y:0001 P:envmxdizc
+        ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
 
         goto label_C0E8;
 
     label_BFA9:
 
-        // Includes BFB0
-        ShiftThenLoad100ThenCompare(0xBFA9, 6, 0x732, 2);
-
-        // $80/BFBD F0 03       BEQ $03    [$BFC2]      A:00AA X:0006 Y:0002 P:envmxdizc
-
-        if (z)
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // $80/BFBF 4C E8 C0    JMP $C0E8  [$80:C0E8]   A:00AA X:0006 Y:0002 P:envmxdizc
+        ShiftThenLoad100ThenCompare(6, 0x732, 2);
 
         goto label_C0E8;
 
