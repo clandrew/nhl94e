@@ -2359,9 +2359,6 @@ namespace Fast
         {
             LoadNextFrom0CInc(0xC1E3);
             y = 8;
-            mem6c = a;
-            a = mem6f;
-            return;
         }
 
         mem6c = a;
