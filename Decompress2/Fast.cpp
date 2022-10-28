@@ -2377,7 +2377,11 @@ namespace Fast
 
         if (z)
         {
-            goto label_C1E3;
+            LoadNextFrom0CInc(0xC1E3);
+            y = 8;
+            mem6c = a;
+            a = mem6f;
+            return;
         }
 
         // $80/C1C6 85 6C       STA $6C    [$00:006C]   A:B328 X:0000 Y:0005 P:envmxdizc
@@ -2408,85 +2412,31 @@ namespace Fast
 
         LoadNextFrom0CInc(0xC1D7);
 
-        // $80/C1DF A0 08       LDY #$08                A:653C X:0004 Y:0000 P:envmxdizc
-
         y = 0x8;
-
-        // $80/C1E1 80 DD       BRA $DD    [$C1C0]      A:653C X:0004 Y:0008 P:envmxdizc
 
         goto label_C1C0;
 
-        __debugbreak();
-
-    label_C1E3:
-
-        LoadNextFrom0CInc(0xC1E3);
-
-        // $80/C1EB A0 08       LDY #$08                A:811C X:0012 Y:0000 P:envmxdizc
-
-        y = 8;
-
-        // $80/C1ED 85 6C       STA $6C    [$00:006C]   A:811C X:0012 Y:0008 P:envmxdizc
-
-        mem6c = a;
-
-        // $80/C1EF A5 6F       LDA $6F    [$00:006F]   A:811C X:0012 Y:0008 P:envmxdizc
-
-        a = mem6f;
-
-        // $80/C1F1 60          RTS                     A:0002 X:0012 Y:0008 P:envmxdizc
-
-        return;
-
     label_C1F2:
-
-        // $80/C1F2 86 00       STX $00    [$00:0000]   A:A780 X:0008 Y:0003 P:envmxdizc
-
         mem00.Data16 = x;
-
-        // $80/C1F4 A2 02       LDX #$02                A:A780 X:0008 Y:0003 P:envmxdizc
-
         x = 0x2;
 
     label_C1F6:
-        // $80/C1F6 0A          ASL A                   A:A780 X:0002 Y:0003 P:envmxdizc
-
         c = a >= 0x8000;
         a *= 2;
 
-        // $80/C1F7 88          DEY                     A:4F00 X:0002 Y:0003 P:envmxdizc
-
         --y;
-        z = y == 0;
-
-        // $80/C1F8 F0 20       BEQ $20    [$C21A]      A:4F00 X:0002 Y:0002 P:envmxdizc
-
-        if (z)
+        if (y == 0)
         {
             LoadNextFrom0CInc(0xC21A);
-
-            // $80/C222 A0 08       LDY #$08                A:91D1 X:0002 Y:0000 P:envmxdizc
-
             y = 0x8;
-
-            // $80/C224 80 D4       BRA $D4    [$C1FA]      A:91D1 X:0002 Y:0008 P:envmxdizc
-
-            goto label_C1FA;
         }
 
-    label_C1FA:
-        // $80/C1FA E8          INX                     A:4F00 X:0002 Y:0002 P:envmxdizc
-
         ++x;
-
-        // $80/C1FB 90 F9       BCC $F9    [$C1F6]      A:4F00 X:0003 Y:0002 P:envmxdizc
 
         if (!c)
         {
             goto label_C1F6;
         }
-
-        // $80/C1FD 86 04       STX $04    [$00:0004]   A:4F00 X:0003 Y:0002 P:envmxdizc
 
         mem04 = x;
 
