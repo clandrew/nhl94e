@@ -958,9 +958,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BE96:
-        a *= 4;
-
     label_BE98:
         a *= 2;
         LoadNextFrom0CInc();
@@ -990,7 +987,8 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            goto label_BE96;
+            a *= 4;
+            goto label_BE98;
         }
         else if (x == 2)
         {
@@ -1162,10 +1160,7 @@ namespace Fast
         {
             cache7F0000[indirectLow] = loaded16.Low8;
         }
-        else
-        {
-            __debugbreak();
-        }
+
         indirectLow += 1;
 
         loaded16.Data16 = mem08;
@@ -1190,7 +1185,6 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-
             goto label_C10A;
         }
         else if (x == 0x10)
@@ -1199,7 +1193,6 @@ namespace Fast
         }
         else if (x == 4)
         {
-
             goto label_C11E;
         }
         else if (x == 0xC)
@@ -1209,15 +1202,12 @@ namespace Fast
         }
         else if (x == 2)
         {
-
             goto label_C122;
         }
         else
         {
             __debugbreak(); // notimpl
         }
-
-        __debugbreak();
 
     label_C106:
         a *= 2;
@@ -1281,9 +1271,7 @@ namespace Fast
         LoadNextFrom0CInc();
 
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_BD23;
         }
@@ -1291,14 +1279,7 @@ namespace Fast
         a *= 2;
 
         y--;
-        z = y == 0;
-
-        if (z)
-        {
-            goto label_BD70;
-        }
-
-        __debugbreak();
+        goto label_BD70;
 
     label_C17C:
 
