@@ -2697,58 +2697,26 @@ namespace Fast
 
         mem14 = y;
 
-    label_C283:
-
-        ShiftRotateDecrement(0xC283, 2, 0);
-
-        // $80/C288 F0 24       BEQ $24    [$C2AE]      A:1700 X:0000 Y:0006 P:envmxdizc
-
-        if (z)
+        while (y > 0)
         {
-            LoadNextFrom0CInc(0xC2AE);
+            ShiftRotateDecrement(0xC283, 2, 0);
 
-            // $80/C2B6 A2 10       LDX #$10                A:178C X:0000 Y:0006 P:envmxdizc
+            if (z)
+            {
+                LoadNextFrom0CInc(0xC2AE);
+                x = 0x10;
+            }
 
-            x = 0x10;
-
-            // $80/C2B8 80 D0       BRA $D0    [$C28A]      A:178C X:0010 Y:0006 P:envmxdizc
-
+            y--;
         }
-
-        // $80/C28A 88          DEY                     A:178C X:0010 Y:0006 P:envmxdizc
-
-        y--;
-        z = y == 0;
-
-        // $80/C28B D0 F6       BNE $F6    [$C283]      A:178C X:0010 Y:0005 P:envmxdizc
-
-        if (!z)
-        {
-            goto label_C283;
-        }
-
-        // $80/C28D 85 6C       STA $6C    [$00:006C]   A:F180 X:0006 Y:0000 P:envmxdizc
 
         mem6c = a;
 
-        // $80/C28F 9B          TXY                     A:F180 X:0006 Y:0000 P:envmxdizc
-
-        y = x;
-
-        // $80/C290 A5 14       LDA $14    [$00:0014]   A:F180 X:0006 Y:0006 P:envmxdizc
-
-        a = mem14;
-
-        a *= 2;
-
-        x = y;
-
-        // $80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2] A:000C X:000C Y:0006 P:envmxdizc
-        // x is one of {6, 8, A, C, 10}
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = (a - 6) / 2;
+        int lookupIndex = (mem14 * 2 - 6) / 2;
 
         mem6f += lookup[lookupIndex];
+
         a = mem6f;
         z = mem6f == 0; // Caller expects this.
 
