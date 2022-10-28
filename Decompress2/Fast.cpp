@@ -974,8 +974,9 @@ namespace Fast
         }
         else if (x == 0x10)
         {
+            LoadNextFrom0CMaskAndShift(0xBD46, 0x10, 0);
 
-            goto label_BD46;
+            goto label_JumpAbsolute760;
         }
         else if (x == 0xC)
         {
@@ -1004,12 +1005,6 @@ namespace Fast
         x = 0x10;
 
         goto label_C17C;
-
-    label_BD46:
-
-        LoadNextFrom0CMaskAndShift(0xBD46, 0x10, 0);
-
-        goto label_JumpAbsolute760;
 
     label_BD58:
 
@@ -1815,7 +1810,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C159;
+            goto label_BD70;
         }
 
     label_C10A:
@@ -1823,7 +1818,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C156;
+            goto label_BDBE;
         }
 
     label_C10E:
@@ -1831,7 +1826,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C153;
+            goto label_BE0D;
         }
 
     label_C112:
@@ -1839,7 +1834,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C150;
+            goto label_BE5D;
         }
 
     label_C116:
@@ -1847,7 +1842,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C14D;
+            goto label_BEAE;
         }
 
     label_C11A:
@@ -1863,7 +1858,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_C147;
+            goto label_BF53;
         }
 
     label_C122:
@@ -1877,7 +1872,7 @@ namespace Fast
 
         if (z)
         {
-            goto label_C15C;
+            goto label_BD23;
         }
 
         a *= 2;
@@ -1887,38 +1882,10 @@ namespace Fast
 
         if (z)
         {
-            goto label_C159;
+            goto label_BD70;
         }
 
         __debugbreak();
-
-    label_C147:
-
-        goto label_BF53;
-
-    label_C14D:
-
-        goto label_BEAE;
-
-    label_C150:
-
-        goto label_BE5D;
-
-    label_C153:
-
-        goto label_BE0D;
-
-    label_C156:
-
-        goto label_BDBE;
-
-    label_C159:
-
-        goto label_BD70;
-
-    label_C15C:
-
-        goto label_BD23;
 
     label_C17C:
 
@@ -1969,7 +1936,6 @@ namespace Fast
         }
         else if (x == 2)
         {
-
             goto label_BF53;
         }
         else if (x == 0xA)
