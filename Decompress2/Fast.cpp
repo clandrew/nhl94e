@@ -2753,52 +2753,16 @@ namespace Fast
 
         // $80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2] A:000C X:000C Y:0006 P:envmxdizc
         // x is one of {6, 8, A, C, 10}
-        if (x == 0x6)
-        {
-
-            a = 0x4;
-        }
-        else if (x == 0x8)
-        {
-
-            a = 0xC;
-        }
-        else if (x == 0xA)
-        {
-
-            a = 0x1C;
-        }
-        else if (x == 0xC)
-        {
-
-            a = 0x3C;
-        }
-        else if (x == 0xE)
-        {
-
-            a = 0x7C;
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // $80/C29B BB          TYX                     A:003C X:000C Y:0006 P:envmxdizc
+        static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
+        int lookupIndex = (x - 6) / 2;
+        a = lookup[lookupIndex];
 
         x = y;
 
-        // $80/C29C 18          CLC                     A:003C X:0006 Y:0006 P:envmxdizc
+        a = mem6f + lookup[lookupIndex];
 
-        // $80/C29D 65 6F       ADC $6F    [$00:006F]   A:003C X:0006 Y:0006 P:envmxdizc
-
-        a += mem6f;
-
-        // $80/C29F 85 6F       STA $6F    [$00:006F]   A:003E X:0006 Y:0006 P:envmxdizc
-
-        mem6f = a;
-        z = a == 0; // Caller expects this.
-
-        // $80/C2A1 60          RTS                     A:003E X:0006 Y:0006 P:envmxdizc
+        mem6f += lookup[lookupIndex];
+        z = mem6f == 0; // Caller expects this.
 
         return; // Return from WriteIndexed
     }
@@ -2813,7 +2777,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(0xC2E5); // Updates a, mem0c
+                LoadNextFrom0CInc(0xC2E5); // Sets a. Updates mem0c
                 x = 0x10;
             }
         }
