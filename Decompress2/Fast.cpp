@@ -1,6 +1,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <assert.h>
 #include "Util.h"
 #include "Decompress2.h"
 
@@ -352,6 +353,7 @@ namespace Fast
         a = 0x10;
         x = 0xFE;
         bool continueDecompression = true;
+        unsigned char decompressedValue = 0;
 
     label_BBD9:
         x = IncLow8(x);
@@ -374,16 +376,12 @@ namespace Fast
         a += mem77;
         mem77 = a;
         mem75 += mem6f;
-        if (mem6f != 0)
+        if (mem6f == 0)
         {
-            goto label_BC02;
+            cache7E0740[x] = 0;
+            cache7E0740[x + 1] = 0;
+            goto label_BBD9;
         }
-
-        loaded16.Data16 = mem6f;
-        cache7E0740[x] = loaded16.Low8;
-        cache7E0740[x + 1] = loaded16.High8;
-
-        goto label_BBD9;
 
     label_BC02:
         mem00.Data16 = mem75;
@@ -1276,15 +1274,17 @@ namespace Fast
         }
 
         // Write the value 'mem08', mem6f times.
+        assert(mem08 <= 0xFF);
+        decompressedValue = static_cast<unsigned char>(mem08);
         for (int i = 0; i < mem6f; ++i)
         {
             if (indirectHigh == 0x7E && indirectLow >= 0x100)
             {
-                cache7E0100[indirectLow - 0x100] = mem08;
+                cache7E0100[indirectLow - 0x100] = decompressedValue;
             }
             else if (indirectHigh == 0x7F)
             {
-                cache7F0000[indirectLow] = mem08;
+                cache7F0000[indirectLow] = decompressedValue;
             }
             else
             {
@@ -1871,7 +1871,7 @@ namespace Fast
             }
         }
     }
-
+     
 }
 
 void Decompress_Fast_Init()
