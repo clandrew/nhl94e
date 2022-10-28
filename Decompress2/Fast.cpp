@@ -606,17 +606,14 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-
             goto label_BD70;
         }
         else if (x == 0x10)
         {
-
             goto label_BD23;
         }
         else if (x == 0xA)
         {
-
             goto label_BE0D;
         }
         else if (x == 0x4)
@@ -633,27 +630,6 @@ namespace Fast
         {
             __debugbreak();
         }
-
-    label_BD0B:
-
-        a *= 2;
-
-    label_BD0C:
-
-        a *= 2;
-
-    label_BD0D:
-        a *= 2;
-
-    label_BD0E:
-        a *= 2;
-
-    label_BD0F:
-        a *= 2;
-
-    label_BD10:
-
-        a *= 2;
 
     label_BD11:
         a *= 4;
@@ -683,7 +659,8 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            goto label_BD0B;
+            a *= 64;
+            goto label_BD11;
         }
         else if (x == 0x10)
         {
@@ -751,7 +728,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BD0C;
+            a *= 32;
+            goto label_BD11;
         }
         else if (x == 0x12)
         {
@@ -790,8 +768,8 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-
-            goto label_BD0D;
+            a *= 16;
+            goto label_BD11;
         }
         else if (x == 8)
         {
@@ -866,7 +844,8 @@ namespace Fast
         }
         else if (x == 8)
         {
-            goto label_BD0E;
+            a *= 8;
+            goto label_BD11;
         }
         else if (x == 0xA)
         {
@@ -943,7 +922,8 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BD0F;
+            a *= 4;
+            goto label_BD11;
         }
         else if (x == 2)
         {
@@ -1012,7 +992,8 @@ namespace Fast
         }
         else if (x == 4)
         {
-            goto label_BD10;
+            a *= 2;
+            goto label_BD11;
         }
         else
         {
@@ -1198,7 +1179,6 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-
             goto label_C10E;
         }
         else if (x == 2)
