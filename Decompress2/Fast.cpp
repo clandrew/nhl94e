@@ -446,12 +446,10 @@ namespace Fast
     label_BC3A:
         Fn_80C1B0();
         ++a;
-
         while (a != 0)
         {
             ++x;
             x &= 0xFF;
-
             if (mem7E0500_7E0700[x] < 0x80)
             {
                 --a;
@@ -566,7 +564,6 @@ namespace Fast
 
         ++x;
         x &= 0x00FF;
-
         if (x != 0)
         {
             goto label_BCC5;
@@ -600,12 +597,10 @@ namespace Fast
         }
         else if (x == 6)
         {
-
             goto label_BEAE;
         }
         else if (x == 0xC)
         {
-
             goto label_BDBE;
         }
         else if (x == 0xE)
@@ -681,7 +676,8 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            goto label_BEF2;
+            a *= 16;
+            goto label_BEF6;
         }
         else if (x == 0xE)
         {
@@ -743,7 +739,8 @@ namespace Fast
         }
         else if (x == 8)
         {
-            goto label_BEF3;
+            a *= 8;
+            goto label_BEF6;
         }
         else if (x == 0x10)
         {
@@ -834,22 +831,19 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-
             goto label_BDA6;
         }
         else if (x == 6)
         {
-
-            goto label_BEF4;
+            a *= 4;
+            goto label_BEF6;
         }
         else if (x == 0x10)
         {
-
             goto label_BDE1;
         }
         else if (x == 4)
         {
-
             goto label_BEA3;
         }
         else
@@ -869,8 +863,6 @@ namespace Fast
 
     label_BE03:
         a *= 4;
-
-        // Includes $80/BE08.
         LoadNextFrom0500(0xBE05);
 
     label_BE0D:
@@ -911,24 +903,18 @@ namespace Fast
         }
         else if (x == 0x12)
         {
-
-            goto label_BE2B;
+            x = 0xA;
+            goto label_C17C;
         }
         else if (x == 4)
         {
-
-            goto label_BEF5;
+            a *= 2;
+            goto label_BEF6;
         }
         else
         {
             __debugbreak();
         }
-
-    label_BE2B:
-
-        x = 0xA;
-
-        goto label_C17C;
 
     label_BE48:
         a *= 2;
@@ -944,7 +930,8 @@ namespace Fast
 
         if (x == 0x12)
         {
-            goto label_BE7B;
+            x = 0x8;
+            goto label_C17C;
         }
         else if (x == 0xE)
         {
@@ -953,7 +940,6 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-
             goto label_BDA8;
         }
         else if (x == 0xC)
@@ -968,16 +954,16 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            goto label_BE80;
+            LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
+
+            goto label_JumpAbsolute760;
         }
         else if (x == 6)
         {
-
             goto label_BD0F;
         }
         else if (x == 2)
         {
-
             goto label_BEF6;
         }
         else if (x == 4)
@@ -989,16 +975,6 @@ namespace Fast
         {
             __debugbreak(); // notimpl
         }
-
-    label_BE7B:
-        x = 0x8;
-        goto label_C17C;
-
-    label_BE80:
-
-        LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
-
-        goto label_JumpAbsolute760;
 
     label_BE96:
 
@@ -1038,15 +1014,12 @@ namespace Fast
 
         LoadNextFrom0600(0xBEAE);
 
-        // $80/BEB5 7C B8 BE    JMP ($BEB8,x)[$80:BED1] A:F180 X:0010 Y:00F1 P:envmxdizc
         if (x == 0x10)
         {
-
             goto label_BED1;
         }
         else if (x == 0x8)
         {
-
             goto label_BDA9;
         }
         else if (x == 0xA)
@@ -1056,12 +1029,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-
             goto label_BE96;
         }
         else if (x == 2)
         {
-
             goto label_BF49;
         }
         else if (x == 0xC)
@@ -1097,38 +1068,13 @@ namespace Fast
         LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
         goto label_JumpAbsolute760;
 
-    label_BEE8:
-
-        a *= 2;
-
     label_BEE9:
-
         a *= 2;
-
         LoadNextFrom0CInc();
-
-    label_BEF2:
-
-        a *= 2;
-
-    label_BEF3:
-
-        a *= 2;
-
-    label_BEF4:
-
-        a *= 2;
-
-    label_BEF5:
-
-        a *= 2;
+        a *= 16;
 
     label_BEF6:
-
-        a *= 2;
-
-        a *= 2;
-
+        a *= 4;
         LoadNextFrom0500(0xBEF8);
 
     label_BF00:
@@ -1146,7 +1092,8 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            goto label_BEE8;
+            a *= 2;
+            goto label_BEE9;
         }
         else if (x == 0xC)
         {
