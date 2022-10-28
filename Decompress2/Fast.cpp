@@ -332,36 +332,23 @@ namespace Fast
 
         x &= 0xFF;
         y &= 0xFF;
-
-        a = mem0c;
-
-        c = false;
-
-        a += 5;
-
-        mem0c = a;
+        mem0c += 5;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
-        a = loaded16.Data16;
-
-        mem73 = a;
+        mem73 = loaded16.Data16;
         mem0c++;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
-
         mem0c+=2;
 
         a = ExchangeShortHighAndLow(a);
-
         mem6c = a;
 
         y = 8;
-
         mem77 = 0;
         mem75 = 0;
         mem14 = 0x10;
-
         a = 0x10;
         x = 0xFE;
 
@@ -371,29 +358,21 @@ namespace Fast
         mem14--;
 
         mem75 *= 2;
-        a = mem75;
-
-        c = true;
-
-        a -= mem77;
+        a = mem75 - mem77;
 
         loaded16.Data16 = a;
-        cache7E0720[x] = loaded16.Low8; // Write A to 99/0720 -- this is 7E0720 (it's shadowed).
+        cache7E0720[x] = loaded16.Low8; 
         cache7E0720[x + 1] = loaded16.High8;
 
         Fn_80C1B0();
 
         // 8bit index
-
         loaded16.Data16 = a;
         cache7E0700[x] = loaded16.Low8;
 
         a += mem77;
-
         mem77 = a;
-
         mem75 += mem6f;
-
         if (mem6f != 0)
         {
             goto label_BC02;
@@ -882,8 +861,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-        __debugbreak();
-
     label_BDE1:
 
         LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
@@ -1017,15 +994,8 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-        __debugbreak();
-
     label_BE7B:
-        // $80/BE7B A2 08       LDX #$08                A:9420 X:0012 Y:0094 P:envmxdizc
-
         x = 0x8;
-
-        // $80/BE7D 4C 7C C1    JMP $C17C  [$80:C17C]   A:9420 X:0008 Y:0094 P:envmxdizc
-
         goto label_C17C;
 
     label_BE80:
@@ -1124,17 +1094,11 @@ namespace Fast
         }
 
     label_BECC:
-
         x = 0x6;
-
         goto label_C17C;
 
-        __debugbreak();
-
     label_BED1:
-
         LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
-
         goto label_JumpAbsolute760;
 
     label_BEE8:
@@ -1203,11 +1167,13 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            goto label_BF23;
+            LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
+            goto label_JumpAbsolute760;
         }
         else if (x == 0x12)
         {
-            goto label_BF1E;
+            x = 4;
+            goto label_C17C;
         }
         else if (x == 4)
         {
@@ -1218,14 +1184,6 @@ namespace Fast
         {
             __debugbreak();
         }
-
-    label_BF1E:
-        x = 4;
-        goto label_C17C;
-
-    label_BF23:
-        LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
-        goto label_JumpAbsolute760;
 
     label_BF49:
         a *= 4;
