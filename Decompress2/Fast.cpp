@@ -961,7 +961,8 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BE51;
+            a *= 4;
+            goto label_BE53;
         }
         else if (x == 4)
         {
@@ -1022,7 +1023,8 @@ namespace Fast
         }
         else if (x == 4)
         {
-            goto label_BE52;
+            a *= 2;
+            goto label_BE53;
         }
         else
         {
@@ -1199,57 +1201,26 @@ namespace Fast
 
         goto label_JumpAbsolute760;
 
-    label_BE45:
-
-        a *= 2;
-
-    label_BE46:
-
-        a *= 2;
-
-    label_BE47:
-
-        a *= 2;
-
     label_BE48:
-
         a *= 2;
-
         LoadNextFrom0CInc();
-
-    label_BE51:
-
-        a *= 2;
-
-    label_BE52:
-
-        a *= 2;
+        a *= 4;
 
     label_BE53:
-
-        // $80/BE53 0A          ASL A                   A:2508 X:0002 Y:0025 P:envmxdizc
-
-        a *= 2;
-
-        // $80/BE54 0A          ASL A                   A:4A10 X:0002 Y:0025 P:envmxdizc
-
-        a *= 2;
-
+        a *= 4;
         LoadNextFrom0500(0xBE55);
 
     label_BE5D:
         LoadNextFrom0600(0xBE5D);
 
-        // $80/BE64 7C 67 BE    JMP ($BE67,x)[$80:BE7B] A:9420 X:0012 Y:0094 P:envmxdizc
         if (x == 0x12)
         {
-
             goto label_BE7B;
         }
         else if (x == 0xE)
         {
-
-            goto label_BE45;
+            a *= 8;
+            goto label_BE48;
         }
         else if (x == 0xA)
         {
@@ -1373,8 +1344,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-
-            goto label_BE46;
+            a *= 4;
+            goto label_BE48;
         }
         else if (x == 6)
         {
@@ -1454,7 +1425,8 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            goto label_BE47;
+            a *= 2;
+            goto label_BE48;
         }
         else if (x == 0xE)
         {
