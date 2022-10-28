@@ -2986,11 +2986,11 @@ namespace Fast
         return result;
     }
 
-    void WriteIndexed()
+    void WriteIndexed(unsigned short homeOrAway)
     {
         // Figure out the destination offset based on profile index and whether we're home or away.
         unsigned short localIndex = 0xA - (currentProfileImageIndex * 2);
-        unsigned short destDataAddressLow = mem91_HomeOrAway == 0 ? 0x5100 : 0x2D00;
+        unsigned short destDataAddressLow = homeOrAway == 0 ? 0x5100 : 0x2D00;
         destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + localIndex).Data16;
 
         for (int iter = 0; iter < 0x240; ++iter)
@@ -3195,7 +3195,7 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3();
-        WriteIndexed();
+        WriteIndexed(mem91_HomeOrAway);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
         //DumpDecompressedResult(finalResultWriteLocation);
