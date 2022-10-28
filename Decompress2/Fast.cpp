@@ -2697,7 +2697,7 @@ namespace Fast
 
         mem14 = y;
 
-        while (y > 0)
+        for (int i = 0; i < y; ++i)
         {
             ShiftRotateDecrement(0xC283, 2, 0);
 
@@ -2707,8 +2707,8 @@ namespace Fast
                 x = 0x10;
             }
 
-            y--;
         }
+        y = 0;
 
         mem6c = a;
 
