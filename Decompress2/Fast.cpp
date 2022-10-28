@@ -447,19 +447,15 @@ namespace Fast
         Fn_80C1B0();
         ++a;
 
-    label_BC40:
-        ++x;
-        x &= 0xFF;
-
-        if (mem7E0500_7E0700[x] >= 0x80)
+        while (a != 0)
         {
-            goto label_BC40;
-        }
+            ++x;
+            x &= 0xFF;
 
-        --a;
-        if (a != 0)
-        {
-            goto label_BC40;
+            if (mem7E0500_7E0700[x] < 0x80)
+            {
+                --a;
+            }
         }
 
         mem7E0500_7E0700[x]--;
