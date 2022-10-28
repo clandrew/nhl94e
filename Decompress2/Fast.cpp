@@ -1982,7 +1982,7 @@ namespace Fast
 
         if (z)
         {
-            goto label_C195;
+            goto label_C1AF;
         }
 
         y = mem08;
@@ -2066,9 +2066,6 @@ namespace Fast
         {
             __debugbreak(); // notimpl
         }
-
-    label_C195:
-        goto label_C1AF;
 
     label_C1AF:
 
