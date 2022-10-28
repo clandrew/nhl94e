@@ -2755,7 +2755,6 @@ namespace Fast
         // x is one of {6, 8, A, C, 10}
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = (x - 6) / 2;
-        a = lookup[lookupIndex];
 
         x = y;
 
