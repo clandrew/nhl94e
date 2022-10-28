@@ -542,9 +542,8 @@ namespace Fast
 
     label_BCB1:
         mem77--;
-        n = mem77 >= 0x8000;
 
-        if (!n)
+        if (mem77 <= 0x8000)
         {
             goto label_BC83;
         }
