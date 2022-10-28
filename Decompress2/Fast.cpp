@@ -2366,7 +2366,8 @@ namespace Fast
         mem00.Data16 = x;
         x = 0x2;
 
-        while (1)
+        c = false;
+        while (!c)
         {
             c = a >= 0x8000;
             a *= 2;
@@ -2379,12 +2380,6 @@ namespace Fast
             }
 
             ++x;
-
-            if (c)
-            {
-                break;
-            }
-            continue;
         }
 
         mem04 = x;
