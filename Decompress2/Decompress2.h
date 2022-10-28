@@ -33,6 +33,16 @@ enum class Team
     Count
 };
 
+union Mem16
+{
+    unsigned short Data16;
+    struct
+    {
+        unsigned char Low8;
+        unsigned char High8;
+    };
+};
+
 void Decompress_Slow_Init();
 void Decompress_Slow_Run(int teamIndex, int playerIndex);
 

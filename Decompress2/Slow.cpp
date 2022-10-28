@@ -23,16 +23,6 @@ std::string outputCpuLogFileName;
 std::string outputIndexedColorFileName;
 std::string goldIndexedColorFileName;
 
-union Mem16
-{
-    unsigned short Data16;
-    struct
-    {
-        unsigned char Low8;
-        unsigned char High8;
-    };
-};
-
 Mem16 mem00{};
 unsigned short mem04 = 0;
 unsigned short mem06 = 0;
