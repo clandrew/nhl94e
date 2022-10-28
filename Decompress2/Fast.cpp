@@ -2739,24 +2739,14 @@ namespace Fast
 
         a = mem14;
 
-        // $80/C292 29 FF 00    AND #$00FF              A:0006 X:0006 Y:0006 P:envmxdizc
-
-        a &= 0xFF;
-
-        // $80/C295 0A          ASL A                   A:0006 X:0006 Y:0006 P:envmxdizc
-
         a *= 2;
 
-        // $80/C296 AA          TAX                     A:000C X:0006 Y:0006 P:envmxdizc
-
-        x = a;
+        x = y;
 
         // $80/C297 BF B6 C2 80 LDA $80C2B6,x[$80:C2C2] A:000C X:000C Y:0006 P:envmxdizc
         // x is one of {6, 8, A, C, 10}
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = (x - 6) / 2;
-
-        x = y;
+        int lookupIndex = (a - 6) / 2;
 
         mem6f += lookup[lookupIndex];
         a = mem6f;
