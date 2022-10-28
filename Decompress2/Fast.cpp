@@ -2490,67 +2490,26 @@ namespace Fast
 
         mem04 = x;
 
-    label_C1FF_Finish:
-
-        ShiftRotateDecrement(0xC1FF, 0, 1);
-
-        if (z)
+        for (int i = 0; i < mem04; ++i)
         {
-            LoadNextFrom0CInc(0xC226);
+            ShiftRotateDecrement(0xC1FF, 0, 1);
 
-            y = 0x8;
+            if (z)
+            {
+                LoadNextFrom0CInc(0xC226);
+                y = 0x8;
+            }
 
         }
-
-        // $80/C205 CA          DEX                     A:9E00 X:0003 Y:0001 P:envmxdizc
-
-        --x;
-        z = x == 0;
-
-        // $80/C206 D0 F7       BNE $F7    [$C1FF]      A:9E00 X:0002 Y:0001 P:envmxdizc
-
-        if (!z)
-        {
-            goto label_C1FF_Finish;
-        }
-
-        // $80/C208 85 6C       STA $6C    [$00:006C]   A:7922 X:0000 Y:0007 P:envmxdizc
 
         mem6c = a;
-
-        // $80/C20A 06 04       ASL $04    [$00:0004]   A:7922 X:0000 Y:0007 P:envmxdizc
-
         mem04 *= 2;
-
-        // $80/C20C A6 04       LDX $04    [$00:0004]   A:7922 X:0000 Y:0007 P:envmxdizc
-
-        x = mem04;
-
-        // $80/C20E BF B6 C2 80 LDA $80C2B6,x[$80:C2BC] A:7922 X:0006 Y:0007 P:envmxdizc
-
-        // X is one of {6,8,A,C,E,10} here. The ROM values are
-        static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
-        a = s_ROMValueTable_80C2B6[x / 2];
-
-        // $80/C212 A6 00       LDX $00    [$00:0000]   A:0004 X:0006 Y:0007 P:envmxdizc
 
         x = mem00.Data16;
 
-        // $80/C214 18          CLC                     A:0004 X:0008 Y:0007 P:envmxdizc
-
-        c = false;
-
-        // $80/C215 65 6F       ADC $6F    [$00:006F]   A:0004 X:0008 Y:0007 P:envmxdizc
-
-        a += mem6f;
-
-        // $80/C217 85 6F       STA $6F    [$00:006F]   A:0006 X:0008 Y:0007 P:envmxdizc
-
+        static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
+        a = s_ROMValueTable_80C2B6[mem04 / 2] + mem6f;
         mem6f = a;
-
-        // $80/C219 60          RTS                     A:0006 X:0008 Y:0007 P:envmxdizc
-
-        return;
     }
 
     void Fn_80C232()
@@ -2578,7 +2537,6 @@ namespace Fast
             if (z)
             {
                 LoadNextFrom0CInc(0xC25C);
-
                 x = 0x10;
             }
 
@@ -2587,22 +2545,17 @@ namespace Fast
             if (!z)
             {
                 mem6c = a;
-
                 a = mem6f;
                 z = mem6f == 0;
-
                 return;
             }
 
             LoadNextFrom0CInc(0xC268);
 
             x = 0x10;
-
             mem6c = a;
-
             a = mem6f;
             z = a == 0;
-
             return;
         }
 
