@@ -1295,19 +1295,16 @@ namespace Fast
             return; // return from monstrosity
         }
 
-        y = mem08;
-
+        // Write the value 'mem08', mem6f times.
         for (int i = 0; i < mem6f; ++i)
         {
-            // This is 8 bit index.
-            loaded16.Data16 = y;
             if (indirectHigh == 0x7E && indirectLow >= 0x100)
             {
-                cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+                cache7E0100[indirectLow - 0x100] = mem08;
             }
             else if (indirectHigh == 0x7F)
             {
-                cache7F0000[indirectLow] = loaded16.Low8;
+                cache7F0000[indirectLow] = mem08;
             }
             else
             {
