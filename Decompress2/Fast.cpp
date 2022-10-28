@@ -127,7 +127,7 @@ namespace Fast
         return result;
     }
 
-    void LoadNextFrom0CInc(unsigned short pc)
+    void LoadNextFrom0CInc()
     {
         // This runs in 8 bit mode.
         loaded16 = Load16FromAddress(dbr, mem0c);
@@ -1113,7 +1113,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBD13);
+        LoadNextFrom0CInc();
 
         LoadNextFrom0500(0xBD1B);
 
@@ -1213,7 +1213,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBD5F);
+        LoadNextFrom0CInc();
 
         a *= 2;
 
@@ -1310,7 +1310,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBDAC);
+        LoadNextFrom0CInc();
 
     label_BDB4:
         // $80/BDB4 0A          ASL A                   A:2E2B X:0008 Y:0085 P:envmxdizc
@@ -1412,7 +1412,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBDFA);
+        LoadNextFrom0CInc();
 
     label_BE02:
 
@@ -1508,7 +1508,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBE49);
+        LoadNextFrom0CInc();
 
     label_BE51:
 
@@ -1613,7 +1613,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBE99);
+        LoadNextFrom0CInc();
 
     label_BEA1:
 
@@ -1712,7 +1712,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBEEA);
+        LoadNextFrom0CInc();
 
     label_BEF2:
 
@@ -1811,7 +1811,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xBF3C);
+        LoadNextFrom0CInc();
 
     label_BF44:
 
@@ -2145,7 +2145,7 @@ namespace Fast
 
         a *= 2;
 
-        LoadNextFrom0CInc(0xC123);
+        LoadNextFrom0CInc();
 
         y--;
         z = y == 0;
@@ -2333,10 +2333,9 @@ namespace Fast
         a *= 2;
 
         --y;
-
         if (y == 0)
         {
-            LoadNextFrom0CInc(0xC1CB);
+            LoadNextFrom0CInc();
             y = 0x8;
         }
 
@@ -2346,7 +2345,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc(0xC1D7);
+                LoadNextFrom0CInc();
                 y = 0x8;
             }
 
@@ -2354,7 +2353,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc(0xC1E3);
+                LoadNextFrom0CInc();
                 y = 8;
             }
 
@@ -2375,7 +2374,7 @@ namespace Fast
             --y;
             if (y == 0)
             {
-                LoadNextFrom0CInc(0xC21A);
+                LoadNextFrom0CInc();
                 y = 0x8;
             }
 
@@ -2390,15 +2389,13 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc(0xC226);
+                LoadNextFrom0CInc();
                 y = 0x8;
             }
-
         }
 
         mem6c = a;
         mem04 *= 2;
-
         x = mem00.Data16;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
@@ -2420,7 +2417,7 @@ namespace Fast
 
         if (x == 0)
         {
-            LoadNextFrom0CInc(0xC250);
+            LoadNextFrom0CInc();
             x = 0x10;
         }
 
@@ -2430,7 +2427,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc(0xC25C);
+                LoadNextFrom0CInc();
                 x = 0x10;
             }
 
@@ -2444,7 +2441,7 @@ namespace Fast
                 return;
             }
 
-            LoadNextFrom0CInc(0xC268);
+            LoadNextFrom0CInc();
 
             x = 0x10;
             mem6c = a;
@@ -2465,7 +2462,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(0xC2A2);
+                LoadNextFrom0CInc();
                 x = 0x10;
             }
 
@@ -2480,7 +2477,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc(0xC2AE);
+                LoadNextFrom0CInc();
                 x = 0x10;
             }
         }
@@ -2506,7 +2503,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(0xC2E5); // Sets a. Updates mem0c
+                LoadNextFrom0CInc(); // Sets a. Updates mem0c
                 x = 0x10;
             }
         }
