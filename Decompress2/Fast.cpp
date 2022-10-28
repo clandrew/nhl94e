@@ -1033,7 +1033,6 @@ namespace Fast
         }
         else if (x == 4)
         {
-
             goto label_BD10;
         }
         else
@@ -1051,7 +1050,6 @@ namespace Fast
         LoadNextFrom0500(0xBEF8);
 
     label_BF00:
-
         LoadNextFrom0600(0xBF00);
 
         if (x == 2)
@@ -1144,7 +1142,8 @@ namespace Fast
         }
         else if (x == 0x12)
         {
-            goto label_BF71;
+            x = 2;
+            goto label_C17C;
         }
         else if (x == 4)
         {
@@ -1154,10 +1153,6 @@ namespace Fast
         {
             __debugbreak();
         }
-
-    label_BF71:
-        x = 2;
-        goto label_C17C;
 
     label_BFC8:
 
@@ -1219,7 +1214,6 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-
             goto label_C106;
         }
         else if (x == 4)
@@ -1301,7 +1295,6 @@ namespace Fast
         }
 
     label_C122:
-
         a *= 2;
 
         LoadNextFrom0CInc();
@@ -1338,7 +1331,7 @@ namespace Fast
 
         if (z)
         {
-            goto label_C1AF;
+            return; // return from monstrosity
         }
 
         y = mem08;
@@ -1379,44 +1372,32 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-
             goto label_BE0D;
         }
         else if (x == 0xC)
         {
-
             goto label_BDBE;
         }
         else if (x == 8)
         {
-
             goto label_BE5D;
         }
         else if (x == 0xE)
         {
-
             goto label_BD70;
         }
         else if (x == 0x10)
         {
-
             goto label_BD23;
         }
         else if (x == 4)
         {
-
             goto label_BF00;
         }
         else
         {
             __debugbreak(); // notimpl
         }
-
-    label_C1AF:
-
-        // Return from monstrosity
-
-        return;
 
     label_JumpAbsolute760:
         switch (mem0760)
@@ -1594,7 +1575,6 @@ namespace Fast
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = (mem14 * 2 - 6) / 2;
-
         mem6f += lookup[lookupIndex];
 
         a = mem6f;
