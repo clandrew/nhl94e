@@ -672,7 +672,8 @@ namespace Fast
         }
         else if (x == 0x8)
         {
-            goto label_BEA1;
+            a *= 8;
+            goto label_BEA4;
         }
         else if (x == 0xA)
         {
@@ -756,7 +757,8 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BEA2;
+            a *= 4;
+            goto label_BEA4;
         }
         else if (x == 4)
         {
@@ -844,7 +846,8 @@ namespace Fast
         }
         else if (x == 4)
         {
-            goto label_BEA3;
+            a *= 2;
+            goto label_BEA4;
         }
         else
         {
@@ -977,41 +980,18 @@ namespace Fast
         }
 
     label_BE96:
-
-        a *= 2;
-
-    label_BE97:
-
-        a *= 2;
+        a *= 4;
 
     label_BE98:
-
         a *= 2;
-
         LoadNextFrom0CInc();
-
-    label_BEA1:
-
-        a *= 2;
-
-    label_BEA2:
-
-        a *= 2;
-
-    label_BEA3:
-
-        a *= 2;
+        a *= 8;
 
     label_BEA4:
-
-        a *= 2;
-
-        a *= 2;
-
+        a *= 4;
         LoadNextFrom0500(0xBEA6);
 
     label_BEAE:
-
         LoadNextFrom0600(0xBEAE);
 
         if (x == 0x10)
@@ -1090,7 +1070,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BE97;
+            a *= 2;
+            goto label_BE98;
         }
         else if (x == 8)
         {
