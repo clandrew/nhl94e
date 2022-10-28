@@ -1479,17 +1479,14 @@ namespace Fast
             {
                 mem6c = a;
                 a = mem6f;
-                z = mem6f == 0;
-                return !z;
+                return mem6f != 0;
             }
 
             LoadNextFrom0CInc();
 
             x = 0x10;
             mem6c = a;
-            a = mem6f;
-            z = a == 0;
-            return !z;
+            return mem6f != 0;
         }
 
         y = 2;
@@ -1529,10 +1526,7 @@ namespace Fast
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = (mem14 * 2 - 6) / 2;
         mem6f += lookup[lookupIndex];
-
-        a = mem6f;
-        z = mem6f == 0; // Caller expects this.
-        return !z;
+        return mem6f != 0;
     }
 
     void Fn_80C2DC()
