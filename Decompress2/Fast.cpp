@@ -1711,12 +1711,6 @@ namespace Fast
         x = 2;
         goto label_C17C;
 
-    label_BFC5:
-
-        ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-
-        goto label_C0E8;
-
     label_BFC8:
 
         loaded16.Low8 = cache7E0740[0x10];
@@ -2074,16 +2068,7 @@ namespace Fast
         }
 
     label_C195:
-
-        a = mem6c;
-        n = mem6c >= 0x8000;
-
-        if (n)
-        {
-            goto label_C1AF;
-        }
-
-        __debugbreak(); // notimpl
+        goto label_C1AF;
 
     label_C1AF:
 
@@ -2094,7 +2079,12 @@ namespace Fast
     label_JumpAbsolute760:
         switch (mem0760)
         {
-        case 0xBFC5: goto label_BFC5;
+        case 0xBFC5: 
+        {
+            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+
+            goto label_C0E8;
+        }
         case 0xBFC8: goto label_BFC8;
         default: __debugbreak();
         }
