@@ -1863,50 +1863,25 @@ namespace Fast
         }
 
     label_C116:
-
         a *= 2;
-
-        // $80/C117 88          DEY                     A:2500 X:0006 Y:0001 P:envmxdizc
-
         y--;
-        z = y == 0;
-
-        if (z)
+        if (y == 0)
         {
             goto label_C14D;
         }
 
     label_C11A:
-
-        // $80/C11A 0A          ASL A                   A:9280 X:0006 Y:0001 P:envmxdizc
-
         a *= 2;
-
-        // $80/C11B 88          DEY                     A:2500 X:0006 Y:0001 P:envmxdizc
-
         y--;
-        z = y == 0;
-
-        // $80/C11C F0 2C       BEQ $2C    [$C14A]      A:2500 X:0006 Y:0000 P:envmxdizc
-
-        if (z)
+        if (y == 0)
         {
-            goto label_C14A;
+            goto label_BF00;
         }
 
     label_C11E:
-        // $80/C11E 0A          ASL A                   A:9280 X:0006 Y:0001 P:envmxdizc
-
         a *= 2;
-
-        // $80/C11F 88          DEY                     A:2500 X:0006 Y:0001 P:envmxdizc
-
         y--;
-        z = y == 0;
-
-        // $80/C120 F0 2C       BEQ $2C    [$C14A]      A:2500 X:0006 Y:0000 P:envmxdizc
-
-        if (z)
+        if (y == 0)
         {
             goto label_C147;
         }
@@ -1940,11 +1915,6 @@ namespace Fast
     label_C147:
 
         goto label_BF53;
-
-    label_C14A:
-        // $80/C14A 4C 00 BF    JMP $BF00  [$80:BF00]   A:2500 X:0006 Y:0000 P:envmxdizc
-
-        goto label_BF00;
 
     label_C14D:
 
