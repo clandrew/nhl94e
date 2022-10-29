@@ -489,23 +489,18 @@ namespace Fast
         goto label_BCB1;
 
     label_BC83:
-        a = mem7b * 2;
-
-        mem00.Data16 = a;
+        mem00.Data16 = mem7b * 2;
 
         // This is running in 8 bit accumulator and index mode.
-        loaded16.Data16 = a;
+        loaded16.Data16 = mem00.Data16;
         loaded16.Low8 = cache7E0100[y];
         a = loaded16.Data16;
 
-        loaded16.Data16 = a;
-        mem00.High8 = loaded16.Low8;
+        mem00.High8 = cache7E0100[y];
 
         ++y;
 
-        z = a == (mem73 & 0xFF); // we are in 8bit mode
-
-        if (!z)
+        if (a != (mem73 & 0xFF))
         {
             goto label_BC9B;
         }
@@ -522,17 +517,15 @@ namespace Fast
 
     label_BC9B:
         mem04 = y;
-
         for (int i = 0; i < mem7d - 1; ++i)
         {
-            mem7E0500_7E0700[x] = (mem00.High8 & 0xFF);
-            mem7E0500_7E0700[0x100 + x] = (mem00.Low8 & 0xFF);
+            mem7E0500_7E0700[x] = mem00.High8;
+            mem7E0500_7E0700[0x100 + x] = mem00.Low8;
             ++x;
         }
 
     label_BCB1:
         mem77--;
-
         if (mem77 <= 0x8000)
         {
             goto label_BC83;
