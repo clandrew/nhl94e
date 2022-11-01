@@ -178,40 +178,28 @@ namespace Fast
         x = mem7E0500_7E0700[0x100 + y];
     }
 
-    void LoadNextFrom0CMaskAndShift(unsigned short pc, unsigned char nextX, int shifts)
+    void LoadNextFrom0CMaskAndShift(unsigned char nextX, int shifts)
     {
-
         x = nextX;
-        pc += 2;
-
-        // $80/BED3 64 6A       STZ $6A    [$00:006A]   A:F180 X:0006 Y:00F1 P:envmxdizc
 
         mem6a = 0;
-        pc += 2;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         a = loaded16.Data16;
-        pc += 2;
-
-        // $80/BED7 29 FF 00    AND #$00FF              A:8C94 X:0006 Y:00F1 P:envmxdizc
 
         a &= 0xFF;
-        pc += 3;
 
         for (int i = 0; i < shifts; ++i)
         {
 
             a *= 2;
-            pc++;
         }
 
         loaded16 = LoadMem6b();
         a |= loaded16.Data16;
-        pc += 2;
 
         loaded16.Data16 = a;
         SaveMem6b(loaded16);
-        pc += 2;
 
         a = mem6c;
     }
@@ -618,7 +606,7 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBD46, 0x10, 0);
+            LoadNextFrom0CMaskAndShift(0x10, 0);
 
             goto label_JumpAbsolute760;
         }
@@ -677,7 +665,7 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBD93, 0xE, 1);
+            LoadNextFrom0CMaskAndShift(0xE, 1);
             goto label_JumpAbsolute760;
         }
         else if (x == 0xC)
@@ -766,7 +754,7 @@ namespace Fast
 
     label_BDE1:
 
-        LoadNextFrom0CMaskAndShift(0xBDE1, 0xC, 2);
+        LoadNextFrom0CMaskAndShift(0xC, 2);
         goto label_JumpAbsolute760;
 
     label_BDF9:
@@ -783,7 +771,7 @@ namespace Fast
 
         if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBE30, 0xA, 3);
+            LoadNextFrom0CMaskAndShift(0xA, 3);
             goto label_JumpAbsolute760;
         }
         else if (x == 0xE)
@@ -870,7 +858,7 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBE80, 8, 4);
+            LoadNextFrom0CMaskAndShift(8, 4);
 
             goto label_JumpAbsolute760;
         }
@@ -907,7 +895,7 @@ namespace Fast
 
         if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBED1, 6, 5);
+            LoadNextFrom0CMaskAndShift(6, 5);
             goto label_JumpAbsolute760;
         }
         else if (x == 0x8)
@@ -997,7 +985,7 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBF23, 4, 6);
+            LoadNextFrom0CMaskAndShift(4, 6);
             goto label_JumpAbsolute760;
         }
         else if (x == 0x12)
@@ -1051,7 +1039,7 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0CMaskAndShift(0xBF76, 2, 7);
+            LoadNextFrom0CMaskAndShift(2, 7);
 
             goto label_JumpAbsolute760;
         }
