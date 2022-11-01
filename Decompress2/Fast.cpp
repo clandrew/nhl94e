@@ -479,20 +479,15 @@ namespace Fast
 
         ++y;
 
-        if (a != (mem73 & 0xFF))
+        if (a == (mem73 & 0xFF))
         {
-            goto label_BC9B;
+            a = mem7b + 1;
+
+            mem73 &= 0x00FF; // Keep the first, lower byte
+            mem73 |= (a << 8); // Replace the upper byte, second byte
+
+            mem00.Data16 = 0x12;
         }
-
-        a = mem7b + 1;
-
-        mem73 &= 0x00FF; // Keep the first, lower byte
-        mem73 |= (a << 8); // Replace the upper byte, second byte
-
-        a = 0x12;
-
-        loaded16.Data16 = a;
-        mem00.Low8 = loaded16.Low8;
 
     label_BC9B:
         mem04 = y;
