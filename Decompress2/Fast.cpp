@@ -353,7 +353,7 @@ namespace Fast
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
 
-    label_BBD9:
+    label_MonstrosityStart:
         x = IncLow8(x);
         x = IncLow8(x);
         mem14--;
@@ -378,20 +378,15 @@ namespace Fast
         {
             cache7E0740[x] = 0;
             cache7E0740[x + 1] = 0;
-            goto label_BBD9;
+            goto label_MonstrosityStart;
         }
 
         mem00.Data16 = mem75;
-        a = mem14;
 
-    label_BC0B:
-        c = mem00.Data16 >= 0x8000;
-        mem00.Data16 *= 2;
-
-        --a;
-        if (a != 0)
+        for (int i = 0; i < mem14; ++i)
         {
-            goto label_BC0B;
+            c = mem00.Data16 >= 0x8000;
+            mem00.Data16 *= 2;
         }
 
         a = mem00.Data16;
@@ -402,7 +397,7 @@ namespace Fast
 
         if (!c)
         {
-            goto label_BBD9;
+            goto label_MonstrosityStart;
         }
 
         mem79 = x >> 1;
