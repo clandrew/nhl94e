@@ -389,11 +389,8 @@ namespace Fast
             mem00.Data16 *= 2;
         }
 
-        a = mem00.Data16;
-
-        loaded16.Data16 = a;
-        cache7E0740[x] = loaded16.Low8;
-        cache7E0740[x + 1] = loaded16.High8;
+        cache7E0740[x] = mem00.Low8;
+        cache7E0740[x + 1] = mem00.High8;
 
         if (!c)
         {
