@@ -404,29 +404,21 @@ namespace Fast
 
         x = 0x3E;
 
-    label_BC1D:
-        mem7E0500_7E0700[x] = 0;
-        mem7E0500_7E0700[x + 1] = 0;
-
-        mem7E0500_7E0700[0x40 + x] = 0;
-        mem7E0500_7E0700[0x40 + x + 1] = 0;
-
-        mem7E0500_7E0700[0x80 + x] = 0;
-        mem7E0500_7E0700[0x80 + x + 1] = 0;
-
-        mem7E0500_7E0700[0xC0 + x] = 0;
-        mem7E0500_7E0700[0xC0 + x + 1] = 0;
-
-        --x;
-        x &= 0xFF;
-
-        --x;
-        x &= 0xFF;
-        n = x >= 0x80;
-
-        if (!n)
+        while (x > 0)
         {
-            goto label_BC1D;
+            mem7E0500_7E0700[x] = 0;
+            mem7E0500_7E0700[x + 1] = 0;
+
+            mem7E0500_7E0700[0x40 + x] = 0;
+            mem7E0500_7E0700[0x40 + x + 1] = 0;
+
+            mem7E0500_7E0700[0x80 + x] = 0;
+            mem7E0500_7E0700[0x80 + x + 1] = 0;
+
+            mem7E0500_7E0700[0xC0 + x] = 0;
+            mem7E0500_7E0700[0xC0 + x + 1] = 0;
+
+            x -= 2;
         }
 
         indirectHigh = 0x7E;
