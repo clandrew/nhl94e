@@ -38,3 +38,4 @@ template.png
 /Decompress2/Tests/*
 /Decompress2/*.bin
 /Decompress2/*.log
+/Decompress2/x64/*
