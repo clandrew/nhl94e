@@ -1741,7 +1741,7 @@ namespace Fast
         }
         {
             std::stringstream strm;
-            strm << "D:\\repos\\nhl94e\\ImageData\\" << pTeam->Name << ".bin";
+            strm << "C:\\repos\\nhl94e\\ImageData\\" << pTeam->Name << ".bin";
             goldIndexedColorFileName = strm.str();
         }
     }
@@ -1854,12 +1854,15 @@ namespace Fast
      
 }
 
-void Decompress_Fast_Init()
+bool Decompress_Fast_Init()
 {
     // Load ROM file
     Fast::romFile = LoadBinaryFile8("nhl94.sfc");
+    if (Fast::romFile.size() == 0)
+        return false;
 
     Fast::CreateCaches();
+    return true;
 }
 
 void Decompress_Fast_Run(int teamIndex, int playerIndex)

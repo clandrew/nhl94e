@@ -23,12 +23,15 @@ std::vector<unsigned char> LoadBinaryFile8(char const* fileName)
 
     FILE* file{};
     fopen_s(&file, fileName, "rb");
-    fseek(file, 0, SEEK_END);
-    long length = ftell(file);
-    result.resize(length);
-    fseek(file, 0, SEEK_SET);
-    fread(result.data(), 1, length, file);
-    fclose(file);
+    if (file)
+    {
+        fseek(file, 0, SEEK_END);
+        long length = ftell(file);
+        result.resize(length);
+        fseek(file, 0, SEEK_SET);
+        fread(result.data(), 1, length, file);
+        fclose(file);
+    }
 
     return result;
 }

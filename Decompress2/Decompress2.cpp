@@ -1,4 +1,5 @@
 #include "Decompress2.h"
+#include <iostream>
 
 enum class DecompressMode
 {
@@ -16,7 +17,11 @@ int main()
     }
     else if (g_mode == DecompressMode::Fast)
     {
-        Decompress_Fast_Init();
+        if (!Decompress_Fast_Init())
+        {
+            std::cout << "Error opening validation file.";
+            return -1;
+        }
     }
     else
     {
