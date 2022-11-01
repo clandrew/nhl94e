@@ -167,8 +167,6 @@ namespace Fast
 
     void LoadNextFrom0600(unsigned short pc)
     {
-        // $80/BE5D 85 6C       STA $6C    [$00:006C]   A:9420 X:0000 Y:0025 P:envmxdizc
-
         mem6c = a;
         pc += 2;
 
