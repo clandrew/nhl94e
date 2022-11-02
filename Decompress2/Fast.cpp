@@ -447,13 +447,8 @@ namespace Fast
         Monstrosity0();
 
         mem00.Data16 = x;
-        while (1)
+        while (mem7b * 2 != 0x10)
         {
-            if (mem7b * 2 == 0x10)
-            {
-                break;
-            }
-
             mem77 = cache7E0700[mem7b * 2];
             mem7d = romFile[0x3C7B + mem7b];
 
@@ -492,24 +487,20 @@ namespace Fast
             }
 
             mem7b++;
-
             mem00.Data16 = x;
         }
 
-    label_BCBF:
         x = mem00.Low8;
         a = 0x10;
 
-    label_BCC5:
-        // 8bit acc
-        loaded16.Data16 = a;
-        mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
-
-        ++x;
-        x &= 0x00FF;
-        if (x != 0)
+        while (x != 0)
         {
-            goto label_BCC5;
+            // 8bit acc
+            loaded16.Data16 = a;
+            mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
+
+            ++x;
+            x &= 0x00FF;
         }
 
         x = mem79 * 2;
