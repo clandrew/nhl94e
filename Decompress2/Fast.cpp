@@ -416,32 +416,29 @@ namespace Fast
 
         x = 0xFF;
 
-    label_BC3A:
-        Fn_80C1B0();
-        ++a;
-        while (a != 0)
+        while (mem77 != 0)
         {
-            ++x;
-            x &= 0xFF;
-            if (mem7E0500_7E0700[x] < 0x80)
+            Fn_80C1B0();
+            ++a;
+            while (a != 0)
             {
-                --a;
+                ++x;
+                x &= 0xFF;
+                if (mem7E0500_7E0700[x] < 0x80)
+                {
+                    --a;
+                }
             }
+
+            mem7E0500_7E0700[x]--;
+
+            // This is running in 8 bit index mode.
+            loaded16.Data16 = x;
+            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+            indirectLow += 1;
+
+            mem77--;
         }
-
-        mem7E0500_7E0700[x]--;
-
-        // This is running in 8 bit index mode.
-        loaded16.Data16 = x;
-        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        indirectLow += 1;
-
-        mem77--;
-        if (mem77 != 0)
-        {
-            goto label_BC3A;
-        }
-
         mem71 = y * 2;
         x = 0;
         y = 0;
