@@ -278,11 +278,104 @@ namespace Fast
         }
     }
 
-    struct dbgtableentry
+    void Monstrosity0()
     {
-        bool BranchA;
-        bool BranchB;
-    } dbgtable[8];
+    label_MonstrosityStart:
+        x = IncLow8(x);
+        x = IncLow8(x);
+        mem14--;
+
+        mem75 *= 2;
+        a = mem75 - mem77;
+
+        loaded16.Data16 = a;
+        cache7E0720[x] = loaded16.Low8;
+        cache7E0720[x + 1] = loaded16.High8;
+
+        Fn_80C1B0();
+
+        // 8bit index
+        loaded16.Data16 = a;
+        cache7E0700[x] = loaded16.Low8;
+
+        a += mem77;
+        mem77 = a;
+        mem75 += mem6f;
+        if (mem6f == 0)
+        {
+            cache7E0740[x] = 0;
+            cache7E0740[x + 1] = 0;
+            goto label_MonstrosityStart;
+        }
+
+        mem00.Data16 = mem75;
+
+        for (int i = 0; i < mem14; ++i)
+        {
+            c = mem00.Data16 >= 0x8000;
+            mem00.Data16 *= 2;
+        }
+
+        cache7E0740[x] = mem00.Low8;
+        cache7E0740[x + 1] = mem00.High8;
+
+        if (!c)
+        {
+            goto label_MonstrosityStart;
+        }
+
+
+        mem79 = x >> 1;
+
+        for (int i = 0; i < 0x40; i += 2)
+        {
+            mem7E0500_7E0700[i] = 0;
+            mem7E0500_7E0700[i + 1] = 0;
+
+            mem7E0500_7E0700[0x40 + i] = 0;
+            mem7E0500_7E0700[0x40 + i + 1] = 0;
+
+            mem7E0500_7E0700[0x80 + i] = 0;
+            mem7E0500_7E0700[0x80 + i + 1] = 0;
+
+            mem7E0500_7E0700[0xC0 + i] = 0;
+            mem7E0500_7E0700[0xC0 + i + 1] = 0;
+
+        }
+
+        indirectHigh = 0x7E;
+        indirectLow = 0x100;
+
+        x = 0xFF;
+
+        while (mem77 != 0)
+        {
+            Fn_80C1B0();
+            ++a;
+            while (a != 0)
+            {
+                ++x;
+                x &= 0xFF;
+                if (mem7E0500_7E0700[x] < 0x80)
+                {
+                    --a;
+                }
+            }
+
+            mem7E0500_7E0700[x]--;
+
+            // This is running in 8 bit index mode.
+            loaded16.Data16 = x;
+            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+            indirectLow += 1;
+
+            mem77--;
+        }
+        mem71 = y * 2;
+        x = 0;
+        y = 0;
+        mem7b = 0;
+    }
 
     void Fn_80BBB3()
     {
@@ -349,100 +442,8 @@ namespace Fast
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
 
-    label_MonstrosityStart:
-        x = IncLow8(x);
-        x = IncLow8(x);
-        mem14--;
+        Monstrosity0();
 
-        mem75 *= 2;
-        a = mem75 - mem77;
-
-        loaded16.Data16 = a;
-        cache7E0720[x] = loaded16.Low8; 
-        cache7E0720[x + 1] = loaded16.High8;
-
-        Fn_80C1B0();
-
-        // 8bit index
-        loaded16.Data16 = a;
-        cache7E0700[x] = loaded16.Low8;
-
-        a += mem77;
-        mem77 = a;
-        mem75 += mem6f;
-        if (mem6f == 0)
-        {
-            cache7E0740[x] = 0;
-            cache7E0740[x + 1] = 0;
-            goto label_MonstrosityStart;
-        }
-
-        mem00.Data16 = mem75;
-
-        for (int i = 0; i < mem14; ++i)
-        {
-            c = mem00.Data16 >= 0x8000;
-            mem00.Data16 *= 2;
-        }
-
-        cache7E0740[x] = mem00.Low8;
-        cache7E0740[x + 1] = mem00.High8;
-
-        if (!c)
-        {
-            goto label_MonstrosityStart;
-        }
-
-        mem79 = x >> 1;
-
-        for (int i = 0; i < 0x40; i += 2)
-        {
-            mem7E0500_7E0700[i] = 0;
-            mem7E0500_7E0700[i + 1] = 0;
-
-            mem7E0500_7E0700[0x40 + i] = 0;
-            mem7E0500_7E0700[0x40 + i + 1] = 0;
-
-            mem7E0500_7E0700[0x80 + i] = 0;
-            mem7E0500_7E0700[0x80 + i + 1] = 0;
-
-            mem7E0500_7E0700[0xC0 + i] = 0;
-            mem7E0500_7E0700[0xC0 + i + 1] = 0;
-
-        }
-
-        indirectHigh = 0x7E;
-        indirectLow = 0x100;
-
-        x = 0xFF;
-
-        while (mem77 != 0)
-        {
-            Fn_80C1B0();
-            ++a;
-            while (a != 0)
-            {
-                ++x;
-                x &= 0xFF;
-                if (mem7E0500_7E0700[x] < 0x80)
-                {
-                    --a;
-                }
-            }
-
-            mem7E0500_7E0700[x]--;
-
-            // This is running in 8 bit index mode.
-            loaded16.Data16 = x;
-            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-            indirectLow += 1;
-
-            mem77--;
-        }
-        mem71 = y * 2;
-        x = 0;
-        y = 0;
-        mem7b = 0;
 
     label_BC60:
         mem00.Data16 = x;
@@ -458,44 +459,42 @@ namespace Fast
 
         x = mem00.Data16;
 
-        goto label_BCB1;
-
-    label_BC83:
-        mem00.Data16 = mem7b * 2;
-
-        // This is running in 8 bit accumulator and index mode.
-        loaded16.Data16 = mem00.Data16;
-        loaded16.Low8 = cache7E0100[y];
-        a = loaded16.Data16;
-
-        mem00.High8 = cache7E0100[y];
-
-        ++y;
-
-        if (a == (mem73 & 0xFF))
+        while (1)
         {
-            a = mem7b + 1;
+            mem77--;
+            if (mem77 <= 0x8000)
+            {
+                mem00.Data16 = mem7b * 2;
 
-            mem73 &= 0x00FF; // Keep the first, lower byte
-            mem73 |= (a << 8); // Replace the upper byte, second byte
+                // This is running in 8 bit accumulator and index mode.
+                loaded16.Data16 = mem00.Data16;
+                loaded16.Low8 = cache7E0100[y];
+                a = loaded16.Data16;
 
-            mem00.Data16 = 0x12;
-        }
+                mem00.High8 = cache7E0100[y];
 
-    label_BC9B:
-        mem04 = y;
-        for (int i = 0; i < mem7d - 1; ++i)
-        {
-            mem7E0500_7E0700[x] = mem00.High8;
-            mem7E0500_7E0700[0x100 + x] = mem00.Low8;
-            ++x;
-        }
+                ++y;
 
-    label_BCB1:
-        mem77--;
-        if (mem77 <= 0x8000)
-        {
-            goto label_BC83;
+                if (a == (mem73 & 0xFF))
+                {
+                    a = mem7b + 1;
+
+                    mem73 &= 0x00FF; // Keep the first, lower byte
+                    mem73 |= (a << 8); // Replace the upper byte, second byte
+
+                    mem00.Data16 = 0x12;
+                }
+
+                mem04 = y;
+                for (int i = 0; i < mem7d - 1; ++i)
+                {
+                    mem7E0500_7E0700[x] = mem00.High8;
+                    mem7E0500_7E0700[0x100 + x] = mem00.Low8;
+                    ++x;
+                }
+                continue;
+            }
+            break;
         }
 
         mem7b++;
@@ -568,7 +567,6 @@ namespace Fast
         }
         else if (x == 0x8)
         {
-
             goto label_BE5D;
         }
         else
