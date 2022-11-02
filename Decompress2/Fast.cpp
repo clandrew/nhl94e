@@ -1,6 +1,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <assert.h>
 #include "Util.h"
 #include "Decompress2.h"
@@ -277,6 +278,12 @@ namespace Fast
         }
     }
 
+    struct dbgtableentry
+    {
+        bool BranchA;
+        bool BranchB;
+    } dbgtable[8];
+
     void Fn_80BBB3()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -340,6 +347,7 @@ namespace Fast
         x = 0xFE;
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
+        int jump760Source = -1;
 
     label_MonstrosityStart:
         x = IncLow8(x);
@@ -607,7 +615,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0x10, 0);
-
+            jump760Source = 0;
             goto label_JumpAbsolute760;
         }
         else if (x == 0xC)
@@ -666,6 +674,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0xE, 1);
+            jump760Source = 1;
             goto label_JumpAbsolute760;
         }
         else if (x == 0xC)
@@ -755,6 +764,7 @@ namespace Fast
     label_BDE1:
 
         LoadNextFrom0CMaskAndShift(0xC, 2);
+        jump760Source = 2;
         goto label_JumpAbsolute760;
 
     label_BDF9:
@@ -772,6 +782,7 @@ namespace Fast
         if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0xA, 3);
+            jump760Source = 3;
             goto label_JumpAbsolute760;
         }
         else if (x == 0xE)
@@ -859,7 +870,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(8, 4);
-
+            jump760Source = 4;
             goto label_JumpAbsolute760;
         }
         else if (x == 6)
@@ -896,6 +907,7 @@ namespace Fast
         if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(6, 5);
+            jump760Source = 5;
             goto label_JumpAbsolute760;
         }
         else if (x == 0x8)
@@ -986,6 +998,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(4, 6);
+            jump760Source = 6;
             goto label_JumpAbsolute760;
         }
         else if (x == 0x12)
@@ -1040,7 +1053,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(2, 7);
-
+            jump760Source = 7;
             goto label_JumpAbsolute760;
         }
         else if (x == 0x12)
@@ -1279,13 +1292,20 @@ namespace Fast
     label_JumpAbsolute760:
         switch (mem0760)
         {
-        case 0xBFC5: 
+        case 0xBFC5:
         {
+            dbgtable[jump760Source].BranchA = true;
+            jump760Source = -1;
             ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
 
             goto label_C0E8;
         }
-        case 0xBFC8: goto label_BFC8;
+        case 0xBFC8:
+        {
+            dbgtable[jump760Source].BranchB = true;
+            jump760Source = -1;
+            goto label_BFC8;
+        }
         default: __debugbreak();
         }
     }
@@ -1329,7 +1349,7 @@ namespace Fast
         }
 
         mem00.Data16 = x;
-        x = 0x2;
+        mem04 = 0x2;
 
         c = false;
         while (!c)
@@ -1344,10 +1364,9 @@ namespace Fast
                 y = 0x8;
             }
 
-            ++x;
+            ++mem04;
         }
 
-        mem04 = x;
 
         for (int i = 0; i < mem04; ++i)
         {
