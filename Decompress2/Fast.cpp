@@ -951,11 +951,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BEE9:
-        a *= 2;
-        LoadNextFrom0CInc();
-        a *= 16;
-
     label_BEF6:
         a *= 4;
         LoadNextFrom0500(0xBEF8);
@@ -974,8 +969,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            a *= 2;
-            goto label_BEE9;
+            a *= 4;
+            LoadNextFrom0CInc();
+            a *= 16;
+            goto label_BEF6;
         }
         else if (x == 0xC)
         {
@@ -1033,7 +1030,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BEE9;
+            a *= 2;
+            LoadNextFrom0CInc();
+            a *= 16;
+            goto label_BEF6;
         }
         else if (x == 0xE)
         {
