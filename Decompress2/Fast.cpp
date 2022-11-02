@@ -459,42 +459,39 @@ namespace Fast
 
         x = mem00.Data16;
 
-        while (1)
+        mem77--;
+        while (mem77 <= 0x8000)
         {
-            mem77--;
-            if (mem77 <= 0x8000)
+            mem00.Data16 = mem7b * 2;
+
+            // This is running in 8 bit accumulator and index mode.
+            loaded16.Data16 = mem00.Data16;
+            loaded16.Low8 = cache7E0100[y];
+            a = loaded16.Data16;
+
+            mem00.High8 = cache7E0100[y];
+
+            ++y;
+
+            if (a == (mem73 & 0xFF))
             {
-                mem00.Data16 = mem7b * 2;
+                a = mem7b + 1;
 
-                // This is running in 8 bit accumulator and index mode.
-                loaded16.Data16 = mem00.Data16;
-                loaded16.Low8 = cache7E0100[y];
-                a = loaded16.Data16;
+                mem73 &= 0x00FF; // Keep the first, lower byte
+                mem73 |= (a << 8); // Replace the upper byte, second byte
 
-                mem00.High8 = cache7E0100[y];
-
-                ++y;
-
-                if (a == (mem73 & 0xFF))
-                {
-                    a = mem7b + 1;
-
-                    mem73 &= 0x00FF; // Keep the first, lower byte
-                    mem73 |= (a << 8); // Replace the upper byte, second byte
-
-                    mem00.Data16 = 0x12;
-                }
-
-                mem04 = y;
-                for (int i = 0; i < mem7d - 1; ++i)
-                {
-                    mem7E0500_7E0700[x] = mem00.High8;
-                    mem7E0500_7E0700[0x100 + x] = mem00.Low8;
-                    ++x;
-                }
-                continue;
+                mem00.Data16 = 0x12;
             }
-            break;
+
+            mem04 = y;
+            for (int i = 0; i < mem7d - 1; ++i)
+            {
+                mem7E0500_7E0700[x] = mem00.High8;
+                mem7E0500_7E0700[0x100 + x] = mem00.Low8;
+                ++x;
+            }
+
+            mem77--;
         }
 
         mem7b++;
