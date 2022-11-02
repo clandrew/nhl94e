@@ -441,6 +441,8 @@ namespace Fast
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
+        int dbg = 0;
+        int dbgp = 0;
 
         Monstrosity0();
 
@@ -459,8 +461,7 @@ namespace Fast
 
         x = mem00.Data16;
 
-        mem77--;
-        while (mem77 <= 0x8000)
+        for (int i = 0; i < mem77; ++i)
         {
             mem00.Data16 = mem7b * 2;
 
@@ -490,8 +491,6 @@ namespace Fast
                 mem7E0500_7E0700[0x100 + x] = mem00.Low8;
                 ++x;
             }
-
-            mem77--;
         }
 
         mem7b++;
