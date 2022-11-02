@@ -347,7 +347,7 @@ namespace Fast
         x = 0xFE;
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
-        int jump760Source = -1;
+        bool shiftHigh = false;
 
     label_MonstrosityStart:
         x = IncLow8(x);
@@ -1066,24 +1066,21 @@ namespace Fast
         }
 
     label_BFC8_Jump_Absolute760:
-        if (mem0760 == 0xBFC5)
-        {
-            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-        }
-        else
+        shiftHigh = false;
+        if (mem0760 == 0xBFC8)
         {
             loaded16.Low8 = cache7E0740[0x10];
             loaded16.High8 = cache7E0740[0x11];
-            c = a >= loaded16.Data16;
+            shiftHigh = a >= loaded16.Data16;
+        }
 
-            if (c)
-            {
-                ShiftThenLoad100ThenCompare(6, 0x732, 2);
-            }
-            else
-            {
-                ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-            }
+        if (shiftHigh)
+        {
+            ShiftThenLoad100ThenCompare(6, 0x732, 2);
+        }
+        else
+        {
+            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
         }
 
         // This is 8 bit acc.
