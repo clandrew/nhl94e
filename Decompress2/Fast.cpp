@@ -891,11 +891,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BE98:
-        a *= 2;
-        LoadNextFrom0CInc();
-        a *= 8;
-
     label_BEA4:
         a *= 4;
         LoadNextFrom0500(0xBEA6);
@@ -922,8 +917,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            a *= 4;
-            goto label_BE98;
+            a *= 8;
+            LoadNextFrom0CInc();
+            a *= 8;
+            goto label_BEA4;
         }
         else if (x == 2)
         {
@@ -982,8 +979,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            a *= 2;
-            goto label_BE98;
+            a *= 4;
+            LoadNextFrom0CInc();
+            a *= 8;
+            goto label_BEA4;
         }
         else if (x == 8)
         {
@@ -1045,7 +1044,10 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            goto label_BE98;
+            a *= 2;
+            LoadNextFrom0CInc();
+            a *= 8;
+            goto label_BEA4;
         }
         else if (x == 6)
         {
