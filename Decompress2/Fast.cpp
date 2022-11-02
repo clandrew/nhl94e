@@ -524,18 +524,16 @@ namespace Fast
 
         if (x == 0x10)
         {
-            a = 0xBFC5;
+            mem0760 = 0xBFC5;
         }
         else if (x == 0x12)
         {
-            a = 0xBFC8;
+            mem0760 = 0xBFC8;
         }
         else
         {
             __debugbreak(); // notimpl
         }
-
-        mem0760 = a;
 
         indirectHigh = mem12;
         indirectLow = mem10;
@@ -615,8 +613,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0x10, 0);
-            jump760Source = 0;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0xC)
         {
@@ -674,8 +671,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0xE, 1);
-            jump760Source = 1;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0xC)
         {
@@ -761,8 +757,7 @@ namespace Fast
     label_BDE1:
 
         LoadNextFrom0CMaskAndShift(0xC, 2);
-        jump760Source = 2;
-        goto label_JumpAbsolute760;
+        goto label_BFC8_Jump_Absolute760;
 
     label_BDF9:
         a *= 2;
@@ -779,8 +774,7 @@ namespace Fast
         if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(0xA, 3);
-            jump760Source = 3;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0xE)
         {
@@ -869,8 +863,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(8, 4);
-            jump760Source = 4;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 6)
         {
@@ -901,8 +894,7 @@ namespace Fast
         if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(6, 5);
-            jump760Source = 5;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0x8)
         {
@@ -995,8 +987,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(4, 6);
-            jump760Source = 6;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0x12)
         {
@@ -1056,8 +1047,7 @@ namespace Fast
         else if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(2, 7);
-            jump760Source = 7;
-            goto label_JumpAbsolute760;
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 0x12)
         {
@@ -1075,22 +1065,26 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BFC8:
-
-        loaded16.Low8 = cache7E0740[0x10];
-        loaded16.High8 = cache7E0740[0x11];
-        c = a >= loaded16.Data16;
-
-        if (c)
-        {
-            ShiftThenLoad100ThenCompare(6, 0x732, 2);
-        }
-        else
+    label_BFC8_Jump_Absolute760:
+        if (mem0760 == 0xBFC5)
         {
             ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
         }
+        else
+        {
+            loaded16.Low8 = cache7E0740[0x10];
+            loaded16.High8 = cache7E0740[0x11];
+            c = a >= loaded16.Data16;
 
-    label_C0E8:
+            if (c)
+            {
+                ShiftThenLoad100ThenCompare(6, 0x732, 2);
+            }
+            else
+            {
+                ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+            }
+        }
 
         // This is 8 bit acc.
         loaded16.Data16 = a;
@@ -1292,26 +1286,6 @@ namespace Fast
         else
         {
             __debugbreak(); // notimpl
-        }
-
-    label_JumpAbsolute760:
-        switch (mem0760)
-        {
-        case 0xBFC5:
-        {
-            dbgtable[jump760Source].BranchA = true;
-            jump760Source = -1;
-            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-
-            goto label_C0E8;
-        }
-        case 0xBFC8:
-        {
-            dbgtable[jump760Source].BranchB = true;
-            jump760Source = -1;
-            goto label_BFC8;
-        }
-        default: __debugbreak();
         }
     }
 
