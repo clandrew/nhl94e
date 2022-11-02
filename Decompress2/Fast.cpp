@@ -446,55 +446,55 @@ namespace Fast
 
         Monstrosity0();
 
-
-    label_BC60:
         mem00.Data16 = x;
-        x = mem7b * 2;
-
-        if (x == 0x10)
+        while (1)
         {
-            goto label_BCBF;
-        }
-
-        mem77 = cache7E0700[x];
-        mem7d = romFile[0x3C7B + mem7b];
-
-        x = mem00.Data16;
-
-        for (int i = 0; i < mem77; ++i)
-        {
-            mem00.Data16 = mem7b * 2;
-
-            // This is running in 8 bit accumulator and index mode.
-            loaded16.Data16 = mem00.Data16;
-            loaded16.Low8 = cache7E0100[y];
-            a = loaded16.Data16;
-
-            mem00.High8 = cache7E0100[y];
-
-            ++y;
-
-            if (a == (mem73 & 0xFF))
+            if (mem7b * 2 == 0x10)
             {
-                a = mem7b + 1;
-
-                mem73 &= 0x00FF; // Keep the first, lower byte
-                mem73 |= (a << 8); // Replace the upper byte, second byte
-
-                mem00.Data16 = 0x12;
+                break;
             }
 
-            mem04 = y;
-            for (int i = 0; i < mem7d - 1; ++i)
-            {
-                mem7E0500_7E0700[x] = mem00.High8;
-                mem7E0500_7E0700[0x100 + x] = mem00.Low8;
-                ++x;
-            }
-        }
+            mem77 = cache7E0700[mem7b * 2];
+            mem7d = romFile[0x3C7B + mem7b];
 
-        mem7b++;
-        goto label_BC60;
+            x = mem00.Data16;
+
+            for (int i = 0; i < mem77; ++i)
+            {
+                mem00.Data16 = mem7b * 2;
+
+                // This is running in 8 bit accumulator and index mode.
+                loaded16.Data16 = mem00.Data16;
+                loaded16.Low8 = cache7E0100[y];
+                a = loaded16.Data16;
+
+                mem00.High8 = cache7E0100[y];
+
+                ++y;
+
+                if (a == (mem73 & 0xFF))
+                {
+                    a = mem7b + 1;
+
+                    mem73 &= 0x00FF; // Keep the first, lower byte
+                    mem73 |= (a << 8); // Replace the upper byte, second byte
+
+                    mem00.Data16 = 0x12;
+                }
+
+                mem04 = y;
+                for (int j = 0; j < mem7d - 1; ++j)
+                {
+                    mem7E0500_7E0700[x] = mem00.High8;
+                    mem7E0500_7E0700[0x100 + x] = mem00.Low8;
+                    ++x;
+                }
+            }
+
+            mem7b++;
+
+            mem00.Data16 = x;
+        }
 
     label_BCBF:
         x = mem00.Low8;
