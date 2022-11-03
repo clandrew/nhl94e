@@ -604,8 +604,9 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            a *= 32;
-            goto label_BF49;
+            a *= 128;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 6)
         {
@@ -641,8 +642,9 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 16;
-            goto label_BF49;
+            a *= 64;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 8)
         {
@@ -701,8 +703,9 @@ namespace Fast
         }
         else if (x == 8)
         {
-            a *= 8;
-            goto label_BF49;
+            a *= 32;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 0x12)
         {
@@ -798,8 +801,9 @@ namespace Fast
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BF49;
+            a *= 16;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 0x12)
         {
@@ -876,8 +880,9 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BF49;
+            a *= 8;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else
         {
@@ -918,7 +923,9 @@ namespace Fast
         }
         else if (x == 2)
         {
-            goto label_BF49;
+            a *= 4;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 0xC)
         {
@@ -1027,10 +1034,6 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BF49:
-        a *= 4;
-        LoadNextFrom0500(0xBF4B);
-
     label_BF53:
         LoadNextFrom0600(0xBF53);
 
@@ -1064,8 +1067,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            a *= 32;
-            goto label_BF49;
+            a *= 128;
+            LoadNextFrom0500(0xBF4B);
+            goto label_BF53;
         }
         else if (x == 0xA)
         {
