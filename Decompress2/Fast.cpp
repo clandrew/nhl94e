@@ -375,76 +375,7 @@ namespace Fast
         x = 0;
         y = 0;
         mem7b = 0;
-    }
 
-    void Fn_80BBB3()
-    {
-        // This is a sizeable function, a.k.a. 'the monstrosity'.
-        //
-        // Preconditions:
-        //     Mem0C contains the source ROM address.
-        //     Mem10 contains the low short of the destination address. (E.g., 0x0000)
-        //     Mem12 contains the bank of the destination address. (E.g., 0x7F)
-        //
-        // Postconditions:
-        //     Decompressed staging data is written to the destination address.
-        //     Mem0C is scrambled.
-        //
-        // Notes:
-        //     A, X, Y are ignored and stomped on.
-        //     When loading the GAME SETUP screen, this function is called 17 times, with the following values
-        //     Call#            Mem0C-F
-        //     -----            -----
-        //     0                81ABDE
-        //     1                9AC1F3
-        //     2                938000
-        //     3                9AB7A1
-        //     4                9AE972
-        //     5                9A862E <-- Montreal 0
-        //     6                9988EC <-- Montreal 1
-        //     7                99DFCF <-- Montreal 2
-        //     8                98CAC0 <-- Montreal 3
-        //     9                97D557 <-- Montreal 4
-        //     10               99F8AC <-- Montreal 5
-        //     11               97E40B <-- LA 0
-        //     12               97C8FE <-- LA 1
-        //     13               97A887 <-- LA 2
-        //     14               97D7CC <-- LA 3
-        //     15               98D62E <-- LA 4
-        //     16               97DF28 <-- LA 5
-        //
-        // In local testing for now, we execute compared to a trace through of Montreal 0 (9A862E).
-
-        // Use 8bit X and Y
-
-        x &= 0xFF;
-        y &= 0xFF;
-        mem0c += 5;
-
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        mem73 = loaded16.Data16;
-        mem0c++;
-
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        a = loaded16.Data16;
-        mem0c+=2;
-
-        a = ExchangeShortHighAndLow(a);
-        mem6c = a;
-
-        y = 8;
-        mem77 = 0;
-        mem75 = 0;
-        mem14 = 0x10;
-        a = 0x10;
-        x = 0xFE;
-        bool continueDecompression = true;
-        unsigned char decompressedValue = 0;
-        bool shiftHigh = false;
-        int dbg = 0;
-        int dbgp = 0;
-
-        Monstrosity0();
 
         mem00.Data16 = x;
         while (mem7b * 2 != 0x10)
@@ -520,6 +451,81 @@ namespace Fast
 
         indirectHigh = mem12;
         indirectLow = mem10;
+    }
+
+    void Monstrosity2()
+    {
+
+    }
+
+    void Fn_80BBB3()
+    {
+        // This is a sizeable function, a.k.a. 'the monstrosity'.
+        //
+        // Preconditions:
+        //     Mem0C contains the source ROM address.
+        //     Mem10 contains the low short of the destination address. (E.g., 0x0000)
+        //     Mem12 contains the bank of the destination address. (E.g., 0x7F)
+        //
+        // Postconditions:
+        //     Decompressed staging data is written to the destination address.
+        //     Mem0C is scrambled.
+        //
+        // Notes:
+        //     A, X, Y are ignored and stomped on.
+        //     When loading the GAME SETUP screen, this function is called 17 times, with the following values
+        //     Call#            Mem0C-F
+        //     -----            -----
+        //     0                81ABDE
+        //     1                9AC1F3
+        //     2                938000
+        //     3                9AB7A1
+        //     4                9AE972
+        //     5                9A862E <-- Montreal 0
+        //     6                9988EC <-- Montreal 1
+        //     7                99DFCF <-- Montreal 2
+        //     8                98CAC0 <-- Montreal 3
+        //     9                97D557 <-- Montreal 4
+        //     10               99F8AC <-- Montreal 5
+        //     11               97E40B <-- LA 0
+        //     12               97C8FE <-- LA 1
+        //     13               97A887 <-- LA 2
+        //     14               97D7CC <-- LA 3
+        //     15               98D62E <-- LA 4
+        //     16               97DF28 <-- LA 5
+        //
+        // In local testing for now, we execute compared to a trace through of Montreal 0 (9A862E).
+
+        // Use 8bit X and Y
+
+        x &= 0xFF;
+        y &= 0xFF;
+        mem0c += 5;
+
+        loaded16 = Load16FromAddress(dbr, mem0c);
+        mem73 = loaded16.Data16;
+        mem0c++;
+
+        loaded16 = Load16FromAddress(dbr, mem0c);
+        a = loaded16.Data16;
+        mem0c+=2;
+
+        a = ExchangeShortHighAndLow(a);
+        mem6c = a;
+
+        y = 8;
+        mem77 = 0;
+        mem75 = 0;
+        mem14 = 0x10;
+        a = 0x10;
+        x = 0xFE;
+        bool continueDecompression = true;
+        unsigned char decompressedValue = 0;
+        bool shiftHigh = false;
+        int dbg = 0;
+        int dbgp = 0;
+
+        Monstrosity0();
 
         a = mem6c;
         x = mem71;
@@ -527,9 +533,21 @@ namespace Fast
         {
             goto label_BF53;
         }
+        else if (x == 0x4)
+        {
+            goto label_BF00;
+        }
         else if (x == 6)
         {
             goto label_BEAE;
+        }
+        else if (x == 0x8)
+        {
+            goto label_BE5D;
+        }
+        else if (x == 0xA)
+        {
+            goto label_BE0D;
         }
         else if (x == 0xC)
         {
@@ -543,28 +561,10 @@ namespace Fast
         {
             goto label_BD23;
         }
-        else if (x == 0xA)
-        {
-            goto label_BE0D;
-        }
-        else if (x == 0x4)
-        {
-
-            goto label_BF00;
-        }
-        else if (x == 0x8)
-        {
-            goto label_BE5D;
-        }
         else
         {
             __debugbreak();
         }
-
-    label_BD11:
-        a *= 4;
-        LoadNextFrom0CInc();
-        LoadNextFrom0500(0xBD1B);
 
     label_BD23:
         LoadNextFrom0600(0xBD23);
@@ -589,8 +589,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            a *= 64;
-            goto label_BD11;
+            a *= 256;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 0x10)
         {
@@ -657,8 +659,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            a *= 32;
-            goto label_BD11;
+            a *= 128;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 0x12)
         {
@@ -693,8 +697,10 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 16;
-            goto label_BD11;
+            a *= 64;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 8)
         {
@@ -771,8 +777,10 @@ namespace Fast
         }
         else if (x == 8)
         {
-            a *= 8;
-            goto label_BD11;
+            a *= 32;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 0xA)
         {
@@ -849,8 +857,10 @@ namespace Fast
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BD11;
+            a *= 16;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 2)
         {
@@ -917,8 +927,10 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BD11;
+            a *= 8;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else
         {
@@ -934,7 +946,10 @@ namespace Fast
 
         if (x == 2)
         {
-            goto label_BD11;
+            a *= 4;
+            LoadNextFrom0CInc();
+            LoadNextFrom0500(0xBD1B);
+            goto label_BD23;
         }
         else if (x == 0xA)
         {
@@ -992,6 +1007,8 @@ namespace Fast
 
     label_BF53:
         LoadNextFrom0600(0xBF53);
+
+        /////////////////////////////////////////////////////////////////////////////////
 
         if (x == 8)
         {
@@ -1085,18 +1102,32 @@ namespace Fast
 
         loaded16 = LoadMem6b();
         a = loaded16.Data16;
+        
+        Monstrosity2();
 
-        if (x == 6)
+        if (x == 2)
+        {
+            goto label_C122;
+        }
+        else if (x == 4)
+        {
+            goto label_C11E;
+        }
+        else if (x == 6)
         {
             goto label_C11A;
+        }
+        else if (x == 8)
+        {
+            goto label_C116;
         }
         else if (x == 0xA)
         {
             goto label_C112;
         }
-        else if (x == 8)
+        else if (x == 0xC)
         {
-            goto label_C116;
+            goto label_C10E;
         }
         else if (x == 0xE)
         {
@@ -1106,19 +1137,7 @@ namespace Fast
         {
             goto label_C106;
         }
-        else if (x == 4)
-        {
-            goto label_C11E;
-        }
-        else if (x == 0xC)
-        {
-            goto label_C10E;
-        }
-        else if (x == 2)
-        {
-            goto label_C122;
-        }
-        else
+        else 
         {
             __debugbreak(); // notimpl
         }
