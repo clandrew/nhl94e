@@ -587,8 +587,9 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 16;
-            goto label_BEF6;
+            a *= 64;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 0xE)
         {
@@ -651,8 +652,9 @@ namespace Fast
         }
         else if (x == 8)
         {
-            a *= 8;
-            goto label_BEF6;
+            a *= 32;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 0x10)
         {
@@ -733,8 +735,9 @@ namespace Fast
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BEF6;
+            a *= 16;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 0x10)
         {
@@ -812,8 +815,9 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BEF6;
+            a *= 8;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else
         {
@@ -877,7 +881,9 @@ namespace Fast
         }
         else if (x == 2)
         {
-            goto label_BEF6;
+            a *= 4;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 4)
         {
@@ -963,10 +969,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BEF6:
-        a *= 4;
-        LoadNextFrom0500(0xBEF8);
-
     label_BF00:
         LoadNextFrom0600(0xBF00);
 
@@ -988,8 +990,9 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0CInc();
-            a *= 16;
-            goto label_BEF6;
+            a *= 64;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 0xC)
         {
@@ -1063,8 +1066,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            a *= 16;
-            goto label_BEF6;
+            a *= 64;
+            LoadNextFrom0500(0xBEF8);
+            goto label_BF00;
         }
         else if (x == 0xE)
         {
