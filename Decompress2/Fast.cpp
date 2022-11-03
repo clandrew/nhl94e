@@ -571,11 +571,14 @@ namespace Fast
 
         if (x == 0x12)
         {
-            goto label_BD41;
+            x = 0x10;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 0x2)
         {
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 0x8)
         {
@@ -619,24 +622,18 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BD41:
-        x = 0x10;
-        goto label_C17C;
-
-    label_BD5E:
-        a *= 2;
-        LoadNextFrom0CInc();
-
-        a *= 2;
-        LoadNextFrom0500(0xBD68);
-
     label_BD70:
         LoadNextFrom0600(0xBD70);
 
         if (x == 0xE)
         {
-            a *= 64;
-            goto label_BD5E;
+            a *= 128;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 2)
         {
@@ -667,7 +664,7 @@ namespace Fast
         else if (x == 0x12)
         {
             x = 0xE;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 6)
         {
@@ -710,12 +707,17 @@ namespace Fast
         else if (x == 0x12)
         {
             x = 0xC;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 0xC)
         {
-            a *= 32;
-            goto label_BD5E;
+            a *= 64;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 0xE)
         {
@@ -784,8 +786,13 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 16;
-            goto label_BD5E;
+            a *= 32;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 2)
         {
@@ -800,7 +807,7 @@ namespace Fast
         else if (x == 0x12)
         {
             x = 0xA;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 4)
         {
@@ -827,7 +834,7 @@ namespace Fast
         if (x == 0x12)
         {
             x = 0x8;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 0xE)
         {
@@ -847,8 +854,13 @@ namespace Fast
         }
         else if (x == 8)
         {
-            a *= 8;
-            goto label_BD5E;
+            a *= 16;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 0x10)
         {
@@ -917,13 +929,18 @@ namespace Fast
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BD5E;
+            a *= 8;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 0x12)
         {
             x = 0x6;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 4)
         {
@@ -989,12 +1006,17 @@ namespace Fast
         else if (x == 0x12)
         {
             x = 4;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 4)
         {
+            a *= 4;
+            LoadNextFrom0CInc();
+
             a *= 2;
-            goto label_BD5E;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else
         {
@@ -1016,7 +1038,13 @@ namespace Fast
         }
         else if (x == 2)
         {
-            goto label_BD5E;
+            a *= 2;
+            LoadNextFrom0CInc();
+
+            a *= 2;
+            LoadNextFrom0500(0xBD68);
+
+            goto label_BD70;
         }
         else if (x == 0xC)
         {
@@ -1051,7 +1079,7 @@ namespace Fast
         else if (x == 0x12)
         {
             x = 2;
-            goto label_C17C;
+            goto label_C17C_WriteOutput_CheckIfDone;
         }
         else if (x == 4)
         {
@@ -1214,7 +1242,7 @@ namespace Fast
         y--;
         goto label_BD70;
 
-    label_C17C:
+    label_C17C_WriteOutput_CheckIfDone:
         y = mem73 >> 8;
 
         Fn_80C2DC();
