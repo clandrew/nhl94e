@@ -615,8 +615,9 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else
         {
@@ -638,7 +639,9 @@ namespace Fast
         }
         else if (x == 2)
         {
-            goto label_BE03;
+            a *= 4;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 0xA)
         {
@@ -752,10 +755,6 @@ namespace Fast
         LoadNextFrom0CMaskAndShift(0xC, 2);
         goto label_BFC8_Jump_Absolute760;
 
-    label_BE03:
-        a *= 4;
-        LoadNextFrom0500(0xBE05);
-
     label_BE0D:
         LoadNextFrom0600(0xBE0D);
 
@@ -768,8 +767,9 @@ namespace Fast
         {
             a *= 32;
             LoadNextFrom0CInc();
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 0xC)
         {
@@ -849,8 +849,9 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0CInc();
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 8)
         {
@@ -911,8 +912,9 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0CInc();
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 0xE)
         {
@@ -1000,8 +1002,9 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0CInc();
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 6)
         {
@@ -1082,8 +1085,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            a *= 2;
-            goto label_BE03;
+            a *= 8;
+            LoadNextFrom0500(0xBE05);
+            goto label_BE0D;
         }
         else if (x == 0x10)
         {
