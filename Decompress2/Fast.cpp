@@ -582,8 +582,9 @@ namespace Fast
         }
         else if (x == 0x8)
         {
-            a *= 8;
-            goto label_BEA4;
+            a *= 32;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 0xA)
         {
@@ -675,8 +676,9 @@ namespace Fast
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BEA4;
+            a *= 16;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 4)
         {
@@ -745,8 +747,9 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BEA4;
+            a *= 8;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else
         {
@@ -799,8 +802,9 @@ namespace Fast
         }
         else if (x == 2)
         {
-
-            goto label_BEA4;
+            a *= 4;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 6)
         {
@@ -896,10 +900,6 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BEA4:
-        a *= 4;
-        LoadNextFrom0500(0xBEA6);
-
     label_BEAE:
         LoadNextFrom0600(0xBEAE);
 
@@ -926,8 +926,9 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0CInc();
-            a *= 8;
-            goto label_BEA4;
+            a *= 32;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 2)
         {
@@ -998,8 +999,9 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0CInc();
-            a *= 8;
-            goto label_BEA4;
+            a *= 32;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 8)
         {
@@ -1082,8 +1084,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            a *= 8;
-            goto label_BEA4;
+            a *= 32;
+            LoadNextFrom0500(0xBEA6);
+            goto label_BEAE;
         }
         else if (x == 6)
         {
