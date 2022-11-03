@@ -819,11 +819,6 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BE48:
-        a *= 2;
-        LoadNextFrom0CInc();
-        a *= 4;
-
     label_BE53:
         a *= 4;
         LoadNextFrom0500(0xBE55);
@@ -838,8 +833,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            a *= 8;
-            goto label_BE48;
+            a *= 16;
+            LoadNextFrom0CInc();
+            a *= 4;
+            goto label_BE53;
         }
         else if (x == 0xA)
         {
@@ -924,8 +921,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
+            a *= 8;
+            LoadNextFrom0CInc();
             a *= 4;
-            goto label_BE48;
+            goto label_BE53;
         }
         else if (x == 6)
         {
@@ -970,8 +969,10 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 2;
-            goto label_BE48;
+            a *= 4;
+            LoadNextFrom0CInc();
+            a *= 4;
+            goto label_BE53;
         }
         else if (x == 0xE)
         {
@@ -1034,7 +1035,10 @@ namespace Fast
 
         if (x == 8)
         {
-            goto label_BE48;
+            a *= 2;
+            LoadNextFrom0CInc();
+            a *= 4;
+            goto label_BE53;
         }
         else if (x == 2)
         {
