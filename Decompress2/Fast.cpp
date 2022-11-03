@@ -749,11 +749,6 @@ namespace Fast
         LoadNextFrom0CMaskAndShift(0xC, 2);
         goto label_BFC8_Jump_Absolute760;
 
-    label_BDF9:
-        a *= 2;
-        LoadNextFrom0CInc();
-        a *= 2;
-
     label_BE03:
         a *= 4;
         LoadNextFrom0500(0xBE05);
@@ -768,8 +763,10 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            a *= 16;
-            goto label_BDF9;
+            a *= 32;
+            LoadNextFrom0CInc();
+            a *= 2;
+            goto label_BE03;
         }
         else if (x == 0xC)
         {
@@ -846,8 +843,10 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            a *= 8;
-            goto label_BDF9;
+            a *= 16;
+            LoadNextFrom0CInc();
+            a *= 2;
+            goto label_BE03;
         }
         else if (x == 8)
         {
@@ -905,8 +904,10 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            a *= 4;
-            goto label_BDF9;
+            a *= 8;
+            LoadNextFrom0CInc();
+            a *= 2;
+            goto label_BE03;
         }
         else if (x == 0xE)
         {
@@ -990,8 +991,10 @@ namespace Fast
         }
         else if (x == 8)
         {
+            a *= 4;
+            LoadNextFrom0CInc();
             a *= 2;
-            goto label_BDF9;
+            goto label_BE03;
         }
         else if (x == 6)
         {
@@ -1073,7 +1076,10 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BDF9;
+            a *= 2;
+            LoadNextFrom0CInc();
+            a *= 2;
+            goto label_BE03;
         }
         else if (x == 0x10)
         {
