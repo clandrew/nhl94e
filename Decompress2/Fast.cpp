@@ -529,7 +529,7 @@ namespace Fast
         if (x == 2)
         {
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0x4)
         {
@@ -549,7 +549,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 0xE)
         {
@@ -577,7 +578,8 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 0x8)
         {
@@ -609,7 +611,7 @@ namespace Fast
             a *= 128;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 6)
         {
@@ -650,7 +652,7 @@ namespace Fast
             a *= 64;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 8)
         {
@@ -694,9 +696,7 @@ namespace Fast
         }
 
         // Switchcase 3 /////////////////////////////////////////////
-    label_BDBE:
-        LoadNextFrom0600(0xBDBE);
-
+    label_switchcase3:
         if (x == 2)
         {
             a *= 4;
@@ -716,7 +716,7 @@ namespace Fast
             a *= 32;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0x12)
         {
@@ -738,7 +738,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 6)
         {
@@ -789,7 +790,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 8)
         {
@@ -819,7 +821,7 @@ namespace Fast
             a *= 16;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0x12)
         {
@@ -860,7 +862,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 0xC)
         {
@@ -903,7 +906,7 @@ namespace Fast
             a *= 8;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else
         {
@@ -925,7 +928,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 0xA)
         {
@@ -948,7 +952,7 @@ namespace Fast
             a *= 4;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0xC)
         {
@@ -1035,7 +1039,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 0x10)
         {
@@ -1061,10 +1066,9 @@ namespace Fast
             __debugbreak();
         }
 
-    label_StartOfLastTable:
-
         // Switchcase 8 /////////////////////////////////////////////
 
+    label_switchcase8:
         if (x == 8)
         {
             a *= 2;
@@ -1098,7 +1102,7 @@ namespace Fast
             a *= 128;
             LoadNextFrom0500(0xBF4B);
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0xA)
         {
@@ -1132,7 +1136,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 4;
             LoadNextFrom0500(0xBDB6);
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else
         {
@@ -1230,7 +1235,8 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
 
     label_C10E:
@@ -1271,7 +1277,7 @@ namespace Fast
         if (y == 0)
         {
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
 
     label_C122:
@@ -1335,7 +1341,7 @@ namespace Fast
         else if (x == 2)
         {
             LoadNextFrom0600(0xBF53);
-            goto label_StartOfLastTable;
+            goto label_switchcase8;
         }
         else if (x == 0xA)
         {
@@ -1343,7 +1349,8 @@ namespace Fast
         }
         else if (x == 0xC)
         {
-            goto label_BDBE;
+            LoadNextFrom0600(0xBDBE);
+            goto label_switchcase3;
         }
         else if (x == 8)
         {
