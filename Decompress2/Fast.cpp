@@ -1203,7 +1203,14 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else if (x == 8)
         {
@@ -1214,7 +1221,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else if (x == 0xA)
         {
@@ -1232,7 +1246,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else if (x == 0xC)
         {
@@ -1257,7 +1278,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else if (x == 0xE)
         {
@@ -1289,7 +1317,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else if (x == 0x10)
         {
@@ -1328,20 +1363,18 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            goto label_C11A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            goto label_C11E;
         }
         else 
         {
             __debugbreak(); // notimpl
-        }
-
-    label_C11A:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase7;
         }
 
     label_C11E:
