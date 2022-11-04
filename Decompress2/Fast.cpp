@@ -1199,7 +1199,14 @@ namespace Fast
         }
         else if (x == 4)
         {
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 6)
         {
@@ -1210,7 +1217,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 8)
         {
@@ -1228,7 +1242,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 0xA)
         {
@@ -1253,7 +1274,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 0xC)
         {
@@ -1285,7 +1313,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 0xE)
         {
@@ -1324,7 +1359,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else if (x == 0x10)
         {
@@ -1370,20 +1412,18 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            goto label_C11E;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            goto label_C122;
         }
         else 
         {
             __debugbreak(); // notimpl
-        }
-
-    label_C11E:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase8;
         }
 
     label_C122:
