@@ -537,39 +537,33 @@ namespace Fast
 
             // Switchcase 1 /////////////////////////////////////////////
         label_switchcase1:
+            firstMultiplier = 2 << (x / 2);
             if (x == 0x2)
             {
-                firstMultiplier = 4;
                 caseIndex = 3;
             }
             else if (x == 4)
             {
-                firstMultiplier = 8;
                 caseIndex = 4;
             }
             else if (x == 6)
             {
-                firstMultiplier = 16;
                 caseIndex = 5;
             }
             else if (x == 0x8)
             {
-                firstMultiplier = 32;
                 caseIndex = 6;
             }
             else if (x == 0xA)
             {
-                firstMultiplier = 64;
                 caseIndex = 7;
             }
             else if (x == 0xC)
             {
-                firstMultiplier = 128;
                 caseIndex = 8;
             }
             else if (x == 0xE)
             {
-                firstMultiplier = 256;
                 caseIndex = 1;
             }
             else if (x == 0x10)
