@@ -1211,7 +1211,14 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            goto label_C112;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            goto label_C116;
         }
         else if (x == 0xC)
         {
@@ -1222,7 +1229,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase4;
             }
-            goto label_C112;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            goto label_C116;
         }
         else if (x == 0xE)
         {
@@ -1240,7 +1254,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase4;
             }
-            goto label_C112;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            goto label_C116;
         }
         else if (x == 0x10)
         {
@@ -1265,20 +1286,18 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase4;
             }
-            goto label_C112;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            goto label_C116;
         }
         else 
         {
             __debugbreak(); // notimpl
-        }
-
-    label_C112:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase5;
         }
 
     label_C116:
