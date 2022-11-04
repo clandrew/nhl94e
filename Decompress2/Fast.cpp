@@ -1219,33 +1219,36 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            goto label_C10A;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            goto label_C10E;
         }
         else if (x == 0x10)
         {
-            goto label_C106;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            goto label_C10E;
         }
         else 
         {
             __debugbreak(); // notimpl
-        }
-
-    label_C106:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-
-    label_C10A:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase3;
         }
 
     label_C10E:
