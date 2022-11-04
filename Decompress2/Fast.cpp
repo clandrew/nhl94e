@@ -506,52 +506,48 @@ namespace Fast
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
-        unsigned short xBackup;
+        unsigned short caseCond = 0;
 
         Monstrosity0();
 
 
         // Switchcase 0 /////////////////////////////////////////////
+        // this looks very similar to case 9.
         a = mem6c;
         x = mem71;
-        if (x == 2)
+        caseCond = mem71;
+        LoadNextFrom0600();
+    label_switchcase0:
+        if (caseCond == 2)
         {
-            LoadNextFrom0600();
             goto label_switchcase8;
         }
-        else if (x == 0x4)
+        else if (caseCond == 0x4)
         {
-            LoadNextFrom0600();
             goto label_switchcase7;
         }
-        else if (x == 6)
+        else if (caseCond == 6)
         {
-            LoadNextFrom0600();
             goto label_switchcase6;
         }
-        else if (x == 0x8)
+        else if (caseCond == 0x8)
         {
-            LoadNextFrom0600();
             goto label_switchcase5;
         }
-        else if (x == 0xA)
+        else if (caseCond == 0xA)
         {
-            LoadNextFrom0600();
             goto label_switchcase4;
         }
-        else if (x == 0xC)
+        else if (caseCond == 0xC)
         {
-            LoadNextFrom0600();
             goto label_switchcase3;
         }
-        else if (x == 0xE)
+        else if (caseCond == 0xE)
         {
-            LoadNextFrom0600();
             goto label_switchcase2;
         }
-        else if (x == 0x10)
+        else if (caseCond == 0x10)
         {
-            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else
@@ -627,6 +623,7 @@ namespace Fast
         }
 
         // Switchcase 2 /////////////////////////////////////////////
+        // looks a lot like case 1.
     label_switchcase2:
         if (x == 2)
         {
@@ -1582,46 +1579,9 @@ namespace Fast
 
         a = mem6c;
 
-        xBackup = x;
+        caseCond = x;
         LoadNextFrom0600();
-
-        // Switchcase 9 /////////////////////////////////////////////
-        if (xBackup == 2)
-        {
-            goto label_switchcase8;
-        }
-        else if (xBackup == 4)
-        {
-            goto label_switchcase7;
-        }
-        else if (xBackup == 6)
-        {
-            goto label_switchcase6;
-        }
-        else if (xBackup == 8)
-        {
-            goto label_switchcase5;
-        }
-        else if (xBackup == 0xA)
-        {
-            goto label_switchcase4;
-        }
-        else if (xBackup == 0xC)
-        {
-            goto label_switchcase3;
-        }
-        else if (xBackup == 0xE)
-        {
-            goto label_switchcase2;
-        }
-        else if (xBackup == 0x10)
-        {
-            goto label_switchcase1;
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
+        goto label_switchcase0;        
     }
 
     void Fn_80C1B0()
@@ -1796,7 +1756,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(); // Sets a. Updates mem0c
+                LoadNextFrom0CInc(); // Updates a and mem0c
                 x = 0x10;
             }
         }
