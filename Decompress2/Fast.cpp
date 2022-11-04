@@ -749,7 +749,8 @@ namespace Fast
         }
         else if (x == 0x10)
         {
-            goto label_BDE1;
+            LoadNextFrom0CMaskAndShift(0xC, 2);
+            goto label_BFC8_Jump_Absolute760;
         }
         else if (x == 4)
         {
@@ -761,11 +762,6 @@ namespace Fast
         {
             __debugbreak(); // notimpl
         }
-
-    label_BDE1:
-
-        LoadNextFrom0CMaskAndShift(0xC, 2);
-        goto label_BFC8_Jump_Absolute760;
 
         // Switchcase 4 /////////////////////////////////////////////
     label_switchcase4:
