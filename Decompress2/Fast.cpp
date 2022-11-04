@@ -1207,7 +1207,14 @@ namespace Fast
         }
         else if (x == 8)
         {
-            goto label_C116;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            goto label_C11A;
         }
         else if (x == 0xA)
         {
@@ -1218,7 +1225,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase5;
             }
-            goto label_C116;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            goto label_C11A;
         }
         else if (x == 0xC)
         {
@@ -1236,7 +1250,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase5;
             }
-            goto label_C116;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            goto label_C11A;
         }
         else if (x == 0xE)
         {
@@ -1261,7 +1282,14 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase5;
             }
-            goto label_C116;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            goto label_C11A;
         }
         else if (x == 0x10)
         {
@@ -1293,20 +1321,18 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase5;
             }
-            goto label_C116;
+            a *= 2;
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            goto label_C11A;
         }
         else 
         {
             __debugbreak(); // notimpl
-        }
-
-    label_C116:
-        a *= 2;
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase6;
         }
 
     label_C11A:
