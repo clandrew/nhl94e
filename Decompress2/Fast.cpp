@@ -1195,7 +1195,22 @@ namespace Fast
         // Switchcase 8 /////////////////////////////////////////////
         if (x == 2)
         {
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 4)
         {
@@ -1206,7 +1221,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 6)
         {
@@ -1224,7 +1254,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 8)
         {
@@ -1249,7 +1294,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 0xA)
         {
@@ -1281,7 +1341,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 0xC)
         {
@@ -1320,7 +1395,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 0xE)
         {
@@ -1366,7 +1456,22 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else if (x == 0x10)
         {
@@ -1419,30 +1524,27 @@ namespace Fast
                 LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            goto label_C122;
+            a *= 2;
+
+            LoadNextFrom0CInc();
+
+            y--;
+            if (y == 0)
+            {
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+
+            a *= 2;
+
+            y--;
+            LoadNextFrom0600();
+            goto label_switchcase2;
         }
         else 
         {
             __debugbreak(); // notimpl
         }
-
-    label_C122:
-        a *= 2;
-
-        LoadNextFrom0CInc();
-
-        y--;
-        if (y == 0)
-        {
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-
-        a *= 2;
-
-        y--;
-        LoadNextFrom0600();
-        goto label_switchcase2;
 
     label_C17C_WriteOutput_CheckIfDone:
         y = mem73 >> 8;
