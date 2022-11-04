@@ -690,10 +690,6 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BDB4:
-        a *= 4;
-        LoadNextFrom0500(0xBDB6);
-
     label_BDBE:
         LoadNextFrom0600(0xBDBE);
 
@@ -736,7 +732,9 @@ namespace Fast
         {
             a *= 64;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 6)
         {
@@ -784,7 +782,9 @@ namespace Fast
         {
             a *= 32;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 8)
         {
@@ -852,7 +852,9 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 0xC)
         {
@@ -914,7 +916,9 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 0xA)
         {
@@ -1020,7 +1024,9 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else if (x == 0x10)
         {
@@ -1116,7 +1122,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            goto label_BDB4;
+            a *= 4;
+            LoadNextFrom0500(0xBDB6);
+            goto label_BDBE;
         }
         else
         {
