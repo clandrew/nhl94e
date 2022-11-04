@@ -517,7 +517,6 @@ namespace Fast
         LoadNextFrom0600();
         while (1)
         {
-
             // Switchcase 0 /////////////////////////////////////////////
             caseIndex = 8 - (caseCond / 2) + 1;
 
@@ -541,42 +540,42 @@ namespace Fast
                 a *= 4;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase3;
+                caseIndex = 3;
             }
             else if (x == 4)
             {
                 a *= 8;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase4;
+                caseIndex = 4;
             }
             else if (x == 6)
             {
                 a *= 16;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase5;
+                caseIndex = 5;
             }
             else if (x == 0x8)
             {
                 a *= 32;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase6;
+                caseIndex = 6;
             }
             else if (x == 0xA)
             {
                 a *= 64;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase7;
+                caseIndex = 7;
             }
             else if (x == 0xC)
             {
                 a *= 128;
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase8;
+                caseIndex = 8;
             }
             else if (x == 0xE)
             {
@@ -584,7 +583,7 @@ namespace Fast
                 LoadNextFrom0CInc();
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-                goto label_switchcase1;
+                caseIndex = 1;
             }
             else if (x == 0x10)
             {
@@ -599,6 +598,19 @@ namespace Fast
             else
             {
                 __debugbreak();
+            }
+
+            switch (caseIndex)
+            {
+            case 1: goto label_switchcase1;
+            case 2: goto label_switchcase2;
+            case 3: goto label_switchcase3;
+            case 4: goto label_switchcase4;
+            case 5: goto label_switchcase5;
+            case 6: goto label_switchcase6;
+            case 7: goto label_switchcase7;
+            case 8: goto label_switchcase8;
+            default: __debugbreak();
             }
 
             // Switchcase 2 /////////////////////////////////////////////
