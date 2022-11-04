@@ -527,7 +527,8 @@ namespace Fast
         }
         else if (x == 6)
         {
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 0x8)
         {
@@ -577,7 +578,8 @@ namespace Fast
         {
             a *= 32;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 0xA)
         {
@@ -679,7 +681,8 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 4)
         {
@@ -756,7 +759,8 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else
         {
@@ -809,7 +813,8 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 6)
         {
@@ -910,10 +915,8 @@ namespace Fast
             __debugbreak(); // notimpl
         }
 
-    label_BEAE:
-        LoadNextFrom0600();
-
         // Switchcase 6 /////////////////////////////////////////////
+    label_switchcase6:
         if (x == 0x10)
         {
             LoadNextFrom0CMaskAndShift(6, 5);
@@ -943,7 +946,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 32;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 2)
         {
@@ -1022,7 +1026,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 32;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 8)
         {
@@ -1112,7 +1117,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 32;
             LoadNextFrom0500();
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 6)
         {
@@ -1265,7 +1271,8 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
 
     label_C11A:
@@ -1342,7 +1349,8 @@ namespace Fast
         // Switchcase 9 /////////////////////////////////////////////
         if (x == 6)
         {
-            goto label_BEAE;
+            LoadNextFrom0600();
+            goto label_switchcase6;
         }
         else if (x == 2)
         {
