@@ -453,11 +453,6 @@ namespace Fast
         indirectLow = mem10;
     }
 
-    void Monstrosity2()
-    {
-
-    }
-
     void Fn_80BBB3()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -531,7 +526,8 @@ namespace Fast
         x = mem71;
         if (x == 2)
         {
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0x4)
         {
@@ -608,12 +604,14 @@ namespace Fast
         {
             a *= 128;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 6)
         {
-            a *= 4;
-            goto label_BE53;
+            a *= 16;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 4)
         {
@@ -649,7 +647,8 @@ namespace Fast
         {
             a *= 64;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 8)
         {
@@ -682,8 +681,9 @@ namespace Fast
         }
         else if (x == 4)
         {
-            a *= 2;
-            goto label_BE53;
+            a *= 8;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else
         {
@@ -699,7 +699,9 @@ namespace Fast
 
         if (x == 2)
         {
-            goto label_BE53;
+            a *= 4;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 0xA)
         {
@@ -712,7 +714,8 @@ namespace Fast
         {
             a *= 32;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0x12)
         {
@@ -810,7 +813,8 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0x12)
         {
@@ -828,10 +832,6 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BE53:
-        a *= 4;
-        LoadNextFrom0500(0xBE55);
-
     label_BE5D:
         LoadNextFrom0600(0xBE5D);
 
@@ -844,8 +844,9 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0CInc();
-            a *= 4;
-            goto label_BE53;
+            a *= 16;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 0xA)
         {
@@ -893,7 +894,8 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else
         {
@@ -934,14 +936,16 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0xC)
         {
             a *= 8;
             LoadNextFrom0CInc();
-            a *= 4;
-            goto label_BE53;
+            a *= 16;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 6)
         {
@@ -984,8 +988,9 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0CInc();
-            a *= 4;
-            goto label_BE53;
+            a *= 16;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 0xE)
         {
@@ -1042,8 +1047,7 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BF53:
-        LoadNextFrom0600(0xBF53);
+    label_StartOfLastTable:
 
         /////////////////////////////////////////////////////////////////////////////////
 
@@ -1051,8 +1055,9 @@ namespace Fast
         {
             a *= 2;
             LoadNextFrom0CInc();
-            a *= 4;
-            goto label_BE53;
+            a *= 16;
+            LoadNextFrom0500(0xBE55);
+            goto label_BE5D;
         }
         else if (x == 2)
         {
@@ -1078,7 +1083,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 128;
             LoadNextFrom0500(0xBF4B);
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0xA)
         {
@@ -1155,8 +1161,6 @@ namespace Fast
 
         loaded16 = LoadMem6b();
         a = loaded16.Data16;
-        
-        Monstrosity2();
 
         if (x == 2)
         {
@@ -1248,7 +1252,8 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
 
     label_C122:
@@ -1308,7 +1313,8 @@ namespace Fast
         }
         else if (x == 2)
         {
-            goto label_BF53;
+            LoadNextFrom0600(0xBF53);
+            goto label_StartOfLastTable;
         }
         else if (x == 0xA)
         {
