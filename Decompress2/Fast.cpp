@@ -138,12 +138,11 @@ namespace Fast
         mem0c++;
     }
 
-    void LoadNextFrom0500(unsigned short pc)
+    void LoadNextFrom0500()
     {
         // 16bit A, 8bit index
 
         x = mem7E0500_7E0700[y];
-        pc += 3;
 
         loaded16.Data16 = x;
         if (indirectHigh == 0x7E && indirectLow >= 0x100)
@@ -159,23 +158,13 @@ namespace Fast
             __debugbreak();
         }
         indirectLow++;
-        pc += 3;
-
-        // $80/BD21 86 08       STX $08    [$00:0008]   A:948C X:0000 Y:0025 P:envmxdizc
-
         mem08 = x;
     }
 
-    void LoadNextFrom0600(unsigned short pc)
+    void LoadNextFrom0600()
     {
         mem6c = a;
-        pc += 2;
-
-        // $80/BE5F A4 6D       LDY $6D    [$00:006D]   A:9420 X:0000 Y:0025 P:envmxdizc
-
         y = mem6c >> 8;
-        pc += 2;
-
         x = mem7E0500_7E0700[0x100 + y];
     }
 
@@ -528,7 +517,7 @@ namespace Fast
         x = mem71;
         if (x == 2)
         {
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0x4)
@@ -545,22 +534,22 @@ namespace Fast
         }
         else if (x == 0xA)
         {
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0xC)
         {
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 0xE)
         {
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else
@@ -578,28 +567,28 @@ namespace Fast
         else if (x == 0x2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 0x8)
         {
             a *= 32;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 0xA)
         {
             a *= 64;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 0xE)
         {
             a *= 256;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 0x10)
@@ -610,21 +599,21 @@ namespace Fast
         else if (x == 0xC)
         {
             a *= 128;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 6)
         {
             a *= 16;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 4)
         {
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else
@@ -639,28 +628,28 @@ namespace Fast
             a *= 128;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0xA)
         {
             a *= 64;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 8)
         {
             a *= 32;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 0x10)
@@ -672,8 +661,8 @@ namespace Fast
         {
             a *= 128;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 0x12)
@@ -684,13 +673,13 @@ namespace Fast
         else if (x == 6)
         {
             a *= 16;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 4)
         {
             a *= 8;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else
@@ -703,22 +692,22 @@ namespace Fast
         if (x == 2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 0xA)
         {
             a *= 64;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 8)
         {
             a *= 32;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0x12)
@@ -731,8 +720,8 @@ namespace Fast
             a *= 64;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0xE)
@@ -740,14 +729,14 @@ namespace Fast
             a *= 64;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 6)
         {
             a *= 16;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 0x10)
@@ -757,7 +746,7 @@ namespace Fast
         else if (x == 4)
         {
             a *= 8;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else
@@ -782,8 +771,8 @@ namespace Fast
             a *= 32;
             LoadNextFrom0CInc();
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0xC)
@@ -791,16 +780,16 @@ namespace Fast
             a *= 32;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 8)
         {
             a *= 32;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 0xA)
@@ -808,21 +797,21 @@ namespace Fast
             a *= 32;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 6)
         {
             a *= 16;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0x12)
@@ -833,7 +822,7 @@ namespace Fast
         else if (x == 4)
         {
             a *= 8;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else
@@ -842,7 +831,7 @@ namespace Fast
         }
 
     label_BE5D:
-        LoadNextFrom0600(0xBE5D);
+        LoadNextFrom0600();
 
         // Switchcase 5 /////////////////////////////////////////////
         if (x == 0x12)
@@ -855,7 +844,7 @@ namespace Fast
             a *= 16;
             LoadNextFrom0CInc();
             a *= 16;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 0xA)
@@ -863,8 +852,8 @@ namespace Fast
             a *= 16;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 0xC)
@@ -872,8 +861,8 @@ namespace Fast
             a *= 16;
             LoadNextFrom0CInc();
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 8)
@@ -881,8 +870,8 @@ namespace Fast
             a *= 16;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0x10)
@@ -894,21 +883,21 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 4)
         {
             a *= 8;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else
@@ -917,7 +906,7 @@ namespace Fast
         }
 
     label_BEAE:
-        LoadNextFrom0600(0xBEAE);
+        LoadNextFrom0600();
 
         // Switchcase 6 /////////////////////////////////////////////
         if (x == 0x10)
@@ -930,8 +919,8 @@ namespace Fast
             a *= 8;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 0xA)
@@ -939,8 +928,8 @@ namespace Fast
             a *= 8;
             LoadNextFrom0CInc();
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0xE)
@@ -948,14 +937,14 @@ namespace Fast
             a *= 8;
             LoadNextFrom0CInc();
             a *= 32;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 2)
         {
             a *= 4;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0xC)
@@ -963,7 +952,7 @@ namespace Fast
             a *= 8;
             LoadNextFrom0CInc();
             a *= 16;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 6)
@@ -971,8 +960,8 @@ namespace Fast
             a *= 8;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0x12)
@@ -984,8 +973,8 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else
@@ -994,15 +983,15 @@ namespace Fast
         }
 
     label_BF00:
-        LoadNextFrom0600(0xBF00);
+        LoadNextFrom0600();
 
         // Switchcase 7 /////////////////////////////////////////////
         if (x == 2)
         {
             a *= 4;
             LoadNextFrom0CInc();
-            LoadNextFrom0500(0xBD1B);
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 0xA)
@@ -1010,7 +999,7 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 16;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 0xE)
@@ -1018,7 +1007,7 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 64;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 0xC)
@@ -1026,7 +1015,7 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 32;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 8)
@@ -1034,8 +1023,8 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 6)
@@ -1043,8 +1032,8 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 0x10)
@@ -1062,8 +1051,8 @@ namespace Fast
             a *= 4;
             LoadNextFrom0CInc();
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else
@@ -1079,7 +1068,7 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 16;
-            LoadNextFrom0500(0xBE55);
+            LoadNextFrom0500();
             goto label_BE5D;
         }
         else if (x == 2)
@@ -1088,8 +1077,8 @@ namespace Fast
             LoadNextFrom0CInc();
 
             a *= 2;
-            LoadNextFrom0500(0xBD68);
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0xC)
@@ -1097,7 +1086,7 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 64;
-            LoadNextFrom0500(0xBEF8);
+            LoadNextFrom0500();
             goto label_BF00;
         }
         else if (x == 0xE)
@@ -1105,8 +1094,8 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 128;
-            LoadNextFrom0500(0xBF4B);
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0xA)
@@ -1114,7 +1103,7 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 32;
-            LoadNextFrom0500(0xBEA6);
+            LoadNextFrom0500();
             goto label_BEAE;
         }
         else if (x == 6)
@@ -1122,8 +1111,8 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 8;
-            LoadNextFrom0500(0xBE05);
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0x10)
@@ -1141,8 +1130,8 @@ namespace Fast
             a *= 2;
             LoadNextFrom0CInc();
             a *= 4;
-            LoadNextFrom0500(0xBDB6);
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0500();
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else
@@ -1232,7 +1221,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
 
@@ -1241,7 +1230,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
 
@@ -1250,7 +1239,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
 
@@ -1283,7 +1272,7 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
 
@@ -1295,14 +1284,14 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
 
         a *= 2;
 
         y--;
-        LoadNextFrom0600(0xBD70);
+        LoadNextFrom0600();
         goto label_switchcase2;
 
     label_C17C_WriteOutput_CheckIfDone:
@@ -1347,17 +1336,17 @@ namespace Fast
         }
         else if (x == 2)
         {
-            LoadNextFrom0600(0xBF53);
+            LoadNextFrom0600();
             goto label_switchcase8;
         }
         else if (x == 0xA)
         {
-            LoadNextFrom0600(0xBE0D);
+            LoadNextFrom0600();
             goto label_switchcase4;
         }
         else if (x == 0xC)
         {
-            LoadNextFrom0600(0xBDBE);
+            LoadNextFrom0600();
             goto label_switchcase3;
         }
         else if (x == 8)
@@ -1366,12 +1355,12 @@ namespace Fast
         }
         else if (x == 0xE)
         {
-            LoadNextFrom0600(0xBD70);
+            LoadNextFrom0600();
             goto label_switchcase2;
         }
         else if (x == 0x10)
         {
-            LoadNextFrom0600(0xBD23);
+            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else if (x == 4)
