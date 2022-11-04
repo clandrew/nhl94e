@@ -506,8 +506,7 @@ namespace Fast
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
-        int dbg = 0;
-        int dbgp = 0;
+        unsigned short xBackup;
 
         Monstrosity0();
 
@@ -1583,45 +1582,40 @@ namespace Fast
 
         a = mem6c;
 
+        xBackup = x;
+        LoadNextFrom0600();
+
         // Switchcase 9 /////////////////////////////////////////////
-        if (x == 2)
+        if (xBackup == 2)
         {
-            LoadNextFrom0600();
             goto label_switchcase8;
         }
-        else if (x == 4)
+        else if (xBackup == 4)
         {
-            LoadNextFrom0600();
             goto label_switchcase7;
         }
-        else if (x == 6)
+        else if (xBackup == 6)
         {
-            LoadNextFrom0600();
             goto label_switchcase6;
         }
-        else if (x == 8)
+        else if (xBackup == 8)
         {
-            LoadNextFrom0600();
             goto label_switchcase5;
         }
-        else if (x == 0xA)
+        else if (xBackup == 0xA)
         {
-            LoadNextFrom0600();
             goto label_switchcase4;
         }
-        else if (x == 0xC)
+        else if (xBackup == 0xC)
         {
-            LoadNextFrom0600();
             goto label_switchcase3;
         }
-        else if (x == 0xE)
+        else if (xBackup == 0xE)
         {
-            LoadNextFrom0600();
             goto label_switchcase2;
         }
-        else if (x == 0x10)
+        else if (xBackup == 0x10)
         {
-            LoadNextFrom0600();
             goto label_switchcase1;
         }
         else
