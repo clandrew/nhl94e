@@ -530,7 +530,8 @@ namespace Fast
         }
         else if (x == 0x8)
         {
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 0xA)
         {
@@ -607,7 +608,8 @@ namespace Fast
         {
             a *= 16;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 4)
         {
@@ -680,7 +682,8 @@ namespace Fast
         {
             a *= 8;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else
         {
@@ -693,7 +696,8 @@ namespace Fast
         {
             a *= 4;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 0xA)
         {
@@ -830,10 +834,8 @@ namespace Fast
             __debugbreak();
         }
 
-    label_BE5D:
-        LoadNextFrom0600();
-
         // Switchcase 5 /////////////////////////////////////////////
+    label_switchcase5:
         if (x == 0x12)
         {
             x = 0x8;
@@ -845,7 +847,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 16;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 0xA)
         {
@@ -953,7 +956,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 16;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 6)
         {
@@ -1000,7 +1004,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 16;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 0xE)
         {
@@ -1069,7 +1074,8 @@ namespace Fast
             LoadNextFrom0CInc();
             a *= 16;
             LoadNextFrom0500();
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 2)
         {
@@ -1248,7 +1254,8 @@ namespace Fast
         y--;
         if (y == 0)
         {
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
 
     label_C116:
@@ -1351,7 +1358,8 @@ namespace Fast
         }
         else if (x == 8)
         {
-            goto label_BE5D;
+            LoadNextFrom0600();
+            goto label_switchcase5;
         }
         else if (x == 0xE)
         {
