@@ -508,6 +508,8 @@ namespace Fast
         bool shiftHigh = false;
         unsigned short caseCond = 0;
         unsigned short caseIndex = 0;
+        unsigned short firstMultiplier = 0;
+        unsigned short secondMultiplier = 0;
 
         Monstrosity0();
 
@@ -537,52 +539,37 @@ namespace Fast
         label_switchcase1:
             if (x == 0x2)
             {
-                a *= 4;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 4;
                 caseIndex = 3;
             }
             else if (x == 4)
             {
-                a *= 8;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 8;
                 caseIndex = 4;
             }
             else if (x == 6)
             {
-                a *= 16;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 16;
                 caseIndex = 5;
             }
             else if (x == 0x8)
             {
-                a *= 32;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 32;
                 caseIndex = 6;
             }
             else if (x == 0xA)
             {
-                a *= 64;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 64;
                 caseIndex = 7;
             }
             else if (x == 0xC)
             {
-                a *= 128;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 128;
                 caseIndex = 8;
             }
             else if (x == 0xE)
             {
-                a *= 256;
-                LoadNextFrom0CInc();
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                firstMultiplier = 256;
                 caseIndex = 1;
             }
             else if (x == 0x10)
@@ -599,6 +586,14 @@ namespace Fast
             {
                 __debugbreak();
             }
+
+            a *= firstMultiplier;
+            if (firstMultiplier == 256)
+            {
+                LoadNextFrom0CInc();
+            }
+            LoadNextFrom0500();
+            LoadNextFrom0600();
 
             switch (caseIndex)
             {
