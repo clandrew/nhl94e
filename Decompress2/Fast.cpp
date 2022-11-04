@@ -510,1076 +510,1080 @@ namespace Fast
 
         Monstrosity0();
 
-        // Switchcase 0 /////////////////////////////////////////////
         a = mem6c;
         x = mem71;
         caseCond = mem71;
         LoadNextFrom0600();
-    label_switchcase0:
-        if (caseCond == 2)
+        while (1)
         {
-            goto label_switchcase8;
-        }
-        else if (caseCond == 0x4)
-        {
-            goto label_switchcase7;
-        }
-        else if (caseCond == 6)
-        {
-            goto label_switchcase6;
-        }
-        else if (caseCond == 0x8)
-        {
-            goto label_switchcase5;
-        } 
-        else if (caseCond == 0xA)
-        {
-            goto label_switchcase4;
-        }
-        else if (caseCond == 0xC)
-        {
-            goto label_switchcase3;
-        }
-        else if (caseCond == 0xE)
-        {
-            goto label_switchcase2;
-        }
-        else if (caseCond == 0x10)
-        {
-            goto label_switchcase1;
-        }
-        else
-        {
-            __debugbreak();
-        }
 
-        // Switchcase 1 /////////////////////////////////////////////
-    label_switchcase1:
-        if (x == 0x2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 6)
-        {
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 0x8)
-        {
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 0xA)
-        {
-            a *= 64;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 0xC)
-        {
-            a *= 128;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 0xE)
-        {
-            a *= 256;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(0x10, 0);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0x10;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak();
-        }
-
-        // Switchcase 2 /////////////////////////////////////////////
-        // looks a lot like case 1.
-    label_switchcase2:
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 6)
-        {
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 8)
-        {
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 0xA)
-        {
-            a *= 64;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 0xC)
-        {
-            a *= 128;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 0xE)
-        {
-            a *= 128;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(0xE, 1);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0xE;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak();
-        }
-
-        // Switchcase 3 /////////////////////////////////////////////
-    label_switchcase3:
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 6)
-        {
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 8)
-        {
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 0xA)
-        {
-            a *= 64;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 0xC)
-        {
-            a *= 64;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0xE)
-        {
-            a *= 64;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(0xC, 2);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0xC;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // Switchcase 4 /////////////////////////////////////////////
-    label_switchcase4:
-        
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 6)
-        {
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 8)
-        {
-            a *= 32;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 0xA)
-        {
-            a *= 32;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0xC)
-        {
-            a *= 32;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 0xE)
-        {
-            a *= 32;
-            LoadNextFrom0CInc();
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(0xA, 3);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0xA;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak();
-        }
-
-        // Switchcase 5 /////////////////////////////////////////////
-    label_switchcase5:
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 6)
-        {   
-            a *= 16;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 8)
-        {
-            a *= 16;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0xA)
-        {
-            a *= 16;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 0xC)
-        {
-            a *= 16;
-            LoadNextFrom0CInc();
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 0xE)
-        {
-            a *= 16;
-            LoadNextFrom0CInc();
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(8, 4);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0x8;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else 
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // Switchcase 6 /////////////////////////////////////////////
-    label_switchcase6:
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 4)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 6)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0x8)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 0xA)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 0xC)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 0xE)
-        {
-            a *= 8;
-            LoadNextFrom0CInc();
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(6, 5);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 0x6;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak(); // notimpl
-        }
-
-        // Switchcase 7 /////////////////////////////////////////////
-    label_switchcase7:
-        if (x == 2)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase1;
-        }
-        else if (x == 4)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 6)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 8)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 0xA)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 0xC)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 0xE)
-        {
-            a *= 4;
-            LoadNextFrom0CInc();
-            a *= 64;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(4, 6);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 4;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak();
-        }
-
-        // Switchcase 8 /////////////////////////////////////////////
-
-    label_switchcase8:
-        if (x == 2)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-
-            a *= 2;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 4)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 4;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase3;
-        }
-        else if (x == 6)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 8;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase4;
-        }
-        else if (x == 8)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 16;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase5;
-        }
-        else if (x == 0xA)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 32;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase6;
-        }
-        else if (x == 0xC)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 64;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase7;
-        }
-        else if (x == 0xE)
-        {
-            a *= 2;
-            LoadNextFrom0CInc();
-            a *= 128;
-            LoadNextFrom0500();
-            LoadNextFrom0600();
-            goto label_switchcase8;
-        }
-        else if (x == 0x10)
-        {
-            LoadNextFrom0CMaskAndShift(2, 7);
-            goto label_BFC8_Jump_Absolute760;
-        }
-        else if (x == 0x12)
-        {
-            x = 2;
-            goto label_C17C_WriteOutput_CheckIfDone;
-        }
-        else
-        {
-            __debugbreak();
-        }
-
-    label_BFC8_Jump_Absolute760:
-        shiftHigh = false;
-        if (mem0760 == 0xBFC8)
-        {
-            loaded16.Low8 = cache7E0740[0x10];
-            loaded16.High8 = cache7E0740[0x11];
-            shiftHigh = a >= loaded16.Data16;
-        }
-
-        if (shiftHigh)
-        {
-            ShiftThenLoad100ThenCompare(6, 0x732, 2);
-        }
-        else
-        {
-            ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-        }
-
-        // This is 8 bit acc.
-        loaded16.Data16 = a;
-        if (indirectHigh == 0x7E && indirectLow >= 0x100)
-        {
-            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-        }
-        else if (indirectHigh == 0x7F)
-        {
-            cache7F0000[indirectLow] = loaded16.Low8;
-        }
-
-        indirectLow += 1;
-
-        loaded16.Data16 = mem08;
-        loaded16.Low8 = a & 0xFF;
-        mem08 = loaded16.Data16;
-        mem0c++;
-
-        loaded16 = LoadMem6b();
-        a = loaded16.Data16;
-
-        // Switchcase 8 /////////////////////////////////////////////
-        if (x == 2)
-        {
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
+            // Switchcase 0 /////////////////////////////////////////////
+        label_switchcase0:
+            if (caseCond == 2)
             {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 4)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase8;
             }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
+            else if (caseCond == 0x4)
             {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 6)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase7;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 6)
             {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 8)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase6;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 0x8)
             {
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0xA)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase5;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 0xA)
             {
-                LoadNextFrom0600();
-                goto label_switchcase6;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-            else
-            {
-                a *= 2;
-                y--;
-                LoadNextFrom0600();
-                goto label_switchcase2;
-            }
-        }
-        else if (x == 0xC)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase4;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 0xC)
             {
-                LoadNextFrom0600();
-                goto label_switchcase5;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase6;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0xE)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase3;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 0xE)
             {
-                LoadNextFrom0600();
-                goto label_switchcase4;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase5;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase6;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else if (x == 0x10)
-        {
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase2;
             }
-            a *= 2;
-            y--;
-            if (y == 0)
+            else if (caseCond == 0x10)
             {
-                LoadNextFrom0600();
-                goto label_switchcase3;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase4;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase5;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase6;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            a *= 2;
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
-                goto label_switchcase8;
-            }
-            a *= 2;
-
-            LoadNextFrom0CInc();
-
-            y--;
-            if (y == 0)
-            {
-                LoadNextFrom0600();
                 goto label_switchcase1;
-            }
-
-            a *= 2;
-
-            y--;
-            LoadNextFrom0600();
-            goto label_switchcase2;
-        }
-        else 
-        {
-            __debugbreak(); // notimpl
-        }
-
-    label_C17C_WriteOutput_CheckIfDone:
-        y = mem73 >> 8;
-
-        Fn_80C2DC();
-
-        mem6c = a;
-
-        continueDecompression = Fn_80C232();
-        if (!continueDecompression)
-        {
-            return; // return from monstrosity
-        }
-
-        // Write the value 'mem08', mem6f times.
-        assert(mem08 <= 0xFF);
-        decompressedValue = static_cast<unsigned char>(mem08);
-        for (int i = 0; i < mem6f; ++i)
-        {
-            if (indirectHigh == 0x7E && indirectLow >= 0x100)
-            {
-                cache7E0100[indirectLow - 0x100] = decompressedValue;
-            }
-            else if (indirectHigh == 0x7F)
-            {
-                cache7F0000[indirectLow] = decompressedValue;
             }
             else
             {
                 __debugbreak();
             }
+
+            // Switchcase 1 /////////////////////////////////////////////
+        label_switchcase1:
+            if (x == 0x2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 6)
+            {
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 0x8)
+            {
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 0xA)
+            {
+                a *= 64;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 0xC)
+            {
+                a *= 128;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 0xE)
+            {
+                a *= 256;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(0x10, 0);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0x10;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak();
+            }
+
+            // Switchcase 2 /////////////////////////////////////////////
+            // looks a lot like case 1.
+        label_switchcase2:
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 6)
+            {
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 8)
+            {
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 0xA)
+            {
+                a *= 64;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 0xC)
+            {
+                a *= 128;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 0xE)
+            {
+                a *= 128;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(0xE, 1);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0xE;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak();
+            }
+
+            // Switchcase 3 /////////////////////////////////////////////
+        label_switchcase3:
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 6)
+            {
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 8)
+            {
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 0xA)
+            {
+                a *= 64;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 0xC)
+            {
+                a *= 64;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0xE)
+            {
+                a *= 64;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(0xC, 2);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0xC;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak(); // notimpl
+            }
+
+            // Switchcase 4 /////////////////////////////////////////////
+        label_switchcase4:
+
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 6)
+            {
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 8)
+            {
+                a *= 32;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 0xA)
+            {
+                a *= 32;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0xC)
+            {
+                a *= 32;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 0xE)
+            {
+                a *= 32;
+                LoadNextFrom0CInc();
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(0xA, 3);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0xA;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak();
+            }
+
+            // Switchcase 5 /////////////////////////////////////////////
+        label_switchcase5:
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 6)
+            {
+                a *= 16;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 8)
+            {
+                a *= 16;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0xA)
+            {
+                a *= 16;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 0xC)
+            {
+                a *= 16;
+                LoadNextFrom0CInc();
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 0xE)
+            {
+                a *= 16;
+                LoadNextFrom0CInc();
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(8, 4);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0x8;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak(); // notimpl
+            }
+
+            // Switchcase 6 /////////////////////////////////////////////
+        label_switchcase6:
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 4)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 6)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0x8)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 0xA)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 0xC)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 0xE)
+            {
+                a *= 8;
+                LoadNextFrom0CInc();
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(6, 5);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 0x6;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak(); // notimpl
+            }
+
+            // Switchcase 7 /////////////////////////////////////////////
+        label_switchcase7:
+            if (x == 2)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase1;
+            }
+            else if (x == 4)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 6)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 8)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 0xA)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 0xC)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 0xE)
+            {
+                a *= 4;
+                LoadNextFrom0CInc();
+                a *= 64;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(4, 6);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 4;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak();
+            }
+
+            // Switchcase 8 /////////////////////////////////////////////
+
+        label_switchcase8:
+            if (x == 2)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+
+                a *= 2;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 4)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 4;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase3;
+            }
+            else if (x == 6)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 8;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase4;
+            }
+            else if (x == 8)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 16;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase5;
+            }
+            else if (x == 0xA)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 32;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase6;
+            }
+            else if (x == 0xC)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 64;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase7;
+            }
+            else if (x == 0xE)
+            {
+                a *= 2;
+                LoadNextFrom0CInc();
+                a *= 128;
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                goto label_switchcase8;
+            }
+            else if (x == 0x10)
+            {
+                LoadNextFrom0CMaskAndShift(2, 7);
+                goto label_BFC8_Jump_Absolute760;
+            }
+            else if (x == 0x12)
+            {
+                x = 2;
+                goto label_C17C_WriteOutput_CheckIfDone;
+            }
+            else
+            {
+                __debugbreak();
+            }
+
+        label_BFC8_Jump_Absolute760:
+            shiftHigh = false;
+            if (mem0760 == 0xBFC8)
+            {
+                loaded16.Low8 = cache7E0740[0x10];
+                loaded16.High8 = cache7E0740[0x11];
+                shiftHigh = a >= loaded16.Data16;
+            }
+
+            if (shiftHigh)
+            {
+                ShiftThenLoad100ThenCompare(6, 0x732, 2);
+            }
+            else
+            {
+                ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+            }
+
+            // This is 8 bit acc.
+            loaded16.Data16 = a;
+            if (indirectHigh == 0x7E && indirectLow >= 0x100)
+            {
+                cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+            }
+            else if (indirectHigh == 0x7F)
+            {
+                cache7F0000[indirectLow] = loaded16.Low8;
+            }
+
             indirectLow += 1;
-        }
 
-        a = mem6c;
+            loaded16.Data16 = mem08;
+            loaded16.Low8 = a & 0xFF;
+            mem08 = loaded16.Data16;
+            mem0c++;
 
-        caseCond = x;
-        LoadNextFrom0600();
-        goto label_switchcase0;        
+            loaded16 = LoadMem6b();
+            a = loaded16.Data16;
+
+            // Switchcase 8 /////////////////////////////////////////////
+            if (x == 2)
+            {
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 4)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 6)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 8)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase6;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0xA)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase5;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase6;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+                else
+                {
+                    a *= 2;
+                    y--;
+                    LoadNextFrom0600();
+                    goto label_switchcase2;
+                }
+            }
+            else if (x == 0xC)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase4;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase5;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase6;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0xE)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase3;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase4;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase5;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase6;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else if (x == 0x10)
+            {
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase2;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase3;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase4;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase5;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase6;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase7;
+                }
+                a *= 2;
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase8;
+                }
+                a *= 2;
+
+                LoadNextFrom0CInc();
+
+                y--;
+                if (y == 0)
+                {
+                    LoadNextFrom0600();
+                    goto label_switchcase1;
+                }
+
+                a *= 2;
+
+                y--;
+                LoadNextFrom0600();
+                goto label_switchcase2;
+            }
+            else
+            {
+                __debugbreak(); // notimpl
+            }
+
+        label_C17C_WriteOutput_CheckIfDone:
+            y = mem73 >> 8;
+
+            Fn_80C2DC();
+
+            mem6c = a;
+
+            continueDecompression = Fn_80C232();
+            if (!continueDecompression)
+            {
+                return; // return from monstrosity
+            }
+
+            // Write the value 'mem08', mem6f times.
+            assert(mem08 <= 0xFF);
+            decompressedValue = static_cast<unsigned char>(mem08);
+            for (int i = 0; i < mem6f; ++i)
+            {
+                if (indirectHigh == 0x7E && indirectLow >= 0x100)
+                {
+                    cache7E0100[indirectLow - 0x100] = decompressedValue;
+                }
+                else if (indirectHigh == 0x7F)
+                {
+                    cache7F0000[indirectLow] = decompressedValue;
+                }
+                else
+                {
+                    __debugbreak();
+                }
+                indirectLow += 1;
+            }
+
+            a = mem6c;
+
+            caseCond = x;
+            LoadNextFrom0600();
+            goto label_switchcase0;
+        }  
     }
 
     void Fn_80C1B0()
