@@ -538,35 +538,8 @@ namespace Fast
             // Switchcase 1 /////////////////////////////////////////////
         label_switchcase1:
             firstMultiplier = 2 << (x / 2);
-            if (x == 0x2)
-            {
-                caseIndex = 3;
-            }
-            else if (x == 4)
-            {
-                caseIndex = 4;
-            }
-            else if (x == 6)
-            {
-                caseIndex = 5;
-            }
-            else if (x == 0x8)
-            {
-                caseIndex = 6;
-            }
-            else if (x == 0xA)
-            {
-                caseIndex = 7;
-            }
-            else if (x == 0xC)
-            {
-                caseIndex = 8;
-            }
-            else if (x == 0xE)
-            {
-                caseIndex = 1;
-            }
-            else if (x == 0x10)
+            caseIndex = ((((x / 2) - 1) + 2) % 8) + 1;
+            if (x == 0x10)
             {
                 LoadNextFrom0CMaskAndShift(0x10, 0);
                 goto label_BFC8_Jump_Absolute760;
@@ -575,10 +548,6 @@ namespace Fast
             {
                 x = 0x10;
                 goto label_C17C_WriteOutput_CheckIfDone;
-            }
-            else
-            {
-                __debugbreak();
             }
 
             a *= firstMultiplier;
