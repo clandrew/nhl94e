@@ -507,6 +507,7 @@ namespace Fast
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
         unsigned short caseCond = 0;
+        unsigned short caseIndex = 0;
 
         Monstrosity0();
 
@@ -518,42 +519,19 @@ namespace Fast
         {
 
             // Switchcase 0 /////////////////////////////////////////////
-        label_switchcase0:
-            if (caseCond == 2)
+            caseIndex = 8 - (caseCond / 2) + 1;
+
+            switch (caseIndex)
             {
-                goto label_switchcase8;
-            }
-            else if (caseCond == 0x4)
-            {
-                goto label_switchcase7;
-            }
-            else if (caseCond == 6)
-            {
-                goto label_switchcase6;
-            }
-            else if (caseCond == 0x8)
-            {
-                goto label_switchcase5;
-            }
-            else if (caseCond == 0xA)
-            {
-                goto label_switchcase4;
-            }
-            else if (caseCond == 0xC)
-            {
-                goto label_switchcase3;
-            }
-            else if (caseCond == 0xE)
-            {
-                goto label_switchcase2;
-            }
-            else if (caseCond == 0x10)
-            {
-                goto label_switchcase1;
-            }
-            else
-            {
-                __debugbreak();
+            case 1: goto label_switchcase1;
+            case 2: goto label_switchcase2;
+            case 3: goto label_switchcase3;
+            case 4: goto label_switchcase4;
+            case 5: goto label_switchcase5;
+            case 6: goto label_switchcase6;
+            case 7: goto label_switchcase7;
+            case 8: goto label_switchcase8;
+            default: __debugbreak();
             }
 
             // Switchcase 1 /////////////////////////////////////////////
