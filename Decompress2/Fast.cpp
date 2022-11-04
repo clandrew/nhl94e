@@ -510,9 +510,7 @@ namespace Fast
 
         Monstrosity0();
 
-
         // Switchcase 0 /////////////////////////////////////////////
-        // this looks very similar to case 9.
         a = mem6c;
         x = mem71;
         caseCond = mem71;
@@ -533,7 +531,7 @@ namespace Fast
         else if (caseCond == 0x8)
         {
             goto label_switchcase5;
-        }
+        } 
         else if (caseCond == 0xA)
         {
             goto label_switchcase4;
@@ -854,7 +852,7 @@ namespace Fast
             goto label_switchcase8;
         }
         else if (x == 6)
-        {
+        {   
             a *= 16;
             LoadNextFrom0CInc();
             LoadNextFrom0500();
