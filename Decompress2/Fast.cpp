@@ -1582,7 +1582,6 @@ namespace Fast
 
             caseCond = x;
             LoadNextFrom0600();
-            goto label_switchcase0;
         }  
     }
 
