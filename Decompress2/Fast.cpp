@@ -442,6 +442,20 @@ namespace Fast
         indirectLow = mem10;
     }
 
+    struct CaseTableRow
+    {
+        int CaseIndices[9];
+        int FirstMultipliers[9];
+        int SecondMultipliers[9];
+    };
+
+    CaseTableRow s_caseTable[] =
+        { 
+            /* Case 0 */ { {8, 7, 6, 5, 4, 3, 2, 1, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},        {0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            /* Case 1 */ { {3, 4, 5, 6, 7, 8, 1, 0, 0}, {4, 8, 16, 32, 64, 128, 256, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            /* Case 2 */ { {4, 5, 6, 7, 8, 1, 2, 0, 0}, {4, 8, 16, 32, 64, 128, 128, 0, 0}, {0, 0, 0, 0, 0, 1, 2, 0, 0} }
+        };
+
     void Fn_80BBB3()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -510,6 +524,7 @@ namespace Fast
         unsigned short caseIndex = 0;
         unsigned short firstMultiplier = 0;
         unsigned short secondMultiplier = 0;
+        unsigned short dbg = 0;
 
         Monstrosity0();
 
@@ -520,7 +535,7 @@ namespace Fast
         while (1)
         {
             // Switchcase 0 /////////////////////////////////////////////
-            caseIndex = 8 - (caseCond / 2) + 1;
+            caseIndex = s_caseTable[0].CaseIndices[caseCond / 2 - 1];
 
             switch (caseIndex)
             {
@@ -537,14 +552,16 @@ namespace Fast
 
             // Switchcase 1 /////////////////////////////////////////////
         label_switchcase1:
-            firstMultiplier = 2 << (x / 2);
-            caseIndex = (((x / 2) + 1) % 8) + 1;
-            if (x == 0x10)
+            caseCond = x;
+            caseIndex = s_caseTable[1].CaseIndices[caseCond / 2 - 1];
+            firstMultiplier = s_caseTable[1].FirstMultipliers[caseCond / 2 - 1];
+
+            if (caseCond == 0x10)
             {
                 LoadNextFrom0CMaskAndShift(0x10, 0);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (x == 0x12)
+            else if (caseCond == 0x12)
             {
                 x = 0x10;
                 goto label_C17C_WriteOutput_CheckIfDone;
@@ -573,6 +590,10 @@ namespace Fast
 
             // Switchcase 2 /////////////////////////////////////////////
         label_switchcase2:
+            caseCond = x;
+            caseIndex = s_caseTable[2].CaseIndices[caseCond / 2 - 1];
+            firstMultiplier = s_caseTable[2].FirstMultipliers[caseCond / 2 - 1];
+
             if (x == 2)
             {
                 a *= 4;
