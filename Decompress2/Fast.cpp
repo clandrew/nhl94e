@@ -538,7 +538,7 @@ namespace Fast
             // Switchcase 1 /////////////////////////////////////////////
         label_switchcase1:
             firstMultiplier = 2 << (x / 2);
-            caseIndex = ((((x / 2) - 1) + 2) % 8) + 1;
+            caseIndex = (((x / 2) + 1) % 8) + 1;
             if (x == 0x10)
             {
                 LoadNextFrom0CMaskAndShift(0x10, 0);
@@ -572,7 +572,6 @@ namespace Fast
             }
 
             // Switchcase 2 /////////////////////////////////////////////
-            // looks a lot like case 1.
         label_switchcase2:
             if (x == 2)
             {
