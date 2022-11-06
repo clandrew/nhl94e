@@ -651,12 +651,13 @@ namespace Fast
 
                 // Switchcase 3 /////////////////////////////////////////////
             label_switchcase3:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[3].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[3].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[3].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[3].MainIndex;
-                exitValue = s_caseTable[3].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -693,12 +694,13 @@ namespace Fast
 
                 // Switchcase 4 /////////////////////////////////////////////
             label_switchcase4:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[4].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[4].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[4].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[4].MainIndex;
-                exitValue = s_caseTable[4].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -735,12 +737,13 @@ namespace Fast
 
                 // Switchcase 5 /////////////////////////////////////////////
             label_switchcase5:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[5].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[5].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[5].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[5].MainIndex;
-                exitValue = s_caseTable[5].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -777,12 +780,13 @@ namespace Fast
 
                 // Switchcase 6 /////////////////////////////////////////////
             label_switchcase6:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[6].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[6].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[6].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[6].MainIndex;
-                exitValue = s_caseTable[6].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -819,12 +823,13 @@ namespace Fast
 
                 // Switchcase 7 /////////////////////////////////////////////
             label_switchcase7:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[7].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[7].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[7].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[7].MainIndex;
-                exitValue = s_caseTable[7].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -862,12 +867,13 @@ namespace Fast
                 // Switchcase 8 /////////////////////////////////////////////
 
             label_switchcase8:
+                currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
-                nextCaseIndex = s_caseTable[8].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[8].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[8].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[8].MainIndex;
-                exitValue = s_caseTable[8].ExitValue;
+                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
+                exitValue = s_caseTable[currentCaseIndex].ExitValue;
 
                 if (nextCaseCond == 0x10)
                 {
@@ -971,6 +977,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -999,6 +1006,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1006,6 +1014,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -1034,6 +1043,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 6;
                     goto label_switchcase6;
                 }
                 a *= 2;
@@ -1041,6 +1051,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1048,6 +1059,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -1076,6 +1088,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 5;
                     goto label_switchcase5;
                 }
                 a *= 2;
@@ -1083,6 +1096,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 6;
                     goto label_switchcase6;
                 }
                 a *= 2;
@@ -1090,6 +1104,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1097,6 +1112,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -1126,6 +1142,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 4;
                     goto label_switchcase4;
                 }
                 a *= 2;
@@ -1133,6 +1150,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 5;
                     goto label_switchcase5;
                 }
                 a *= 2;
@@ -1140,6 +1158,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 6;
                     goto label_switchcase6;
                 }
                 a *= 2;
@@ -1147,6 +1166,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1154,6 +1174,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -1182,6 +1203,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 3;
                     goto label_switchcase3;
                 }
                 a *= 2;
@@ -1189,6 +1211,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 4;
                     goto label_switchcase4;
                 }
                 a *= 2;
@@ -1196,6 +1219,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 5;
                     goto label_switchcase5;
                 }
                 a *= 2;
@@ -1203,6 +1227,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 6;
                     goto label_switchcase6;
                 }
                 a *= 2;
@@ -1210,6 +1235,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1217,6 +1243,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
@@ -1253,6 +1280,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 3;
                     goto label_switchcase3;
                 }
                 a *= 2;
@@ -1260,6 +1288,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 4;
                     goto label_switchcase4;
                 }
                 a *= 2;
@@ -1267,6 +1296,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 5;
                     goto label_switchcase5;
                 }
                 a *= 2;
@@ -1274,6 +1304,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 6;
                     goto label_switchcase6;
                 }
                 a *= 2;
@@ -1281,6 +1312,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 7;
                     goto label_switchcase7;
                 }
                 a *= 2;
@@ -1288,6 +1320,7 @@ namespace Fast
                 if (y == 0)
                 {
                     LoadNextFrom0600();
+                    nextCaseIndex = 8;
                     goto label_switchcase8;
                 }
                 a *= 2;
