@@ -596,53 +596,9 @@ namespace Fast
             caseCond = x;
             caseIndex = s_caseTable[2].CaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[2].FirstMultipliers[caseCond / 2 - 1];
+            secondMultiplier = s_caseTable[2].SecondMultipliers[caseCond / 2 - 1];
 
-            if (x == 2)
-            {
-                a *= 4;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 4)
-            {
-                a *= 8;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 6)
-            {
-                a *= 16;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 8)
-            {
-                a *= 32;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 0xA)
-            {
-                a *= 64;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 0xC)
-            {
-                a *= 128;
-                LoadNextFrom0CInc();
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 0xE)
-            {
-                a *= 128;
-                LoadNextFrom0CInc();
-                a *= 2;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-            }
-            else if (x == 0x10)
+            if (x == 0x10)
             {
                 LoadNextFrom0CMaskAndShift(0xE, 1);
                 goto label_BFC8_Jump_Absolute760;
@@ -652,11 +608,15 @@ namespace Fast
                 x = 0xE;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
-            else
-            {
-                __debugbreak();
-            }
 
+            a *= firstMultiplier;
+            if (secondMultiplier != 0)
+            {
+                LoadNextFrom0CInc();
+                a *= secondMultiplier;
+            }
+            LoadNextFrom0500();
+            LoadNextFrom0600();
 
             switch (caseIndex)
             {
