@@ -548,23 +548,9 @@ namespace Fast
             // Switchcase 0 /////////////////////////////////////////////
             nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
-            switch (nextCaseIndex)
-            {
-            case 1: goto label_switchcase1;
-            case 2: goto label_switchcase2;
-            case 3: goto label_switchcase3;
-            case 4: goto label_switchcase4;
-            case 5: goto label_switchcase5;
-            case 6: goto label_switchcase6;
-            case 7: goto label_switchcase7;
-            case 8: goto label_switchcase8;
-            default: __debugbreak();
-            }
-
             while (1)
             {
-                // Switchcase 1 /////////////////////////////////////////////
-            label_switchcase1:
+            label_mainSwitchCaseTable:
                 currentCaseIndex = nextCaseIndex;
                 nextCaseCond = x;
                 nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
@@ -592,321 +578,6 @@ namespace Fast
                 }
                 LoadNextFrom0500();
                 LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 2 /////////////////////////////////////////////
-            label_switchcase2:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 3 /////////////////////////////////////////////
-            label_switchcase3:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 4 /////////////////////////////////////////////
-            label_switchcase4:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 5 /////////////////////////////////////////////
-            label_switchcase5:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 6 /////////////////////////////////////////////
-            label_switchcase6:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 7 /////////////////////////////////////////////
-            label_switchcase7:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
-
-                // Switchcase 8 /////////////////////////////////////////////
-
-            label_switchcase8:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                mainIndex = s_caseTable[currentCaseIndex].MainIndex;
-                exitValue = s_caseTable[currentCaseIndex].ExitValue;
-
-                if (nextCaseCond == 0x10)
-                {
-                    LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
-                    goto label_BFC8_Jump_Absolute760;
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
-                }
-
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-
-                switch (nextCaseIndex)
-                {
-                case 1: goto label_switchcase1;
-                case 2: goto label_switchcase2;
-                case 3: goto label_switchcase3;
-                case 4: goto label_switchcase4;
-                case 5: goto label_switchcase5;
-                case 6: goto label_switchcase6;
-                case 7: goto label_switchcase7;
-                case 8: goto label_switchcase8;
-                default: __debugbreak();
-                }
             }
 
         label_BFC8_Jump_Absolute760:
@@ -960,7 +631,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -968,7 +639,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 4)
             {
@@ -978,7 +649,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -989,7 +660,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -997,7 +668,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 6)
             {
@@ -1007,7 +678,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1015,7 +686,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1026,7 +697,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -1034,7 +705,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 8)
             {
@@ -1044,7 +715,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 6;
-                    goto label_switchcase6;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1052,7 +723,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1060,7 +731,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1071,7 +742,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -1079,7 +750,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 0xA)
             {
@@ -1089,7 +760,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 5;
-                    goto label_switchcase5;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1097,7 +768,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 6;
-                    goto label_switchcase6;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1105,7 +776,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1113,7 +784,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1124,7 +795,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
                 else
                 {
@@ -1132,7 +803,7 @@ namespace Fast
                     y--;
                     LoadNextFrom0600();
                     nextCaseIndex = 2;
-                    goto label_switchcase2;
+                    goto label_mainSwitchCaseTable;
                 }
             }
             else if (x == 0xC)
@@ -1143,7 +814,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 4;
-                    goto label_switchcase4;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1151,7 +822,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 5;
-                    goto label_switchcase5;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1159,7 +830,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 6;
-                    goto label_switchcase6;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1167,7 +838,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1175,7 +846,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1186,7 +857,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -1194,7 +865,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 0xE)
             {
@@ -1204,7 +875,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 3;
-                    goto label_switchcase3;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1212,7 +883,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 4;
-                    goto label_switchcase4;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1220,7 +891,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 5;
-                    goto label_switchcase5;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1228,7 +899,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 6;
-                    goto label_switchcase6;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1236,7 +907,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1244,7 +915,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1255,7 +926,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -1263,7 +934,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else if (x == 0x10)
             {
@@ -1273,7 +944,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 2;
-                    goto label_switchcase2;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1281,7 +952,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 3;
-                    goto label_switchcase3;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1289,7 +960,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 4;
-                    goto label_switchcase4;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1297,7 +968,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 5;
-                    goto label_switchcase5;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1305,7 +976,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 6;
-                    goto label_switchcase6;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1313,7 +984,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 7;
-                    goto label_switchcase7;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
                 y--;
@@ -1321,7 +992,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 8;
-                    goto label_switchcase8;
+                    goto label_mainSwitchCaseTable;
                 }
                 a *= 2;
 
@@ -1332,7 +1003,7 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_switchcase1;
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= 2;
@@ -1340,7 +1011,7 @@ namespace Fast
                 y--;
                 LoadNextFrom0600();
                 nextCaseIndex = 2;
-                goto label_switchcase2;
+                goto label_mainSwitchCaseTable;
             }
             else
             {
