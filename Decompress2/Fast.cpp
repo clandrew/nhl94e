@@ -48,14 +48,14 @@ namespace Fast
     unsigned short mem91_HomeOrAway = 0;
     unsigned short mem0760 = 0;
 
-    // Staging output.
+    // Staging output. Monstrosity0 writes this. Monstrosity1 reads from it.
     std::vector<unsigned char> mem7E0500_7E0700;
 
     unsigned short indirectHigh;
     unsigned short indirectLow;
 
     std::vector<unsigned char> cache7E0100;
-    std::vector<unsigned char> cache7E0700;
+    std::vector<unsigned char> cache7E0700; // Monstrosity0 scribbles on this and then it's never used again.
     std::vector<unsigned char> cache7E0720;
     std::vector<unsigned char> cache7E0740;
 
@@ -234,16 +234,11 @@ namespace Fast
         }
 
         a -= loaded16.Data16;
-
-        y = a;
-
-        a = cache7E0100[y];
+        a = cache7E0100[a];
+        z = a == (mem73 & 0xFF); // we are in 8bit mode
 
         y = nextY;
 
-        // $80/BFA2 C5 73       CMP $73    [$00:0073]   A:0008 X:0006 Y:0001 P:envmxdizc
-
-        z = a == (mem73 & 0xFF); // we are in 8bit mode
     }
 
     void ShiftRotateDecrement(int xDecAmt, int yDecAmt)
@@ -346,6 +341,7 @@ namespace Fast
             mem7E0500_7E0700[i] = 0;
         }
 
+        // This is hard coded.
         indirectHigh = 0x7E;
         indirectLow = 0x100;
 
