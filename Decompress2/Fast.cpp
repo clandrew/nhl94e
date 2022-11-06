@@ -269,7 +269,6 @@ namespace Fast
     void Monstrosity0()
     {
         // Use 8bit X and Y
-
         x &= 0xFF;
         y &= 0xFF;
         mem0c += 5;
@@ -310,10 +309,9 @@ namespace Fast
         loaded16.Data16 = a;
         cache7E0700[x] = loaded16.Low8;
 
-        a += mem77;
-        mem77 = a;
+        mem77 += a;
 
-        int setBytesInCacheCounter = a;
+        int setBytesInCacheCounter = mem77;
 
         mem75 += mem6f;
         if (mem6f == 0)
@@ -342,20 +340,10 @@ namespace Fast
 
         mem79 = x >> 1;
 
-        for (int i = 0; i < 0x40; i += 2)
+        // Zero out the intermediate
+        for (int i = 0; i < 0x100; i++)
         {
             mem7E0500_7E0700[i] = 0;
-            mem7E0500_7E0700[i + 1] = 0;
-
-            mem7E0500_7E0700[0x40 + i] = 0;
-            mem7E0500_7E0700[0x40 + i + 1] = 0;
-
-            mem7E0500_7E0700[0x80 + i] = 0;
-            mem7E0500_7E0700[0x80 + i + 1] = 0;
-
-            mem7E0500_7E0700[0xC0 + i] = 0;
-            mem7E0500_7E0700[0xC0 + i + 1] = 0;
-
         }
 
         indirectHigh = 0x7E;
