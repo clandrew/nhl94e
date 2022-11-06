@@ -561,16 +561,16 @@ namespace Fast
 
         while (1)
         {
-        label_mainSwitchCaseTable:
             currentCaseIndex = nextCaseIndex;
             nextCaseCond = x;
             nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-            firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-            secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
             exitValue = 0x12 - (currentCaseIndex * 2);
 
             if (nextCaseCond < 0x10)
             {
+                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+
                 a *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
