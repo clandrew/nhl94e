@@ -479,67 +479,8 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    void Fn_80BBB3()
+    void Monstrosity1()
     {
-        // This is a sizeable function, a.k.a. 'the monstrosity'.
-        //
-        // Preconditions:
-        //     Mem0C contains the source ROM address.
-        //     Mem10 contains the low short of the destination address. (E.g., 0x0000)
-        //     Mem12 contains the bank of the destination address. (E.g., 0x7F)
-        //
-        // Postconditions:
-        //     Decompressed staging data is written to the destination address.
-        //     Mem0C is scrambled.
-        //
-        // Notes:
-        //     A, X, Y are ignored and stomped on.
-        //     When loading the GAME SETUP screen, this function is called 17 times, with the following values
-        //     Call#            Mem0C-F
-        //     -----            -----
-        //     0                81ABDE
-        //     1                9AC1F3
-        //     2                938000
-        //     3                9AB7A1
-        //     4                9AE972
-        //     5                9A862E <-- Montreal 0
-        //     6                9988EC <-- Montreal 1
-        //     7                99DFCF <-- Montreal 2
-        //     8                98CAC0 <-- Montreal 3
-        //     9                97D557 <-- Montreal 4
-        //     10               99F8AC <-- Montreal 5
-        //     11               97E40B <-- LA 0
-        //     12               97C8FE <-- LA 1
-        //     13               97A887 <-- LA 2
-        //     14               97D7CC <-- LA 3
-        //     15               98D62E <-- LA 4
-        //     16               97DF28 <-- LA 5
-        //
-        // In local testing for now, we execute compared to a trace through of Montreal 0 (9A862E).
-
-        // Use 8bit X and Y
-
-        x &= 0xFF;
-        y &= 0xFF;
-        mem0c += 5;
-
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        mem73 = loaded16.Data16;
-        mem0c++;
-
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        a = loaded16.Data16;
-        mem0c+=2;
-
-        a = ExchangeShortHighAndLow(a);
-        mem6c = a;
-
-        y = 8;
-        mem77 = 0;
-        mem75 = 0;
-        mem14 = 0x10;
-        a = 0x10;
-        x = 0xFE;
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
@@ -548,8 +489,6 @@ namespace Fast
         unsigned short nextCaseIndex = 0;
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
-
-        Monstrosity0();
 
         a = mem6c;
         x = mem71;
@@ -693,6 +632,73 @@ namespace Fast
                 continue;
             }
         }
+    }
+
+    void Fn_80BBB3()
+    {
+        // This is a sizeable function, a.k.a. 'the monstrosity'.
+        //
+        // Preconditions:
+        //     Mem0C contains the source ROM address.
+        //     Mem10 contains the low short of the destination address. (E.g., 0x0000)
+        //     Mem12 contains the bank of the destination address. (E.g., 0x7F)
+        //
+        // Postconditions:
+        //     Decompressed staging data is written to the destination address.
+        //     Mem0C is scrambled.
+        //
+        // Notes:
+        //     A, X, Y are ignored and stomped on.
+        //     When loading the GAME SETUP screen, this function is called 17 times, with the following values
+        //     Call#            Mem0C-F
+        //     -----            -----
+        //     0                81ABDE
+        //     1                9AC1F3
+        //     2                938000
+        //     3                9AB7A1
+        //     4                9AE972
+        //     5                9A862E <-- Montreal 0
+        //     6                9988EC <-- Montreal 1
+        //     7                99DFCF <-- Montreal 2
+        //     8                98CAC0 <-- Montreal 3
+        //     9                97D557 <-- Montreal 4
+        //     10               99F8AC <-- Montreal 5
+        //     11               97E40B <-- LA 0
+        //     12               97C8FE <-- LA 1
+        //     13               97A887 <-- LA 2
+        //     14               97D7CC <-- LA 3
+        //     15               98D62E <-- LA 4
+        //     16               97DF28 <-- LA 5
+        //
+        // In local testing for now, we execute compared to a trace through of Montreal 0 (9A862E).
+
+        // Use 8bit X and Y
+
+        x &= 0xFF;
+        y &= 0xFF;
+        mem0c += 5;
+
+        loaded16 = Load16FromAddress(dbr, mem0c);
+        mem73 = loaded16.Data16;
+        mem0c++;
+
+        loaded16 = Load16FromAddress(dbr, mem0c);
+        a = loaded16.Data16;
+        mem0c+=2;
+
+        a = ExchangeShortHighAndLow(a);
+        mem6c = a;
+
+        y = 8;
+        mem77 = 0;
+        mem75 = 0;
+        mem14 = 0x10;
+        a = 0x10;
+        x = 0xFE;
+
+        Monstrosity0();
+
+        Monstrosity1();
     }
 
     void Fn_80C1B0()
