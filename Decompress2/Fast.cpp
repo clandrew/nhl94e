@@ -312,6 +312,9 @@ namespace Fast
 
         a += mem77;
         mem77 = a;
+
+        unsigned int setBytesInCacheCounter = a;
+
         mem75 += mem6f;
         if (mem6f == 0)
         {
@@ -360,7 +363,8 @@ namespace Fast
 
         x = 0xFF;
 
-        while (mem77 != 0)
+        // Set bytes in cache
+        while (setBytesInCacheCounter != 0)
         {
             Fn_80C1B0();
             ++a;
@@ -381,7 +385,7 @@ namespace Fast
             cache7E0100[indirectLow - 0x100] = loaded16.Low8;
             indirectLow += 1;
 
-            mem77--;
+            setBytesInCacheCounter--;
         }
         mem71 = y * 2;
         x = 0;
