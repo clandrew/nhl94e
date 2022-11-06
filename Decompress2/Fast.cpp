@@ -714,64 +714,22 @@ namespace Fast
             }
             else if (x == 0xC)
             {
-                a *= 2;
-                y--;
-                if (y == 0)
+                for (int i = 3; i < 3 + 7; ++i)
                 {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 4;
-                    goto label_mainSwitchCaseTable;
-                }
-                a *= 2;
-                y--;
-                if (y == 0)
-                {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 5;
-                    goto label_mainSwitchCaseTable;
-                }
-                a *= 2;
-                y--;
-                if (y == 0)
-                {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 6;
-                    goto label_mainSwitchCaseTable;
-                }
-                a *= 2;
-                y--;
-                if (y == 0)
-                {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 7;
-                    goto label_mainSwitchCaseTable;
-                }
-                a *= 2;
-                y--;
-                if (y == 0)
-                {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 8;
-                    goto label_mainSwitchCaseTable;
-                }
-                a *= 2;
+                    a *= 2;
+                    if (i == 8)
+                    {
+                        LoadNextFrom0CInc();
+                    }
 
-                LoadNextFrom0CInc();
-
-                y--;
-                if (y == 0)
-                {
-                    LoadNextFrom0600();
-                    nextCaseIndex = 1;
-                    goto label_mainSwitchCaseTable;
+                    y--;
+                    if (y == 0)
+                    {
+                        LoadNextFrom0600();
+                        nextCaseIndex = (i % 8) + 1;
+                        goto label_mainSwitchCaseTable;
+                    }
                 }
-
-                a *= 2;
-
-                y--;
-                LoadNextFrom0600();
-                nextCaseIndex = 2;
-                goto label_mainSwitchCaseTable;
             }
             else if (x == 0xE)
             {
