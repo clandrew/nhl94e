@@ -444,23 +444,25 @@ namespace Fast
 
     struct CaseTableRow
     {
-        int CaseIndices[9];
+        int NextCaseIndices[9];
         int FirstMultipliers[9];
         int SecondMultipliers[9];
+        int MainIndex;
+        int ExitValue;
     };
 
     CaseTableRow s_caseTable[] =
         { 
-            /*              caseIndex                   FirstMultiplier                      SecondMultiplier           */
-            /* Case 0 */ { {8, 7, 6, 5, 4, 3, 2, 1, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},        {0, 0, 0, 0, 0, 0, 0, 0, 0} },
-            /* Case 1 */ { {3, 4, 5, 6, 7, 8, 1, 0, 0}, {4, 8, 16, 32, 64, 128, 256, 0, 0}, {0, 0, 0, 0, 0, 0, 1, 0, 0} },
-            /* Case 2 */ { {4, 5, 6, 7, 8, 1, 2, 0, 0}, {4, 8, 16, 32, 64, 128, 128, 0, 0}, {0, 0, 0, 0, 0, 1, 2, 0, 0} },
-            /* Case 3 */ { {5, 6, 7, 8, 1, 2, 3, 0, 0}, {4, 8, 16, 32, 64, 64, 64, 0, 0},   {0, 0, 0, 0, 1, 2, 4, 0, 0} },
-            /* Case 4 */ { {6, 7, 8, 1, 2, 3, 4, 0, 0}, {4, 8, 16, 32, 32, 32, 32, 0, 0},   {0, 0, 0, 1, 2, 4, 8, 0, 0} },
-            /* Case 5 */ { {7, 8, 1, 2, 3, 4, 5, 0, 0}, {4, 8, 16, 16, 16, 16, 16, 0, 0},   {0, 0, 1, 2, 4, 8, 16, 0, 0} },
-            /* Case 6 */ { {8, 1, 2, 3, 4, 5, 6, 0, 0}, {4, 8, 8, 8, 8, 8, 8, 0, 0},        {0, 1, 2, 4, 8, 16, 32, 0, 0} },
-            /* Case 7 */ { {1, 2, 3, 4, 5, 6, 7, 0, 0}, {4, 4, 4, 4, 4, 4, 4, 0, 0},        {1, 2, 4, 8, 16, 32, 64, 0, 0} },
-            /* Case 8 */ { {2, 3, 4, 5, 6, 7, 8, 0, 0}, {2, 2, 2, 2, 2, 2, 2, 0, 0},        {2, 4, 8, 16, 32, 64, 128, 0, 0} },
+            /*              NextCaseIndex               FirstMultiplier                      SecondMultiplier           */
+            /* Case 0 */ { {8, 7, 6, 5, 4, 3, 2, 1, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},        {0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, 0 },
+            /* Case 1 */ { {3, 4, 5, 6, 7, 8, 1, 0, 0}, {4, 8, 16, 32, 64, 128, 256, 0, 0}, {0, 0, 0, 0, 0, 0, 1, 0, 0}, 0, 0x10 },
+            /* Case 2 */ { {4, 5, 6, 7, 8, 1, 2, 0, 0}, {4, 8, 16, 32, 64, 128, 128, 0, 0}, {0, 0, 0, 0, 0, 1, 2, 0, 0}, 1, 0xE },
+            /* Case 3 */ { {5, 6, 7, 8, 1, 2, 3, 0, 0}, {4, 8, 16, 32, 64, 64, 64, 0, 0},   {0, 0, 0, 0, 1, 2, 4, 0, 0}, 2, 0xC },
+            /* Case 4 */ { {6, 7, 8, 1, 2, 3, 4, 0, 0}, {4, 8, 16, 32, 32, 32, 32, 0, 0},   {0, 0, 0, 1, 2, 4, 8, 0, 0}, 3, 0xA },
+            /* Case 5 */ { {7, 8, 1, 2, 3, 4, 5, 0, 0}, {4, 8, 16, 16, 16, 16, 16, 0, 0},   {0, 0, 1, 2, 4, 8, 16, 0, 0}, 4, 0x8 },
+            /* Case 6 */ { {8, 1, 2, 3, 4, 5, 6, 0, 0}, {4, 8, 8, 8, 8, 8, 8, 0, 0},        {0, 1, 2, 4, 8, 16, 32, 0, 0}, 5, 0x6 },
+            /* Case 7 */ { {1, 2, 3, 4, 5, 6, 7, 0, 0}, {4, 4, 4, 4, 4, 4, 4, 0, 0},        {1, 2, 4, 8, 16, 32, 64, 0, 0}, 6, 0x4 },
+            /* Case 8 */ { {2, 3, 4, 5, 6, 7, 8, 0, 0}, {2, 2, 2, 2, 2, 2, 2, 0, 0},        {2, 4, 8, 16, 32, 64, 128, 0, 0}, 7, 0x8 },
         };
 
     void Fn_80BBB3()
@@ -531,7 +533,8 @@ namespace Fast
         unsigned short caseIndex = 0;
         unsigned short firstMultiplier = 0;
         unsigned short secondMultiplier = 0;
-        unsigned short dbg = 0;
+        unsigned short mainIndex = 0;
+        unsigned short exitValue = 0;
 
         Monstrosity0();
 
@@ -542,7 +545,7 @@ namespace Fast
         while (1)
         {
             // Switchcase 0 /////////////////////////////////////////////
-            caseIndex = s_caseTable[0].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[0].NextCaseIndices[caseCond / 2 - 1];
 
             switch (caseIndex)
             {
@@ -560,18 +563,20 @@ namespace Fast
             // Switchcase 1 /////////////////////////////////////////////
         label_switchcase1:
             caseCond = x;
-            caseIndex = s_caseTable[1].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[1].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[1].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[1].SecondMultipliers[caseCond / 2 - 1];
+            mainIndex = s_caseTable[1].MainIndex;
+            exitValue = s_caseTable[1].ExitValue;
 
             if (caseCond == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(0x10, 0);
+                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
                 goto label_BFC8_Jump_Absolute760;
             }
             else if (caseCond == 0x12)
             {
-                x = 0x10;
+                x = exitValue;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -600,7 +605,7 @@ namespace Fast
             // Switchcase 2 /////////////////////////////////////////////
         label_switchcase2:
             caseCond = x;
-            caseIndex = s_caseTable[2].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[2].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[2].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[2].SecondMultipliers[caseCond / 2 - 1];
 
@@ -640,7 +645,7 @@ namespace Fast
             // Switchcase 3 /////////////////////////////////////////////
         label_switchcase3:
             caseCond = x;
-            caseIndex = s_caseTable[3].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[3].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[3].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[3].SecondMultipliers[caseCond / 2 - 1];
 
@@ -680,7 +685,7 @@ namespace Fast
             // Switchcase 4 /////////////////////////////////////////////
         label_switchcase4:
             caseCond = x;
-            caseIndex = s_caseTable[4].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[4].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[4].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[4].SecondMultipliers[caseCond / 2 - 1];
 
@@ -720,7 +725,7 @@ namespace Fast
             // Switchcase 5 /////////////////////////////////////////////
         label_switchcase5:
             caseCond = x;
-            caseIndex = s_caseTable[5].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[5].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[5].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[5].SecondMultipliers[caseCond / 2 - 1];
             
@@ -760,7 +765,7 @@ namespace Fast
             // Switchcase 6 /////////////////////////////////////////////
         label_switchcase6:
             caseCond = x;
-            caseIndex = s_caseTable[6].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[6].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[6].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[6].SecondMultipliers[caseCond / 2 - 1];
 
@@ -800,7 +805,7 @@ namespace Fast
             // Switchcase 7 /////////////////////////////////////////////
         label_switchcase7:
             caseCond = x;
-            caseIndex = s_caseTable[7].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[7].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[7].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[7].SecondMultipliers[caseCond / 2 - 1];
 
@@ -841,7 +846,7 @@ namespace Fast
 
         label_switchcase8:
             caseCond = x;
-            caseIndex = s_caseTable[8].CaseIndices[caseCond / 2 - 1];
+            caseIndex = s_caseTable[8].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[8].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[8].SecondMultipliers[caseCond / 2 - 1];
             
