@@ -575,7 +575,73 @@ namespace Fast
                 if (nextCaseCond == 0x10)
                 {
                     LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
-                    goto label_BFC8_Jump_Absolute760;
+
+                label_BFC8_Jump_Absolute760:
+                    shiftHigh = false;
+                    if (mem0760 == 0xBFC8)
+                    {
+                        loaded16.Low8 = cache7E0740[0x10];
+                        loaded16.High8 = cache7E0740[0x11];
+                        shiftHigh = a >= loaded16.Data16;
+                    }
+
+                    if (shiftHigh)
+                    {
+                        ShiftThenLoad100ThenCompare(6, 0x732, 2);
+                    }
+                    else
+                    {
+                        ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+                    }
+
+                    // This is 8 bit acc.
+                    loaded16.Data16 = a;
+                    if (indirectHigh == 0x7E && indirectLow >= 0x100)
+                    {
+                        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+                    }
+                    else if (indirectHigh == 0x7F)
+                    {
+                        cache7F0000[indirectLow] = loaded16.Low8;
+                    }
+
+                    indirectLow += 1;
+
+                    loaded16.Data16 = mem08;
+                    loaded16.Low8 = a & 0xFF;
+                    mem08 = loaded16.Data16;
+                    mem0c++;
+
+                    loaded16 = LoadMem6b();
+                    a = loaded16.Data16;
+
+                    // Switchcase 8 /////////////////////////////////////////////
+                    for (int iter = 0; iter < 8; iter++)
+                    {
+                        if (x == caseTable8Entries[iter].Cond)
+                        {
+                            for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
+                            {
+                                a *= 2;
+                                if (i == 0 || i == 8)
+                                {
+                                    LoadNextFrom0CInc();
+                                }
+
+                                y--;
+                                if (y == 0)
+                                {
+                                    LoadNextFrom0600();
+                                    nextCaseIndex = (i % 8) + 1;
+                                    goto label_mainSwitchCaseTable;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    {
+                        __debugbreak(); // notimpl
+                    }
                 }
                 else if (nextCaseCond == 0x12)
                 {
@@ -593,72 +659,6 @@ namespace Fast
                 LoadNextFrom0600();
             }
 
-        label_BFC8_Jump_Absolute760:
-            shiftHigh = false;
-            if (mem0760 == 0xBFC8)
-            {
-                loaded16.Low8 = cache7E0740[0x10];
-                loaded16.High8 = cache7E0740[0x11];
-                shiftHigh = a >= loaded16.Data16;
-            }
-
-            if (shiftHigh)
-            {
-                ShiftThenLoad100ThenCompare(6, 0x732, 2);
-            }
-            else
-            {
-                ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-            }
-
-            // This is 8 bit acc.
-            loaded16.Data16 = a;
-            if (indirectHigh == 0x7E && indirectLow >= 0x100)
-            {
-                cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-            }
-            else if (indirectHigh == 0x7F)
-            {
-                cache7F0000[indirectLow] = loaded16.Low8;
-            }
-
-            indirectLow += 1;
-
-            loaded16.Data16 = mem08;
-            loaded16.Low8 = a & 0xFF;
-            mem08 = loaded16.Data16;
-            mem0c++;
-
-            loaded16 = LoadMem6b();
-            a = loaded16.Data16;
-
-            // Switchcase 8 /////////////////////////////////////////////
-            for (int iter = 0; iter < 8; iter++)
-            {
-                if (x == caseTable8Entries[iter].Cond)
-                {
-                    for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
-                    {
-                        a *= 2;
-                        if (i == 0 || i==8)
-                        {
-                            LoadNextFrom0CInc();
-                        }
-
-                        y--;
-                        if (y == 0)
-                        {
-                            LoadNextFrom0600();
-                            nextCaseIndex = (i % 8) + 1;
-                            goto label_mainSwitchCaseTable;
-                        }
-                    }
-                    break;
-                }
-            }
-            {
-                __debugbreak(); // notimpl
-            }
 
         label_C17C_WriteOutput_CheckIfDone:
             y = mem73 >> 8;
