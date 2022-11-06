@@ -768,7 +768,7 @@ namespace Fast
             }
             else if (x == caseTable8Entries[7].Cond)
             {
-                for (int i = 2; i < 2 + 9; ++i)
+                for (int i = 1; i < 1 + 9; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -780,7 +780,7 @@ namespace Fast
                     if (y == 0)
                     {
                         LoadNextFrom0600();
-                        nextCaseIndex = i;
+                        nextCaseIndex = (i % 8) + 1;
                         goto label_mainSwitchCaseTable;
                     }
                 }
