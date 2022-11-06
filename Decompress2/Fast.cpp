@@ -313,7 +313,7 @@ namespace Fast
         a += mem77;
         mem77 = a;
 
-        unsigned int setBytesInCacheCounter = a;
+        int setBytesInCacheCounter = a;
 
         mem75 += mem6f;
         if (mem6f == 0)
@@ -396,12 +396,12 @@ namespace Fast
         mem00.Data16 = x;
         while (mem7b * 2 != 0x10)
         {
-            mem77 = cache7E0700[mem7b * 2];
+            int numOfBytesToSeek = cache7E0700[mem7b * 2];
             mem7d = romFile[0x3C7B + mem7b];
 
             x = mem00.Data16;
 
-            for (int i = 0; i < mem77; ++i)
+            for (int i = 0; i < numOfBytesToSeek; ++i)
             {
                 mem00.Data16 = mem7b * 2;
 
