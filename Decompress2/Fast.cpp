@@ -576,7 +576,6 @@ namespace Fast
                 {
                     LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
 
-                label_BFC8_Jump_Absolute760:
                     shiftHigh = false;
                     if (mem0760 == 0xBFC8)
                     {
@@ -646,7 +645,46 @@ namespace Fast
                 else if (nextCaseCond == 0x12)
                 {
                     x = exitValue;
-                    goto label_C17C_WriteOutput_CheckIfDone;
+
+                label_C17C_WriteOutput_CheckIfDone:
+                    y = mem73 >> 8;
+
+                    Fn_80C2DC();
+
+                    mem6c = a;
+
+                    continueDecompression = Fn_80C232();
+                    if (!continueDecompression)
+                    {
+                        return; // return from monstrosity
+                    }
+
+                    // Write the value 'mem08', mem6f times.
+                    assert(mem08 <= 0xFF);
+                    decompressedValue = static_cast<unsigned char>(mem08);
+                    for (int i = 0; i < mem6f; ++i)
+                    {
+                        if (indirectHigh == 0x7E && indirectLow >= 0x100)
+                        {
+                            cache7E0100[indirectLow - 0x100] = decompressedValue;
+                        }
+                        else if (indirectHigh == 0x7F)
+                        {
+                            cache7F0000[indirectLow] = decompressedValue;
+                        }
+                        else
+                        {
+                            __debugbreak();
+                        }
+                        indirectLow += 1;
+                    }
+
+                    a = mem6c;
+
+                    nextCaseCond = x;
+                    LoadNextFrom0600();
+                    nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+                    goto label_mainSwitchCaseTable;
                 }
 
                 a *= firstMultiplier;
@@ -659,44 +697,6 @@ namespace Fast
                 LoadNextFrom0600();
             }
 
-
-        label_C17C_WriteOutput_CheckIfDone:
-            y = mem73 >> 8;
-
-            Fn_80C2DC();
-
-            mem6c = a;
-
-            continueDecompression = Fn_80C232();
-            if (!continueDecompression)
-            {
-                return; // return from monstrosity
-            }
-
-            // Write the value 'mem08', mem6f times.
-            assert(mem08 <= 0xFF);
-            decompressedValue = static_cast<unsigned char>(mem08);
-            for (int i = 0; i < mem6f; ++i)
-            {
-                if (indirectHigh == 0x7E && indirectLow >= 0x100)
-                {
-                    cache7E0100[indirectLow - 0x100] = decompressedValue;
-                }
-                else if (indirectHigh == 0x7F)
-                {
-                    cache7F0000[indirectLow] = decompressedValue;
-                }
-                else
-                {
-                    __debugbreak();
-                }
-                indirectLow += 1;
-            }
-
-            a = mem6c;
-
-            nextCaseCond = x;
-            LoadNextFrom0600();
         }  
     }
 
