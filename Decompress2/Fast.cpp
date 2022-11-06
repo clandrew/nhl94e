@@ -652,9 +652,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 4)
+            else if (x == caseTable8Entries[1].Cond)
             {
-                for (int i = 7; i < 7 + 4; ++i)
+                for (int i = caseTable8Entries[1].Lower; i < caseTable8Entries[1].Lower + caseTable8Entries[1].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -671,9 +671,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 6)
+            else if (x == caseTable8Entries[2].Cond)
             {
-                for (int i = 6; i < 6 + 4; ++i)
+                for (int i = caseTable8Entries[2].Lower; i < caseTable8Entries[2].Lower + caseTable8Entries[2].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -690,9 +690,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 8)
+            else if (x == caseTable8Entries[3].Cond)
             {
-                for (int i = 5; i < 5 + 5; ++i)
+                for (int i = caseTable8Entries[3].Lower; i < caseTable8Entries[3].Lower + caseTable8Entries[3].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -709,9 +709,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 0xA)
+            else if (x == caseTable8Entries[4].Cond)
             {
-                for (int i = 4; i < 4 + 7; ++i)
+                for (int i = caseTable8Entries[4].Lower; i < caseTable8Entries[4].Lower + caseTable8Entries[4].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -728,9 +728,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 0xC)
+            else if (x == caseTable8Entries[5].Cond)
             {
-                for (int i = 3; i < 3 + 7; ++i)
+                for (int i = caseTable8Entries[5].Lower; i < caseTable8Entries[5].Lower + caseTable8Entries[5].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -747,9 +747,9 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 0xE)
+            else if (x == caseTable8Entries[6].Cond)
             {
-                for (int i = 2; i < 2 + 8; ++i)
+                for (int i = caseTable8Entries[6].Lower; i < caseTable8Entries[6].Lower + caseTable8Entries[6].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
@@ -766,7 +766,7 @@ namespace Fast
                     }
                 }
             }
-            else if (x == 0x10)
+            else if (x == caseTable8Entries[7].Cond)
             {
                 for (int i = 2; i < 2 + 9; ++i)
                 {
