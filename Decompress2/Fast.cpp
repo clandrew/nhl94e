@@ -1000,14 +1000,14 @@ namespace Fast
                 {
                     LoadNextFrom0600();
                     nextCaseIndex = 1;
-                    goto label_mainSwitchCaseTable;
                 }
-
-                a *= 2;
-
-                y--;
-                LoadNextFrom0600();
-                nextCaseIndex = 2;
+                else
+                {
+                    a *= 2;
+                    y--;
+                    LoadNextFrom0600();
+                    nextCaseIndex = 2;
+                }
                 goto label_mainSwitchCaseTable;
             }
             else
