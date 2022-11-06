@@ -569,8 +569,22 @@ namespace Fast
             secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
             exitValue = 0x12 - (currentCaseIndex * 2);
 
+            if (nextCaseCond < 0x10)
+            {
+                a *= firstMultiplier;
+                if (secondMultiplier != 0)
+                {
+                    LoadNextFrom0CInc();
+                    a *= secondMultiplier;
+                }
+                LoadNextFrom0500();
+                LoadNextFrom0600();
+                continue;
+            }
+
             if (nextCaseCond == 0x10)
             {
+                // The jump760 case with what was formerly known as switchcase 8.
                 LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
 
                 shiftHigh = false;
@@ -610,10 +624,9 @@ namespace Fast
 
                 loaded16 = LoadMem6b();
                 a = loaded16.Data16;
-
-                // Switchcase 8 /////////////////////////////////////////////
                 for (int iter = 0; iter < 8; iter++)
                 {
+                    bool foundMatch = false;
                     if (x == caseTable8Entries[iter].Cond)
                     {
                         for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
@@ -629,27 +642,25 @@ namespace Fast
                             {
                                 LoadNextFrom0600();
                                 nextCaseIndex = (i % 8) + 1;
-                                goto label_mainSwitchCaseTable;
+                                foundMatch = true;
+                                break;
                             }
                         }
-                        break;
+                        if (foundMatch)
+                        {
+                            break;
+                        }
+                        __debugbreak(); //Should not hit
                     }
-                }
-                {
-                    __debugbreak(); // notimpl
                 }
             }
             else if (nextCaseCond == 0x12)
             {
+                // Write output and check if done.
                 x = exitValue;
-
-            label_C17C_WriteOutput_CheckIfDone:
                 y = mem73 >> 8;
-
                 Fn_80C2DC();
-
                 mem6c = a;
-
                 continueDecompression = Fn_80C232();
                 if (!continueDecompression)
                 {
@@ -681,17 +692,8 @@ namespace Fast
                 nextCaseCond = x;
                 LoadNextFrom0600();
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                goto label_mainSwitchCaseTable;
+                continue;
             }
-
-            a *= firstMultiplier;
-            if (secondMultiplier != 0)
-            {
-                LoadNextFrom0CInc();
-                a *= secondMultiplier;
-            }
-            LoadNextFrom0500();
-            LoadNextFrom0600();
         }
     }
 
