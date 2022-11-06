@@ -459,6 +459,7 @@ namespace Fast
             /* Case 4 */ { {6, 7, 8, 1, 2, 3, 4, 0, 0}, {4, 8, 16, 32, 32, 32, 32, 0, 0},   {0, 0, 0, 1, 2, 4, 8, 0, 0} },
             /* Case 5 */ { {7, 8, 1, 2, 3, 4, 5, 0, 0}, {4, 8, 16, 16, 16, 16, 16, 0, 0},   {0, 0, 1, 2, 4, 8, 16, 0, 0} },
             /* Case 6 */ { {8, 1, 2, 3, 4, 5, 6, 0, 0}, {4, 8, 8, 8, 8, 8, 8, 0, 0},        {0, 1, 2, 4, 8, 16, 32, 0, 0} },
+            /* Case 7 */ { {1, 2, 3, 4, 5, 6, 7, 0, 0}, {4, 4, 4, 4, 4, 4, 4, 0, 0},        {1, 2, 4, 8, 16, 32, 64, 0, 0} },
         };
 
     void Fn_80BBB3()
@@ -797,69 +798,12 @@ namespace Fast
 
             // Switchcase 7 /////////////////////////////////////////////
         label_switchcase7:
-            if (x == 2)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase1;
-            }
-            else if (x == 4)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 2;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase2;
-            }
-            else if (x == 6)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 4;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase3;
-            }
-            else if (x == 8)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 8;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase4;
-            }
-            else if (x == 0xA)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 16;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase5;
-            }
-            else if (x == 0xC)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 32;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase6;
-            }
-            else if (x == 0xE)
-            {
-                a *= 4;
-                LoadNextFrom0CInc();
-                a *= 64;
-                LoadNextFrom0500();
-                LoadNextFrom0600();
-                goto label_switchcase7;
-            }
-            else if (x == 0x10)
+            caseCond = x;
+            caseIndex = s_caseTable[7].CaseIndices[caseCond / 2 - 1];
+            firstMultiplier = s_caseTable[7].FirstMultipliers[caseCond / 2 - 1];
+            secondMultiplier = s_caseTable[7].SecondMultipliers[caseCond / 2 - 1];
+
+            if (x == 0x10)
             {
                 LoadNextFrom0CMaskAndShift(4, 6);
                 goto label_BFC8_Jump_Absolute760;
@@ -869,9 +813,27 @@ namespace Fast
                 x = 4;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
-            else
+
+            a *= firstMultiplier;
+            if (secondMultiplier != 0)
             {
-                __debugbreak();
+                LoadNextFrom0CInc();
+                a *= secondMultiplier;
+            }
+            LoadNextFrom0500();
+            LoadNextFrom0600();
+
+            switch (caseIndex)
+            {
+            case 1: goto label_switchcase1;
+            case 2: goto label_switchcase2;
+            case 3: goto label_switchcase3;
+            case 4: goto label_switchcase4;
+            case 5: goto label_switchcase5;
+            case 6: goto label_switchcase6;
+            case 7: goto label_switchcase7;
+            case 8: goto label_switchcase8;
+            default: __debugbreak();
             }
 
             // Switchcase 8 /////////////////////////////////////////////
