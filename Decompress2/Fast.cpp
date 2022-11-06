@@ -752,9 +752,32 @@ namespace Fast
             }
             else if (x == 0x10)
             {
-                for (int i = 2; i <= 8; ++i)
+            /*
+                for (int i = 2; i < 2 + 9; ++i)
                 {
                     a *= 2;
+                    if (i == 8)
+                    {
+                        LoadNextFrom0CInc();
+                    }
+
+                    y--;
+                    if (y == 0)
+                    {
+                        LoadNextFrom0600();
+                        nextCaseIndex = (i % 8) + 1;
+                        goto label_mainSwitchCaseTable;
+                    }
+                }*/
+
+                for (int i = 2; i < 2 + 7; ++i)
+                {
+                    a *= 2;
+                    if (i == 8)
+                    {
+                        LoadNextFrom0CInc();
+                    }
+
                     y--;
                     if (y == 0)
                     {
