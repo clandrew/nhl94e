@@ -453,7 +453,7 @@ namespace Fast
         { 
             /*              caseIndex                   FirstMultiplier                      SecondMultiplier           */
             /* Case 0 */ { {8, 7, 6, 5, 4, 3, 2, 1, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0},        {0, 0, 0, 0, 0, 0, 0, 0, 0} },
-            /* Case 1 */ { {3, 4, 5, 6, 7, 8, 1, 0, 0}, {4, 8, 16, 32, 64, 128, 256, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0} },
+            /* Case 1 */ { {3, 4, 5, 6, 7, 8, 1, 0, 0}, {4, 8, 16, 32, 64, 128, 256, 0, 0}, {0, 0, 0, 0, 0, 0, 1, 0, 0} },
             /* Case 2 */ { {4, 5, 6, 7, 8, 1, 2, 0, 0}, {4, 8, 16, 32, 64, 128, 128, 0, 0}, {0, 0, 0, 0, 0, 1, 2, 0, 0} }
         };
 
@@ -556,6 +556,7 @@ namespace Fast
             caseCond = x;
             caseIndex = s_caseTable[1].CaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[1].FirstMultipliers[caseCond / 2 - 1];
+            secondMultiplier = s_caseTable[1].SecondMultipliers[caseCond / 2 - 1];
 
             if (caseCond == 0x10)
             {
@@ -569,9 +570,10 @@ namespace Fast
             }
 
             a *= firstMultiplier;
-            if (firstMultiplier == 256)
+            if (secondMultiplier != 0)
             {
                 LoadNextFrom0CInc();
+                a *= secondMultiplier;
             }
             LoadNextFrom0500();
             LoadNextFrom0600();
