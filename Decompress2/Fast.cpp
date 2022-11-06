@@ -546,8 +546,6 @@ namespace Fast
         unsigned short currentCaseIndex = 0;
         unsigned short nextCaseCond = 0;
         unsigned short nextCaseIndex = 0;
-        unsigned short firstMultiplier = 0;
-        unsigned short secondMultiplier = 0;
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
 
@@ -568,8 +566,8 @@ namespace Fast
 
             if (nextCaseCond < 0x10)
             {
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+                unsigned short firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+                unsigned short secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
 
                 a *= firstMultiplier;
                 if (secondMultiplier != 0)
