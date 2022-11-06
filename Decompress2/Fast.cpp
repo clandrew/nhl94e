@@ -42,7 +42,6 @@ namespace Fast
     unsigned short mem71 = 0;
     unsigned short mem73 = 0;
     unsigned short mem75 = 0;
-    unsigned short mem77 = 0;
     unsigned short mem79 = 0;
     unsigned short mem7b = 0;
     unsigned short mem7d = 0;
@@ -287,7 +286,7 @@ namespace Fast
         mem6c = a;
 
         y = 8;
-        mem77 = 0;
+        unsigned short mem77 = 0;
         mem75 = 0;
         mem14 = 0x10;
         a = 0x10;
