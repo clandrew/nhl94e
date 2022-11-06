@@ -619,26 +619,21 @@ namespace Fast
             // Switchcase 8 /////////////////////////////////////////////
             if (x == 2)
             {
-                for (int i = 1; i <= 2; ++i)
+                for (int i = 0; i < 2; ++i)
                 {
                     a *= 2;
-
-                    LoadNextFrom0CInc();
+                    if (i == 0)
+                    {
+                        LoadNextFrom0CInc();
+                    }
 
                     y--;
                     if (y == 0)
                     {
                         LoadNextFrom0600();
-                        nextCaseIndex = 1;
+                        nextCaseIndex = (i % 8) + 1;
                         goto label_mainSwitchCaseTable;
                     }
-
-                    a *= 2;
-
-                    y--;
-                    LoadNextFrom0600();
-                    nextCaseIndex = 2;
-                    goto label_mainSwitchCaseTable;
                 }
             }
             else if (x == 4)
