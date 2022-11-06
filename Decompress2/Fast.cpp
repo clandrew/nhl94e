@@ -633,26 +633,30 @@ namespace Fast
             a = loaded16.Data16;
 
             // Switchcase 8 /////////////////////////////////////////////
-            if (x == caseTable8Entries[0].Cond)
+            for (int iter = 0; iter < 1; iter++)
             {
-                for (int i = caseTable8Entries[0].Lower; i < caseTable8Entries[0].Lower + caseTable8Entries[0].IterCount; ++i)
+                if (x == caseTable8Entries[iter].Cond)
                 {
-                    a *= 2;
-                    if (i == 0)
+                    for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
                     {
-                        LoadNextFrom0CInc();
-                    }
+                        a *= 2;
+                        if (i == 0)
+                        {
+                            LoadNextFrom0CInc();
+                        }
 
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
+                        y--;
+                        if (y == 0)
+                        {
+                            LoadNextFrom0600();
+                            nextCaseIndex = (i % 8) + 1;
+                            goto label_mainSwitchCaseTable;
+                        }
                     }
+                    break;
                 }
             }
-            else if (x == caseTable8Entries[1].Cond)
+            if (x == caseTable8Entries[1].Cond)
             {
                 for (int i = caseTable8Entries[1].Lower; i < caseTable8Entries[1].Lower + caseTable8Entries[1].IterCount; ++i)
                 {
