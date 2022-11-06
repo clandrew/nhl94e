@@ -633,7 +633,7 @@ namespace Fast
             a = loaded16.Data16;
 
             // Switchcase 8 /////////////////////////////////////////////
-            for (int iter = 0; iter < 3; iter++)
+            for (int iter = 0; iter < 8; iter++)
             {
                 if (x == caseTable8Entries[iter].Cond)
                 {
@@ -656,102 +656,6 @@ namespace Fast
                     break;
                 }
             }
-            if (x == caseTable8Entries[3].Cond)
-            {
-                for (int i = caseTable8Entries[3].Lower; i < caseTable8Entries[3].Lower + caseTable8Entries[3].IterCount; ++i)
-                {
-                    a *= 2;
-                    if (i == 8)
-                    {
-                        LoadNextFrom0CInc();
-                    }
-
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
-                    }
-                }
-            }
-            else if (x == caseTable8Entries[4].Cond)
-            {
-                for (int i = caseTable8Entries[4].Lower; i < caseTable8Entries[4].Lower + caseTable8Entries[4].IterCount; ++i)
-                {
-                    a *= 2;
-                    if (i == 8)
-                    {
-                        LoadNextFrom0CInc();
-                    }
-
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
-                    }
-                }
-            }
-            else if (x == caseTable8Entries[5].Cond)
-            {
-                for (int i = caseTable8Entries[5].Lower; i < caseTable8Entries[5].Lower + caseTable8Entries[5].IterCount; ++i)
-                {
-                    a *= 2;
-                    if (i == 8)
-                    {
-                        LoadNextFrom0CInc();
-                    }
-
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
-                    }
-                }
-            }
-            else if (x == caseTable8Entries[6].Cond)
-            {
-                for (int i = caseTable8Entries[6].Lower; i < caseTable8Entries[6].Lower + caseTable8Entries[6].IterCount; ++i)
-                {
-                    a *= 2;
-                    if (i == 8)
-                    {
-                        LoadNextFrom0CInc();
-                    }
-
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
-                    }
-                }
-            }
-            else if (x == caseTable8Entries[7].Cond)
-            {
-                for (int i = caseTable8Entries[7].Lower; i < caseTable8Entries[7].Lower + caseTable8Entries[7].IterCount; ++i)
-                {
-                    a *= 2;
-                    if (i == 8)
-                    {
-                        LoadNextFrom0CInc();
-                    }
-
-                    y--;
-                    if (y == 0)
-                    {
-                        LoadNextFrom0600();
-                        nextCaseIndex = (i % 8) + 1;
-                        goto label_mainSwitchCaseTable;
-                    }
-                }
-            }
-            else
             {
                 __debugbreak(); // notimpl
             }
