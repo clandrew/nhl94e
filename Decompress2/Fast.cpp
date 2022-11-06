@@ -608,15 +608,17 @@ namespace Fast
             caseIndex = s_caseTable[2].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[2].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[2].SecondMultipliers[caseCond / 2 - 1];
+            mainIndex = s_caseTable[2].MainIndex;
+            exitValue = s_caseTable[2].ExitValue;
 
-            if (x == 0x10)
+            if (caseCond == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(0xE, 1);
+                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (x == 0x12)
+            else if (caseCond == 0x12)
             {
-                x = 0xE;
+                x = exitValue;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
