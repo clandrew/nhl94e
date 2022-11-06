@@ -608,17 +608,15 @@ namespace Fast
             caseIndex = s_caseTable[2].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[2].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[2].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[2].MainIndex;
-            exitValue = s_caseTable[2].ExitValue;
 
-            if (caseCond == 0x10)
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(0xE, 1);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 0xE;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -650,17 +648,15 @@ namespace Fast
             caseIndex = s_caseTable[3].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[3].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[3].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[3].MainIndex;
-            exitValue = s_caseTable[3].ExitValue;
 
-            if (caseCond == 0x10)
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(0xC, 2);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 0xC;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -692,17 +688,15 @@ namespace Fast
             caseIndex = s_caseTable[4].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[4].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[4].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[4].MainIndex;
-            exitValue = s_caseTable[4].ExitValue;
 
-            if (caseCond == 0x10)
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(0xA, 3);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 0xA;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -734,17 +728,15 @@ namespace Fast
             caseIndex = s_caseTable[5].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[5].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[5].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[5].MainIndex;
-            exitValue = s_caseTable[5].ExitValue;
-
-            if (caseCond == 0x10)
+            
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(8, 4);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 0x8;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -776,17 +768,15 @@ namespace Fast
             caseIndex = s_caseTable[6].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[6].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[6].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[6].MainIndex;
-            exitValue = s_caseTable[6].ExitValue;
 
-            if (caseCond == 0x10)
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(6, 5);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 0x6;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -818,17 +808,15 @@ namespace Fast
             caseIndex = s_caseTable[7].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[7].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[7].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[7].MainIndex;
-            exitValue = s_caseTable[7].ExitValue;
 
-            if (caseCond == 0x10)
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(4, 6);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 4;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
@@ -861,17 +849,15 @@ namespace Fast
             caseIndex = s_caseTable[8].NextCaseIndices[caseCond / 2 - 1];
             firstMultiplier = s_caseTable[8].FirstMultipliers[caseCond / 2 - 1];
             secondMultiplier = s_caseTable[8].SecondMultipliers[caseCond / 2 - 1];
-            mainIndex = s_caseTable[8].MainIndex;
-            exitValue = s_caseTable[8].ExitValue;
-
-            if (caseCond == 0x10)
+            
+            if (x == 0x10)
             {
-                LoadNextFrom0CMaskAndShift(exitValue, mainIndex);
+                LoadNextFrom0CMaskAndShift(2, 7);
                 goto label_BFC8_Jump_Absolute760;
             }
-            else if (caseCond == 0x12)
+            else if (x == 0x12)
             {
-                x = exitValue;
+                x = 2;
                 goto label_C17C_WriteOutput_CheckIfDone;
             }
 
