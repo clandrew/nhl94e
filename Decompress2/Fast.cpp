@@ -557,147 +557,142 @@ namespace Fast
         x = mem71;
         nextCaseCond = mem71;
         LoadNextFrom0600();
+        nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+
         while (1)
         {
-            // Switchcase 0 /////////////////////////////////////////////
-            nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+        label_mainSwitchCaseTable:
+            currentCaseIndex = nextCaseIndex;
+            nextCaseCond = x;
+            nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
+            firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
+            secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
+            exitValue = 0x12 - (currentCaseIndex * 2);
 
-            while (1)
+            if (nextCaseCond == 0x10)
             {
-            label_mainSwitchCaseTable:
-                currentCaseIndex = nextCaseIndex;
-                nextCaseCond = x;
-                nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-                firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
-                secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
-                exitValue = 0x12 - (currentCaseIndex * 2);
+                LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
 
-                if (nextCaseCond == 0x10)
+                shiftHigh = false;
+                if (mem0760 == 0xBFC8)
                 {
-                    LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
+                    loaded16.Low8 = cache7E0740[0x10];
+                    loaded16.High8 = cache7E0740[0x11];
+                    shiftHigh = a >= loaded16.Data16;
+                }
 
-                    shiftHigh = false;
-                    if (mem0760 == 0xBFC8)
-                    {
-                        loaded16.Low8 = cache7E0740[0x10];
-                        loaded16.High8 = cache7E0740[0x11];
-                        shiftHigh = a >= loaded16.Data16;
-                    }
+                if (shiftHigh)
+                {
+                    ShiftThenLoad100ThenCompare(6, 0x732, 2);
+                }
+                else
+                {
+                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+                }
 
-                    if (shiftHigh)
-                    {
-                        ShiftThenLoad100ThenCompare(6, 0x732, 2);
-                    }
-                    else
-                    {
-                        ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
-                    }
+                // This is 8 bit acc.
+                loaded16.Data16 = a;
+                if (indirectHigh == 0x7E && indirectLow >= 0x100)
+                {
+                    cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+                }
+                else if (indirectHigh == 0x7F)
+                {
+                    cache7F0000[indirectLow] = loaded16.Low8;
+                }
 
-                    // This is 8 bit acc.
-                    loaded16.Data16 = a;
+                indirectLow += 1;
+
+                loaded16.Data16 = mem08;
+                loaded16.Low8 = a & 0xFF;
+                mem08 = loaded16.Data16;
+                mem0c++;
+
+                loaded16 = LoadMem6b();
+                a = loaded16.Data16;
+
+                // Switchcase 8 /////////////////////////////////////////////
+                for (int iter = 0; iter < 8; iter++)
+                {
+                    if (x == caseTable8Entries[iter].Cond)
+                    {
+                        for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
+                        {
+                            a *= 2;
+                            if (i == 0 || i == 8)
+                            {
+                                LoadNextFrom0CInc();
+                            }
+
+                            y--;
+                            if (y == 0)
+                            {
+                                LoadNextFrom0600();
+                                nextCaseIndex = (i % 8) + 1;
+                                goto label_mainSwitchCaseTable;
+                            }
+                        }
+                        break;
+                    }
+                }
+                {
+                    __debugbreak(); // notimpl
+                }
+            }
+            else if (nextCaseCond == 0x12)
+            {
+                x = exitValue;
+
+            label_C17C_WriteOutput_CheckIfDone:
+                y = mem73 >> 8;
+
+                Fn_80C2DC();
+
+                mem6c = a;
+
+                continueDecompression = Fn_80C232();
+                if (!continueDecompression)
+                {
+                    return; // return from monstrosity
+                }
+
+                // Write the value 'mem08', mem6f times.
+                assert(mem08 <= 0xFF);
+                decompressedValue = static_cast<unsigned char>(mem08);
+                for (int i = 0; i < mem6f; ++i)
+                {
                     if (indirectHigh == 0x7E && indirectLow >= 0x100)
                     {
-                        cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+                        cache7E0100[indirectLow - 0x100] = decompressedValue;
                     }
                     else if (indirectHigh == 0x7F)
                     {
-                        cache7F0000[indirectLow] = loaded16.Low8;
+                        cache7F0000[indirectLow] = decompressedValue;
                     }
-
+                    else
+                    {
+                        __debugbreak();
+                    }
                     indirectLow += 1;
-
-                    loaded16.Data16 = mem08;
-                    loaded16.Low8 = a & 0xFF;
-                    mem08 = loaded16.Data16;
-                    mem0c++;
-
-                    loaded16 = LoadMem6b();
-                    a = loaded16.Data16;
-
-                    // Switchcase 8 /////////////////////////////////////////////
-                    for (int iter = 0; iter < 8; iter++)
-                    {
-                        if (x == caseTable8Entries[iter].Cond)
-                        {
-                            for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
-                            {
-                                a *= 2;
-                                if (i == 0 || i == 8)
-                                {
-                                    LoadNextFrom0CInc();
-                                }
-
-                                y--;
-                                if (y == 0)
-                                {
-                                    LoadNextFrom0600();
-                                    nextCaseIndex = (i % 8) + 1;
-                                    goto label_mainSwitchCaseTable;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    {
-                        __debugbreak(); // notimpl
-                    }
-                }
-                else if (nextCaseCond == 0x12)
-                {
-                    x = exitValue;
-
-                label_C17C_WriteOutput_CheckIfDone:
-                    y = mem73 >> 8;
-
-                    Fn_80C2DC();
-
-                    mem6c = a;
-
-                    continueDecompression = Fn_80C232();
-                    if (!continueDecompression)
-                    {
-                        return; // return from monstrosity
-                    }
-
-                    // Write the value 'mem08', mem6f times.
-                    assert(mem08 <= 0xFF);
-                    decompressedValue = static_cast<unsigned char>(mem08);
-                    for (int i = 0; i < mem6f; ++i)
-                    {
-                        if (indirectHigh == 0x7E && indirectLow >= 0x100)
-                        {
-                            cache7E0100[indirectLow - 0x100] = decompressedValue;
-                        }
-                        else if (indirectHigh == 0x7F)
-                        {
-                            cache7F0000[indirectLow] = decompressedValue;
-                        }
-                        else
-                        {
-                            __debugbreak();
-                        }
-                        indirectLow += 1;
-                    }
-
-                    a = mem6c;
-
-                    nextCaseCond = x;
-                    LoadNextFrom0600();
-                    nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                    goto label_mainSwitchCaseTable;
                 }
 
-                a *= firstMultiplier;
-                if (secondMultiplier != 0)
-                {
-                    LoadNextFrom0CInc();
-                    a *= secondMultiplier;
-                }
-                LoadNextFrom0500();
+                a = mem6c;
+
+                nextCaseCond = x;
                 LoadNextFrom0600();
+                nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+                goto label_mainSwitchCaseTable;
             }
 
-        }  
+            a *= firstMultiplier;
+            if (secondMultiplier != 0)
+            {
+                LoadNextFrom0CInc();
+                a *= secondMultiplier;
+            }
+            LoadNextFrom0500();
+            LoadNextFrom0600();
+        }
     }
 
     void Fn_80C1B0()
