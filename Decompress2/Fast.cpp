@@ -463,6 +463,22 @@ namespace Fast
             /* Case 8 */ { {2, 3, 4, 5, 6, 7, 8, 0, 0}, {2, 2, 2, 2, 2, 2, 2, 0, 0},        {2, 4, 8, 16, 32, 64, 128, 0, 0},  },
         };
 
+    struct CaseTable8Entry
+    {
+        int Cond;
+        int Lower;
+        int IterCount;
+    } caseTable8Entries[] = {
+        {2, 0, 2},      // x==2   
+        {4, 7, 4},      // x==4   
+        {6, 6, 4},      // x==6    
+        {8, 5, 5},      // x==8    
+        {10, 4, 7},     // x==10    
+        {12, 3, 7},     // x==12   
+        {14, 2, 8},     // x==14   
+        {16, 1, 9},     // x==16    
+    };
+
     void Fn_80BBB3()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -617,9 +633,9 @@ namespace Fast
             a = loaded16.Data16;
 
             // Switchcase 8 /////////////////////////////////////////////
-            if (x == 2)
+            if (x == caseTable8Entries[0].Cond)
             {
-                for (int i = 0; i < 2; ++i)
+                for (int i = caseTable8Entries[0].Lower; i < caseTable8Entries[0].Lower + caseTable8Entries[0].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 0)
