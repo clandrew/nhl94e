@@ -768,7 +768,7 @@ namespace Fast
             }
             else if (x == caseTable8Entries[7].Cond)
             {
-                for (int i = 1; i < 1 + 9; ++i)
+                for (int i = caseTable8Entries[7].Lower; i < caseTable8Entries[7].Lower + caseTable8Entries[7].IterCount; ++i)
                 {
                     a *= 2;
                     if (i == 8)
