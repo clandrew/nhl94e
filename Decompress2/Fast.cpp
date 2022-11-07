@@ -390,29 +390,27 @@ namespace Fast
             setBytesInCacheCounter--;
         }
         mem71 = y * 2;
-        x = 0;
         y = 0;
         mem7b = 0;
 
-
-        mem00.Data16 = x;
+        Mem16 resultValue00{};
         while (mem7b * 2 != 0x10)
         {
             int numOfBytesToSeek = cache7E0700temp[mem7b * 2];
             mem7d = romFile[0x3C7B + mem7b];
 
-            x = mem00.Data16;
+            x = resultValue00.Data16;
 
             for (int i = 0; i < numOfBytesToSeek; ++i)
             {
-                mem00.Data16 = mem7b * 2;
+                resultValue00.Data16 = mem7b * 2;
 
                 // This is running in 8 bit accumulator and index mode.
-                loaded16.Data16 = mem00.Data16;
+                loaded16.Data16 = resultValue00.Data16;
                 loaded16.Low8 = cache7E0100[y];
                 a = loaded16.Data16;
 
-                mem00.High8 = cache7E0100[y];
+                resultValue00.High8 = cache7E0100[y];
 
                 ++y;
 
@@ -423,23 +421,26 @@ namespace Fast
                     mem73 &= 0x00FF; // Keep the first, lower byte
                     mem73 |= (a << 8); // Replace the upper byte, second byte
 
-                    mem00.Data16 = 0x12;
+                    resultValue00.Data16 = 0x12;
                 }
 
                 mem04 = y;
+
+                // Mem00 contains the data to get written.
+                // Write mem7d-1 bytes to the result.
                 for (int j = 0; j < mem7d - 1; ++j)
                 {
-                    result.mem7E0500_7E0700[x] = mem00.High8;
-                    result.mem7E0500_7E0700[0x100 + x] = mem00.Low8;
+                    result.mem7E0500_7E0700[x] = resultValue00.High8;
+                    result.mem7E0500_7E0700[0x100 + x] = resultValue00.Low8;
                     ++x;
                 }
             }
 
             mem7b++;
-            mem00.Data16 = x;
+            resultValue00.Data16 = x;
         }
 
-        x = mem00.Low8;
+        x = resultValue00.Low8;
         a = 0x10;
 
         while (x != 0)
