@@ -52,7 +52,6 @@ namespace Fast
     unsigned short indirectLow;
 
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
-    std::vector<unsigned char> cache7E0700_monstrosity0Temp; // Monstrosity0 scribbles on this, uses it and then it's never used again.
 
     // Final output
     std::vector<unsigned char> cache7F0000;
@@ -277,6 +276,10 @@ namespace Fast
     {
         Monstrosity0Result result{};
         result.Initialize();
+
+        std::vector<unsigned char> cache7E0700_monstrosity0Temp; // Monstrosity0 scribbles on this, uses it and then it's never used again.
+        cache7E0700_monstrosity0Temp.resize(0x14);
+        memset(cache7E0700_monstrosity0Temp.data(), 0, cache7E0700_monstrosity0Temp.size());
 
         // Use 8bit X and Y
         x &= 0xFF;
@@ -999,7 +1002,6 @@ namespace Fast
     void CreateCaches()
     {
         cache7E0100.resize(0x100);
-        cache7E0700_monstrosity0Temp.resize(0x14);
         cache7F0000.resize(0xFFFF);
         goldReferenceIndexedColor.resize(0x600);
     }
@@ -1007,7 +1009,6 @@ namespace Fast
     void InitializeCaches()
     {
         memset(cache7E0100.data(), 0, cache7E0100.size());
-        memset(cache7E0700_monstrosity0Temp.data(), 0, cache7E0700_monstrosity0Temp.size());
         memset(cache7F0000.data(), 0, cache7F0000.size());
         memset(goldReferenceIndexedColor.data(), 0, goldReferenceIndexedColor.size());
     }
