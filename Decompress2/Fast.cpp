@@ -54,10 +54,6 @@ namespace Fast
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
     std::vector<unsigned char> cache7E0700_monstrosity0Temp; // Monstrosity0 scribbles on this, uses it and then it's never used again.
 
-    std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
-    std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
-    std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
-
     // Final output
     std::vector<unsigned char> cache7F0000;
 
@@ -136,14 +132,30 @@ namespace Fast
         mem0c++;
     }
 
-    void LoadNextFrom0500()
+    struct Monstrosity0Result
+    {
+        std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
+        std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
+        std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
+        void Initialize()
+        {
+            mem7E0500_7E0700.resize(0x200);
+            cache7E0720.resize(0x20);
+            cache7E0740.resize(0x20);
+            memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
+            memset(cache7E0720.data(), 0, cache7E0720.size());
+            memset(cache7E0740.data(), 0, cache7E0740.size());
+        }
+    };
+
+    void LoadNextFrom0500(Monstrosity0Result const& result0)
     {
         // Loads a value from the staging output written by Monstrosity0.
         // Saves the result to indirect.
         // Result is also returned in mem08.
 
         // 16bit A, 8bit index
-        unsigned char loaded = mem7E0500_7E0700[y];
+        unsigned char loaded = result0.mem7E0500_7E0700[y];
 
         loaded16.Data16 = loaded;
         if (indirectHigh == 0x7E && indirectLow >= 0x100)
@@ -162,11 +174,11 @@ namespace Fast
         mem08 = loaded;
     }
 
-    void LoadNextFrom0600()
+    void LoadNextFrom0600(Monstrosity0Result const& result0)
     {
         mem6c = a;
         y = mem6c >> 8;
-        x = mem7E0500_7E0700[0x100 + y];
+        x = result0.mem7E0500_7E0700[0x100 + y];
     }
 
     void LoadNextFrom0CMaskAndShift(unsigned char nextX, int shifts)
@@ -195,7 +207,7 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY)
+    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, Monstrosity0Result const& result0)
     {
         for (int i = 0; i < shifts; ++i)
         {
@@ -217,13 +229,13 @@ namespace Fast
             if (subtractDataAddress >= 0x720)
             {
                 int local = subtractDataAddress - 0x720;
-                if (local >= (int)cache7E0720.size())
+                if (local >= (int)result0.cache7E0720.size())
                 {
                     __debugbreak(); // notimpl
                 }
 
-                loaded16.Low8 = cache7E0720[local];
-                loaded16.High8 = cache7E0720[local + 1];
+                loaded16.Low8 = result0.cache7E0720[local];
+                loaded16.High8 = result0.cache7E0720[local + 1];
                 resolvedAddress = true;
             }
         }
@@ -261,8 +273,11 @@ namespace Fast
         }
     }
 
-    void Monstrosity0()
+    Monstrosity0Result Monstrosity0()
     {
+        Monstrosity0Result result{};
+        result.Initialize();
+
         // Use 8bit X and Y
         x &= 0xFF;
         y &= 0xFF;
@@ -295,8 +310,8 @@ namespace Fast
         a = mem75 - mem77;
 
         loaded16.Data16 = a;
-        cache7E0720[x] = loaded16.Low8;
-        cache7E0720[x + 1] = loaded16.High8;
+        result.cache7E0720[x] = loaded16.Low8;
+        result.cache7E0720[x + 1] = loaded16.High8;
 
         Fn_80C1B0();
 
@@ -311,8 +326,8 @@ namespace Fast
         mem75 += mem6f;
         if (mem6f == 0)
         {
-            cache7E0740[x] = 0;
-            cache7E0740[x + 1] = 0;
+            result.cache7E0740[x] = 0;
+            result.cache7E0740[x + 1] = 0;
             goto label_MonstrosityStart;
         }
 
@@ -324,8 +339,8 @@ namespace Fast
             mem00.Data16 *= 2;
         }
 
-        cache7E0740[x] = mem00.Low8;
-        cache7E0740[x + 1] = mem00.High8;
+        result.cache7E0740[x] = mem00.Low8;
+        result.cache7E0740[x + 1] = mem00.High8;
 
         if (!c)
         {
@@ -338,7 +353,7 @@ namespace Fast
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
         {
-            mem7E0500_7E0700[i] = 0;
+            result.mem7E0500_7E0700[i] = 0;
         }
 
         // This is hard coded.
@@ -356,13 +371,13 @@ namespace Fast
             {
                 ++x;
                 x &= 0xFF;
-                if (mem7E0500_7E0700[x] < 0x80)
+                if (result.mem7E0500_7E0700[x] < 0x80)
                 {
                     --a;
                 }
             }
 
-            mem7E0500_7E0700[x]--;
+            result.mem7E0500_7E0700[x]--;
 
             // This is running in 8 bit index mode.
             loaded16.Data16 = x;
@@ -411,8 +426,8 @@ namespace Fast
                 mem04 = y;
                 for (int j = 0; j < mem7d - 1; ++j)
                 {
-                    mem7E0500_7E0700[x] = mem00.High8;
-                    mem7E0500_7E0700[0x100 + x] = mem00.Low8;
+                    result.mem7E0500_7E0700[x] = mem00.High8;
+                    result.mem7E0500_7E0700[0x100 + x] = mem00.Low8;
                     ++x;
                 }
             }
@@ -428,7 +443,7 @@ namespace Fast
         {
             // 8bit acc
             loaded16.Data16 = a;
-            mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
+            result.mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
 
             ++x;
             x &= 0x00FF;
@@ -451,6 +466,7 @@ namespace Fast
 
         indirectHigh = mem12;
         indirectLow = mem10;
+        return result;
     }
 
     struct CaseTableRow
@@ -490,7 +506,7 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    void Monstrosity1()
+    void Monstrosity1(Monstrosity0Result const& result0)
     {
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
@@ -504,7 +520,7 @@ namespace Fast
         a = mem6c;
         x = mem71;
         nextCaseCond = mem71;
-        LoadNextFrom0600();
+        LoadNextFrom0600(result0);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
         while (1)
@@ -525,8 +541,8 @@ namespace Fast
                     LoadNextFrom0CInc();
                     a *= secondMultiplier;
                 }
-                LoadNextFrom0500();
-                LoadNextFrom0600();
+                LoadNextFrom0500(result0);
+                LoadNextFrom0600(result0);
                 continue;
             }
 
@@ -538,18 +554,18 @@ namespace Fast
                 shiftHigh = false;
                 if (mem0760 == 0xBFC8)
                 {
-                    loaded16.Low8 = cache7E0740[0x10];
-                    loaded16.High8 = cache7E0740[0x11];
+                    loaded16.Low8 = result0.cache7E0740[0x10];
+                    loaded16.High8 = result0.cache7E0740[0x11];
                     shiftHigh = a >= loaded16.Data16;
                 }
 
                 if (shiftHigh)
                 {
-                    ShiftThenLoad100ThenCompare(6, 0x732, 2);
+                    ShiftThenLoad100ThenCompare(6, 0x732, 2, result0);
                 }
                 else
                 {
-                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1);
+                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, result0);
                 }
 
                 // This is 8 bit acc.
@@ -588,7 +604,7 @@ namespace Fast
                             y--;
                             if (y == 0)
                             {
-                                LoadNextFrom0600();
+                                LoadNextFrom0600(result0);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -638,7 +654,7 @@ namespace Fast
                 a = mem6c;
 
                 nextCaseCond = x;
-                LoadNextFrom0600();
+                LoadNextFrom0600(result0);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
                 continue;
             }
@@ -661,9 +677,9 @@ namespace Fast
         // Notes:
         //     A, X, Y are ignored and stomped on.
 
-        Monstrosity0();
+        Monstrosity0Result result0 = Monstrosity0();
 
-        Monstrosity1();
+        Monstrosity1(result0);
     }
 
     void Fn_80C1B0()
@@ -983,10 +999,7 @@ namespace Fast
     void CreateCaches()
     {
         cache7E0100.resize(0x100);
-        mem7E0500_7E0700.resize(0x200);
         cache7E0700_monstrosity0Temp.resize(0x14);
-        cache7E0720.resize(0x20);
-        cache7E0740.resize(0x20);
         cache7F0000.resize(0xFFFF);
         goldReferenceIndexedColor.resize(0x600);
     }
@@ -994,10 +1007,7 @@ namespace Fast
     void InitializeCaches()
     {
         memset(cache7E0100.data(), 0, cache7E0100.size());
-        memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
         memset(cache7E0700_monstrosity0Temp.data(), 0, cache7E0700_monstrosity0Temp.size());
-        memset(cache7E0720.data(), 0, cache7E0720.size());
-        memset(cache7E0740.data(), 0, cache7E0740.size());
         memset(cache7F0000.data(), 0, cache7F0000.size());
         memset(goldReferenceIndexedColor.data(), 0, goldReferenceIndexedColor.size());
     }
