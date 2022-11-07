@@ -336,7 +336,7 @@ namespace Fast
             {
                 result.cache7E0740[x] = 0;
                 result.cache7E0740[x + 1] = 0;
-                goto label_MonstrosityStart;
+                continue;
             }
 
             mem00.Data16 = mem75;
@@ -352,7 +352,7 @@ namespace Fast
 
             if (!c)
             {
-                goto label_MonstrosityStart;
+                continue;
             }
             break;
         }
