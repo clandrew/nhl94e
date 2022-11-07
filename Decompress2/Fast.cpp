@@ -305,8 +305,9 @@ namespace Fast
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
+        c = false;
 
-        while (1)
+        while (!c)
         {
             x = IncLow8(x);
             x = IncLow8(x);
@@ -347,11 +348,6 @@ namespace Fast
 
                 result.cache7E0740[x] = mem00.Low8;
                 result.cache7E0740[x + 1] = mem00.High8;
-
-                if (c)
-                {
-                    break;
-                }
             }
         }
 
