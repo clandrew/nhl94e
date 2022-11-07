@@ -8,7 +8,7 @@
 
 namespace Fast
 {
-    void Fn_80C1B0();
+    unsigned short Fn_80C1B0();
     bool Fn_80C232();
     void Fn_80C2DC();
 
@@ -252,7 +252,7 @@ namespace Fast
 
     }
 
-    void ShiftRotateDecrement(int xDecAmt, int yDecAmt)
+    void ShiftRotateDecrementMem7F(int xDecAmt, int yDecAmt)
     {
         c = a >= 0x8000;
         a *= 2;
@@ -318,11 +318,10 @@ namespace Fast
 
             loaded16.Data16 = a;
             result.cache7E0720[x] = loaded16.Low8;
-            result.cache7E0720[x + 1] = loaded16.High8;
-
-            Fn_80C1B0();
+            result.cache7E0720[x + 1] = loaded16.High8;                  
 
             // 8bit index
+            a = Fn_80C1B0();
             loaded16.Data16 = a;
             cache7E0700temp[x] = loaded16.Low8;
 
@@ -368,7 +367,7 @@ namespace Fast
         // Set bytes in cache
         while (setBytesInCacheCounter != 0)
         {
-            Fn_80C1B0();
+            a = Fn_80C1B0();
             ++a;
             while (a != 0)
             {
@@ -686,7 +685,7 @@ namespace Fast
         Monstrosity1(result0);
     }
 
-    void Fn_80C1B0()
+    unsigned short Fn_80C1B0()
     {
         mem6f = 0;
         a = mem6c;
@@ -703,7 +702,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrement(0, 1);
+            ShiftRotateDecrementMem7F(0, 1);
 
             if (z)
             {
@@ -711,7 +710,7 @@ namespace Fast
                 y = 0x8;
             }
 
-            ShiftRotateDecrement(0, 1);
+            ShiftRotateDecrementMem7F(0, 1);
 
             if (z)
             {
@@ -720,8 +719,7 @@ namespace Fast
             }
 
             mem6c = a;
-            a = mem6f;
-            return;
+            return mem6f;
         }
 
         mem00.Data16 = x;
@@ -743,10 +741,9 @@ namespace Fast
             ++mem04;
         }
 
-
         for (int i = 0; i < mem04; ++i)
         {
-            ShiftRotateDecrement(0, 1);
+            ShiftRotateDecrementMem7F(0, 1);
 
             if (z)
             {
@@ -761,7 +758,7 @@ namespace Fast
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         mem6f += s_ROMValueTable_80C2B6[mem04 / 2];
-        a = mem6f; // Caller expects return value in a
+        return mem6f;
     }
 
     bool Fn_80C232() // Returns whether we should continue decompression.
@@ -784,7 +781,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrement(2, 0);
+            ShiftRotateDecrementMem7F(2, 0);
 
             if (z)
             {
@@ -792,7 +789,7 @@ namespace Fast
                 x = 0x10;
             }
 
-            ShiftRotateDecrement(2, 0);
+            ShiftRotateDecrementMem7F(2, 0);
 
             if (!z)
             {
@@ -831,7 +828,7 @@ namespace Fast
 
         for (int i = 0; i < y; ++i)
         {
-            ShiftRotateDecrement(2, 0);
+            ShiftRotateDecrementMem7F(2, 0);
 
             if (z)
             {
