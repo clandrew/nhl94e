@@ -308,8 +308,6 @@ namespace Fast
 
         while (1)
         {
-        label_MonstrosityStart:
-
             x = IncLow8(x);
             x = IncLow8(x);
             mem14--;
@@ -336,25 +334,25 @@ namespace Fast
             {
                 result.cache7E0740[x] = 0;
                 result.cache7E0740[x + 1] = 0;
-                continue;
             }
-
-            mem00.Data16 = mem75;
-
-            for (int i = 0; i < mem14; ++i)
+            else
             {
-                c = mem00.Data16 >= 0x8000;
-                mem00.Data16 *= 2;
-            }
+                mem00.Data16 = mem75;
 
-            result.cache7E0740[x] = mem00.Low8;
-            result.cache7E0740[x + 1] = mem00.High8;
+                for (int i = 0; i < mem14; ++i)
+                {
+                    c = mem00.Data16 >= 0x8000;
+                    mem00.Data16 *= 2;
+                }
 
-            if (!c)
-            {
-                continue;
+                result.cache7E0740[x] = mem00.Low8;
+                result.cache7E0740[x + 1] = mem00.High8;
+
+                if (c)
+                {
+                    break;
+                }
             }
-            break;
         }
 
         mem79 = x >> 1;
