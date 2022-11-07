@@ -277,9 +277,10 @@ namespace Fast
         Monstrosity0Result result{};
         result.Initialize();
 
-        std::vector<unsigned char> cache7E0700_monstrosity0Temp; // Monstrosity0 scribbles on this, uses it and then it's never used again.
-        cache7E0700_monstrosity0Temp.resize(0x14);
-        memset(cache7E0700_monstrosity0Temp.data(), 0, cache7E0700_monstrosity0Temp.size());
+        // Some temp memory used for this function
+        std::vector<unsigned char> cache7E0700temp;
+        cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
+        memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
         // Use 8bit X and Y
         x &= 0xFF;
@@ -303,53 +304,58 @@ namespace Fast
         mem14 = 0x10;
         a = 0x10;
         x = 0xFE;
+        int setBytesInCacheCounter = 0;
 
-    label_MonstrosityStart:
-        x = IncLow8(x);
-        x = IncLow8(x);
-        mem14--;
-
-        mem75 *= 2;
-        a = mem75 - mem77;
-
-        loaded16.Data16 = a;
-        result.cache7E0720[x] = loaded16.Low8;
-        result.cache7E0720[x + 1] = loaded16.High8;
-
-        Fn_80C1B0();
-
-        // 8bit index
-        loaded16.Data16 = a;
-        cache7E0700_monstrosity0Temp[x] = loaded16.Low8;
-
-        mem77 += a;
-
-        int setBytesInCacheCounter = mem77;
-
-        mem75 += mem6f;
-        if (mem6f == 0)
+        while (1)
         {
-            result.cache7E0740[x] = 0;
-            result.cache7E0740[x + 1] = 0;
-            goto label_MonstrosityStart;
+        label_MonstrosityStart:
+
+            x = IncLow8(x);
+            x = IncLow8(x);
+            mem14--;
+
+            mem75 *= 2;
+            a = mem75 - mem77;
+
+            loaded16.Data16 = a;
+            result.cache7E0720[x] = loaded16.Low8;
+            result.cache7E0720[x + 1] = loaded16.High8;
+
+            Fn_80C1B0();
+
+            // 8bit index
+            loaded16.Data16 = a;
+            cache7E0700temp[x] = loaded16.Low8;
+
+            mem77 += a;
+
+            setBytesInCacheCounter = mem77;
+
+            mem75 += mem6f;
+            if (mem6f == 0)
+            {
+                result.cache7E0740[x] = 0;
+                result.cache7E0740[x + 1] = 0;
+                goto label_MonstrosityStart;
+            }
+
+            mem00.Data16 = mem75;
+
+            for (int i = 0; i < mem14; ++i)
+            {
+                c = mem00.Data16 >= 0x8000;
+                mem00.Data16 *= 2;
+            }
+
+            result.cache7E0740[x] = mem00.Low8;
+            result.cache7E0740[x + 1] = mem00.High8;
+
+            if (!c)
+            {
+                goto label_MonstrosityStart;
+            }
+            break;
         }
-
-        mem00.Data16 = mem75;
-
-        for (int i = 0; i < mem14; ++i)
-        {
-            c = mem00.Data16 >= 0x8000;
-            mem00.Data16 *= 2;
-        }
-
-        result.cache7E0740[x] = mem00.Low8;
-        result.cache7E0740[x + 1] = mem00.High8;
-
-        if (!c)
-        {
-            goto label_MonstrosityStart;
-        }
-
 
         mem79 = x >> 1;
 
@@ -398,7 +404,7 @@ namespace Fast
         mem00.Data16 = x;
         while (mem7b * 2 != 0x10)
         {
-            int numOfBytesToSeek = cache7E0700_monstrosity0Temp[mem7b * 2];
+            int numOfBytesToSeek = cache7E0700temp[mem7b * 2];
             mem7d = romFile[0x3C7B + mem7b];
 
             x = mem00.Data16;
@@ -1174,7 +1180,6 @@ namespace Fast
         WriteIndexed(mem91_HomeOrAway);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
-        //DumpDecompressedResult(finalResultWriteLocation);
 
         // Diff decompressed result against the reference-- validate they're the same
         // Open the reference
