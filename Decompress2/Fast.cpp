@@ -48,16 +48,16 @@ namespace Fast
     unsigned short mem91_HomeOrAway = 0;
     unsigned short mem0760 = 0;
 
-    // Staging output. Monstrosity0 writes this. Monstrosity1 reads from it.
+    // Monstrosity0 writes this. Monstrosity1 reads it.
     std::vector<unsigned char> mem7E0500_7E0700;
 
     unsigned short indirectHigh;
     unsigned short indirectLow;
 
-    std::vector<unsigned char> cache7E0100;
-    std::vector<unsigned char> cache7E0700; // Monstrosity0 scribbles on this and then it's never used again.
-    std::vector<unsigned char> cache7E0720;
-    std::vector<unsigned char> cache7E0740;
+    std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
+    std::vector<unsigned char> cache7E0700; // Monstrosity0 scribbles on this, uses it and then it's never used again.
+    std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
+    std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
 
     // Final output
     std::vector<unsigned char> cache7F0000;
@@ -139,11 +139,14 @@ namespace Fast
 
     void LoadNextFrom0500()
     {
+        // Loads a value from the staging output written by Monstrosity0.
+        // Saves the result to indirect.
+        // Result is also returned in mem08.
+
         // 16bit A, 8bit index
+        unsigned char loaded = mem7E0500_7E0700[y];
 
-        x = mem7E0500_7E0700[y];
-
-        loaded16.Data16 = x;
+        loaded16.Data16 = loaded;
         if (indirectHigh == 0x7E && indirectLow >= 0x100)
         {
             cache7E0100[indirectLow - 0x100] = loaded16.Low8;
@@ -157,7 +160,7 @@ namespace Fast
             __debugbreak();
         }
         indirectLow++;
-        mem08 = x;
+        mem08 = loaded;
     }
 
     void LoadNextFrom0600()
@@ -197,8 +200,6 @@ namespace Fast
     {
         for (int i = 0; i < shifts; ++i)
         {
-            // $80/BF8F 4A          LSR A                   A:F192 X:0006 Y:00F1 P:envmxdizc
-
             a >>= 1;
         }
 
