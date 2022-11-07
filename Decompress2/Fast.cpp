@@ -48,14 +48,13 @@ namespace Fast
     unsigned short mem91_HomeOrAway = 0;
     unsigned short mem0760 = 0;
 
-    // Monstrosity0 writes this. Monstrosity1 reads it.
-    std::vector<unsigned char> mem7E0500_7E0700;
-
     unsigned short indirectHigh;
     unsigned short indirectLow;
 
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
-    std::vector<unsigned char> cache7E0700; // Monstrosity0 scribbles on this, uses it and then it's never used again.
+    std::vector<unsigned char> cache7E0700_monstrosity0Temp; // Monstrosity0 scribbles on this, uses it and then it's never used again.
+
+    std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
     std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
     std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
 
@@ -303,7 +302,7 @@ namespace Fast
 
         // 8bit index
         loaded16.Data16 = a;
-        cache7E0700[x] = loaded16.Low8;
+        cache7E0700_monstrosity0Temp[x] = loaded16.Low8;
 
         mem77 += a;
 
@@ -381,7 +380,7 @@ namespace Fast
         mem00.Data16 = x;
         while (mem7b * 2 != 0x10)
         {
-            int numOfBytesToSeek = cache7E0700[mem7b * 2];
+            int numOfBytesToSeek = cache7E0700_monstrosity0Temp[mem7b * 2];
             mem7d = romFile[0x3C7B + mem7b];
 
             x = mem00.Data16;
@@ -985,7 +984,7 @@ namespace Fast
     {
         cache7E0100.resize(0x100);
         mem7E0500_7E0700.resize(0x200);
-        cache7E0700.resize(0x14);
+        cache7E0700_monstrosity0Temp.resize(0x14);
         cache7E0720.resize(0x20);
         cache7E0740.resize(0x20);
         cache7F0000.resize(0xFFFF);
@@ -996,7 +995,7 @@ namespace Fast
     {
         memset(cache7E0100.data(), 0, cache7E0100.size());
         memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
-        memset(cache7E0700.data(), 0, cache7E0700.size());
+        memset(cache7E0700_monstrosity0Temp.data(), 0, cache7E0700_monstrosity0Temp.size());
         memset(cache7E0720.data(), 0, cache7E0720.size());
         memset(cache7E0740.data(), 0, cache7E0740.size());
         memset(cache7F0000.data(), 0, cache7F0000.size());
