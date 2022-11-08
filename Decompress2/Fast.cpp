@@ -283,7 +283,8 @@ namespace Fast
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
         // Use 8bit X and Y
-        y &= 0xFF;
+        x = 0;
+        y = (mem0c + 2) & 0xFF;
         mem0c += 5;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
@@ -1165,8 +1166,6 @@ namespace Fast
         InitializeCPUAndOtherWRAM();
 
         InitializeDecompress(teamIndex, playerIndex);
-        x = 0;
-        y = mem0c + 2;
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3();
