@@ -367,15 +367,17 @@ namespace Fast
         // Set bytes in cache
         while (setBytesInCacheCounter != 0)
         {
-            // Skip the x index past any entries in the cache which are too low, < 0x80.
-            unsigned short skipCount = Fn_80C1B0() + 1;
-            while (skipCount != 0)
+            // Skip the x index past N entries in the cache which are too low, < 0x80.
+            // If x gets to go past 255, it wraps back to 0.
+            // There are guaranteed to actually be enough low entries.
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0() + 1;
+            while (howManyLowEntriesToSkip > 0)
             {
                 ++x;
                 x &= 0xFF;
                 if (result.mem7E0500_7E0700[x] < 0x80)
                 {
-                    --skipCount;
+                    --howManyLowEntriesToSkip;
                 }
             }
 
