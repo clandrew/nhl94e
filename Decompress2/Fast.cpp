@@ -688,6 +688,9 @@ namespace Fast
 
     unsigned short Fn_80C1B0()
     {
+        // Input: mem6c, which is the SwapToken from the compressed data.
+        // Multiplies mem6c a bunch of times.
+
         mem6f = 0;
         a = mem6c;
 
@@ -697,13 +700,13 @@ namespace Fast
         --y;
         if (y == 0)
         {
-            LoadNextFrom0CInc();
+            LoadNextFrom0CInc(); // Clobbers a. Effectively forgets SwapToken, and uses the next compressed byte instead
             y = 0x8;
         }
 
         if (c)
         {
-            ShiftRotateDecrementMem7F(0, 1);
+            ShiftRotateDecrementMem7F(0, 1); // Sets z if y==0
 
             if (z)
             {
