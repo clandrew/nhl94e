@@ -283,7 +283,6 @@ namespace Fast
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
         // Use 8bit X and Y
-        x &= 0xFF;
         y &= 0xFF;
         mem0c += 5;
 
@@ -1091,7 +1090,7 @@ namespace Fast
         }
         {
             std::stringstream strm;
-            strm << "C:\\repos\\nhl94e\\ImageData\\" << pTeam->Name << ".bin";
+            strm << "D:\\repos\\nhl94e\\ImageData\\" << pTeam->Name << ".bin";
             goldIndexedColorFileName = strm.str();
         }
     }
