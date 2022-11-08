@@ -282,9 +282,8 @@ namespace Fast
         cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
-        // Use 8bit X and Y
         x = 0;
-        y = (mem0c + 2) & 0xFF;
+        y = 0;
         mem0c += 5;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
