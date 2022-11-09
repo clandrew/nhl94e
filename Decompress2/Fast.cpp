@@ -8,7 +8,7 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0_GetSparseValueIncrement();
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter);
     bool Fn_80C232();
     void Fn_80C2DC();
 
@@ -306,6 +306,7 @@ namespace Fast
         int setBytesInCacheCounter = 0;
         unsigned short controlFlowSwitch = 0;
         c = false;
+        int iteration = 0;
 
         while (!c)
         {
@@ -317,13 +318,13 @@ namespace Fast
             unsigned short sparseValue = valueAccumulator - mem77;
 
             loaded16.Data16 = sparseValue;
-            result.cache7E0720[x] = loaded16.Low8;
-            result.cache7E0720[x + 1] = loaded16.High8;                  
+            result.cache7E0720[iteration] = loaded16.Low8;
+            result.cache7E0720[iteration + 1] = loaded16.High8;
 
             // 8bit index
-            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement();
+            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
             loaded16.Data16 = valueIncrement;
-            cache7E0700temp[x] = loaded16.Low8;
+            cache7E0700temp[iteration] = loaded16.Low8;
 
             mem77 += valueIncrement;
 
@@ -331,8 +332,8 @@ namespace Fast
 
             if (valueIncrement == 0)
             {
-                result.cache7E0740[x] = 0;
-                result.cache7E0740[x + 1] = 0;
+                result.cache7E0740[iteration] = 0;
+                result.cache7E0740[iteration + 1] = 0;
             }
             else
             {
@@ -348,12 +349,13 @@ namespace Fast
                 }
 
                 // Write datum to one of the sparse intermediates
-                result.cache7E0740[x] = datum.Low8;
-                result.cache7E0740[x + 1] = datum.High8;
+                result.cache7E0740[iteration] = datum.Low8;
+                result.cache7E0740[iteration + 1] = datum.High8;
             }
+            iteration += 2;
         }
 
-        controlFlowSwitch = x;
+        controlFlowSwitch = iteration - 2;
 
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
@@ -373,7 +375,7 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement() + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x) + 1;
             while (howManyLowEntriesToSkip > 0)
             {
                 ++x;
@@ -688,7 +690,7 @@ namespace Fast
         Monstrosity1(result0);
     }
 
-    unsigned short Fn_80C1B0_GetSparseValueIncrement()
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -730,7 +732,7 @@ namespace Fast
             return mem6f;
         }
 
-        mem00.Data16 = x;
+        mem00.Data16 = iter;
         mem04 = 0x2;
 
         c = false;
