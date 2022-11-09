@@ -310,8 +310,6 @@ namespace Fast
 
         while (!c)
         {
-            x = IncLow8(x);
-            x = IncLow8(x);
             numDatumMultiplies--;
 
             valueAccumulator *= 2;
