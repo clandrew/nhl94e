@@ -978,13 +978,17 @@ namespace Fast
         return result;
     }
 
-    void WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
         // This writes 0x900 bytes total.
         // Figure out the destination offset based on profile index and whether we're home or away.
         unsigned short localIndex = 0xA - (currentProfileImageIndex * 2);
         unsigned short destDataAddressLow = homeOrAway == 0 ? 0x5100 : 0x2D00;
         destDataAddressLow += Load16FromAddress(0x9D, 0xCCAE + localIndex).Data16;
+
+        std::vector<unsigned char> cache7F0000_indexedColor;
+        cache7F0000_indexedColor.resize(0xFFFF);
+        memset(cache7F0000_indexedColor.data(), 0, cache7F0000_indexedColor.size());
 
         for (int iter = 0; iter < 0x240; ++iter)
         {
@@ -998,15 +1002,17 @@ namespace Fast
             // Write four bytes of output.
 
             resultComponents.Data16 = result.Low;
-            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset] = resultComponents.Low8;
-            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset + 1] = resultComponents.High8;
+            cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
+            cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
 
             destOffset += 0x10;
 
             resultComponents.Data16 = result.High;
-            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset] = resultComponents.Low8;
-            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset + 1] = resultComponents.High8;
+            cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
+            cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
         }
+
+        return cache7F0000_indexedColor;
     }
 
     void CreateCaches()
@@ -1177,7 +1183,7 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         std::vector<unsigned char> cache7F0000_decompressedStaging = Fn_80BBB3();
-        WriteIndexed(mem91_HomeOrAway, &cache7F0000_decompressedStaging);
+        std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, &cache7F0000_decompressedStaging);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
 
@@ -1193,7 +1199,7 @@ namespace Fast
 
         // Diff decompressed result against the reference
         {
-            unsigned char* pData = cache7F0000_decompressedStaging.data();
+            unsigned char* pData = cache7F0000_indexedColor.data();
             unsigned char* pDecompressed = pData + finalResultWriteLocation;
             // There is garbage in memory stored past 0x480- although the entries are spaced 0x600 apart, only the first 0x480 are viable.
             for (int i = 0; i < 0x480; ++i)
