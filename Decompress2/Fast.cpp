@@ -441,25 +441,24 @@ namespace Fast
         }
 
         x = resultValue00.Low8;
-        a = 0x10;
 
-        while (x != 0)
-        {
-            // 8bit acc
+        // Always tack a bunch of 0x10 on at the end.
+        int byteCountToSet = 0xFF - x + 1;
+        for (int i=0; i< byteCountToSet; ++i) 
+        {            
             loaded16.Data16 = a;
-            result.mem7E0500_7E0700[0x100 + x] = loaded16.Low8;
+            result.mem7E0500_7E0700[0x100 + x] = 0x10;
 
             ++x;
             x &= 0x00FF;
         }
 
-        x = mem79 * 2;
-
-        if (x == 0x10)
+        unsigned short controlFlowSwitch = mem79 * 2;
+        if (controlFlowSwitch == 0x10)
         {
             mem0760 = 0xBFC5;
         }
-        else if (x == 0x12)
+        else if (controlFlowSwitch == 0x12)
         {
             mem0760 = 0xBFC8;
         }
@@ -689,7 +688,9 @@ namespace Fast
     unsigned short Fn_80C1B0()
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
-        // Multiplies mem6c a bunch of times.
+        //        y as an index. y is [0..7]
+        // 
+        // Multiplies mem6c a bunch of times, and/or replaces it with the next compressed byte.
 
         mem6f = 0;
         a = mem6c;
