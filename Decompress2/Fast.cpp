@@ -8,7 +8,7 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0();
+    unsigned short Fn_80C1B0_GetSparseValueIncrement();
     bool Fn_80C232();
     void Fn_80C2DC();
 
@@ -299,7 +299,7 @@ namespace Fast
 
         y = 8;
         unsigned short mem77 = 0;
-        mem75 = 0;
+        unsigned short valueAccumulator = 0;
         unsigned short numDatumMultiplies = 0x10;
         a = 0x10;
         x = 0xFE;
@@ -313,33 +313,33 @@ namespace Fast
             x = IncLow8(x);
             numDatumMultiplies--;
 
-            mem75 *= 2;
-            a = mem75 - mem77;
+            valueAccumulator *= 2;
+            unsigned short sparseValue = valueAccumulator - mem77;
 
-            loaded16.Data16 = a;
+            loaded16.Data16 = sparseValue;
             result.cache7E0720[x] = loaded16.Low8;
             result.cache7E0720[x + 1] = loaded16.High8;                  
 
             // 8bit index
-            mem6f = Fn_80C1B0();
-            loaded16.Data16 = mem6f;
+            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement();
+            loaded16.Data16 = valueIncrement;
             cache7E0700temp[x] = loaded16.Low8;
 
-            mem77 += mem6f;
+            mem77 += valueIncrement;
 
             setBytesInCacheCounter = mem77;
 
-            if (mem6f == 0)
+            if (valueIncrement == 0)
             {
                 result.cache7E0740[x] = 0;
                 result.cache7E0740[x + 1] = 0;
             }
             else
             {
-                mem75 += mem6f;
+                valueAccumulator += valueIncrement;
 
                 Mem16 datum{};
-                datum.Data16 = mem75;
+                datum.Data16 = valueAccumulator;
 
                 for (int i = 0; i < numDatumMultiplies; ++i)
                 {
@@ -373,7 +373,7 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0() + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement() + 1;
             while (howManyLowEntriesToSkip > 0)
             {
                 ++x;
@@ -688,7 +688,7 @@ namespace Fast
         Monstrosity1(result0);
     }
 
-    unsigned short Fn_80C1B0()
+    unsigned short Fn_80C1B0_GetSparseValueIncrement()
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
