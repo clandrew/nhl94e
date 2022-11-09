@@ -300,7 +300,7 @@ namespace Fast
         y = 8;
         unsigned short mem77 = 0;
         mem75 = 0;
-        mem14 = 0x10;
+        unsigned short numDatumMultiplies = 0x10;
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
@@ -311,7 +311,7 @@ namespace Fast
         {
             x = IncLow8(x);
             x = IncLow8(x);
-            mem14--;
+            numDatumMultiplies--;
 
             mem75 *= 2;
             a = mem75 - mem77;
@@ -341,9 +341,9 @@ namespace Fast
                 Mem16 datum{};
                 datum.Data16 = mem75;
 
-                for (int i = 0; i < mem14; ++i)
+                for (int i = 0; i < numDatumMultiplies; ++i)
                 {
-                    c = datum.Data16 >= 0x8000;
+                    c = datum.Data16 >= 0x8000; // If the last multiply makes the datum end up going negative, we exit the loop.
                     datum.Data16 *= 2;
                 }
 
