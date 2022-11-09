@@ -298,9 +298,9 @@ namespace Fast
         mem6c = a;
 
         y = 8;
-        unsigned short mem77 = 0;
+        unsigned short valueIncrementTotal = 0;
         unsigned short valueAccumulator = 0;
-        unsigned short numDatumMultiplies = 0x10;
+        unsigned short numDatumMultiplies = 0xF;
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
@@ -310,10 +310,8 @@ namespace Fast
 
         while (!c)
         {
-            numDatumMultiplies--;
-
             valueAccumulator *= 2;
-            unsigned short sparseValue = valueAccumulator - mem77;
+            unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
 
             loaded16.Data16 = sparseValue;
             result.cache7E0720[iteration] = loaded16.Low8;
@@ -321,12 +319,11 @@ namespace Fast
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
-            loaded16.Data16 = valueIncrement;
-            cache7E0700temp[iteration] = loaded16.Low8;
+            cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
-            mem77 += valueIncrement;
+            valueIncrementTotal += valueIncrement;
 
-            setBytesInCacheCounter = mem77;
+            setBytesInCacheCounter = valueIncrementTotal;
 
             if (valueIncrement == 0)
             {
@@ -351,6 +348,7 @@ namespace Fast
                 result.cache7E0740[iteration + 1] = datum.High8;
             }
             iteration += 2;
+            numDatumMultiplies--;
         }
 
         controlFlowSwitch = iteration - 2;
