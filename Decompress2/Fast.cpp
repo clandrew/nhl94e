@@ -910,13 +910,13 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
-            loaded16.Low8 = cache7F0000_decompressedStaging->data()[*pSourceDataOffset + 1];
-            loaded16.High8 = cache7F0000_decompressedStaging->data()[*pSourceDataOffset];
+            loaded16.Low8 = cache7F0000_decompressedStaging[*pSourceDataOffset + 1];
+            loaded16.High8 = cache7F0000_decompressedStaging[*pSourceDataOffset];
 
             if (loaded16.Data16 != 0)
             {
@@ -959,7 +959,7 @@ namespace Fast
         }
     }
 
-    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
     {
         IndexedColorResult result{};
 
@@ -978,7 +978,7 @@ namespace Fast
         return result;
     }
 
-    std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char> cache7F0000_decompressedStaging)
     {
         // This writes 0x900 bytes total.
         // Figure out the destination offset based on profile index and whether we're home or away.
@@ -1183,7 +1183,7 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         std::vector<unsigned char> cache7F0000_decompressedStaging = Fn_80BBB3();
-        std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, &cache7F0000_decompressedStaging);
+        std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, cache7F0000_decompressedStaging);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
 
