@@ -321,11 +321,11 @@ namespace Fast
             result.cache7E0720[x + 1] = loaded16.High8;                  
 
             // 8bit index
-            a = Fn_80C1B0();
-            loaded16.Data16 = a;
+            mem6f = Fn_80C1B0();
+            loaded16.Data16 = mem6f;
             cache7E0700temp[x] = loaded16.Low8;
 
-            mem77 += a;
+            mem77 += mem6f;
 
             setBytesInCacheCounter = mem77;
 
@@ -337,16 +337,19 @@ namespace Fast
             else
             {
                 mem75 += mem6f;
-                mem00.Data16 = mem75;
+
+                Mem16 datum{};
+                datum.Data16 = mem75;
 
                 for (int i = 0; i < mem14; ++i)
                 {
-                    c = mem00.Data16 >= 0x8000;
-                    mem00.Data16 *= 2;
+                    c = datum.Data16 >= 0x8000;
+                    datum.Data16 *= 2;
                 }
 
-                result.cache7E0740[x] = mem00.Low8;
-                result.cache7E0740[x + 1] = mem00.High8;
+                // Write datum to one of the sparse intermediates
+                result.cache7E0740[x] = datum.Low8;
+                result.cache7E0740[x + 1] = datum.High8;
             }
         }
 
