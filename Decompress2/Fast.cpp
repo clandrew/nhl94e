@@ -304,7 +304,7 @@ namespace Fast
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
-        unsigned short controlFlowSwitchSource = 0;
+        unsigned short controlFlowSwitch = 0;
         c = false;
 
         while (!c)
@@ -350,7 +350,7 @@ namespace Fast
             }
         }
 
-        controlFlowSwitchSource = x >> 1;
+        controlFlowSwitch = x;
 
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
@@ -454,7 +454,6 @@ namespace Fast
             x &= 0x00FF;
         }
 
-        unsigned short controlFlowSwitch = controlFlowSwitchSource * 2;
         if (controlFlowSwitch == 0x10)
         {
             mem0760 = 0xBFC5;
