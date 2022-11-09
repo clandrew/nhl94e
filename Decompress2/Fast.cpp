@@ -53,9 +53,6 @@ namespace Fast
 
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
 
-    // Final output
-    std::vector<unsigned char> cache7F0000;
-
     // Gold reference output
     std::vector<unsigned char> goldReferenceIndexedColor;
 
@@ -147,7 +144,7 @@ namespace Fast
         }
     };
 
-    void LoadNextFrom0500(Monstrosity0Result const& result0)
+    void LoadNextFrom0500(Monstrosity0Result const& result0, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
         // Loads a value from the staging output written by Monstrosity0.
         // Saves the result to indirect.
@@ -163,7 +160,7 @@ namespace Fast
         }
         else if (indirectHigh == 0x7F)
         {
-            cache7F0000[indirectLow] = loaded16.Low8;
+            cache7F0000_decompressedStaging->data()[indirectLow] = loaded16.Low8;
         }
         else
         {
@@ -510,7 +507,7 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    void Monstrosity1(Monstrosity0Result const& result0)
+    std::vector<unsigned char> Monstrosity1(Monstrosity0Result const& result0)
     {
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
@@ -526,6 +523,10 @@ namespace Fast
         nextCaseCond = mem71;
         LoadNextFrom0600(result0);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+
+        std::vector<unsigned char> cache7F0000_decompressedStaging;
+        cache7F0000_decompressedStaging.resize(0xFFFF);
+        memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
 
         while (1)
         {
@@ -545,7 +546,7 @@ namespace Fast
                     LoadNextFrom0CInc();
                     a *= secondMultiplier;
                 }
-                LoadNextFrom0500(result0);
+                LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
                 LoadNextFrom0600(result0);
                 continue;
             }
@@ -580,7 +581,7 @@ namespace Fast
                 }
                 else if (indirectHigh == 0x7F)
                 {
-                    cache7F0000[indirectLow] = loaded16.Low8;
+                    cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
                 }
 
                 indirectLow += 1;
@@ -632,7 +633,7 @@ namespace Fast
                 continueDecompression = Fn_80C232();
                 if (!continueDecompression)
                 {
-                    return; // return from monstrosity
+                    return cache7F0000_decompressedStaging; // return from monstrosity
                 }
 
                 // Write the value 'mem08', mem6f times.
@@ -646,7 +647,7 @@ namespace Fast
                     }
                     else if (indirectHigh == 0x7F)
                     {
-                        cache7F0000[indirectLow] = decompressedValue;
+                        cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
                     }
                     else
                     {
@@ -663,9 +664,11 @@ namespace Fast
                 continue;
             }
         }
+
+        return cache7F0000_decompressedStaging;
     }
 
-    void Fn_80BBB3()
+    std::vector<unsigned char> Fn_80BBB3()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -683,7 +686,8 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0();
 
-        Monstrosity1(result0);
+        std::vector<unsigned char> result1 = Monstrosity1(result0);
+        return result1;
     }
 
     unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter)
@@ -906,13 +910,13 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent)
+    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
-            loaded16.Low8 = cache7F0000[*pSourceDataOffset + 1];
-            loaded16.High8 = cache7F0000[*pSourceDataOffset];
+            loaded16.Low8 = cache7F0000_decompressedStaging->data()[*pSourceDataOffset + 1];
+            loaded16.High8 = cache7F0000_decompressedStaging->data()[*pSourceDataOffset];
 
             if (loaded16.Data16 != 0)
             {
@@ -955,7 +959,7 @@ namespace Fast
         }
     }
 
-    IndexedColorResult CalculateIndexedColorResult(int iter)
+    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
         IndexedColorResult result{};
 
@@ -963,7 +967,7 @@ namespace Fast
         unsigned short resultComponent = 0x80;
         while (true)
         {
-            if (!LoadSourceElement(&sourceDataOffset, &resultComponent))
+            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, cache7F0000_decompressedStaging))
                 break;
 
             sourceDataOffset = loaded16.Data16;
@@ -974,8 +978,9 @@ namespace Fast
         return result;
     }
 
-    void WriteIndexed(unsigned short homeOrAway)
+    void WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
+        // This writes 0x900 bytes total.
         // Figure out the destination offset based on profile index and whether we're home or away.
         unsigned short localIndex = 0xA - (currentProfileImageIndex * 2);
         unsigned short destDataAddressLow = homeOrAway == 0 ? 0x5100 : 0x2D00;
@@ -983,37 +988,36 @@ namespace Fast
 
         for (int iter = 0; iter < 0x240; ++iter)
         {
-            IndexedColorResult result = CalculateIndexedColorResult(iter);
+            IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging);
+            Mem16 resultComponents{};
 
             int highOrder = (iter / 8) * 0x20;
             int lowOrder = (iter % 8) * 2;
-            int r = highOrder + lowOrder;
+            int destOffset = highOrder + lowOrder;
 
             // Write four bytes of output.
 
-            loaded16.Data16 = result.Low;
-            cache7F0000[destDataAddressLow + r] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + r + 1] = loaded16.High8;
+            resultComponents.Data16 = result.Low;
+            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset] = resultComponents.Low8;
+            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset + 1] = resultComponents.High8;
 
-            r += 0x10;
+            destOffset += 0x10;
 
-            loaded16.Data16 = result.High;
-            cache7F0000[destDataAddressLow + r] = loaded16.Low8;
-            cache7F0000[destDataAddressLow + r + 1] = loaded16.High8;
+            resultComponents.Data16 = result.High;
+            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset] = resultComponents.Low8;
+            cache7F0000_decompressedStaging->data()[destDataAddressLow + destOffset + 1] = resultComponents.High8;
         }
     }
 
     void CreateCaches()
     {
         cache7E0100.resize(0x100);
-        cache7F0000.resize(0xFFFF);
         goldReferenceIndexedColor.resize(0x600);
     }
 
     void InitializeCaches()
     {
         memset(cache7E0100.data(), 0, cache7E0100.size());
-        memset(cache7F0000.data(), 0, cache7F0000.size());
         memset(goldReferenceIndexedColor.data(), 0, goldReferenceIndexedColor.size());
     }
 
@@ -1155,11 +1159,11 @@ namespace Fast
         return finalResultWriteLocation;
     }
 
-    void DumpDecompressedResult(int finalResultWriteLocation)
+    void DumpDecompressedResult(std::vector<unsigned char> const& cache7F0000_decompressedStaging, int finalResultWriteLocation)
     {
         FILE* file{};
         fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
-        unsigned char* pData = cache7F0000.data();
+        unsigned char const* pData = cache7F0000_decompressedStaging.data();
         fwrite(pData + finalResultWriteLocation, 1, 0x600, file);
         fclose(file);
     }
@@ -1172,8 +1176,8 @@ namespace Fast
         InitializeDecompress(teamIndex, playerIndex);
         mem91_HomeOrAway = 2;
 
-        Fn_80BBB3();
-        WriteIndexed(mem91_HomeOrAway);
+        std::vector<unsigned char> cache7F0000_decompressedStaging = Fn_80BBB3();
+        WriteIndexed(mem91_HomeOrAway, &cache7F0000_decompressedStaging);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
 
@@ -1189,7 +1193,7 @@ namespace Fast
 
         // Diff decompressed result against the reference
         {
-            unsigned char* pData = cache7F0000.data();
+            unsigned char* pData = cache7F0000_decompressedStaging.data();
             unsigned char* pDecompressed = pData + finalResultWriteLocation;
             // There is garbage in memory stored past 0x480- although the entries are spaced 0x600 apart, only the first 0x480 are viable.
             for (int i = 0; i < 0x480; ++i)
