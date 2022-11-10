@@ -997,7 +997,13 @@ namespace Fast
 
     std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char> cache7F0000_decompressedStaging)
     {
-        // This writes 0x900 bytes total.
+        // This writes 0x480 bytes total.
+        // The original SNES function wrote 0x900 bytes: 0x480 bytes of image data, and 0x480 bytes of zeroes.
+        // But we're writing to already-zeroed memory so no need to write the zeroes here.
+
+        // Each profile image is 48x48 pixels. 48x48 = 0x900, and each pixel is half a byte (16 possible colors per pixel), 
+        // so 0x480 is the full decompressed size.
+
         // Figure out the destination offset based on profile index and whether we're home or away.
         unsigned short localIndex = 0xA - (currentProfileImageIndex * 2);
         unsigned short destDataAddressLow = homeOrAway == 0 ? 0x5100 : 0x2D00;
@@ -1007,7 +1013,8 @@ namespace Fast
         cache7F0000_indexedColor.resize(0xFFFF);
         memset(cache7F0000_indexedColor.data(), 0, cache7F0000_indexedColor.size());
 
-        for (int iter = 0; iter < 0x240; ++iter)
+
+        for (int iter = 0; iter < 0x120; ++iter)
         {
             IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging);
             Mem16 resultComponents{};
@@ -1187,7 +1194,7 @@ namespace Fast
         FILE* file{};
         fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
         unsigned char const* pData = cache7F0000_indexedColor.data();
-        fwrite(pData + finalResultWriteLocation, 1, 0x600, file);
+        fwrite(pData, 1, cache7F0000_indexedColor.size(), file);
         fclose(file);
     }
 
@@ -1233,13 +1240,19 @@ namespace Fast
         if (outputCompressionRatio)
         {
             int sourceSize = decompressedStaging.CompressedSize;
-            int destSize = 0x900;
+            int destSize = 0x480;
             float ratio = (float)sourceSize / (float)destSize;
             float ratioPercent = ratio * 100;
 
             std::string teamName = GetTeamName((Team)teamIndex);
             std::string playerName = GetPlayerName(s_teams[teamIndex].CompressedDataLocations[playerIndex]);
             std::cout << teamName << "\t|" << playerName << "\t|" << sourceSize << "\t|Compression ratio : \t|" << ratioPercent << "% " << "\n";
+        }
+
+        bool outputDecompressedResult = false;
+        if (outputDecompressedResult)
+        {
+            DumpDecompressedResult(cache7F0000_indexedColor, finalResultWriteLocation);
         }
     }
      
