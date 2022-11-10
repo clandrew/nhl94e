@@ -141,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="Decompress2.cpp" />
     <ClCompile Include="Fast.cpp" />
-    <ClCompile Include="Fn_9B85C2.cpp" />
     <ClCompile Include="Slow.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>

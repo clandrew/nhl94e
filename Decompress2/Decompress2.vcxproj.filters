@@ -18,9 +18,6 @@
     <ClCompile Include="Decompress2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Fn_9B85C2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
