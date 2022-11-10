@@ -1,3 +1,11 @@
+For some players, they have their own unique profile image. For others, it's a stock image.
+Stock images:
+	8ffe74
+	99c64e
+	99e1e8
+	9ab13d
+
+
 Num#	Name		Ptr	*Ptr
 ====	====		===	====
 
