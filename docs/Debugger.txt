@@ -4,9 +4,7 @@ There is a rich assortment of SNES debugging tools out there, some of which are 
 
 I still use Geiger's SNES debugger for a lot of things. It's a great tool and is super useful. That said, it has some bugs/limitations/'personality traits'. I've come to work around them, or use a different tool as appropriate then switch back.
 
-The emulator-debugger is closed source and not under active development, so these 'personality traits' are not going away any time soon.
-
-I've made a list of the 'personality traits' so that you can also work around them if you run into them.
+The emulator-debugger is closed source and not under active development, unlikely to be changed by the author or community so these 'personality traits' are not going away any time soon. I made a list of the 'personality traits' so that you can also work around them if you run into them.
 
 Issue										Workaround
 =====										==========
