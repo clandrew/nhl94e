@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <string>
+#include "Decompress2.h"
 
 void OpenDebugLog(char const* fileName);
 void CloseDebugLog();
@@ -22,3 +24,6 @@ unsigned short ExchangeShortHighAndLow(unsigned short s);
 
 unsigned short IncLow8(unsigned short s);
 void RotateLeft(unsigned short* pS, bool* pC);
+
+std::string GetTeamName(Team team);
+std::string GetPlayerName(int sourceDataLocation);

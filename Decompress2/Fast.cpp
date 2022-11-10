@@ -24,6 +24,8 @@ namespace Fast
     std::string outputIndexedColorFileName;
     std::string goldIndexedColorFileName;
 
+    bool outputCompressionRatio = false;
+
     Mem16 mem00{};
     unsigned short mem04 = 0;
     unsigned short mem06 = 0;
@@ -133,6 +135,7 @@ namespace Fast
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
         std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
         std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
+        int CompressedSize; // For statistics-keeping
         void Initialize()
         {
             mem7E0500_7E0700.resize(0x200);
@@ -141,6 +144,7 @@ namespace Fast
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
             memset(cache7E0720.data(), 0, cache7E0720.size());
             memset(cache7E0740.data(), 0, cache7E0740.size());
+            CompressedSize = 0;
         }
     };
 
@@ -278,6 +282,8 @@ namespace Fast
         std::vector<unsigned char> cache7E0700temp;
         cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
+
+        unsigned short compressedSourceLocation = mem0c;
 
         x = 0;
         y = 0;
@@ -467,6 +473,7 @@ namespace Fast
 
         indirectHigh = mem12;
         indirectLow = mem10;
+        result.CompressedSize = mem0c - compressedSourceLocation;
         return result;
     }
 
@@ -668,7 +675,13 @@ namespace Fast
         return cache7F0000_decompressedStaging;
     }
 
-    std::vector<unsigned char> Fn_80BBB3()
+    struct Fn_80BBB3_DecompressResult
+    {
+        std::vector<unsigned char> cache7F0000_decompressedStaging;
+        int CompressedSize;
+    };
+
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress()
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -684,10 +697,13 @@ namespace Fast
         // Notes:
         //     A, X, Y are ignored and stomped on.
 
-        Monstrosity0Result result0 = Monstrosity0();
+        Fn_80BBB3_DecompressResult result{};
 
-        std::vector<unsigned char> result1 = Monstrosity1(result0);
-        return result1;
+        Monstrosity0Result result0 = Monstrosity0();
+        result.CompressedSize = result0.CompressedSize;
+
+        result.cache7F0000_decompressedStaging = Monstrosity1(result0);
+        return result;
     }
 
     unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter)
@@ -696,6 +712,7 @@ namespace Fast
         //        y as an index. y is [0..7]
         // 
         // Multiplies mem6c a bunch of times, and/or replaces it with the next compressed byte.
+        // Advances mem0c.
 
         mem6f = 0;
         a = mem6c;
@@ -995,9 +1012,9 @@ namespace Fast
             IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging);
             Mem16 resultComponents{};
 
-            int highOrder = (iter / 8) * 0x20;
-            int lowOrder = (iter % 8) * 2;
-            int destOffset = highOrder + lowOrder;
+            int destOffsetHighOrder = (iter / 8) * 0x20;
+            int destOffsetLowOrder = (iter % 8) * 2;
+            int destOffset = destOffsetHighOrder + destOffsetLowOrder;
 
             // Write four bytes of output.
 
@@ -1165,11 +1182,11 @@ namespace Fast
         return finalResultWriteLocation;
     }
 
-    void DumpDecompressedResult(std::vector<unsigned char> const& cache7F0000_decompressedStaging, int finalResultWriteLocation)
+    void DumpDecompressedResult(std::vector<unsigned char> const& cache7F0000_indexedColor, int finalResultWriteLocation)
     {
         FILE* file{};
         fopen_s(&file, outputIndexedColorFileName.c_str(), "wb");
-        unsigned char const* pData = cache7F0000_decompressedStaging.data();
+        unsigned char const* pData = cache7F0000_indexedColor.data();
         fwrite(pData + finalResultWriteLocation, 1, 0x600, file);
         fclose(file);
     }
@@ -1182,8 +1199,9 @@ namespace Fast
         InitializeDecompress(teamIndex, playerIndex);
         mem91_HomeOrAway = 2;
 
-        std::vector<unsigned char> cache7F0000_decompressedStaging = Fn_80BBB3();
-        std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, cache7F0000_decompressedStaging);
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress();
+
+        std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
         int finalResultWriteLocation = GetFinalWriteLocation();
 
@@ -1210,6 +1228,18 @@ namespace Fast
                     __debugbreak();
                 }
             }
+        }
+
+        if (outputCompressionRatio)
+        {
+            int sourceSize = decompressedStaging.CompressedSize;
+            int destSize = 0x900;
+            float ratio = (float)sourceSize / (float)destSize;
+            float ratioPercent = ratio * 100;
+
+            std::string teamName = GetTeamName((Team)teamIndex);
+            std::string playerName = GetPlayerName(s_teams[teamIndex].CompressedDataLocations[playerIndex]);
+            std::cout << teamName << "\t|" << playerName << "\t|" << sourceSize << "\t|Compression ratio : \t|" << ratioPercent << "% " << "\n";
         }
     }
      
