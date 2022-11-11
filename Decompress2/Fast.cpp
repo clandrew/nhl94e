@@ -906,25 +906,25 @@ namespace Fast
 
     void GetIndexedColor(
         unsigned short resultComponent,
-        unsigned short* pSourceDataOffset,
+        unsigned short* pAcc,
         IndexedColorResult* pResult)
     {
-        if (DoubleAndCheckCarry(pSourceDataOffset))
+        if (DoubleAndCheckCarry(pAcc))
         {
             pResult->High |= (resultComponent << 8);
         }
 
-        if (DoubleAndCheckCarry(pSourceDataOffset))
+        if (DoubleAndCheckCarry(pAcc))
         {
             pResult->High |= resultComponent;
         }
 
-        if (DoubleAndCheckCarry(pSourceDataOffset))
+        if (DoubleAndCheckCarry(pAcc))
         {
             pResult->Low |= (resultComponent << 8);
         }
 
-        if (DoubleAndCheckCarry(pSourceDataOffset))
+        if (DoubleAndCheckCarry(pAcc))
         {
             pResult->Low |= resultComponent;
         }
@@ -997,13 +997,13 @@ namespace Fast
 
     bool FormulateOutput(
         unsigned short iter,
-        unsigned short val,
+        unsigned short acc,
         unsigned short* pResultComponent,
         IndexedColorResult* pResult)
     {
         while (true)
         {
-            GetIndexedColor(*pResultComponent, &val, pResult);
+            GetIndexedColor(*pResultComponent, &acc, pResult);
 
             if (*pResultComponent < 2)
                 return false;
