@@ -997,13 +997,13 @@ namespace Fast
 
     bool FormulateOutput(
         unsigned short iter,
+        unsigned short val,
         unsigned short* pResultComponent,
-        unsigned short* pSourceDataOffset,
         IndexedColorResult* pResult)
     {
         while (true)
         {
-            GetIndexedColor(*pResultComponent, pSourceDataOffset, pResult);
+            GetIndexedColor(*pResultComponent, &val, pResult);
 
             if (*pResultComponent < 2)
                 return false;
@@ -1013,7 +1013,7 @@ namespace Fast
             if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
             {
                 // resultComponent is [8..15]
-                *pSourceDataOffset = (iter * 4) + 2;
+                val = (iter * 4) + 2;
                 return true;
             }
         }
@@ -1042,8 +1042,7 @@ namespace Fast
             if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
                 break;
 
-            unsigned short val = loaded16.Data16;
-            if (!FormulateOutput(iter, &resultComponent, &val, &result))
+            if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
                 break;
         }
 
