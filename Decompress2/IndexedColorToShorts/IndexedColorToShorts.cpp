@@ -113,6 +113,110 @@ void IndexedColorToShorts(unsigned char i0, unsigned char i1, unsigned char i2, 
             short0 |= 0x8000;
         }
     }
+    {
+        bool b0 = i0 & 0x1;
+        bool b1 = i1 & 0x1;
+        bool b2 = i2 & 0x1;
+        bool b3 = i3 & 0x1;
+
+        if (b0)
+        {
+            short1 |= 0x0001;
+        }
+
+        if (b1)
+        {
+            short1 |= 0x0002;
+        }
+
+        if (b2)
+        {
+            short1 |= 0x0004;
+        }
+
+        if (b3)
+        {
+            short1 |= 0x0008;
+        }
+    }
+    {
+        bool b0 = i0 & 0x2;
+        bool b1 = i1 & 0x2;
+        bool b2 = i2 & 0x2;
+        bool b3 = i3 & 0x2;
+
+        if (b0)
+        {
+            short1 |= 0x0010;
+        }
+
+        if (b1)
+        {
+            short1 |= 0x0020;
+        }
+
+        if (b2)
+        {
+            short1 |= 0x0040;
+        }
+
+        if (b3)
+        {
+            short1 |= 0x0080;
+        }
+    }
+    {
+        bool b0 = i0 & 0x4;
+        bool b1 = i1 & 0x4;
+        bool b2 = i2 & 0x4;
+        bool b3 = i3 & 0x4;
+
+        if (b0)
+        {
+            short1 |= 0x0100;
+        }
+
+        if (b1)
+        {
+            short1 |= 0x0200;
+        }
+
+        if (b2)
+        {
+            short1 |= 0x0400;
+        }
+
+        if (b3)
+        {
+            short1 |= 0x0800;
+        }
+    }
+    {
+        bool b0 = i0 & 0x8;
+        bool b1 = i1 & 0x8;
+        bool b2 = i2 & 0x8;
+        bool b3 = i3 & 0x8;
+
+        if (b0)
+        {
+            short1 |= 0x1000;
+        }
+
+        if (b1)
+        {
+            short1 |= 0x2000;
+        }
+
+        if (b2)
+        {
+            short1 |= 0x4000;
+        }
+
+        if (b3)
+        {
+            short1 |= 0x8000;
+        }
+    }
 
     *pS0 = short0;
     *pS1 = short1;
