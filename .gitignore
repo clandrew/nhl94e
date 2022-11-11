@@ -39,3 +39,6 @@ template.png
 /Decompress2/*.bin
 /Decompress2/*.log
 /Decompress2/x64/*
+/Decompress2/IndexedColorToShorts/.vs/*
+/Decompress2/IndexedColorToShorts/Debug/*
+/Decompress2/IndexedColorToShorts/Release/*
