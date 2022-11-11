@@ -939,15 +939,13 @@ namespace Fast
         {
             GetIndexedColor(*pResultComponent, &acc, pResult);
 
-            if (*pResultComponent < 2)
+            if (*pResultComponent == 0 || *pResultComponent == 1)
                 return;
 
             *pResultComponent /= 2;
 
             if (*pResultComponent == 0x8)
-            {
                 return;
-            }
         }
     }
 
