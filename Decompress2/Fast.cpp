@@ -993,16 +993,10 @@ namespace Fast
 
         if (short0.Data16 != 0)
         {
-            if (FormulateOutput(short0.Data16, &resultComponent, &result))
-            {
-            }
-            if (resultComponent > 16)
-            {
-                resultComponent /= 16;
-                assert(resultComponent < 16);
-            }
+            FormulateOutput(short0.Data16, &resultComponent, &result);
         }
-        else
+
+        if (resultComponent > 16)
         {
             resultComponent /= 16;
             assert(resultComponent < 16);
