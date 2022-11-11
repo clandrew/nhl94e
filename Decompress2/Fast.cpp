@@ -994,31 +994,26 @@ namespace Fast
 
         int mainIndex = 0;
 
+        loaded16.Data16 = short0.Data16;
         while (true)
         {
-            if (mainIndex == 0)
-                loaded16.Data16 = short0.Data16;
-            else
-                loaded16.Data16 = short1.Data16;
-            mainIndex++;
-
             if (loaded16.Data16 != 0)
             {
                 if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
                     break;
+
+                loaded16.Data16 = short1.Data16;
             }
             else
             {
                 if (resultComponent < 16)
                     break;
 
-                resultComponent >>= 4;
+                resultComponent /= 16;
 
-                loaded16.Data16 = short1.Data16;
-
-                if (loaded16.Data16 != 0)
+                if (short1.Data16 != 0)
                 {
-                    if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
+                    if (!FormulateOutput(iter, short1.Data16, &resultComponent, &result))
                         break;
                 }
 
