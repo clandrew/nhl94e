@@ -944,7 +944,7 @@ namespace Fast
 
             *pResultComponent /= 2;
 
-            if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
+            if (*pResultComponent == 0x8)
             {
                 return;
             }
