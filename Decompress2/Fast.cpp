@@ -955,7 +955,6 @@ namespace Fast
     };
 
     bool FormulateOutput(
-        unsigned short iter,
         unsigned short acc,
         unsigned short* pResultComponent,
         IndexedColorResult* pResult)
@@ -992,14 +991,12 @@ namespace Fast
         short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
         short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
 
+        bool tryShort1 = false;
         if (short0.Data16 != 0)
         {
-            if (FormulateOutput(iter, short0.Data16, &resultComponent, &result))
+            if (FormulateOutput(short0.Data16, &resultComponent, &result))
             {
-                if (short1.Data16 != 0)
-                {
-                    FormulateOutput(iter, short1.Data16, &resultComponent, &result);
-                }
+                tryShort1 = true;
             }
         }
 
@@ -1007,11 +1004,12 @@ namespace Fast
         {
             resultComponent /= 16;
             assert(resultComponent < 16);
+            tryShort1 = true;
+        }
 
-            if (short1.Data16 != 0)
-            {
-                FormulateOutput(iter, short1.Data16, &resultComponent, &result);
-            }
+        if (tryShort1 && short1.Data16 != 0)
+        {
+            FormulateOutput(short1.Data16, &resultComponent, &result);
         }
 
         return result;
