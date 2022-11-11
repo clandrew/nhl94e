@@ -930,30 +930,6 @@ namespace Fast
         }
     }
 
-    struct IndexedColorToShorts
-    {
-        unsigned char DesiredIndexedColor[4];
-        std::vector<unsigned short> Shorts;
-        Mem32 ShortsCache;
-
-        void AddShort(unsigned short s)
-        {
-            if (Shorts.size() == 0)
-                ShortsCache.Low16 = s;
-
-            if (Shorts.size() == 1)
-                ShortsCache.High16 = s;
-
-            Shorts.push_back(s);
-        }
-
-        bool operator<(const IndexedColorToShorts& other) const
-        {
-            assert(Shorts.size() == other.Shorts.size());
-            return ShortsCache.Data32 < other.ShortsCache.Data32;
-        }
-    };
-
     bool FormulateOutput(
         unsigned short acc,
         unsigned short* pResultComponent,
@@ -975,7 +951,7 @@ namespace Fast
         }
     }
 
-    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging, IndexedColorToShorts* pEntry)
+    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
     {
         IndexedColorResult result{};
 
@@ -1010,8 +986,6 @@ namespace Fast
         return result;
     }
 
-    std::set<IndexedColorToShorts> indexedColorToShorts;
-
     std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char> cache7F0000_decompressedStaging)
     {
         // This writes 0x480 bytes total.
@@ -1032,9 +1006,7 @@ namespace Fast
 
         for (int iter = 0; iter < 0x120; ++iter)
         {
-            IndexedColorToShorts entry{};
-
-            IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging, &entry);
+            IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging);
             Mem16 resultComponents{};
 
             int destOffsetHighOrder = (iter / 8) * 0x20;
@@ -1046,17 +1018,12 @@ namespace Fast
             resultComponents.Data16 = result.Low;
             cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
             cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
-            entry.DesiredIndexedColor[0] = resultComponents.Low8;
-            entry.DesiredIndexedColor[1] = resultComponents.High8;
 
             destOffset += 0x10;
 
             resultComponents.Data16 = result.High;
             cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
             cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
-            entry.DesiredIndexedColor[2] = resultComponents.Low8;
-            entry.DesiredIndexedColor[3] = resultComponents.High8;
-            indexedColorToShorts.insert(entry);
         }
 
         return cache7F0000_indexedColor;
@@ -1293,26 +1260,4 @@ bool Decompress_Fast_Init()
 void Decompress_Fast_Run(int teamIndex, int playerIndex)
 {
     Fast::Decompress(teamIndex, playerIndex);
-}
-
-void DumpIndexedColorToShorts()
-{
-    std::ofstream log;
-    log.open("IndexedColorToShorts.log", std::ofstream::out | std::ofstream::trunc);
-
-    for (auto it = Fast::indexedColorToShorts.begin(); it != Fast::indexedColorToShorts.end(); ++it)
-    {
-        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[0] << " ";
-        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[1] << " ";
-        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[2] << " ";
-        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[3] << " ";
-
-        log << " | ";
-
-        assert(it->Shorts.size() == 2);
-        log << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->Shorts[0] << " ";
-        log << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->Shorts[1] << "\n";
-    }
-
-    log.close();
 }
