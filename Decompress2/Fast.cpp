@@ -967,32 +967,20 @@ namespace Fast
         (*pMainIndex)++;
 
         if (loaded16.Data16 != 0)
-        {
             return true;
-        }
 
         if (*pResultComponent < 16)
-        {
             return false;
-        }
 
         *pResultComponent >>= 4;
 
         loaded16.Data16 = short1.Data16;
 
         if (loaded16.Data16 != 0)
-        {
             return true;
-        }
 
-        if (*pResultComponent < 16)
-        {
-            return false;
-        }
-
-        *pResultComponent >>= 4;
-
-        return true;
+        assert(*pResultComponent < 16);
+        return false;
     }
 
     bool FormulateOutput(
