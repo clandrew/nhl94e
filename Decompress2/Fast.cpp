@@ -991,23 +991,24 @@ namespace Fast
         short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
         short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
 
-        bool tryShort1 = false;
         if (short0.Data16 != 0)
         {
             if (FormulateOutput(short0.Data16, &resultComponent, &result))
             {
-                tryShort1 = true;
+            }
+            if (resultComponent > 16)
+            {
+                resultComponent /= 16;
+                assert(resultComponent < 16);
             }
         }
-
-        if (resultComponent > 16)
+        else
         {
             resultComponent /= 16;
             assert(resultComponent < 16);
-            tryShort1 = true;
         }
 
-        if (tryShort1 && short1.Data16 != 0)
+        if (short1.Data16 != 0)
         {
             FormulateOutput(short1.Data16, &resultComponent, &result);
         }
