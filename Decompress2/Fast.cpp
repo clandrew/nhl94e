@@ -955,7 +955,6 @@ namespace Fast
     };
 
     bool LoadSourceElement(
-        unsigned short* pSourceDataOffset, 
         unsigned short* pResultComponent, 
         Mem16 const& short0,
         Mem16 const& short1,
@@ -984,7 +983,6 @@ namespace Fast
             }
 
             *pResultComponent >>= 4;
-            *pSourceDataOffset += 2;
         }
 
         return true;
@@ -1033,7 +1031,7 @@ namespace Fast
 
         while (true)
         {
-            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, short0, short1, &mainIndex, pEntry))
+            if (!LoadSourceElement(&resultComponent, short0, short1, &mainIndex, pEntry))
                 break;
 
             sourceDataOffset = loaded16.Data16;
