@@ -960,27 +960,17 @@ namespace Fast
         std::vector<unsigned char> const& cache7F0000_decompressedStaging,
         IndexedColorToShorts* pEntry)
     {
-        // Two bytes are loaded at a time.
-        while (true)
+        if (loaded16.Data16 != 0)
         {
-            loaded16.Low8 = cache7F0000_decompressedStaging[*pSourceDataOffset + 1];
-            loaded16.High8 = cache7F0000_decompressedStaging[*pSourceDataOffset];
-
-            pEntry->AddShort(loaded16.Data16);
-
-            if (loaded16.Data16 != 0)
-            {
-                return true;
-            }
-
-            if (*pResultComponent < 16)
-            {
-                return false;
-            }
-
-            *pResultComponent >>= 4;
-            *pSourceDataOffset += 2;
+            return true;
         }
+
+        if (*pResultComponent < 16)
+        {
+            return false;
+        }
+
+        *pResultComponent >>= 4;
 
         return true;
     }
@@ -1015,8 +1005,28 @@ namespace Fast
 
         unsigned short sourceDataOffset = iter * 4;
         unsigned short resultComponent = 0x80;
+
+        Mem16 short0;
+        short0.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 1];
+        short0.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 0];
+
+        Mem16 short1;
+        short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
+        short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
+
+        int index = 0;
         while (true)
         {
+            if (index == 0)
+            {
+                loaded16.Data16 = short0.Data16;
+            }
+            else
+            {
+                loaded16.Data16 = short1.Data16;
+            }
+            index++;
+
             if (!LoadSourceElement(&sourceDataOffset, &resultComponent, cache7F0000_decompressedStaging, pEntry))
                 break;
 

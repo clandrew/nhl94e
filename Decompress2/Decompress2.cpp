@@ -48,7 +48,5 @@ int main()
         }
     }
 
-    DumpIndexedColorToShorts();
-
     return 0;
 }
