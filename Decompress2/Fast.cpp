@@ -992,19 +992,14 @@ namespace Fast
         short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
         short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
 
-        loaded16.Data16 = short0.Data16;
-
-        bool bailed = false;
-        if (loaded16.Data16 != 0)
+        if (short0.Data16 != 0)
         {
-            if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
+            if (!FormulateOutput(iter, short0.Data16, &resultComponent, &result))
             {
 
             }
             else
             {
-
-                loaded16.Data16 = short1.Data16;
                 if (short1.Data16 != 0)
                 {
                     if (!FormulateOutput(iter, short1.Data16, &resultComponent, &result))
@@ -1019,9 +1014,8 @@ namespace Fast
 
             }
         }
-        bailed = true;
 
-        if (bailed && resultComponent > 16)
+        if (resultComponent > 16)
         {
             resultComponent /= 16;
             assert(resultComponent < 16);
