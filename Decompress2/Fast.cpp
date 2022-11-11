@@ -960,9 +960,6 @@ namespace Fast
         unsigned short* pResultComponent, 
         int* pMainIndex)
     {
-        if (loaded16.Data16 != 0)
-            return true;
-
         if (*pResultComponent < 16)
             return false;
 
@@ -1053,11 +1050,20 @@ namespace Fast
                 loaded16.Data16 = short1.Data16;
             mainIndex++;
 
-            if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
-                break;
+            if (loaded16.Data16 != 0)
+            {
+                if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
+                    break;
+            }
+            else
+            {
+                if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
+                    break;
 
-            if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
-                break;
+                if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
+                    break;
+            }
+
         }
 
         return result;
