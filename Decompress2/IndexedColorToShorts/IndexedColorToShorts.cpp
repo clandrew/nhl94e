@@ -2,37 +2,120 @@
 //
 
 #include <iostream>
-
-struct TestCase
-{
-    unsigned char IndexedColor[4];
-    unsigned short Shorts[2];
-} testCases[] =
-{
-    //{0x00, 0x00, 0x00, 0x00, 0x0000, 0x0000},
-    //{0x10, 0x10, 0x10, 0x00, 0x0007, 0x0000},
-    {0x00, 0x00, 0x00, 0x20, 0x0080, 0x0000},
-};
+#include "TestData.h"
 
 void IndexedColorToShorts(unsigned char i0, unsigned char i1, unsigned char i2, unsigned char i3, unsigned short* pS0, unsigned short* pS1)
 {
-    *pS0 = 0;
-    *pS1 = 0;
+    unsigned short short0 = 0;
+    unsigned short short1 = 0;
+    
+    {
+        bool b0 = i0 & 0x10;
+        bool b1 = i1 & 0x10;
+        bool b2 = i2 & 0x10;
+        bool b3 = i3 & 0x10;
 
-    // Don't overflow the first
-    // 0x4FFF would work
+        if (b0)
+        {
+            short0 |= 1;
+        }
 
-    // x2   9FFE  n
-    // x2   3FFC  o
-    // x2   7FF8  n
-    // x2   FFF0  n
+        if (b1)
+        {
+            short0 |= 2;
+        }
 
-    // Overflow the 2nd
+        if (b2)
+        {
+            short0 |= 4;
+        }
 
-    // Only set one bit of the short
-    int ResultComponent = 0x20;
+        if (b3)
+        {
+            short0 |= 8;
+        }
+    }
+    {
+        bool b0 = i0 & 0x20;
+        bool b1 = i1 & 0x20;
+        bool b2 = i2 & 0x20;
+        bool b3 = i3 & 0x20;
 
-    *pS0 |= 0x80;
+        if (b0)
+        {
+            short0 |= 0x10;
+        }
+
+        if (b1)
+        {
+            short0 |= 0x20;
+        }
+
+        if (b2)
+        {
+            short0 |= 0x40;
+        }
+
+        if (b3)
+        {
+            short0 |= 0x80;
+        }
+    }
+    {
+        bool b0 = i0 & 0x40;
+        bool b1 = i1 & 0x40;
+        bool b2 = i2 & 0x40;
+        bool b3 = i3 & 0x40;
+
+        if (b0)
+        {
+            short0 |= 0x100;
+        }
+
+        if (b1)
+        {
+            short0 |= 0x200;
+        }
+
+        if (b2)
+        {
+            short0 |= 0x400;
+        }
+
+        if (b3)
+        {
+            short0 |= 0x800;
+        }
+    }
+    {
+        bool b0 = i0 & 0x80;
+        bool b1 = i1 & 0x80;
+        bool b2 = i2 & 0x80;
+        bool b3 = i3 & 0x80;
+
+        if (b0)
+        {
+            short0 |= 0x1000;
+        }
+
+        if (b1)
+        {
+            short0 |= 0x2000;
+        }
+
+        if (b2)
+        {
+            short0 |= 0x4000;
+        }
+
+        if (b3)
+        {
+            short0 |= 0x8000;
+        }
+    }
+
+    *pS0 = short0;
+    *pS1 = short1;
 }
 
 int main()
