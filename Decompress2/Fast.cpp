@@ -994,24 +994,12 @@ namespace Fast
 
         if (short0.Data16 != 0)
         {
-            if (!FormulateOutput(iter, short0.Data16, &resultComponent, &result))
-            {
-
-            }
-            else
+            if (FormulateOutput(iter, short0.Data16, &resultComponent, &result))
             {
                 if (short1.Data16 != 0)
                 {
-                    if (!FormulateOutput(iter, short1.Data16, &resultComponent, &result))
-                    {
-
-                    }
-                    else
-                    {
-
-                    }
+                    FormulateOutput(iter, short1.Data16, &resultComponent, &result);
                 }
-
             }
         }
 
