@@ -2,6 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <set>
+#include <iomanip>
 #include <assert.h>
 #include "Util.h"
 #include "Decompress2.h"
@@ -25,6 +27,7 @@ namespace Fast
     std::string goldIndexedColorFileName;
 
     bool outputCompressionRatio = false;
+    bool outputDecompressedResult = false;
 
     Mem16 mem00{};
     unsigned short mem04 = 0;
@@ -927,13 +930,43 @@ namespace Fast
         }
     }
 
-    bool LoadSourceElement(unsigned short* pSourceDataOffset, unsigned short* pResultComponent, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
+    struct IndexedColorToShorts
+    {
+        unsigned char DesiredIndexedColor[4];
+        std::vector<unsigned short> Shorts;
+        Mem32 ShortsCache;
+
+        void AddShort(unsigned short s)
+        {
+            if (Shorts.size() == 0)
+                ShortsCache.Low16 = s;
+
+            if (Shorts.size() == 1)
+                ShortsCache.High16 = s;
+
+            Shorts.push_back(s);
+        }
+
+        bool operator<(const IndexedColorToShorts& other) const
+        {
+            assert(Shorts.size() == other.Shorts.size());
+            return ShortsCache.Data32 < other.ShortsCache.Data32;
+        }
+    };
+
+    bool LoadSourceElement(
+        unsigned short* pSourceDataOffset, 
+        unsigned short* pResultComponent, 
+        std::vector<unsigned char> const& cache7F0000_decompressedStaging,
+        IndexedColorToShorts* pEntry)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
             loaded16.Low8 = cache7F0000_decompressedStaging[*pSourceDataOffset + 1];
             loaded16.High8 = cache7F0000_decompressedStaging[*pSourceDataOffset];
+
+            pEntry->AddShort(loaded16.Data16);
 
             if (loaded16.Data16 != 0)
             {
@@ -976,7 +1009,7 @@ namespace Fast
         }
     }
 
-    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
+    IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging, IndexedColorToShorts* pEntry)
     {
         IndexedColorResult result{};
 
@@ -984,7 +1017,7 @@ namespace Fast
         unsigned short resultComponent = 0x80;
         while (true)
         {
-            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, cache7F0000_decompressedStaging))
+            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, cache7F0000_decompressedStaging, pEntry))
                 break;
 
             sourceDataOffset = loaded16.Data16;
@@ -994,6 +1027,8 @@ namespace Fast
 
         return result;
     }
+
+    std::set<IndexedColorToShorts> indexedColorToShorts;
 
     std::vector<unsigned char> WriteIndexed(unsigned short homeOrAway, std::vector<unsigned char> cache7F0000_decompressedStaging)
     {
@@ -1013,10 +1048,11 @@ namespace Fast
         cache7F0000_indexedColor.resize(0xFFFF);
         memset(cache7F0000_indexedColor.data(), 0, cache7F0000_indexedColor.size());
 
-
         for (int iter = 0; iter < 0x120; ++iter)
         {
-            IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging);
+            IndexedColorToShorts entry{};
+
+            IndexedColorResult result = CalculateIndexedColorResult(iter, cache7F0000_decompressedStaging, &entry);
             Mem16 resultComponents{};
 
             int destOffsetHighOrder = (iter / 8) * 0x20;
@@ -1028,12 +1064,17 @@ namespace Fast
             resultComponents.Data16 = result.Low;
             cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
             cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
+            entry.DesiredIndexedColor[0] = resultComponents.Low8;
+            entry.DesiredIndexedColor[1] = resultComponents.High8;
 
             destOffset += 0x10;
 
             resultComponents.Data16 = result.High;
             cache7F0000_indexedColor[destDataAddressLow + destOffset] = resultComponents.Low8;
             cache7F0000_indexedColor[destDataAddressLow + destOffset + 1] = resultComponents.High8;
+            entry.DesiredIndexedColor[2] = resultComponents.Low8;
+            entry.DesiredIndexedColor[3] = resultComponents.High8;
+            indexedColorToShorts.insert(entry);
         }
 
         return cache7F0000_indexedColor;
@@ -1249,13 +1290,11 @@ namespace Fast
             std::cout << teamName << "\t|" << playerName << "\t|" << sourceSize << "\t|Compression ratio : \t|" << ratioPercent << "% " << "\n";
         }
 
-        bool outputDecompressedResult = false;
         if (outputDecompressedResult)
         {
             DumpDecompressedResult(cache7F0000_indexedColor, finalResultWriteLocation);
         }
-    }
-     
+    }     
 }
 
 bool Decompress_Fast_Init()
@@ -1272,4 +1311,26 @@ bool Decompress_Fast_Init()
 void Decompress_Fast_Run(int teamIndex, int playerIndex)
 {
     Fast::Decompress(teamIndex, playerIndex);
+}
+
+void DumpIndexedColorToShorts()
+{
+    std::ofstream log;
+    log.open("IndexedColorToShorts.log", std::ofstream::out | std::ofstream::trunc);
+
+    for (auto it = Fast::indexedColorToShorts.begin(); it != Fast::indexedColorToShorts.end(); ++it)
+    {
+        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[0] << " ";
+        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[1] << " ";
+        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[2] << " ";
+        log << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[3] << " ";
+
+        log << " | ";
+
+        assert(it->Shorts.size() == 2);
+        log << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->Shorts[0] << " ";
+        log << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->Shorts[1] << "\n";
+    }
+
+    log.close();
 }

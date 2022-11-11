@@ -43,8 +43,20 @@ union Mem16
     };
 };
 
+union Mem32
+{
+    unsigned int Data32;
+    struct
+    {
+        unsigned short Low16;
+        unsigned short High16;
+    };
+};
+
 void Decompress_Slow_Init();
 void Decompress_Slow_Run(int teamIndex, int playerIndex);
 
 bool Decompress_Fast_Init();
 void Decompress_Fast_Run(int teamIndex, int playerIndex);
+
+void DumpIndexedColorToShorts();
