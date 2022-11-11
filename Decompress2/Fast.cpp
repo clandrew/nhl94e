@@ -954,22 +954,6 @@ namespace Fast
         }
     };
 
-    bool LoadSourceElement(
-        Mem16 const& short0,
-        Mem16 const& short1,
-        unsigned short* pResultComponent, 
-        int* pMainIndex)
-    {
-
-        loaded16.Data16 = short1.Data16;
-
-        if (loaded16.Data16 != 0)
-            return true;
-
-        assert(*pResultComponent < 16);
-        return false;
-    }
-
     bool FormulateOutput(
         unsigned short iter,
         unsigned short acc,
@@ -1030,11 +1014,16 @@ namespace Fast
 
                 resultComponent >>= 4;
 
-                if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
-                    break;
+                loaded16.Data16 = short1.Data16;
 
-                if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
-                    break;
+                if (loaded16.Data16 != 0)
+                {
+                    if (!FormulateOutput(iter, loaded16.Data16, &resultComponent, &result))
+                        break;
+                }
+
+                assert(resultComponent < 16);
+                break;
             }
 
         }
