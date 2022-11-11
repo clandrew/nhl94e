@@ -1012,8 +1012,6 @@ namespace Fast
 
             if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
             {
-                // resultComponent is [8..15]
-                val = (iter * 4) + 2;
                 return true;
             }
         }
