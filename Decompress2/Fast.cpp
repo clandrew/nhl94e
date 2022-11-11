@@ -960,12 +960,6 @@ namespace Fast
         unsigned short* pResultComponent, 
         int* pMainIndex)
     {
-        if (*pMainIndex == 0)
-            loaded16.Data16 = short0.Data16;
-        else
-            loaded16.Data16 = short1.Data16;
-        (*pMainIndex)++;
-
         if (loaded16.Data16 != 0)
             return true;
 
@@ -1023,8 +1017,42 @@ namespace Fast
 
         int mainIndex = 0;
 
+        /*
+        
+
+    bool LoadSourceElement(
+        Mem16 const& short0,
+        Mem16 const& short1,
+        unsigned short* pResultComponent, 
+        int* pMainIndex)
+    {
+
+        if (loaded16.Data16 != 0)
+            return true;
+
+        if (*pResultComponent < 16)
+            return false;
+
+        *pResultComponent >>= 4;
+
+        loaded16.Data16 = short1.Data16;
+
+        if (loaded16.Data16 != 0)
+            return true;
+
+        assert(*pResultComponent < 16);
+        return false;
+    }
+        */
+
         while (true)
         {
+            if (mainIndex == 0)
+                loaded16.Data16 = short0.Data16;
+            else
+                loaded16.Data16 = short1.Data16;
+            mainIndex++;
+
             if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
                 break;
 
