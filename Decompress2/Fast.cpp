@@ -930,7 +930,7 @@ namespace Fast
         }
     }
 
-    bool FormulateOutput(
+    void FormulateOutput(
         unsigned short acc,
         unsigned short* pResultComponent,
         IndexedColorResult* pResult)
@@ -940,13 +940,13 @@ namespace Fast
             GetIndexedColor(*pResultComponent, &acc, pResult);
 
             if (*pResultComponent < 2)
-                return false;
+                return;
 
             *pResultComponent /= 2;
 
             if (*pResultComponent >= 0x8 && *pResultComponent < 0x10)
             {
-                return true;
+                return;
             }
         }
     }
