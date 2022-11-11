@@ -8,215 +8,46 @@ void IndexedColorToShorts(unsigned char i0, unsigned char i1, unsigned char i2, 
 {
     unsigned short short0 = 0;
     unsigned short short1 = 0;
-    
-    {
-        bool b0 = i0 & 0x10;
-        bool b1 = i1 & 0x10;
-        bool b2 = i2 & 0x10;
-        bool b3 = i3 & 0x10;
 
-        if (b0)
-        {
-            short0 |= 1;
-        }
+    if (i0 & 0x10) short0 |= 0x0001;
+    if (i1 & 0x10) short0 |= 0x0002;
+    if (i2 & 0x10) short0 |= 0x0004;
+    if (i3 & 0x10) short0 |= 0x0008;
 
-        if (b1)
-        {
-            short0 |= 2;
-        }
+    if (i0 & 0x20) short0 |= 0x0010;
+    if (i1 & 0x20) short0 |= 0x0020;
+    if (i2 & 0x20) short0 |= 0x0040;
+    if (i3 & 0x20) short0 |= 0x0080;
 
-        if (b2)
-        {
-            short0 |= 4;
-        }
+    if (i0 & 0x40) short0 |= 0x0100;
+    if (i1 & 0x40) short0 |= 0x0200;
+    if (i2 & 0x40) short0 |= 0x0400;
+    if (i3 & 0x40) short0 |= 0x0800;
 
-        if (b3)
-        {
-            short0 |= 8;
-        }
-    }
-    {
-        bool b0 = i0 & 0x20;
-        bool b1 = i1 & 0x20;
-        bool b2 = i2 & 0x20;
-        bool b3 = i3 & 0x20;
+    if (i0 & 0x80) short0 |= 0x1000;
+    if (i1 & 0x80) short0 |= 0x2000;
+    if (i2 & 0x80) short0 |= 0x4000;
+    if (i3 & 0x80) short0 |= 0x8000;
 
-        if (b0)
-        {
-            short0 |= 0x10;
-        }
+    if (i0 & 0x01) short1 |= 0x0001;
+    if (i1 & 0x01) short1 |= 0x0002;
+    if (i2 & 0x01) short1 |= 0x0004;
+    if (i3 & 0x01) short1 |= 0x0008;
 
-        if (b1)
-        {
-            short0 |= 0x20;
-        }
+    if (i0 & 0x02) short1 |= 0x0010;
+    if (i1 & 0x02) short1 |= 0x0020;
+    if (i2 & 0x02) short1 |= 0x0040;
+    if (i3 & 0x02) short1 |= 0x0080;
 
-        if (b2)
-        {
-            short0 |= 0x40;
-        }
+    if (i0 & 0x04) short1 |= 0x0100;
+    if (i1 & 0x04) short1 |= 0x0200;
+    if (i2 & 0x04) short1 |= 0x0400;
+    if (i3 & 0x04) short1 |= 0x0800;
 
-        if (b3)
-        {
-            short0 |= 0x80;
-        }
-    }
-    {
-        bool b0 = i0 & 0x40;
-        bool b1 = i1 & 0x40;
-        bool b2 = i2 & 0x40;
-        bool b3 = i3 & 0x40;
-
-        if (b0)
-        {
-            short0 |= 0x100;
-        }
-
-        if (b1)
-        {
-            short0 |= 0x200;
-        }
-
-        if (b2)
-        {
-            short0 |= 0x400;
-        }
-
-        if (b3)
-        {
-            short0 |= 0x800;
-        }
-    }
-    {
-        bool b0 = i0 & 0x80;
-        bool b1 = i1 & 0x80;
-        bool b2 = i2 & 0x80;
-        bool b3 = i3 & 0x80;
-
-        if (b0)
-        {
-            short0 |= 0x1000;
-        }
-
-        if (b1)
-        {
-            short0 |= 0x2000;
-        }
-
-        if (b2)
-        {
-            short0 |= 0x4000;
-        }
-
-        if (b3)
-        {
-            short0 |= 0x8000;
-        }
-    }
-    {
-        bool b0 = i0 & 0x1;
-        bool b1 = i1 & 0x1;
-        bool b2 = i2 & 0x1;
-        bool b3 = i3 & 0x1;
-
-        if (b0)
-        {
-            short1 |= 0x0001;
-        }
-
-        if (b1)
-        {
-            short1 |= 0x0002;
-        }
-
-        if (b2)
-        {
-            short1 |= 0x0004;
-        }
-
-        if (b3)
-        {
-            short1 |= 0x0008;
-        }
-    }
-    {
-        bool b0 = i0 & 0x2;
-        bool b1 = i1 & 0x2;
-        bool b2 = i2 & 0x2;
-        bool b3 = i3 & 0x2;
-
-        if (b0)
-        {
-            short1 |= 0x0010;
-        }
-
-        if (b1)
-        {
-            short1 |= 0x0020;
-        }
-
-        if (b2)
-        {
-            short1 |= 0x0040;
-        }
-
-        if (b3)
-        {
-            short1 |= 0x0080;
-        }
-    }
-    {
-        bool b0 = i0 & 0x4;
-        bool b1 = i1 & 0x4;
-        bool b2 = i2 & 0x4;
-        bool b3 = i3 & 0x4;
-
-        if (b0)
-        {
-            short1 |= 0x0100;
-        }
-
-        if (b1)
-        {
-            short1 |= 0x0200;
-        }
-
-        if (b2)
-        {
-            short1 |= 0x0400;
-        }
-
-        if (b3)
-        {
-            short1 |= 0x0800;
-        }
-    }
-    {
-        bool b0 = i0 & 0x8;
-        bool b1 = i1 & 0x8;
-        bool b2 = i2 & 0x8;
-        bool b3 = i3 & 0x8;
-
-        if (b0)
-        {
-            short1 |= 0x1000;
-        }
-
-        if (b1)
-        {
-            short1 |= 0x2000;
-        }
-
-        if (b2)
-        {
-            short1 |= 0x4000;
-        }
-
-        if (b3)
-        {
-            short1 |= 0x8000;
-        }
-    }
+    if (i0 & 0x08) short1 |= 0x1000;
+    if (i1 & 0x08) short1 |= 0x2000;
+    if (i2 & 0x08) short1 |= 0x4000;
+    if (i3 & 0x08) short1 |= 0x8000;
 
     *pS0 = short0;
     *pS1 = short1;
