@@ -955,35 +955,42 @@ namespace Fast
     };
 
     bool LoadSourceElement(
-        unsigned short* pResultComponent, 
         Mem16 const& short0,
         Mem16 const& short1,
-        int* pMainIndex,
-        IndexedColorToShorts* pEntry)
+        unsigned short* pResultComponent, 
+        int* pMainIndex)
     {
-        // Two bytes are loaded at a time.
-        while (true)
+        if (*pMainIndex == 0)
+            loaded16.Data16 = short0.Data16;
+        else
+            loaded16.Data16 = short1.Data16;
+        (*pMainIndex)++;
+
+        if (loaded16.Data16 != 0)
         {
-            if (*pMainIndex == 0)
-                loaded16.Data16 = short0.Data16;
-            else
-                loaded16.Data16 = short1.Data16;
-            (*pMainIndex)++;
-
-            pEntry->AddShort(loaded16.Data16);
-
-            if (loaded16.Data16 != 0)
-            {
-                return true;
-            }
-
-            if (*pResultComponent < 16)
-            {
-                return false;
-            }
-
-            *pResultComponent >>= 4;
+            return true;
         }
+
+        if (*pResultComponent < 16)
+        {
+            return false;
+        }
+
+        *pResultComponent >>= 4;
+
+        loaded16.Data16 = short1.Data16;
+
+        if (loaded16.Data16 != 0)
+        {
+            return true;
+        }
+
+        if (*pResultComponent < 16)
+        {
+            return false;
+        }
+
+        *pResultComponent >>= 4;
 
         return true;
     }
@@ -1019,6 +1026,7 @@ namespace Fast
         unsigned short sourceDataOffset = iter * 4;
         unsigned short resultComponent = 0x80;
 
+        // Load the two shorts
         Mem16 short0;
         short0.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 1];
         short0.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 0];
@@ -1031,11 +1039,11 @@ namespace Fast
 
         while (true)
         {
-            if (!LoadSourceElement(&resultComponent, short0, short1, &mainIndex, pEntry))
+            if (!LoadSourceElement(short0, short1, &resultComponent, &mainIndex))
                 break;
 
-            sourceDataOffset = loaded16.Data16;
-            if (!FormulateOutput(iter, &resultComponent, &sourceDataOffset, &result))
+            unsigned short val = loaded16.Data16;
+            if (!FormulateOutput(iter, &resultComponent, &val, &result))
                 break;
         }
 
