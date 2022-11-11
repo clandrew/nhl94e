@@ -957,14 +957,19 @@ namespace Fast
     bool LoadSourceElement(
         unsigned short* pSourceDataOffset, 
         unsigned short* pResultComponent, 
-        std::vector<unsigned char> const& cache7F0000_decompressedStaging,
+        Mem16 const& short0,
+        Mem16 const& short1,
+        int* pMainIndex,
         IndexedColorToShorts* pEntry)
     {
         // Two bytes are loaded at a time.
         while (true)
         {
-            loaded16.Low8 = cache7F0000_decompressedStaging[*pSourceDataOffset + 1];
-            loaded16.High8 = cache7F0000_decompressedStaging[*pSourceDataOffset];
+            if (*pMainIndex == 0)
+                loaded16.Data16 = short0.Data16;
+            else
+                loaded16.Data16 = short1.Data16;
+            (*pMainIndex)++;
 
             pEntry->AddShort(loaded16.Data16);
 
@@ -1015,9 +1020,20 @@ namespace Fast
 
         unsigned short sourceDataOffset = iter * 4;
         unsigned short resultComponent = 0x80;
+
+        Mem16 short0;
+        short0.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 1];
+        short0.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 0];
+
+        Mem16 short1;
+        short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
+        short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
+
+        int mainIndex = 0;
+
         while (true)
         {
-            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, cache7F0000_decompressedStaging, pEntry))
+            if (!LoadSourceElement(&sourceDataOffset, &resultComponent, short0, short1, &mainIndex, pEntry))
                 break;
 
             sourceDataOffset = loaded16.Data16;
