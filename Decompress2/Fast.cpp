@@ -151,7 +151,28 @@ namespace Fast
         }
     };
 
-    void LoadNextFrom0500(Monstrosity0Result const& result0, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    class UsageRange
+    {
+        int m_min;
+        int m_max;
+
+    public:
+        UsageRange() : m_min(0xFFFF), m_max(0) {}
+        void TrackUsage(int i)
+        {
+            if (i < m_min) m_min = i;
+            if (i > m_max) m_max = i;
+        }
+    };
+
+    int MaxValue(int x, int y)
+    {
+        return x > y ? x : y;
+    }
+
+    void LoadNextFrom0500(Monstrosity0Result const& result0, 
+        std::vector<unsigned char>* cache7F0000_decompressedStaging,
+        UsageRange* pcache7F0000_decompressedStaging_Range)
     {
         // Loads a value from the staging output written by Monstrosity0.
         // Saves the result to indirect.
@@ -168,6 +189,7 @@ namespace Fast
         else if (indirectHigh == 0x7F)
         {
             cache7F0000_decompressedStaging->data()[indirectLow] = loaded16.Low8;
+            pcache7F0000_decompressedStaging_Range->TrackUsage(indirectLow);
         }
         else
         {
@@ -517,8 +539,17 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    std::vector<unsigned char> Monstrosity1(Monstrosity0Result const& result0)
+    struct Monstrosity1Result
     {
+        std::vector<unsigned char> cache7F0000_decompressedStaging;
+        UsageRange cache7F0000_decompressedStaging_usageRange;
+    };
+
+    Monstrosity1Result Monstrosity1(Monstrosity0Result const& result0)
+    {
+        // Outputs a set of 0x240 shorts, of total size 0x480.
+        // They're all written to range 7F0000 - 7F0480.
+
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
@@ -534,9 +565,9 @@ namespace Fast
         LoadNextFrom0600(result0);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
-        std::vector<unsigned char> cache7F0000_decompressedStaging;
-        cache7F0000_decompressedStaging.resize(0xFFFF);
-        memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
+        Monstrosity1Result result1{};
+        result1.cache7F0000_decompressedStaging.resize(0xFFFF);
+        memset(result1.cache7F0000_decompressedStaging.data(), 0, result1.cache7F0000_decompressedStaging.size());
 
         while (1)
         {
@@ -556,7 +587,7 @@ namespace Fast
                     LoadNextFrom0CInc();
                     a *= secondMultiplier;
                 }
-                LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
+                LoadNextFrom0500(result0, &result1.cache7F0000_decompressedStaging, &result1.cache7F0000_decompressedStaging_usageRange);
                 LoadNextFrom0600(result0);
                 continue;
             }
@@ -591,7 +622,8 @@ namespace Fast
                 }
                 else if (indirectHigh == 0x7F)
                 {
-                    cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
+                    result1.cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
+                    result1.cache7F0000_decompressedStaging_usageRange.TrackUsage(indirectLow);
                 }
 
                 indirectLow += 1;
@@ -640,7 +672,7 @@ namespace Fast
                 continueDecompression = Fn_80C232();
                 if (!continueDecompression)
                 {
-                    return cache7F0000_decompressedStaging; // return from monstrosity
+                    return result1; // return from monstrosity
                 }
 
                 // Write the value 'mem08', mem6f times.
@@ -654,7 +686,8 @@ namespace Fast
                     }
                     else if (indirectHigh == 0x7F)
                     {
-                        cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
+                        result1.cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
+                        result1.cache7F0000_decompressedStaging_usageRange.TrackUsage(indirectLow);
                     }
                     else
                     {
@@ -672,7 +705,7 @@ namespace Fast
             }
         }
 
-        return cache7F0000_decompressedStaging;
+        return result1;
     }
 
     struct Fn_80BBB3_DecompressResult
@@ -697,12 +730,13 @@ namespace Fast
         // Notes:
         //     A, X, Y are ignored and stomped on.
 
-        Fn_80BBB3_DecompressResult result{};
-
         Monstrosity0Result result0 = Monstrosity0();
-        result.CompressedSize = result0.CompressedSize;
 
-        result.cache7F0000_decompressedStaging = Monstrosity1(result0);
+        Monstrosity1Result result1 = Monstrosity1(result0);
+
+        Fn_80BBB3_DecompressResult result{};
+        result.CompressedSize = result0.CompressedSize;
+        result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
         return result;
     }
 
@@ -1007,7 +1041,6 @@ namespace Fast
         short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
         short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
 
-
         if (short0.Data16 != 0)
         {
             FormulateOutput(short0.Data16, &resultComponent, &result);
@@ -1250,6 +1283,19 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress();
+
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Shorts_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = decompressedStaging.cache7F0000_decompressedStaging.data();
+            fwrite(pData, 1, 0x480, file);
+            fclose(file);
+        }
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
