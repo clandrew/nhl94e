@@ -136,16 +136,13 @@ namespace Fast
     struct Monstrosity0Result
     {
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
-        std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
         std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
         int CompressedSize; // For statistics-keeping
         void Initialize()
         {
             mem7E0500_7E0700.resize(0x200);
-            cache7E0720.resize(0x20);
             cache7E0740.resize(0x20);
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
-            memset(cache7E0720.data(), 0, cache7E0720.size());
             memset(cache7E0740.data(), 0, cache7E0740.size());
             CompressedSize = 0;
         }
@@ -210,7 +207,7 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, Monstrosity0Result const& result0)
+    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, std::vector<unsigned char> const& cache7E0720)
     {
         for (int i = 0; i < shifts; ++i)
         {
@@ -232,13 +229,13 @@ namespace Fast
             if (subtractDataAddress >= 0x720)
             {
                 int local = subtractDataAddress - 0x720;
-                if (local >= (int)result0.cache7E0720.size())
+                if (local >= (int)cache7E0720.size())
                 {
                     __debugbreak(); // notimpl
                 }
 
-                loaded16.Low8 = result0.cache7E0720[local];
-                loaded16.High8 = result0.cache7E0720[local + 1];
+                loaded16.Low8 = cache7E0720[local];
+                loaded16.High8 = cache7E0720[local + 1];
                 resolvedAddress = true;
             }
         }
@@ -286,6 +283,10 @@ namespace Fast
         cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
+        std::vector<unsigned char> cache7E0720;
+        cache7E0720.resize(0x20);
+        memset(cache7E0720.data(), 0, cache7E0720.size());
+
         unsigned short compressedSourceLocation = mem0c;
 
         x = 0;
@@ -320,8 +321,8 @@ namespace Fast
             unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
 
             loaded16.Data16 = sparseValue;
-            result.cache7E0720[iteration] = loaded16.Low8;
-            result.cache7E0720[iteration + 1] = loaded16.High8;
+            cache7E0720[iteration] = loaded16.Low8;
+            cache7E0720[iteration + 1] = loaded16.High8;
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
@@ -517,7 +518,7 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    std::vector<unsigned char> Monstrosity1(Monstrosity0Result const& result0)
+    std::vector<unsigned char> Monstrosity1(int teamIndex, int playerIndex, Monstrosity0Result & result0)
     {
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
@@ -528,6 +529,14 @@ namespace Fast
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
 
+        if (teamIndex == 0 && playerIndex == 0)
+        {
+            //for (int i = 0; i < result0.cache7E0720.size(); ++i)
+            {
+                //result0.cache7E0720[0] = 0;
+            }
+        }
+
         a = mem6c;
         x = mem71;
         nextCaseCond = mem71;
@@ -537,6 +546,10 @@ namespace Fast
         std::vector<unsigned char> cache7F0000_decompressedStaging;
         cache7F0000_decompressedStaging.resize(0xFFFF);
         memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
+
+        std::vector<unsigned char> cache7E0720;
+        cache7E0720.resize(0x20);
+        memset(cache7E0720.data(), 0, cache7E0720.size());
 
         while (1)
         {
@@ -576,11 +589,11 @@ namespace Fast
 
                 if (shiftHigh)
                 {
-                    ShiftThenLoad100ThenCompare(6, 0x732, 2, result0);
+                    ShiftThenLoad100ThenCompare(6, 0x732, 2, cache7E0720);
                 }
                 else
                 {
-                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, result0);
+                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, cache7E0720);
                 }
 
                 // This is 8 bit acc.
@@ -681,7 +694,7 @@ namespace Fast
         int CompressedSize;
     };
 
-    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress()
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -702,7 +715,7 @@ namespace Fast
         Monstrosity0Result result0 = Monstrosity0();
         result.CompressedSize = result0.CompressedSize;
 
-        result.cache7F0000_decompressedStaging = Monstrosity1(result0);
+        result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, result0);
         return result;
     }
 
@@ -1249,7 +1262,22 @@ namespace Fast
         InitializeDecompress(teamIndex, playerIndex);
         mem91_HomeOrAway = 2;
 
-        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress();
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex);
+
+        if (teamIndex == 0 && playerIndex ==0)
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = decompressedStaging.cache7F0000_decompressedStaging.data();
+            fwrite(pData, 1, 0x480, file);
+            fclose(file);
+            exit(0);
+        }
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
