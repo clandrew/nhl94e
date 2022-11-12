@@ -681,7 +681,7 @@ namespace Fast
         int CompressedSize;
     };
 
-    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress()
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -701,6 +701,45 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0();
         result.CompressedSize = result0.CompressedSize;
+
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\M0_500_700_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result0.mem7E0500_7E0700.data();
+            fwrite(pData, 1, 0x200, file);
+            fclose(file);
+        }
+
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\M0_720_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result0.cache7E0720.data();
+            fwrite(pData, 1, 0x20, file);
+            fclose(file);
+        }
+
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\M0_740_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result0.cache7E0740.data();
+            fwrite(pData, 1, 0x20, file);
+            fclose(file);
+        }
 
         result.cache7F0000_decompressedStaging = Monstrosity1(result0);
         return result;
@@ -1249,7 +1288,7 @@ namespace Fast
         InitializeDecompress(teamIndex, playerIndex);
         mem91_HomeOrAway = 2;
 
-        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress();
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex);
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
