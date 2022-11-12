@@ -538,6 +538,9 @@ namespace Fast
             {
                 //result0.cache7E0720[0] = 0;
             }
+        for (int i = 0; i < result0.cache7E0720.size(); ++i)
+        {
+            result0.cache7E0720[0] = 0;
         }
 
         a = mem6c;
