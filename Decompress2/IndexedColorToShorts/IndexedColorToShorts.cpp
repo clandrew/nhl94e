@@ -6,6 +6,10 @@
 
 void IndexedColorToShorts(unsigned char i0, unsigned char i1, unsigned char i2, unsigned char i3, unsigned short* pS0, unsigned short* pS1)
 {
+    // This function is the inverse of a function in NHL '94.
+    // The function is a change-of-format only, not an expansion or compression. Four bytes in, four bytes out, same size in as out.
+    // This code written for readibility, not code size nor matching an expression-by-expression inverse of the original. 
+
     unsigned short short0 = 0;
     unsigned short short1 = 0;
 
