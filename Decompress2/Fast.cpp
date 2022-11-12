@@ -136,13 +136,16 @@ namespace Fast
     struct Monstrosity0Result
     {
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
+        std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
         std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
         int CompressedSize; // For statistics-keeping
         void Initialize()
         {
             mem7E0500_7E0700.resize(0x200);
+            cache7E0720.resize(0x20);
             cache7E0740.resize(0x20);
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
+            memset(cache7E0720.data(), 0, cache7E0720.size());
             memset(cache7E0740.data(), 0, cache7E0740.size());
             CompressedSize = 0;
         }
@@ -207,7 +210,7 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, std::vector<unsigned char> const& cache7E0720)
+    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, Monstrosity0Result const& result0)
     {
         for (int i = 0; i < shifts; ++i)
         {
@@ -229,13 +232,13 @@ namespace Fast
             if (subtractDataAddress >= 0x720)
             {
                 int local = subtractDataAddress - 0x720;
-                if (local >= (int)cache7E0720.size())
+                if (local >= (int)result0.cache7E0720.size())
                 {
                     __debugbreak(); // notimpl
                 }
 
-                loaded16.Low8 = cache7E0720[local];
-                loaded16.High8 = cache7E0720[local + 1];
+                loaded16.Low8 = result0.cache7E0720[local];
+                loaded16.High8 = result0.cache7E0720[local + 1];
                 resolvedAddress = true;
             }
         }
@@ -321,8 +324,8 @@ namespace Fast
             unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
 
             loaded16.Data16 = sparseValue;
-            cache7E0720[iteration] = loaded16.Low8;
-            cache7E0720[iteration + 1] = loaded16.High8;
+            result.cache7E0720[iteration] = loaded16.Low8;
+            result.cache7E0720[iteration + 1] = loaded16.High8;
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
@@ -547,10 +550,6 @@ namespace Fast
         cache7F0000_decompressedStaging.resize(0xFFFF);
         memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
 
-        std::vector<unsigned char> cache7E0720;
-        cache7E0720.resize(0x20);
-        memset(cache7E0720.data(), 0, cache7E0720.size());
-
         while (1)
         {
             currentCaseIndex = nextCaseIndex;
@@ -589,11 +588,11 @@ namespace Fast
 
                 if (shiftHigh)
                 {
-                    ShiftThenLoad100ThenCompare(6, 0x732, 2, cache7E0720);
+                    ShiftThenLoad100ThenCompare(6, 0x732, 2, result0);
                 }
                 else
                 {
-                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, cache7E0720);
+                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, result0);
                 }
 
                 // This is 8 bit acc.
