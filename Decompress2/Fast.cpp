@@ -949,6 +949,51 @@ namespace Fast
         }
     }
 
+    struct IndexedColorToShorts
+    {
+        unsigned char DesiredIndexedColor[4];
+        Mem32 ShortsCache;
+
+        bool operator<(const IndexedColorToShorts& other) const
+        {
+            return ShortsCache.Data32 < other.ShortsCache.Data32;
+        }
+    };
+
+    std::set<IndexedColorToShorts> indexedColorToShorts;
+
+    void DumpIndexedColorToShortsImpl()
+    {
+        std::ofstream log;
+        log.open("d:\\repos\\nhl94e\\decompress2\\indexedcolortoshorts\\TestData.h", std::ofstream::out );
+
+        log << "#pragma once\n";
+        log << "\n";
+        log << "struct TestCase\n";
+        log << "{\n";
+        log << "    unsigned char IndexedColor[4];\n";
+        log << "    unsigned short Shorts[2];\n";
+        log << "} testCases[] =\n";
+        log << "{\n";
+
+        // Try all combs
+        for (auto it = Fast::indexedColorToShorts.begin(); it != Fast::indexedColorToShorts.end(); ++it)
+        {
+            log << "{";
+            log << "0x" << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[0] << ", ";
+            log << "0x" << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[1] << ", ";
+            log << "0x" << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[2] << ", ";
+            log << "0x" << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)it->DesiredIndexedColor[3] << ", ";
+
+            log << "0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->ShortsCache.Low16 << ", ";
+            log << "0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << it->ShortsCache.High16 << "},\n";
+
+        }
+        log << "};\n";
+
+        log.close();
+    }
+
     IndexedColorResult CalculateIndexedColorResult(int iter, std::vector<unsigned char> const& cache7F0000_decompressedStaging)
     {
         IndexedColorResult result{};
@@ -965,6 +1010,7 @@ namespace Fast
         short1.Low8 = cache7F0000_decompressedStaging[sourceDataOffset + 3];
         short1.High8 = cache7F0000_decompressedStaging[sourceDataOffset + 2];
 
+
         if (short0.Data16 != 0)
         {
             FormulateOutput(short0.Data16, &resultComponent, &result);
@@ -980,6 +1026,18 @@ namespace Fast
         {
             FormulateOutput(short1.Data16, &resultComponent, &result);
         }
+
+        IndexedColorToShorts entry{};
+        Mem16 resultComponents{};
+        resultComponents.Data16 = result.Low;
+        entry.DesiredIndexedColor[0] = resultComponents.Low8;
+        entry.DesiredIndexedColor[1] = resultComponents.High8;
+        resultComponents.Data16 = result.High;
+        entry.DesiredIndexedColor[2] = resultComponents.Low8;
+        entry.DesiredIndexedColor[3] = resultComponents.High8;
+        entry.ShortsCache.Low16 = short0.Data16;
+        entry.ShortsCache.High16 = short1.Data16;
+        indexedColorToShorts.insert(entry);
 
         return result;
     }
@@ -1258,4 +1316,9 @@ bool Decompress_Fast_Init()
 void Decompress_Fast_Run(int teamIndex, int playerIndex)
 {
     Fast::Decompress(teamIndex, playerIndex);
+}
+
+void DumpIndexedColorToShorts()
+{
+    Fast::DumpIndexedColorToShortsImpl();
 }
