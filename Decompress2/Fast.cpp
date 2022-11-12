@@ -625,11 +625,8 @@ namespace Fast
                                 break;
                             }
                         }
-                        if (foundMatch)
-                        {
-                            break;
-                        }
-                        __debugbreak(); //Should not hit
+                        assert(foundMatch);
+                        break;
                     }
                 }
             }
