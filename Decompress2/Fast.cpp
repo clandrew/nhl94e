@@ -209,35 +209,6 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, Monstrosity0Result const& result0)
-    {
-        unsigned short loadSource = a;
-
-        for (int i = 0; i < shifts; ++i)
-        {
-            loadSource /= 2;
-        }
-
-        if (subtractDataAddress == 0x730)
-        {
-            loadSource -= result0.cache7E0730.Low16;
-        }
-        else if (subtractDataAddress == 0x732)
-        {
-            loadSource -= result0.cache7E0730.High16;
-        }
-        else
-        {
-            assert(false);
-        }
-
-        a = cache7E0100[loadSource];
-        z = a == (mem73 & 0xFF); // we are in 8bit mode
-
-        y = nextY;
-
-    }
-
     void ShiftRotateDecrementMem7F(int xDecAmt, int yDecAmt)
     {
         c = a >= 0x8000;
