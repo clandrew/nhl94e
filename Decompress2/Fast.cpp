@@ -548,28 +548,23 @@ namespace Fast
                     shiftHigh = a >= loaded16.Data16;
                 }
 
+                unsigned short loadSource = a;
+
                 if (shiftHigh)
                 {
-                    unsigned short loadSource = a;
                     loadSource /= 64;
                     loadSource -= result0.cache7E0730.High16;
-
-                    a = cache7E0100[loadSource];
-                    z = a == (mem73 & 0xFF); // we are in 8bit mode
-
                     y = 2;
                 }
                 else
                 {
-                    unsigned short loadSource = a;
                     loadSource /= 128;
                     loadSource -= result0.cache7E0730.Low16;
-
-                    a = cache7E0100[loadSource];
-                    z = a == (mem73 & 0xFF); // we are in 8bit mode
-
                     y = 1;
                 }
+
+                a = cache7E0100[loadSource];
+                z = a == (mem73 & 0xFF); // we are in 8bit mode
 
                 // This is 8 bit acc.
                 loaded16.Data16 = a;
