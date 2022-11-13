@@ -51,6 +51,13 @@ union Mem32
         unsigned short Low16;
         unsigned short High16;
     };
+    struct
+    {
+        unsigned char Low8;
+        unsigned char Mid8;
+        unsigned char High8;
+        unsigned char Top8;
+    };
 };
 
 void Decompress_Slow_Init();

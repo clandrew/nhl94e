@@ -137,16 +137,18 @@ namespace Fast
     {
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
         std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
-        std::vector<unsigned char> cache7E0740; // Monstrosity0 writes this. Monstrosity1 reads it.
+
+        Mem32 cache7E0730;
+        Mem16 cache7E0750; 
+
         int CompressedSize; // For statistics-keeping
         void Initialize()
         {
             mem7E0500_7E0700.resize(0x200);
-            cache7E0720.resize(0x20);
-            cache7E0740.resize(0x20);
+            cache7E0720.resize(0x20);            
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
             memset(cache7E0720.data(), 0, cache7E0720.size());
-            memset(cache7E0740.data(), 0, cache7E0740.size());
+            cache7E0750.Data16 = 0;
             CompressedSize = 0;
         }
     };
@@ -286,9 +288,13 @@ namespace Fast
         cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
         memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
 
-        std::vector<unsigned char> cache7E0720;
-        cache7E0720.resize(0x20);
-        memset(cache7E0720.data(), 0, cache7E0720.size());
+        std::vector<unsigned char> cache7E0720temp;
+        cache7E0720temp.resize(0x20);
+        memset(cache7E0720temp.data(), 0, cache7E0720temp.size());
+
+        std::vector<unsigned char> cache7E0740temp;
+        cache7E0740temp.resize(0x20);
+        memset(cache7E0740temp.data(), 0, cache7E0740temp.size());
 
         unsigned short compressedSourceLocation = mem0c;
 
@@ -337,8 +343,8 @@ namespace Fast
 
             if (valueIncrement == 0)
             {
-                result.cache7E0740[iteration] = 0;
-                result.cache7E0740[iteration + 1] = 0;
+                cache7E0740temp[iteration] = 0;
+                cache7E0740temp[iteration + 1] = 0;
             }
             else
             {
@@ -354,8 +360,8 @@ namespace Fast
                 }
 
                 // Write datum to one of the sparse intermediates
-                result.cache7E0740[iteration] = datum.Low8;
-                result.cache7E0740[iteration + 1] = datum.High8;
+                cache7E0740temp[iteration] = datum.Low8;
+                cache7E0740temp[iteration + 1] = datum.High8;
             }
             iteration += 2;
             numDatumMultiplies--;
@@ -481,6 +487,15 @@ namespace Fast
         indirectHigh = mem12;
         indirectLow = mem10;
         result.CompressedSize = mem0c - compressedSourceLocation;
+
+        result.cache7E0730.Low8 = cache7E0720temp[0x10];
+        result.cache7E0730.Mid8 = cache7E0720temp[0x11];
+        result.cache7E0730.High8 = cache7E0720temp[0x12];
+        result.cache7E0730.Top8 = cache7E0720temp[0x13];
+
+        result.cache7E0750.Low8 = cache7E0740temp[0x10];
+        result.cache7E0750.High8 = cache7E0740temp[0x11];
+
         return result;
     }
 
@@ -577,8 +592,8 @@ namespace Fast
                 shiftHigh = false;
                 if (mem0760 == 0xBFC8)
                 {
-                    loaded16.Low8 = result0.cache7E0740[0x10];
-                    loaded16.High8 = result0.cache7E0740[0x11];
+                    loaded16.Low8 = result0.cache7E0750.Low8;
+                    loaded16.High8 = result0.cache7E0750.High8;
                     shiftHigh = a >= loaded16.Data16;
                 }
 
@@ -1259,6 +1274,7 @@ namespace Fast
 
         Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex);
 
+        /*
         if (teamIndex == 0 && playerIndex ==0)
         {
             std::stringstream outPath;
@@ -1272,7 +1288,7 @@ namespace Fast
             fwrite(pData, 1, 0x480, file);
             fclose(file);
             exit(0);
-        }
+        }*/
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
