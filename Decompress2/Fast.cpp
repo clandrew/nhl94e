@@ -136,7 +136,6 @@ namespace Fast
     struct Monstrosity0Result
     {
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
-        std::vector<unsigned char> cache7E0720; // Monstrosity0 writes this. Monstrosity1 reads it.
 
         Mem32 cache7E0730;
         Mem16 cache7E0750; 
@@ -144,10 +143,8 @@ namespace Fast
         int CompressedSize; // For statistics-keeping
         void Initialize()
         {
-            mem7E0500_7E0700.resize(0x200);
-            cache7E0720.resize(0x20);            
+            mem7E0500_7E0700.resize(0x200);   
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
-            memset(cache7E0720.data(), 0, cache7E0720.size());
             cache7E0750.Data16 = 0;
             CompressedSize = 0;
         }
@@ -228,26 +225,20 @@ namespace Fast
             }
         }
 
-        bool resolvedAddress = false;
         if (shadowBank7E)
         {
-            if (subtractDataAddress >= 0x720)
+            if (subtractDataAddress == 0x730)
             {
-                int local = subtractDataAddress - 0x720;
-                if (local >= (int)result0.cache7E0720.size())
-                {
-                    __debugbreak(); // notimpl
-                }
-
-                loaded16.Low8 = result0.cache7E0720[local];
-                loaded16.High8 = result0.cache7E0720[local + 1];
-                resolvedAddress = true;
+                loaded16.Data16 = result0.cache7E0730.Low16;
             }
-        }
-
-        if (!resolvedAddress)
-        {
-            __debugbreak(); // notimpl
+            else if (subtractDataAddress == 0x732)
+            {
+                loaded16.Data16 = result0.cache7E0730.High16;
+            }
+            else
+            {
+                assert(false);
+            }
         }
 
         a -= loaded16.Data16;
@@ -330,8 +321,8 @@ namespace Fast
             unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
 
             loaded16.Data16 = sparseValue;
-            result.cache7E0720[iteration] = loaded16.Low8;
-            result.cache7E0720[iteration + 1] = loaded16.High8;
+            cache7E0720temp[iteration] = loaded16.Low8;
+            cache7E0720temp[iteration + 1] = loaded16.High8;
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
