@@ -512,7 +512,9 @@ namespace Fast
         cache7F0000_decompressedStaging.resize(0xFFFF);
         memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
 
-        while (1)
+        bool doneDecompression = false;
+
+        while (!doneDecompression)
         {
             currentCaseIndex = nextCaseIndex;
             nextCaseCond = x;
@@ -623,7 +625,8 @@ namespace Fast
                 continueDecompression = Fn_80C232();
                 if (!continueDecompression)
                 {
-                    return cache7F0000_decompressedStaging; // return from monstrosity
+                    doneDecompression = true;
+                    break;
                 }
 
                 // Write the value 'mem08', mem6f times.
@@ -651,7 +654,6 @@ namespace Fast
                 nextCaseCond = x;
                 LoadNextFrom0600(result0);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                continue;
             }
         }
 
