@@ -211,38 +211,27 @@ namespace Fast
 
     void ShiftThenLoad100ThenCompare(int shifts, int subtractDataAddress, int nextY, Monstrosity0Result const& result0)
     {
+        unsigned short loadSource = a;
+
         for (int i = 0; i < shifts; ++i)
         {
-            a >>= 1;
+            loadSource /= 2;
         }
 
-        bool shadowBank7E = false;
-        if (subtractDataAddress < 0x8000)
+        if (subtractDataAddress == 0x730)
         {
-            if (dbr >= 0x80 && dbr <= 0xBF)
-            {
-                shadowBank7E = true;
-            }
+            loadSource -= result0.cache7E0730.Low16;
         }
-
-        if (shadowBank7E)
+        else if (subtractDataAddress == 0x732)
         {
-            if (subtractDataAddress == 0x730)
-            {
-                loaded16.Data16 = result0.cache7E0730.Low16;
-            }
-            else if (subtractDataAddress == 0x732)
-            {
-                loaded16.Data16 = result0.cache7E0730.High16;
-            }
-            else
-            {
-                assert(false);
-            }
+            loadSource -= result0.cache7E0730.High16;
+        }
+        else
+        {
+            assert(false);
         }
 
-        a -= loaded16.Data16;
-        a = cache7E0100[a];
+        a = cache7E0100[loadSource];
         z = a == (mem73 & 0xFF); // we are in 8bit mode
 
         y = nextY;
