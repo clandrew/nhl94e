@@ -579,11 +579,25 @@ namespace Fast
 
                 if (shiftHigh)
                 {
-                    ShiftThenLoad100ThenCompare(6, 0x732, 2, result0);
+                    unsigned short loadSource = a;
+                    loadSource /= 64;
+                    loadSource -= result0.cache7E0730.High16;
+
+                    a = cache7E0100[loadSource];
+                    z = a == (mem73 & 0xFF); // we are in 8bit mode
+
+                    y = 2;
                 }
                 else
                 {
-                    ShiftThenLoad100ThenCompare(7, 0x0730, 0x1, result0);
+                    unsigned short loadSource = a;
+                    loadSource /= 128;
+                    loadSource -= result0.cache7E0730.Low16;
+
+                    a = cache7E0100[loadSource];
+                    z = a == (mem73 & 0xFF); // we are in 8bit mode
+
+                    y = 1;
                 }
 
                 // This is 8 bit acc.
