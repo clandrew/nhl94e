@@ -57,7 +57,6 @@ namespace Fast
     // Loaded plainly
     std::vector<unsigned char> romFile;
 
-    unsigned short loaded = 0;
     Mem16 loaded16{};
 
     Mem16 LoadMem6b()
@@ -1160,7 +1159,6 @@ namespace Fast
         mem73 = 0;
         mem7b = 0;
         mem0760 = 0;
-        loaded = 0;
         loaded16.Data16 = 0;
     }
 
