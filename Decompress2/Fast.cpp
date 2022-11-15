@@ -60,8 +60,6 @@ namespace Fast
     unsigned short loaded = 0;
     Mem16 loaded16{};
     unsigned char low = 0;
-    bool willCarry = false;
-    bool willSetNegative = false;
 
     Mem16 LoadMem6b()
     {
@@ -764,9 +762,8 @@ namespace Fast
         mem6f = 0;
         a = mem6c;
 
-        willCarry = a >= 0x8000;
+        c = a >= 0x8000;
         a *= 2;
-        c = willCarry;
 
         x -= 2;
 
@@ -807,9 +804,8 @@ namespace Fast
         c = false;
         while (!c)
         {
-            willCarry = a >= 0x8000;
+            c = a >= 0x8000;
             a *= 2;
-            c = willCarry;
 
             x -= 2;
             if (x == 0)
@@ -1168,8 +1164,6 @@ namespace Fast
         loaded = 0;
         loaded16.Data16 = 0;
         low = 0;
-        willCarry = false;
-        willSetNegative = false;
     }
 
     // Player indices are in chronological written order, not some other order.
