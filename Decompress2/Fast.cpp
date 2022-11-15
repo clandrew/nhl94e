@@ -724,7 +724,7 @@ namespace Fast
         }
 
         mem00.Data16 = iter;
-        mem04 = 0x2;
+        unsigned short numberOfRotates = 0x2;
 
         c = false;
         while (!c)
@@ -739,10 +739,10 @@ namespace Fast
                 y = 0x8;
             }
 
-            ++mem04;
+            ++numberOfRotates;
         }
 
-        for (int i = 0; i < mem04; ++i)
+        for (int i = 0; i < numberOfRotates; ++i)
         {
             ShiftRotateDecrementMem7F(0, 1);
 
@@ -754,11 +754,11 @@ namespace Fast
         }
 
         mem6c = a;
-        mem04 *= 2;
+        numberOfRotates *= 2;
         x = mem00.Data16;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
-        mem6f += s_ROMValueTable_80C2B6[mem04 / 2];
+        mem6f += s_ROMValueTable_80C2B6[numberOfRotates / 2];
         return mem6f;
     }
 
