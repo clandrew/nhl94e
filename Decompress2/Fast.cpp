@@ -548,11 +548,8 @@ namespace Fast
                     y = 1;
                 }
 
-                a = cache7E0100[loadSource];
-                z = a == (mem73 & 0xFF); // we are in 8bit mode
-
                 // This is 8 bit acc.
-                loaded16.Data16 = a;
+                loaded16.Data16 = cache7E0100[loadSource];
                 if (indirectHigh == 0x7E && indirectLow >= 0x100)
                 {
                     cache7E0100[indirectLow - 0x100] = loaded16.Low8;
@@ -564,7 +561,7 @@ namespace Fast
 
                 indirectLow += 1;
 
-                mem08 = a;
+                mem08 = cache7E0100[loadSource];
                 mem0c++;
 
                 loaded16 = LoadMem6b();
