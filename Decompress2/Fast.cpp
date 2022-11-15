@@ -37,7 +37,6 @@ namespace Fast
     unsigned short mem0e = 0x7f;
     unsigned short mem10 = 0;
     unsigned short mem12 = 0x007F;
-    unsigned short mem14 = 0;
     unsigned short mem6a = 0;
     Mem16 LoadMem6b();
     void SaveMem6b(Mem16 const& v);
@@ -826,8 +825,6 @@ namespace Fast
             y++;
         }
 
-        mem14 = y;
-
         for (int i = 0; i < y; ++i)
         {
             ShiftRotateDecrementMem7F(2, 0);
@@ -842,7 +839,7 @@ namespace Fast
         mem6c = a;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = (mem14 * 2 - 6) / 2;
+        int lookupIndex = (y * 2 - 6) / 2;
         mem6f += lookup[lookupIndex];
         return mem6f != 0;
     }
@@ -1167,7 +1164,6 @@ namespace Fast
         mem0e = 0;
         mem10 = 0;
         mem12 = 0x007F;
-        mem14 = 0;
         mem6a = 0;
         mem6c = 0;
         mem6f = 0;
