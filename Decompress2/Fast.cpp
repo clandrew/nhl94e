@@ -38,7 +38,6 @@ namespace Fast
     unsigned short mem10 = 0;
     unsigned short mem12 = 0x007F;
     unsigned short mem14 = 0;
-    unsigned short mem16 = 0;
     unsigned short mem6a = 0;
     Mem16 LoadMem6b();
     void SaveMem6b(Mem16 const& v);
@@ -1169,7 +1168,6 @@ namespace Fast
         mem10 = 0;
         mem12 = 0x007F;
         mem14 = 0;
-        mem16 = 0;
         mem6a = 0;
         mem6c = 0;
         mem6f = 0;
