@@ -17,7 +17,6 @@ namespace Fast
     unsigned short a = 0xFB30;
     unsigned short x = 0x0480;
     unsigned short y = 0xF8AE;
-    bool n = false;
     bool z = false;
     bool c = false;
     unsigned char dbr = 0x9A;
@@ -1143,7 +1142,6 @@ namespace Fast
     {
         a = 0xFB30;
         y = 0xF8AE;
-        n = false;
         z = false;
         c = false;
         mem00.Data16 = 0;
