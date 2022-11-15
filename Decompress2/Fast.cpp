@@ -45,7 +45,6 @@ namespace Fast
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
     unsigned short mem73 = 0;
-    unsigned short mem75 = 0;
     unsigned short mem79 = 0;
     unsigned short mem7b = 0;
     unsigned short mem91_HomeOrAway = 0;
@@ -1176,7 +1175,6 @@ namespace Fast
         mem6c = 0;
         mem6f = 0;
         mem73 = 0;
-        mem75 = 0;
         mem79 = 0;
         mem7b = 0;
         mem0760 = 0;
