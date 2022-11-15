@@ -581,9 +581,7 @@ namespace Fast
 
                 indirectLow += 1;
 
-                loaded16.Data16 = mem08;
-                loaded16.Low8 = a & 0xFF;
-                mem08 = loaded16.Data16;
+                mem08 = a;
                 mem0c++;
 
                 loaded16 = LoadMem6b();
