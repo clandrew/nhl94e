@@ -274,8 +274,10 @@ namespace Fast
         unsigned short controlFlowSwitch = 0;
         c = false;
         int iteration = 0;
+        bool doneInitializing = false;
 
-        while (!c)
+        // This loop sets values of cache7E0740temp.
+        while (!doneInitializing)
         {
             valueAccumulator *= 2;
             unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
@@ -292,28 +294,26 @@ namespace Fast
 
             setBytesInCacheCounter = valueIncrementTotal;
 
-            if (valueIncrement == 0)
-            {
-                cache7E0740temp[iteration] = 0;
-                cache7E0740temp[iteration + 1] = 0;
-            }
-            else
+            Mem16 datum{};
+            if (valueIncrement != 0)
             {
                 valueAccumulator += valueIncrement;
 
-                Mem16 datum{};
                 datum.Data16 = valueAccumulator;
 
-                for (int i = 0; i < numDatumMultiplies; ++i)
+                for (int i = 0; i < numDatumMultiplies-1; ++i)
                 {
-                    c = datum.Data16 >= 0x8000; // If the last multiply makes the datum end up going negative, we exit the loop.
                     datum.Data16 *= 2;
                 }
 
-                // Write datum to one of the sparse intermediates
-                cache7E0740temp[iteration] = datum.Low8;
-                cache7E0740temp[iteration + 1] = datum.High8;
+                // If the last multiply makes the datum end up going negative, we exit the loop.
+                doneInitializing = datum.Data16 >= 0x8000; 
+                datum.Data16 *= 2;
             }
+
+            cache7E0740temp[iteration] = datum.Low8;
+            cache7E0740temp[iteration + 1] = datum.High8;
+
             iteration += 2;
             numDatumMultiplies--;
         }
