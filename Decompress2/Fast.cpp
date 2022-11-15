@@ -276,7 +276,7 @@ namespace Fast
         int iteration = 0;
         bool doneInitializing = false;
 
-        // This loop sets values of cache7E0740temp.
+        // This loop sets values of cache7E0700temp, cache7E0720temp and cache7E0740temp.
         while (!doneInitializing)
         {
             valueAccumulator *= 2;
@@ -298,7 +298,6 @@ namespace Fast
             if (valueIncrement != 0)
             {
                 valueAccumulator += valueIncrement;
-
                 datum.Data16 = valueAccumulator;
 
                 for (int i = 0; i < numDatumMultiplies-1; ++i)
