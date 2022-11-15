@@ -59,7 +59,6 @@ namespace Fast
 
     unsigned short loaded = 0;
     Mem16 loaded16{};
-    unsigned char low = 0;
 
     Mem16 LoadMem6b()
     {
@@ -1163,7 +1162,6 @@ namespace Fast
         mem0760 = 0;
         loaded = 0;
         loaded16.Data16 = 0;
-        low = 0;
     }
 
     // Player indices are in chronological written order, not some other order.
