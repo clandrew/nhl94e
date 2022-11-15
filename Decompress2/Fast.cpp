@@ -48,7 +48,6 @@ namespace Fast
     unsigned short mem75 = 0;
     unsigned short mem79 = 0;
     unsigned short mem7b = 0;
-    unsigned short mem7d = 0;
     unsigned short mem91_HomeOrAway = 0;
     unsigned short mem0760 = 0;
 
@@ -363,11 +362,9 @@ namespace Fast
         Mem16 resultValue00{};
         while (mem7b * 2 != 0x10)
         {
-            int numOfBytesToSeek = cache7E0700temp[mem7b * 2];
-            mem7d = romFile[0x3C7B + mem7b];
-
             x = resultValue00.Data16;
 
+            int numOfBytesToSeek = cache7E0700temp[mem7b * 2];
             for (int i = 0; i < numOfBytesToSeek; ++i)
             {
                 resultValue00.Data16 = mem7b * 2;
@@ -394,8 +391,8 @@ namespace Fast
                 mem04 = y;
 
                 // Mem00 contains the data to get written.
-                // Write mem7d-1 bytes to the result.
-                for (int j = 0; j < mem7d - 1; ++j)
+                int numberOfBytesToWrite = romFile[0x3C7B + mem7b] - 1;
+                for (int j = 0; j < numberOfBytesToWrite; ++j)
                 {
                     result.mem7E0500_7E0700[x] = resultValue00.High8;
                     result.mem7E0500_7E0700[0x100 + x] = resultValue00.Low8;
@@ -1182,7 +1179,6 @@ namespace Fast
         mem75 = 0;
         mem79 = 0;
         mem7b = 0;
-        mem7d = 0;
         mem0760 = 0;
         loaded = 0;
         loaded16.Data16 = 0;
