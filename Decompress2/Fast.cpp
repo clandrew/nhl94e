@@ -44,7 +44,6 @@ namespace Fast
     void SaveMem6b(Mem16 const& v);
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
-    unsigned short mem71 = 0;
     unsigned short mem73 = 0;
     unsigned short mem75 = 0;
     unsigned short mem79 = 0;
@@ -136,9 +135,9 @@ namespace Fast
     struct Monstrosity0Result
     {
         std::vector<unsigned char> mem7E0500_7E0700; // Monstrosity0 writes this. Monstrosity1 reads it.
-
         Mem32 cache7E0730;
         Mem16 cache7E0750; 
+        unsigned short CaseCond;
 
         int CompressedSize; // For statistics-keeping
         void Initialize()
@@ -357,7 +356,7 @@ namespace Fast
 
             setBytesInCacheCounter--;
         }
-        mem71 = y * 2;
+        result.CaseCond = y * 2;
         y = 0;
         mem7b = 0;
 
@@ -502,8 +501,8 @@ namespace Fast
         }
 
         a = mem6c;
-        x = mem71;
-        nextCaseCond = mem71;
+        x = result0.CaseCond;
+        nextCaseCond = result0.CaseCond;
         LoadNextFrom0600(result0);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
@@ -1179,7 +1178,6 @@ namespace Fast
         mem6a = 0;
         mem6c = 0;
         mem6f = 0;
-        mem71 = 0;
         mem73 = 0;
         mem75 = 0;
         mem79 = 0;
