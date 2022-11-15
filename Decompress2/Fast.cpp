@@ -30,7 +30,6 @@ namespace Fast
     bool outputDecompressedResult = false;
 
     Mem16 mem00{};
-    unsigned short mem04 = 0;
     unsigned short mem06 = 0;
     unsigned short mem08 = 0;
     unsigned short mem0c = 0xF8AC;
@@ -383,8 +382,6 @@ namespace Fast
 
                     resultValue00.Data16 = 0x12;
                 }
-
-                mem04 = y;
 
                 // Mem00 contains the data to get written.
                 int numberOfBytesToWrite = romFile[0x3C7B + mem7b] - 1;
@@ -754,11 +751,10 @@ namespace Fast
         }
 
         mem6c = a;
-        numberOfRotates *= 2;
         x = mem00.Data16;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
-        mem6f += s_ROMValueTable_80C2B6[numberOfRotates / 2];
+        mem6f += s_ROMValueTable_80C2B6[numberOfRotates];
         return mem6f;
     }
 
@@ -1157,7 +1153,6 @@ namespace Fast
         z = false;
         c = false;
         mem00.Data16 = 0;
-        mem04 = 0;
         mem06 = 0;
         mem08 = 0;
         mem0c = 0;
