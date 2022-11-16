@@ -357,17 +357,11 @@ namespace Fast
             resultValue00.Data16 = destIndex;
         }
 
-        x = resultValue00.Low8;
-
         // Always tack a bunch of 0x10 on at the end.
-        int byteCountToSet = 0xFF - x + 1;
+        int byteCountToSet = 0xFF - resultValue00.Low8 + 1;
         for (int i=0; i< byteCountToSet; ++i) 
-        {            
-            loaded16.Data16 = a;
-            result.mem7E0500_7E0700[0x100 + x] = 0x10;
-
-            ++x;
-            x &= 0x00FF;
+        {
+            result.mem7E0500_7E0700[0x100 + resultValue00.Low8 + i] = 0x10;
         }
 
         indirectHigh = 0x007F;
