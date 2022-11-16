@@ -33,7 +33,6 @@ namespace Fast
     unsigned short mem12 = 0x007F;
     unsigned short mem6a = 0;
     Mem16 LoadMem6b();
-    void SaveMem6b(Mem16 const& v);
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
     unsigned short mem73 = 0;
@@ -60,14 +59,6 @@ namespace Fast
         mem6b.Low8 = mem6a >> 8;
         mem6b.High8 = mem6c & 0xFF;
         return mem6b;
-    }
-
-    void SaveMem6b(Mem16 const& v)
-    {
-        mem6a &= 0xFF;
-        mem6a |= (v.Low8 << 8);
-        mem6c &= 0xFF00;
-        mem6c |= v.High8;
     }
 
     Mem16 Load16FromAddress(unsigned short bank, unsigned short offset)
@@ -173,8 +164,6 @@ namespace Fast
 
         x = nextX;
 
-        mem6a = 0;
-
         Mem16 compressedShort = Load16FromAddress(dbr, mem0c);
         compressedShort.High8 = 0;
 
@@ -187,15 +176,15 @@ namespace Fast
 
         Mem16 masked;
         {
-            masked.Low8 = mem6a >> 8;
+            masked.Low8 = 0;
             masked.High8 = orig_mem6c & 0xFF;
         }
 
         masked.Data16 |= compressedShort.Data16;
 
+        mem6a = 0;
         {
-            mem6a &= 0xFF;
-            mem6a |= (masked.Low8 << 8);
+            mem6a |= compressedShort.Low8 << 8;
             mem6c &= 0xFF00;
             mem6c |= masked.High8;
         }
@@ -204,6 +193,7 @@ namespace Fast
         result.Data16 = orig_mem6c;
         result.Low8 = (orig_mem6c & 0xFF) | compressedShort.High8;
 
+        mem6c = result.Data16;
         a = result.Data16;
     }
 
