@@ -28,7 +28,6 @@ namespace Fast
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
 
-    unsigned short mem08 = 0;
     unsigned short mem0c = 0xF8AC;
     unsigned short mem0e = 0x7f;
     unsigned short mem10 = 0;
@@ -136,11 +135,10 @@ namespace Fast
         }
     };
 
-    void LoadNextFrom0500(Monstrosity0Result const& result0, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    unsigned short LoadNextFrom0500(Monstrosity0Result const& result0, std::vector<unsigned char>* cache7F0000_decompressedStaging)
     {
         // Loads a value from the staging output written by Monstrosity0.
         // Saves the result to indirect.
-        // Result is also returned in mem08.
 
         // 16bit A, 8bit index
         unsigned char loaded = result0.mem7E0500_7E0700[y];
@@ -159,7 +157,7 @@ namespace Fast
             __debugbreak();
         }
         indirectLow++;
-        mem08 = loaded;
+        return loaded;
     }
 
     void LoadNextFrom0600(Monstrosity0Result const& result0)
@@ -478,6 +476,7 @@ namespace Fast
         unsigned short nextCaseIndex = 0;
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
+        unsigned short decompressedValueCandidate = 0;
 
         if (teamIndex == 0 && playerIndex == 0)
         {
@@ -513,7 +512,7 @@ namespace Fast
                     LoadNextFrom0CInc();
                     a *= secondMultiplier;
                 }
-                LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
+                decompressedValueCandidate = LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
                 LoadNextFrom0600(result0);
                 continue;
             }
@@ -559,7 +558,7 @@ namespace Fast
 
                 indirectLow += 1;
 
-                mem08 = cache7E0100[loadSource];
+                decompressedValueCandidate = cache7E0100[loadSource];
                 mem0c++;
 
                 loaded16 = LoadMem6b();
@@ -605,9 +604,9 @@ namespace Fast
                     break;
                 }
 
-                // Write the value 'mem08', mem6f times.
-                assert(mem08 <= 0xFF);
-                decompressedValue = static_cast<unsigned char>(mem08);
+                // Write the value, mem6f times.
+                assert(decompressedValueCandidate <= 0xFF);
+                decompressedValue = static_cast<unsigned char>(decompressedValueCandidate);
                 for (int i = 0; i < mem6f; ++i)
                 {
                     if (indirectHigh == 0x7E && indirectLow >= 0x100)
@@ -1138,7 +1137,6 @@ namespace Fast
         y = 0xF8AE;
         z = false;
         c = false;
-        mem08 = 0;
         mem0c = 0;
         mem0e = 0;
         mem10 = 0;
