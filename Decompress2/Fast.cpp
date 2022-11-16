@@ -39,7 +39,6 @@ namespace Fast
     unsigned short mem73 = 0;
     unsigned short mem7b = 0;
     unsigned short mem91_HomeOrAway = 0;
-    unsigned short mem0760 = 0;
 
     unsigned short indirectHigh;
     unsigned short indirectLow;
@@ -107,6 +106,7 @@ namespace Fast
         Mem32 cache7E0730;
         Mem16 cache7E0750; 
         unsigned short CaseCond;
+        unsigned short ControlFlowSwitch;
 
         int CompressedSize; // For statistics-keeping
         void Initialize()
@@ -230,7 +230,6 @@ namespace Fast
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
-        unsigned short controlFlowSwitch = 0;
         c = false;
         int iteration = 0;
         bool doneInitializing = false;
@@ -276,7 +275,7 @@ namespace Fast
             numDatumMultiplies--;
         }
 
-        controlFlowSwitch = iteration - 2;
+        result.ControlFlowSwitch = iteration - 2;
 
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
@@ -374,19 +373,6 @@ namespace Fast
 
             ++x;
             x &= 0x00FF;
-        }
-
-        if (controlFlowSwitch == 0x10)
-        {
-            mem0760 = 0xBFC5;
-        }
-        else if (controlFlowSwitch == 0x12)
-        {
-            mem0760 = 0xBFC8;
-        }
-        else
-        {
-            __debugbreak(); // notimpl
         }
 
         indirectHigh = mem12;
@@ -499,7 +485,7 @@ namespace Fast
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1);
 
                 shiftHigh = false;
-                if (mem0760 == 0xBFC8)
+                if (result0.ControlFlowSwitch == 0x12)
                 {
                     loaded16.Low8 = result0.cache7E0750.Low8;
                     loaded16.High8 = result0.cache7E0750.High8;
@@ -1126,7 +1112,6 @@ namespace Fast
         mem6f = 0;
         mem73 = 0;
         mem7b = 0;
-        mem0760 = 0;
         loaded16.Data16 = 0;
     }
 
