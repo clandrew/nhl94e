@@ -10,7 +10,7 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter);
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond);
     bool Fn_80C232();
     void Fn_80C2DC();
 
@@ -151,12 +151,9 @@ namespace Fast
         x = result0.mem7E0500_7E0700[0x100 + y];
     }
 
-    void LoadNextFrom0CMaskAndShift(unsigned char nextX, int shifts)
+    void LoadNextFrom0CMaskAndShift(int shifts)
     {
         // Sets mem6c and a.
-
-        x = nextX;
-
         Mem16 compressedShort = Load16FromAddress(dbr, mem0c); // Load a single byte.
         compressedShort.High8 = 0;
 
@@ -249,7 +246,7 @@ namespace Fast
             cache7E0720temp[iteration + 1] = loaded16.High8;
 
             // 8bit index
-            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration);
+            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration, &result.CaseCond);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -299,7 +296,7 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x) + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x, &result.CaseCond) + 1;
             while (howManyLowEntriesToSkip > 0)
             {
                 ++x;
@@ -319,7 +316,7 @@ namespace Fast
 
             setBytesInCacheCounter--;
         }
-        result.CaseCond = y * 2;
+
         y = 0;
         mem7b = 0;
 
@@ -498,7 +495,8 @@ namespace Fast
             if (nextCaseCond == 0x10)
             {
                 // The jump760 case with what was formerly known as switchcase 8.
-                LoadNextFrom0CMaskAndShift(exitValue, currentCaseIndex - 1);
+                x = exitValue;
+                LoadNextFrom0CMaskAndShift(currentCaseIndex - 1);
 
                 shiftHigh = false;
                 if (mem0760 == 0xBFC8)
@@ -648,7 +646,7 @@ namespace Fast
         return result;
     }
 
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter)
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -688,6 +686,7 @@ namespace Fast
             }
 
             mem6c = a;
+            *pNextCaseCond = y * 2;
             return mem6f;
         }
 
@@ -725,6 +724,7 @@ namespace Fast
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         mem6f += s_ROMValueTable_80C2B6[numberOfRotates];
+        *pNextCaseCond = y * 2;
         return mem6f;
     }
 
