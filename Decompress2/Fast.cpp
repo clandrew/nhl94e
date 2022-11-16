@@ -184,7 +184,7 @@ namespace Fast
         }
     }
 
-    Monstrosity0Result Monstrosity0()
+    Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation)
     {
         Monstrosity0Result result{};
         result.Initialize();
@@ -202,7 +202,7 @@ namespace Fast
         cache7E0740temp.resize(0x20);
         memset(cache7E0740temp.data(), 0, cache7E0740temp.size());
 
-        unsigned short compressedSourceLocation = mem0c;
+        mem0c = compressedSourceLocation;
 
         mem0c += 5;
 
@@ -219,7 +219,6 @@ namespace Fast
             mem6c = initialValue;
         }
 
-        x = 0;
         y = 8;
         unsigned short valueIncrementTotal = 0;
         unsigned short valueAccumulator = 0;
@@ -596,7 +595,7 @@ namespace Fast
         int CompressedSize;
     };
 
-    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex)
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex, unsigned short compressedSourceLocation)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -614,7 +613,7 @@ namespace Fast
 
         Fn_80BBB3_DecompressResult result{};
 
-        Monstrosity0Result result0 = Monstrosity0();
+        Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation);
         result.CompressedSize = result0.CompressedSize;
 
         result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, result0);
@@ -1063,14 +1062,14 @@ namespace Fast
         if (n) __debugbreak();
     }
 
-    void InitializeDecompress(int teamIndex, int playerIndex)
+    void InitializeDecompress(int teamIndex, int playerIndex, unsigned short* pCompressedSourceLocation)
     {
         if (playerIndex < 0 || playerIndex > 5)
             __debugbreak();
 
         TeamInfo* pTeam = &s_teams[teamIndex];
 
-        SplitBankAndOffset(pTeam->CompressedDataLocations[playerIndex], &dbr, &mem0c);
+        SplitBankAndOffset(pTeam->CompressedDataLocations[playerIndex], &dbr, pCompressedSourceLocation);
         currentProfileImageIndex = playerIndex;
 
         {
@@ -1136,10 +1135,11 @@ namespace Fast
         InitializeCaches();
         InitializeCPUAndOtherWRAM();
 
-        InitializeDecompress(teamIndex, playerIndex);
+        unsigned short compressedSourceLocation;
+        InitializeDecompress(teamIndex, playerIndex, &compressedSourceLocation);
         mem91_HomeOrAway = 2;
 
-        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex);
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSourceLocation);
 
         /*
         if (teamIndex == 0 && playerIndex ==0)
