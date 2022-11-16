@@ -319,7 +319,7 @@ namespace Fast
 
         for (int i=0; i<8; ++i)
         {
-            x = resultValue00.Data16;
+            unsigned short elementIndex = resultValue00.Data16;
 
             int numOfBytesToSeek = cache7E0700temp[i * 2];
             for (int j = 0; j < numOfBytesToSeek; ++j)
@@ -349,13 +349,13 @@ namespace Fast
                 int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
-                    result.mem7E0500_7E0700[x] = resultValue00.High8;
-                    result.mem7E0500_7E0700[0x100 + x] = resultValue00.Low8;
-                    ++x;
+                    result.mem7E0500_7E0700[elementIndex] = resultValue00.High8;
+                    result.mem7E0500_7E0700[0x100 + elementIndex] = resultValue00.Low8;
+                    ++elementIndex;
                 }
             }
 
-            resultValue00.Data16 = x;
+            resultValue00.Data16 = elementIndex;
         }
 
         x = resultValue00.Low8;
