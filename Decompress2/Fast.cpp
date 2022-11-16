@@ -313,13 +313,12 @@ namespace Fast
             setBytesInCacheCounter--;
         }
 
-        y = 0;
-
+        unsigned short sourceIndex = 0;
         Mem16 resultValue00{};
 
         for (int i=0; i<8; ++i)
         {
-            unsigned short elementIndex = resultValue00.Data16;
+            unsigned short destIndex = resultValue00.Data16;
 
             int numOfBytesToSeek = cache7E0700temp[i * 2];
             for (int j = 0; j < numOfBytesToSeek; ++j)
@@ -328,12 +327,12 @@ namespace Fast
 
                 // This is running in 8 bit accumulator and index mode.
                 loaded16.Data16 = resultValue00.Data16;
-                loaded16.Low8 = cache7E0100[y];
+                loaded16.Low8 = cache7E0100[sourceIndex];
                 a = loaded16.Data16;
 
-                resultValue00.High8 = cache7E0100[y];
+                resultValue00.High8 = cache7E0100[sourceIndex];
 
-                ++y;
+                ++sourceIndex;
 
                 if (a == (mem73 & 0xFF))
                 {
@@ -349,13 +348,13 @@ namespace Fast
                 int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
-                    result.mem7E0500_7E0700[elementIndex] = resultValue00.High8;
-                    result.mem7E0500_7E0700[0x100 + elementIndex] = resultValue00.Low8;
-                    ++elementIndex;
+                    result.mem7E0500_7E0700[destIndex] = resultValue00.High8;
+                    result.mem7E0500_7E0700[0x100 + destIndex] = resultValue00.Low8;
+                    ++destIndex;
                 }
             }
 
-            resultValue00.Data16 = elementIndex;
+            resultValue00.Data16 = destIndex;
         }
 
         x = resultValue00.Low8;
