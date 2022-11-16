@@ -31,8 +31,9 @@ namespace Fast
     unsigned short mem0c = 0xF8AC;
     unsigned short mem10 = 0;
     unsigned short mem12 = 0x007F;
-    unsigned short mem6a = 0;
-    Mem16 LoadMem6b();
+
+    unsigned char shiftedCompressedByte = 0;
+
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
     unsigned short mem73 = 0;
@@ -52,14 +53,6 @@ namespace Fast
     std::vector<unsigned char> romFile;
 
     Mem16 loaded16{};
-
-    Mem16 LoadMem6b()
-    {
-        Mem16 mem6b;
-        mem6b.Low8 = mem6a >> 8;
-        mem6b.High8 = mem6c & 0xFF;
-        return mem6b;
-    }
 
     Mem16 Load16FromAddress(unsigned short bank, unsigned short offset)
     {
@@ -176,7 +169,7 @@ namespace Fast
         result.Data16 = mem6c;
         result.Low8 |= compressedShort.High8;
 
-        mem6a = compressedShort.Low8 << 8;
+        shiftedCompressedByte = compressedShort.Low8;
         mem6c = result.Data16;
         a = result.Data16;
     }
@@ -552,7 +545,7 @@ namespace Fast
 
                 {
                     Mem16 mem6b;
-                    mem6b.Low8 = mem6a >> 8;
+                    mem6b.Low8 = shiftedCompressedByte;
                     mem6b.High8 = mem6c & 0xFF;
                     a = mem6b.Data16;
                 }
@@ -1133,7 +1126,6 @@ namespace Fast
         mem0c = 0;
         mem10 = 0;
         mem12 = 0x007F;
-        mem6a = 0;
         mem6c = 0;
         mem6f = 0;
         mem73 = 0;
