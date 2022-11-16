@@ -164,7 +164,7 @@ namespace Fast
 
         x = nextX;
 
-        Mem16 compressedShort = Load16FromAddress(dbr, mem0c);
+        Mem16 compressedShort = Load16FromAddress(dbr, mem0c); // Load a single byte.
         compressedShort.High8 = 0;
 
         for (int i = 0; i < shifts; ++i)
@@ -172,19 +172,9 @@ namespace Fast
             compressedShort.Data16 *= 2;
         }
 
-        unsigned short orig_mem6c = mem6c;
-
-        Mem16 masked;
-        {
-            masked.Low8 = 0;
-            masked.High8 = orig_mem6c & 0xFF;
-        }
-
-        masked.Data16 |= compressedShort.Data16;
-
         Mem16 result;
-        result.Data16 = orig_mem6c;
-        result.Low8 = (orig_mem6c & 0xFF) | compressedShort.High8;
+        result.Data16 = mem6c;
+        result.Low8 |= compressedShort.High8;
 
         mem6a = compressedShort.Low8 << 8;
         mem6c = result.Data16;
@@ -560,8 +550,12 @@ namespace Fast
                 decompressedValueCandidate = cache7E0100[loadSource];
                 mem0c++;
 
-                loaded16 = LoadMem6b();
-                a = loaded16.Data16;
+                {
+                    Mem16 mem6b;
+                    mem6b.Low8 = mem6a >> 8;
+                    mem6b.High8 = mem6c & 0xFF;
+                    a = mem6b.Data16;
+                }
                 for (int iter = 0; iter < 8; iter++)
                 {
                     bool foundMatch = false;
