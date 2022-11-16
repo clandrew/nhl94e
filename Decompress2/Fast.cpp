@@ -201,7 +201,7 @@ namespace Fast
         }
 
         Mem16 result;
-        result.Data16 = mem6c;
+        result.Data16 = orig_mem6c;
         result.Low8 = (orig_mem6c & 0xFF) | compressedShort.High8;
 
         a = result.Data16;
