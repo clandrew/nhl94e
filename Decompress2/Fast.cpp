@@ -169,28 +169,29 @@ namespace Fast
 
     void LoadNextFrom0CMaskAndShift(unsigned char nextX, int shifts)
     {
+        // Sets mem6c and a.
+
         x = nextX;
 
         mem6a = 0;
 
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        a = loaded16.Data16;
-
-        a &= 0xFF;
+        Mem16 compressedShort = Load16FromAddress(dbr, mem0c);
+        compressedShort.High8 = 0;
 
         for (int i = 0; i < shifts; ++i)
         {
-
-            a *= 2;
+            compressedShort.Data16 *= 2;
         }
 
-        loaded16 = LoadMem6b();
-        a |= loaded16.Data16;
+        Mem16 masked = LoadMem6b();
+        masked.Data16 |= compressedShort.Data16;
+        SaveMem6b(masked);
 
-        loaded16.Data16 = a;
-        SaveMem6b(loaded16);
+        Mem16 result;
+        result.Data16 = mem6c;
+        result.Low8 = masked.High8;
 
-        a = mem6c;
+        a = result.Data16;
     }
 
     void ShiftRotateDecrementMem7F(int xDecAmt, int yDecAmt)
