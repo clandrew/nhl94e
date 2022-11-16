@@ -28,7 +28,6 @@ namespace Fast
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
 
-    unsigned short mem06 = 0;
     unsigned short mem08 = 0;
     unsigned short mem0c = 0xF8AC;
     unsigned short mem0e = 0x7f;
@@ -1139,7 +1138,6 @@ namespace Fast
         y = 0xF8AE;
         z = false;
         c = false;
-        mem06 = 0;
         mem08 = 0;
         mem0c = 0;
         mem0e = 0;
