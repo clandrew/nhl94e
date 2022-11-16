@@ -29,8 +29,6 @@ namespace Fast
     bool outputDecompressedResult = false;
 
     unsigned short mem0c = 0xF8AC;
-    unsigned short mem10 = 0;
-    unsigned short mem12 = 0x007F;
 
     unsigned char shiftedCompressedByte = 0;
 
@@ -375,8 +373,8 @@ namespace Fast
             x &= 0x00FF;
         }
 
-        indirectHigh = mem12;
-        indirectLow = mem10;
+        indirectHigh = 0x007F;
+        indirectLow = 0;
         result.CompressedSize = mem0c - compressedSourceLocation;
 
         result.cache7E0730.Low8 = cache7E0720temp[0x10];
@@ -1106,8 +1104,6 @@ namespace Fast
         z = false;
         c = false;
         mem0c = 0;
-        mem10 = 0;
-        mem12 = 0x007F;
         mem6c = 0;
         mem6f = 0;
         mem73 = 0;
