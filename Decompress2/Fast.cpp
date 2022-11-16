@@ -10,8 +10,12 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond, unsigned short* pCompressedSourceIter);
-    bool Fn_80C232(unsigned short* pCompressedSourceIter);
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(
+        unsigned short iter, 
+        unsigned short* pNextCaseCond, 
+        unsigned short* pCompressedSourceIter,
+        unsigned short* pByteRepititionCount);
+    bool Fn_80C232(unsigned short* pCompressedSourceIter, unsigned short* pByteRepititionCount);
     void Fn_80C2DC(unsigned short* pCompressedSourceIter);
 
     unsigned short a = 0xFB30;
@@ -31,7 +35,6 @@ namespace Fast
     unsigned char shiftedCompressedByte = 0;
 
     unsigned short mem6c = 0;
-    unsigned short mem6f = 0;
     unsigned short mem91_HomeOrAway = 0;
 
     unsigned short indirectHigh;
@@ -104,6 +107,7 @@ namespace Fast
         unsigned short ControlFlowSwitch;
         unsigned short CompressedSourceIter;
         unsigned short CompressedDataToken;
+        unsigned short ByteRepititionCount;
 
         int CompressedSize; // For statistics-keeping
         void Initialize()
@@ -115,6 +119,7 @@ namespace Fast
             CaseCond = 0;
             CompressedSourceIter = 0;
             CompressedDataToken = 0;
+            ByteRepititionCount = 0;
         }
     };
 
@@ -166,12 +171,12 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftRotateDecrementMem6F(int xDecAmt, int yDecAmt)
+    void ShiftRotateDecrementMem6F(int xDecAmt, int yDecAmt, unsigned short* pByteRepititionCount)
     {
         c = a >= 0x8000;
         a *= 2;
 
-        RotateLeft(&mem6f, &c);
+        RotateLeft(pByteRepititionCount, &c);
 
         for (int i = 0; i < xDecAmt; ++i)
         {
@@ -224,6 +229,7 @@ namespace Fast
         unsigned short valueIncrementTotal = 0;
         unsigned short valueAccumulator = 0;
         unsigned short numDatumMultiplies = 0xF;
+        unsigned short byteRepititionCount = 0;
         a = 0x10;
         x = 0xFE;
         int setBytesInCacheCounter = 0;
@@ -242,7 +248,7 @@ namespace Fast
             cache7E0720temp[iteration + 1] = loaded16.High8;
 
             // 8bit index
-            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration, &result.CaseCond, &compressedSourceIter);
+            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration, &result.CaseCond, &compressedSourceIter, &byteRepititionCount);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -292,7 +298,12 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(sourceIndexWithWrapping, &result.CaseCond, &compressedSourceIter) + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(
+                sourceIndexWithWrapping, 
+                &result.CaseCond, 
+                &compressedSourceIter,
+                &byteRepititionCount) + 1;
+
             while (howManyLowEntriesToSkip > 0)
             {
                 ++sourceIndexWithWrapping;
@@ -369,6 +380,7 @@ namespace Fast
         result.CompressedSize = compressedSourceIter - compressedSourceLocation;
         result.CompressedSourceIter = compressedSourceIter;
         result.CompressedDataToken = compressedDataToken;
+        result.ByteRepititionCount = byteRepititionCount;
 
         result.cache7E0730.Low8 = cache7E0720temp[0x10];
         result.cache7E0730.Mid8 = cache7E0720temp[0x11];
@@ -430,6 +442,7 @@ namespace Fast
         unsigned short exitValue = 0;
         unsigned short decompressedValueCandidate = 0;
         unsigned short compressedSourceIter = result0.CompressedSourceIter;
+        unsigned short byteRepititionCount = result0.ByteRepititionCount;
 
         a = mem6c;
         x = result0.CaseCond;
@@ -551,17 +564,17 @@ namespace Fast
                 y = result0.CompressedDataToken >> 8;
                 Fn_80C2DC(&compressedSourceIter);
                 mem6c = a;
-                continueDecompression = Fn_80C232(&compressedSourceIter);
+                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
                     break;
                 }
 
-                // Write the value, mem6f times.
+                // Write the value, some number of times.
                 assert(decompressedValueCandidate <= 0xFF);
                 decompressedValue = static_cast<unsigned char>(decompressedValueCandidate);
-                for (int i = 0; i < mem6f; ++i)
+                for (int i = 0; i < byteRepititionCount; ++i)
                 {
                     if (indirectHigh == 0x7E && indirectLow >= 0x100)
                     {
@@ -620,7 +633,11 @@ namespace Fast
         return result;
     }
 
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond, unsigned short* pCompressedSourceIter)
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(
+        unsigned short iter, 
+        unsigned short* pNextCaseCond, 
+        unsigned short* pCompressedSourceIter,
+        unsigned short* pByteRepititionCount)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -628,7 +645,7 @@ namespace Fast
         // Multiplies mem6c a bunch of times, and/or replaces it with the next compressed byte.
         // Advances mem0c.
 
-        mem6f = 0;
+        *pByteRepititionCount = 0;
         a = mem6c;
 
         c = a >= 0x8000;
@@ -643,7 +660,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem6F(0, 1); // Sets z if y==0
+            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount); // Sets z if y==0
 
             if (z)
             {
@@ -651,7 +668,7 @@ namespace Fast
                 y = 0x8;
             }
 
-            ShiftRotateDecrementMem6F(0, 1);
+            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
 
             if (z)
             {
@@ -661,7 +678,7 @@ namespace Fast
 
             mem6c = a;
             *pNextCaseCond = y * 2;
-            return mem6f;
+            return *pByteRepititionCount;
         }
 
         unsigned short numberOfRotates = 0x2;
@@ -684,7 +701,7 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(0, 1);
+            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
 
             if (z)
             {
@@ -697,15 +714,15 @@ namespace Fast
         x = iter;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
-        mem6f += s_ROMValueTable_80C2B6[numberOfRotates];
+        *pByteRepititionCount += s_ROMValueTable_80C2B6[numberOfRotates];
         *pNextCaseCond = y * 2;
-        return mem6f;
+        return *pByteRepititionCount;
     }
 
-    bool Fn_80C232(unsigned short* pCompressedSourceIter) // Returns whether we should continue decompression.
+    bool Fn_80C232(unsigned short* pCompressedSourceIter, unsigned short* pByteRepititionCount) // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
-        mem6f = 0;
+        *pByteRepititionCount = 0;
         a = mem6c;
 
         c = a >= 0x8000;
@@ -721,7 +738,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem6F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
             if (z)
             {
@@ -729,20 +746,20 @@ namespace Fast
                 x = 0x10;
             }
 
-            ShiftRotateDecrementMem6F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
             if (!z)
             {
                 mem6c = a;
-                a = mem6f;
-                return mem6f != 0;
+                a = *pByteRepititionCount;
+                return *pByteRepititionCount != 0;
             }
 
             LoadNextFrom0CInc(pCompressedSourceIter);
 
             x = 0x10;
             mem6c = a;
-            return mem6f != 0;
+            return *pByteRepititionCount != 0;
         }
 
         y = 2;
@@ -765,7 +782,7 @@ namespace Fast
 
         for (int i = 0; i < y; ++i)
         {
-            ShiftRotateDecrementMem6F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
             if (z)
             {
@@ -778,8 +795,8 @@ namespace Fast
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = (y * 2 - 6) / 2;
-        mem6f += lookup[lookupIndex];
-        return mem6f != 0;
+        *pByteRepititionCount += lookup[lookupIndex];
+        return *pByteRepititionCount != 0;
     }
 
     void Fn_80C2DC(unsigned short* pCompressedSourceIter)
@@ -1094,7 +1111,6 @@ namespace Fast
         z = false;
         c = false;
         mem6c = 0;
-        mem6f = 0;
         loaded16.Data16 = 0;
     }
 
