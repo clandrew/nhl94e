@@ -165,13 +165,9 @@ namespace Fast
             compressedShort.Data16 *= 2;
         }
 
-        Mem16 result;
-        result.Data16 = mem6c;
-        result.Low8 |= compressedShort.High8;
-
         shiftedCompressedByte = compressedShort.Low8;
-        mem6c = result.Data16;
-        a = result.Data16;
+        mem6c |= compressedShort.High8;
+        a = mem6c;
     }
 
     void ShiftRotateDecrementMem7F(int xDecAmt, int yDecAmt)
