@@ -712,7 +712,6 @@ namespace Fast
             return mem6f;
         }
 
-        mem00.Data16 = iter;
         unsigned short numberOfRotates = 0x2;
 
         c = false;
@@ -743,7 +742,7 @@ namespace Fast
         }
 
         mem6c = a;
-        x = mem00.Data16;
+        x = iter;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         mem6f += s_ROMValueTable_80C2B6[numberOfRotates];
