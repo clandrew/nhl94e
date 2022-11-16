@@ -182,17 +182,11 @@ namespace Fast
 
         masked.Data16 |= compressedShort.Data16;
 
-        mem6a = 0;
-        {
-            mem6a |= compressedShort.Low8 << 8;
-            mem6c &= 0xFF00;
-            mem6c |= masked.High8;
-        }
-
         Mem16 result;
         result.Data16 = orig_mem6c;
         result.Low8 = (orig_mem6c & 0xFF) | compressedShort.High8;
 
+        mem6a = compressedShort.Low8 << 8;
         mem6c = result.Data16;
         a = result.Data16;
     }
