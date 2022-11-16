@@ -28,7 +28,6 @@ namespace Fast
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
 
-    Mem16 mem00{};
     unsigned short mem06 = 0;
     unsigned short mem08 = 0;
     unsigned short mem0c = 0xF8AC;
@@ -97,7 +96,7 @@ namespace Fast
         {
             if (offset == 0)
             {
-                result.Data16 = mem00.Data16;
+                result.Data16 = 0;
             }
             else
             {
@@ -1140,7 +1139,6 @@ namespace Fast
         y = 0xF8AE;
         z = false;
         c = false;
-        mem00.Data16 = 0;
         mem06 = 0;
         mem08 = 0;
         mem0c = 0;
