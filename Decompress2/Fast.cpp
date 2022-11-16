@@ -35,7 +35,6 @@ namespace Fast
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
     unsigned short mem73 = 0;
-    unsigned short mem7b = 0;
     unsigned short mem91_HomeOrAway = 0;
 
     unsigned short indirectHigh;
@@ -315,17 +314,17 @@ namespace Fast
         }
 
         y = 0;
-        mem7b = 0;
 
         Mem16 resultValue00{};
-        while (mem7b != 0x8)
+
+        for (int i=0; i<8; ++i)
         {
             x = resultValue00.Data16;
 
-            int numOfBytesToSeek = cache7E0700temp[mem7b * 2];
-            for (int i = 0; i < numOfBytesToSeek; ++i)
+            int numOfBytesToSeek = cache7E0700temp[i * 2];
+            for (int j = 0; j < numOfBytesToSeek; ++j)
             {
-                resultValue00.Data16 = mem7b * 2;
+                resultValue00.Data16 = i * 2;
 
                 // This is running in 8 bit accumulator and index mode.
                 loaded16.Data16 = resultValue00.Data16;
@@ -338,7 +337,7 @@ namespace Fast
 
                 if (a == (mem73 & 0xFF))
                 {
-                    a = mem7b + 1;
+                    a = i + 1;
 
                     mem73 &= 0x00FF; // Keep the first, lower byte
                     mem73 |= (a << 8); // Replace the upper byte, second byte
@@ -347,8 +346,8 @@ namespace Fast
                 }
 
                 // Mem00 contains the data to get written.
-                int numberOfBytesToWrite = romFile[0x3C7B + mem7b] - 1;
-                for (int j = 0; j < numberOfBytesToWrite; ++j)
+                int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
+                for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
                     result.mem7E0500_7E0700[x] = resultValue00.High8;
                     result.mem7E0500_7E0700[0x100 + x] = resultValue00.Low8;
@@ -356,7 +355,6 @@ namespace Fast
                 }
             }
 
-            mem7b++;
             resultValue00.Data16 = x;
         }
 
@@ -1107,7 +1105,6 @@ namespace Fast
         mem6c = 0;
         mem6f = 0;
         mem73 = 0;
-        mem7b = 0;
         loaded16.Data16 = 0;
     }
 
