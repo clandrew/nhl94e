@@ -183,13 +183,26 @@ namespace Fast
             compressedShort.Data16 *= 2;
         }
 
-        Mem16 masked = LoadMem6b();
+        unsigned short orig_mem6c = mem6c;
+
+        Mem16 masked;
+        {
+            masked.Low8 = mem6a >> 8;
+            masked.High8 = orig_mem6c & 0xFF;
+        }
+
         masked.Data16 |= compressedShort.Data16;
-        SaveMem6b(masked);
+
+        {
+            mem6a &= 0xFF;
+            mem6a |= (masked.Low8 << 8);
+            mem6c &= 0xFF00;
+            mem6c |= masked.High8;
+        }
 
         Mem16 result;
         result.Data16 = mem6c;
-        result.Low8 = masked.High8;
+        result.Low8 = (orig_mem6c & 0xFF) | compressedShort.High8;
 
         a = result.Data16;
     }
