@@ -32,7 +32,6 @@ namespace Fast
 
     unsigned short mem6c = 0;
     unsigned short mem6f = 0;
-    unsigned short mem73 = 0;
     unsigned short mem91_HomeOrAway = 0;
 
     unsigned short indirectHigh;
@@ -103,6 +102,7 @@ namespace Fast
         unsigned short CaseCond;
         unsigned short ControlFlowSwitch;
         unsigned short CompressedSourceIter;
+        unsigned short CompressedDataToken;
 
         int CompressedSize; // For statistics-keeping
         void Initialize()
@@ -113,6 +113,7 @@ namespace Fast
             CompressedSize = 0;
             CaseCond = 0;
             CompressedSourceIter = 0;
+            CompressedDataToken = 0;
         }
     };
 
@@ -206,7 +207,7 @@ namespace Fast
         compressedSourceIter += 5;
 
         loaded16 = Load16FromAddress(dbr, compressedSourceIter);
-        mem73 = loaded16.Data16;
+        unsigned short compressedDataToken = loaded16.Data16;
         compressedSourceIter++;
 
         {
@@ -332,12 +333,12 @@ namespace Fast
 
                 ++sourceIndex;
 
-                if (a == (mem73 & 0xFF))
+                if (a == (compressedDataToken & 0xFF))
                 {
                     a = i + 1;
 
-                    mem73 &= 0x00FF; // Keep the first, lower byte
-                    mem73 |= (a << 8); // Replace the upper byte, second byte
+                    compressedDataToken &= 0x00FF; // Keep the first, lower byte
+                    compressedDataToken |= (a << 8); // Replace the upper byte, second byte
 
                     resultValue00.Data16 = 0x12;
                 }
@@ -366,6 +367,7 @@ namespace Fast
         indirectLow = 0;
         result.CompressedSize = compressedSourceIter - compressedSourceLocation;
         result.CompressedSourceIter = compressedSourceIter;
+        result.CompressedDataToken = compressedDataToken;
 
         result.cache7E0730.Low8 = cache7E0720temp[0x10];
         result.cache7E0730.Mid8 = cache7E0720temp[0x11];
@@ -545,7 +547,7 @@ namespace Fast
             {
                 // Write output and check if done.
                 x = exitValue;
-                y = mem73 >> 8;
+                y = result0.CompressedDataToken >> 8;
                 Fn_80C2DC(&compressedSourceIter);
                 mem6c = a;
                 continueDecompression = Fn_80C232(&compressedSourceIter);
@@ -1092,7 +1094,6 @@ namespace Fast
         c = false;
         mem6c = 0;
         mem6f = 0;
-        mem73 = 0;
         loaded16.Data16 = 0;
     }
 
