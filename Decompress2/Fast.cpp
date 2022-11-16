@@ -172,22 +172,12 @@ namespace Fast
         a = *pInitialValueToken;
     }
 
-    void ShiftRotateDecrementMem6F(int xDecAmt, int yDecAmt, unsigned short* pByteRepititionCount)
+    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount)
     {
         c = a >= 0x8000;
         a *= 2;
 
         RotateLeft(pByteRepititionCount, &c);
-
-        for (int i = 0; i < xDecAmt; ++i)
-        {
-            --x;
-        }
-
-        for (int i = 0; i < yDecAmt; ++i)
-        {
-            --y;
-        }
     }
 
     Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation)
@@ -668,7 +658,8 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount); // Sets z if y==0
+            ShiftRotateDecrementMem6F(pByteRepititionCount); // Sets z if y==0
+            y--;
 
             if (y == 0)
             {
@@ -676,7 +667,8 @@ namespace Fast
                 y = 0x8;
             }
 
-            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
+            y--;
 
             if (y == 0)
             {
@@ -709,7 +701,8 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
+            y--;
 
             if (y == 0)
             {
@@ -749,7 +742,8 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
+            x -= 2;
 
             if (x == 0)
             {
@@ -757,7 +751,8 @@ namespace Fast
                 x = 0x10;
             }
 
-            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
+            x -= 2;
 
             if (x != 0)
             {
@@ -793,7 +788,8 @@ namespace Fast
 
         for (int i = 0; i < y; ++i)
         {
-            ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
+            x -= 2;
 
             if (x == 0)
             {
