@@ -10,9 +10,9 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond);
-    bool Fn_80C232();
-    void Fn_80C2DC();
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond, unsigned short* pCompressedSourceIter);
+    bool Fn_80C232(unsigned short* pCompressedSourceIter);
+    void Fn_80C2DC(unsigned short* pCompressedSourceIter);
 
     unsigned short a = 0xFB30;
     unsigned short x = 0x0480;
@@ -27,8 +27,6 @@ namespace Fast
 
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
-
-    unsigned short mem0c = 0xF8AC;
 
     unsigned char shiftedCompressedByte = 0;
 
@@ -88,13 +86,13 @@ namespace Fast
         return result;
     }
 
-    void LoadNextFrom0CInc()
+    void LoadNextFrom0CInc(unsigned short* pCompressedSourceIter)
     {
         // This runs in 8 bit mode.
-        loaded16 = Load16FromAddress(dbr, mem0c);
+        loaded16 = Load16FromAddress(dbr, *pCompressedSourceIter);
         a &= 0xFF00;
         a |= loaded16.Low8;
-        mem0c++;
+        (*pCompressedSourceIter)++;
     }
 
     struct Monstrosity0Result
@@ -104,6 +102,7 @@ namespace Fast
         Mem16 cache7E0750; 
         unsigned short CaseCond;
         unsigned short ControlFlowSwitch;
+        unsigned short CompressedSourceIter;
 
         int CompressedSize; // For statistics-keeping
         void Initialize()
@@ -113,6 +112,7 @@ namespace Fast
             cache7E0750.Data16 = 0;
             CompressedSize = 0;
             CaseCond = 0;
+            CompressedSourceIter = 0;
         }
     };
 
@@ -148,10 +148,10 @@ namespace Fast
         x = result0.mem7E0500_7E0700[0x100 + y];
     }
 
-    void LoadNextFrom0CMaskAndShift(int shifts)
+    void LoadNextFrom0CMaskAndShift(int shifts, unsigned short compressedSourceIter)
     {
         // Sets mem6c and a.
-        Mem16 compressedShort = Load16FromAddress(dbr, mem0c); // Load a single byte.
+        Mem16 compressedShort = Load16FromAddress(dbr, compressedSourceIter); // Load a single byte.
         compressedShort.High8 = 0;
 
         for (int i = 0; i < shifts; ++i)
@@ -202,18 +202,17 @@ namespace Fast
         cache7E0740temp.resize(0x20);
         memset(cache7E0740temp.data(), 0, cache7E0740temp.size());
 
-        mem0c = compressedSourceLocation;
+        unsigned short compressedSourceIter = compressedSourceLocation;
+        compressedSourceIter += 5;
 
-        mem0c += 5;
-
-        loaded16 = Load16FromAddress(dbr, mem0c);
+        loaded16 = Load16FromAddress(dbr, compressedSourceIter);
         mem73 = loaded16.Data16;
-        mem0c++;
+        compressedSourceIter++;
 
         {
-            loaded16 = Load16FromAddress(dbr, mem0c);
+            loaded16 = Load16FromAddress(dbr, compressedSourceIter);
             unsigned short initialValue = loaded16.Data16;
-            mem0c += 2;
+            compressedSourceIter += 2;
 
             initialValue = ExchangeShortHighAndLow(initialValue);
             mem6c = initialValue;
@@ -241,7 +240,7 @@ namespace Fast
             cache7E0720temp[iteration + 1] = loaded16.High8;
 
             // 8bit index
-            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration, &result.CaseCond);
+            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(iteration, &result.CaseCond, &compressedSourceIter);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -291,7 +290,7 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x, &result.CaseCond) + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x, &result.CaseCond, &compressedSourceIter) + 1;
             while (howManyLowEntriesToSkip > 0)
             {
                 ++x;
@@ -365,7 +364,8 @@ namespace Fast
 
         indirectHigh = 0x007F;
         indirectLow = 0;
-        result.CompressedSize = mem0c - compressedSourceLocation;
+        result.CompressedSize = compressedSourceIter - compressedSourceLocation;
+        result.CompressedSourceIter = compressedSourceIter;
 
         result.cache7E0730.Low8 = cache7E0720temp[0x10];
         result.cache7E0730.Mid8 = cache7E0720temp[0x11];
@@ -415,7 +415,7 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    std::vector<unsigned char> Monstrosity1(int teamIndex, int playerIndex, Monstrosity0Result & result0)
+    std::vector<unsigned char> Monstrosity1(int teamIndex, int playerIndex, Monstrosity0Result const& result0)
     {
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
@@ -426,10 +426,7 @@ namespace Fast
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
         unsigned short decompressedValueCandidate = 0;
-
-        if (teamIndex == 0 && playerIndex == 0)
-        {
-        }
+        unsigned short compressedSourceIter = result0.CompressedSourceIter;
 
         a = mem6c;
         x = result0.CaseCond;
@@ -458,7 +455,7 @@ namespace Fast
                 a *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
-                    LoadNextFrom0CInc();
+                    LoadNextFrom0CInc(&compressedSourceIter);
                     a *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
@@ -470,7 +467,7 @@ namespace Fast
             {
                 // The jump760 case with what was formerly known as switchcase 8.
                 x = exitValue;
-                LoadNextFrom0CMaskAndShift(currentCaseIndex - 1);
+                LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSourceIter);
 
                 shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
@@ -509,7 +506,7 @@ namespace Fast
                 indirectLow += 1;
 
                 decompressedValueCandidate = cache7E0100[loadSource];
-                mem0c++;
+                compressedSourceIter++;
 
                 {
                     Mem16 mem6b;
@@ -527,7 +524,7 @@ namespace Fast
                             a *= 2;
                             if (i == 0 || i == 8)
                             {
-                                LoadNextFrom0CInc();
+                                LoadNextFrom0CInc(&compressedSourceIter);
                             }
 
                             y--;
@@ -549,9 +546,9 @@ namespace Fast
                 // Write output and check if done.
                 x = exitValue;
                 y = mem73 >> 8;
-                Fn_80C2DC();
+                Fn_80C2DC(&compressedSourceIter);
                 mem6c = a;
-                continueDecompression = Fn_80C232();
+                continueDecompression = Fn_80C232(&compressedSourceIter);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
@@ -620,7 +617,7 @@ namespace Fast
         return result;
     }
 
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond)
+    unsigned short Fn_80C1B0_GetSparseValueIncrement(unsigned short iter, unsigned short* pNextCaseCond, unsigned short* pCompressedSourceIter)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -637,7 +634,7 @@ namespace Fast
         --y;
         if (y == 0)
         {
-            LoadNextFrom0CInc(); // Clobbers a. Effectively forgets SwapToken, and uses the next compressed byte instead
+            LoadNextFrom0CInc(pCompressedSourceIter); // Clobbers a. Effectively forgets SwapToken, and uses the next compressed byte instead
             y = 0x8;
         }
 
@@ -647,7 +644,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 0x8;
             }
 
@@ -655,7 +652,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 8;
             }
 
@@ -675,7 +672,7 @@ namespace Fast
             --y;
             if (y == 0)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 0x8;
             }
 
@@ -688,7 +685,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 0x8;
             }
         }
@@ -702,7 +699,7 @@ namespace Fast
         return mem6f;
     }
 
-    bool Fn_80C232() // Returns whether we should continue decompression.
+    bool Fn_80C232(unsigned short* pCompressedSourceIter) // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
         mem6f = 0;
@@ -715,7 +712,7 @@ namespace Fast
 
         if (x == 0)
         {
-            LoadNextFrom0CInc();
+            LoadNextFrom0CInc(pCompressedSourceIter);
             x = 0x10;
         }
 
@@ -725,7 +722,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 x = 0x10;
             }
 
@@ -738,7 +735,7 @@ namespace Fast
                 return mem6f != 0;
             }
 
-            LoadNextFrom0CInc();
+            LoadNextFrom0CInc(pCompressedSourceIter);
 
             x = 0x10;
             mem6c = a;
@@ -756,7 +753,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 x = 0x10;
             }
 
@@ -769,7 +766,7 @@ namespace Fast
 
             if (z)
             {
-                LoadNextFrom0CInc();
+                LoadNextFrom0CInc(pCompressedSourceIter);
                 x = 0x10;
             }
         }
@@ -782,7 +779,7 @@ namespace Fast
         return mem6f != 0;
     }
 
-    void Fn_80C2DC()
+    void Fn_80C2DC(unsigned short* pCompressedSourceIter)
     {
         // Input: a, x and y
         // Output: a, mem0c, y
@@ -792,7 +789,7 @@ namespace Fast
             x -= 2;
             if (x == 0)
             {
-                LoadNextFrom0CInc(); // Updates a and mem0c
+                LoadNextFrom0CInc(pCompressedSourceIter); // Updates a and mem0c
                 x = 0x10;
             }
         }
@@ -1093,7 +1090,6 @@ namespace Fast
         y = 0xF8AE;
         z = false;
         c = false;
-        mem0c = 0;
         mem6c = 0;
         mem6f = 0;
         mem73 = 0;
