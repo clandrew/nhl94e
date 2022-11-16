@@ -182,13 +182,11 @@ namespace Fast
         for (int i = 0; i < xDecAmt; ++i)
         {
             --x;
-            z = x == 0;
         }
 
         for (int i = 0; i < yDecAmt; ++i)
         {
             --y;
-            z = y == 0;
         }
     }
 
@@ -672,7 +670,7 @@ namespace Fast
         {
             ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount); // Sets z if y==0
 
-            if (z)
+            if (y == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 0x8;
@@ -680,7 +678,7 @@ namespace Fast
 
             ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
 
-            if (z)
+            if (y == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 8;
@@ -713,7 +711,7 @@ namespace Fast
         {
             ShiftRotateDecrementMem6F(0, 1, pByteRepititionCount);
 
-            if (z)
+            if (y == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
                 y = 0x8;
@@ -753,7 +751,7 @@ namespace Fast
         {
             ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
-            if (z)
+            if (x == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
                 x = 0x10;
@@ -761,7 +759,7 @@ namespace Fast
 
             ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
-            if (!z)
+            if (x != 0)
             {
                 *pInitialValueToken = a;
                 a = *pByteRepititionCount;
@@ -797,7 +795,7 @@ namespace Fast
         {
             ShiftRotateDecrementMem6F(2, 0, pByteRepititionCount);
 
-            if (z)
+            if (x == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
                 x = 0x10;
