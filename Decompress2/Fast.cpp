@@ -318,7 +318,7 @@ namespace Fast
         mem7b = 0;
 
         Mem16 resultValue00{};
-        while (mem7b * 2 != 0x10)
+        while (mem7b != 0x8)
         {
             x = resultValue00.Data16;
 
