@@ -282,7 +282,7 @@ namespace Fast
         indirectHigh = 0x7E;
         indirectLow = 0x100;
 
-        x = 0xFF;
+        unsigned short sourceIndexWithWrapping = 0xFF;
 
         // Set bytes in cache
         while (setBytesInCacheCounter != 0)
@@ -290,21 +290,21 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(x, &result.CaseCond, &compressedSourceIter) + 1;
+            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(sourceIndexWithWrapping, &result.CaseCond, &compressedSourceIter) + 1;
             while (howManyLowEntriesToSkip > 0)
             {
-                ++x;
-                x &= 0xFF;
-                if (result.mem7E0500_7E0700[x] < 0x80)
+                ++sourceIndexWithWrapping;
+                sourceIndexWithWrapping &= 0xFF;
+                if (result.mem7E0500_7E0700[sourceIndexWithWrapping] < 0x80)
                 {
                     --howManyLowEntriesToSkip;
                 }
             }
 
-            result.mem7E0500_7E0700[x]--;
+            result.mem7E0500_7E0700[sourceIndexWithWrapping]--;
 
             // This is running in 8 bit index mode.
-            loaded16.Data16 = x;
+            loaded16.Data16 = sourceIndexWithWrapping;
             cache7E0100[indirectLow - 0x100] = loaded16.Low8;
             indirectLow += 1;
 
@@ -1136,22 +1136,6 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSourceLocation);
-
-        /*
-        if (teamIndex == 0 && playerIndex ==0)
-        {
-            std::stringstream outPath;
-            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
-            outPath << GetTeamName((Team)teamIndex);
-            outPath << "_" << playerIndex << ".bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = decompressedStaging.cache7F0000_decompressedStaging.data();
-            fwrite(pData, 1, 0x480, file);
-            fclose(file);
-            exit(0);
-        }*/
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
