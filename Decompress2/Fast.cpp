@@ -38,6 +38,7 @@ namespace Fast
     unsigned short indirectLow;
 
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
+                                            // Data written by Monstrosity0 is read by Monstrosity1.
 
     // Gold reference output
     std::vector<unsigned char> goldReferenceIndexedColor;
@@ -165,7 +166,7 @@ namespace Fast
         a = mem6c;
     }
 
-    void ShiftRotateDecrementMem7F(int xDecAmt, int yDecAmt)
+    void ShiftRotateDecrementMem6F(int xDecAmt, int yDecAmt)
     {
         c = a >= 0x8000;
         a *= 2;
@@ -642,7 +643,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem7F(0, 1); // Sets z if y==0
+            ShiftRotateDecrementMem6F(0, 1); // Sets z if y==0
 
             if (z)
             {
@@ -650,7 +651,7 @@ namespace Fast
                 y = 0x8;
             }
 
-            ShiftRotateDecrementMem7F(0, 1);
+            ShiftRotateDecrementMem6F(0, 1);
 
             if (z)
             {
@@ -683,7 +684,7 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem7F(0, 1);
+            ShiftRotateDecrementMem6F(0, 1);
 
             if (z)
             {
@@ -720,7 +721,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem7F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0);
 
             if (z)
             {
@@ -728,7 +729,7 @@ namespace Fast
                 x = 0x10;
             }
 
-            ShiftRotateDecrementMem7F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0);
 
             if (!z)
             {
@@ -764,7 +765,7 @@ namespace Fast
 
         for (int i = 0; i < y; ++i)
         {
-            ShiftRotateDecrementMem7F(2, 0);
+            ShiftRotateDecrementMem6F(2, 0);
 
             if (z)
             {
