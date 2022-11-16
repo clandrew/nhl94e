@@ -29,7 +29,6 @@ namespace Fast
     bool outputDecompressedResult = false;
 
     unsigned short mem0c = 0xF8AC;
-    unsigned short mem0e = 0x7f;
     unsigned short mem10 = 0;
     unsigned short mem12 = 0x007F;
     unsigned short mem6a = 0;
@@ -132,6 +131,7 @@ namespace Fast
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
             cache7E0750.Data16 = 0;
             CompressedSize = 0;
+            CaseCond = 0;
         }
     };
 
@@ -233,21 +233,22 @@ namespace Fast
 
         unsigned short compressedSourceLocation = mem0c;
 
-        x = 0;
-        y = 0;
         mem0c += 5;
 
         loaded16 = Load16FromAddress(dbr, mem0c);
         mem73 = loaded16.Data16;
         mem0c++;
 
-        loaded16 = Load16FromAddress(dbr, mem0c);
-        a = loaded16.Data16;
-        mem0c += 2;
+        {
+            loaded16 = Load16FromAddress(dbr, mem0c);
+            unsigned short initialValue = loaded16.Data16;
+            mem0c += 2;
 
-        a = ExchangeShortHighAndLow(a);
-        mem6c = a;
+            initialValue = ExchangeShortHighAndLow(initialValue);
+            mem6c = initialValue;
+        }
 
+        x = 0;
         y = 8;
         unsigned short valueIncrementTotal = 0;
         unsigned short valueAccumulator = 0;
@@ -1138,7 +1139,6 @@ namespace Fast
         z = false;
         c = false;
         mem0c = 0;
-        mem0e = 0;
         mem10 = 0;
         mem12 = 0x007F;
         mem6a = 0;
