@@ -19,10 +19,9 @@ namespace Fast
     bool Fn_80C232(unsigned short* pCompressedSourceIter, unsigned short* pByteRepititionCount, unsigned short* pInitialValueToken);
     void Fn_80C2DC(unsigned short* pCompressedSourceIter);
 
-    unsigned short a = 0xFB30;
-    unsigned short x = 0x0480;
-    unsigned short y = 0xF8AE;
-    bool z = false;
+    unsigned short a = 0;
+    unsigned short x = 0;
+    unsigned short y = 0;
     bool c = false;
     unsigned char dbr = 0x9A;
     unsigned short currentProfileImageIndex = 0;
@@ -658,7 +657,7 @@ namespace Fast
 
         if (c)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount); // Sets z if y==0
+            ShiftRotateDecrementMem6F(pByteRepititionCount);
             y--;
 
             if (y == 0)
@@ -1115,7 +1114,6 @@ namespace Fast
     {
         a = 0xFB30;
         y = 0xF8AE;
-        z = false;
         c = false;
         loaded16.Data16 = 0;
     }
