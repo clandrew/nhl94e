@@ -16,7 +16,6 @@ namespace Fast
         unsigned short* pCompressedSourceIter,
         unsigned short* pByteRepititionCount,
         unsigned short* pInitialValueToken,
-        unsigned short* pA,
         unsigned short* pX,
         unsigned short* pY,
         bool* pCarry);
@@ -227,9 +226,9 @@ namespace Fast
         unsigned short a = 0x10;
         unsigned short x = 0xFE;
         unsigned short y = 8;
+        bool c = false;
 
         int setBytesInCacheCounter = 0;
-        bool c = false;
         int iteration = 0;
         bool doneInitializing = false;
 
@@ -250,7 +249,6 @@ namespace Fast
                 &compressedSourceIter, 
                 &byteRepititionCount,
                 &initialValueToken,
-                &a,
                 &x,
                 &y,
                 &c);
@@ -309,7 +307,6 @@ namespace Fast
                 &compressedSourceIter,
                 &byteRepititionCount,
                 &initialValueToken,
-                &a,
                 &x,
                 &y,
                 &c) + 1;
@@ -656,7 +653,6 @@ namespace Fast
         unsigned short* pCompressedSourceIter,
         unsigned short* pByteRepititionCount,
         unsigned short* pInitialValueToken,
-        unsigned short* pA,
         unsigned short* pX,
         unsigned short* pY,
         bool* pCarry)
@@ -668,39 +664,39 @@ namespace Fast
         // Advances mem0c.
 
         *pByteRepititionCount = 0;
-        *pA = *pInitialValueToken;
+        unsigned short acc = *pInitialValueToken;
 
-        *pCarry = (*pA) >= 0x8000;
-        (*pA) *= 2;
+        *pCarry = acc >= 0x8000;
+        acc *= 2;
 
         --(*pY);
         if (*pY == 0)
         {
-            LoadNextFrom0CInc(pCompressedSourceIter, pA); // Clobbers a. Effectively forgets SwapToken, and uses the next compressed byte instead
+            LoadNextFrom0CInc(pCompressedSourceIter, &acc); // Clobbers a. Effectively forgets SwapToken, and uses the next compressed byte instead
             *pY = 0x8;
         }
 
         if (*pCarry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
             (*pY)--;
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pA);
+                LoadNextFrom0CInc(pCompressedSourceIter, &acc);
                 *pY = 0x8;
             }
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
             (*pY)--;
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pA);
+                LoadNextFrom0CInc(pCompressedSourceIter, &acc);
                 *pY = 8;
             }
 
-            *pInitialValueToken = *pA;
+            *pInitialValueToken = acc;
             *pNextCaseCond = *pY * 2;
             return *pByteRepititionCount;
         }
@@ -710,13 +706,13 @@ namespace Fast
         *pCarry = false;
         while (!(*pCarry))
         {
-            *pCarry = (*pA) >= 0x8000;
-            (*pA) *= 2;
+            *pCarry = acc >= 0x8000;
+            acc *= 2;
 
             --(*pY);
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pA);
+                LoadNextFrom0CInc(pCompressedSourceIter, &acc);
                 *pY = 0x8;
             }
 
@@ -725,17 +721,17 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
             (*pY)--;
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pA);
+                LoadNextFrom0CInc(pCompressedSourceIter, &acc);
                 *pY = 0x8;
             }
         }
 
-        *pInitialValueToken = *pA;
+        *pInitialValueToken = acc;
         *pX = iter;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
