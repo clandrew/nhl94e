@@ -18,17 +18,18 @@ namespace Fast
         unsigned short* pInitialValueToken,
         unsigned short* pA,
         unsigned short* pX,
-        unsigned short* pY);
+        unsigned short* pY,
+        bool* pCarry);
     bool Fn_80C232(
         unsigned short* pCompressedSourceIter, 
         unsigned short* pByteRepititionCount, 
         unsigned short* pInitialValueToken,
         unsigned short* pA,
         unsigned short* pX,
-        unsigned short* pY);
+        unsigned short* pY,
+        bool* pCarry);
     void Fn_80C2DC(unsigned short y, unsigned short* pCompressedSourceIter, unsigned short* pA, unsigned short* pX);
 
-    bool c = false;
     unsigned char dbr = 0x9A;
     unsigned short currentProfileImageIndex = 0;
     std::string outputCpuLogFileName;
@@ -177,12 +178,12 @@ namespace Fast
         *pA = *pInitialValueToken;
     }
 
-    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pA)
+    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pA, bool* pCarry)
     {
-        c = (*pA) >= 0x8000;
+        (*pCarry) = (*pA) >= 0x8000;
         (*pA) *= 2;
 
-        RotateLeft(pByteRepititionCount, &c);
+        RotateLeft(pByteRepititionCount, pCarry);
     }
 
     Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation)
@@ -229,7 +230,7 @@ namespace Fast
         unsigned short y = 8;
 
         int setBytesInCacheCounter = 0;
-        c = false;
+        bool c = false;
         int iteration = 0;
         bool doneInitializing = false;
 
@@ -252,7 +253,8 @@ namespace Fast
                 &initialValueToken,
                 &a,
                 &x,
-                &y);
+                &y,
+                &c);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -310,7 +312,8 @@ namespace Fast
                 &initialValueToken,
                 &a,
                 &x,
-                &y) + 1;
+                &y,
+                &c) + 1;
 
             while (howManyLowEntriesToSkip > 0)
             {
@@ -457,6 +460,7 @@ namespace Fast
         unsigned short a = result0.InitialValueToken;
         unsigned short x = result0.CaseCond;
         unsigned short y = 0;
+        bool c = false;
 
         nextCaseCond = result0.CaseCond;
         LoadNextFrom0600(result0, a, &initialValueToken, &x, &y);
@@ -576,7 +580,7 @@ namespace Fast
                 y = result0.CompressedDataToken >> 8;
                 Fn_80C2DC(y, &compressedSourceIter, &a, &x);
                 initialValueToken = a;
-                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &initialValueToken, &a, &x, &y);
+                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &initialValueToken, &a, &x, &y, &c);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
@@ -653,7 +657,8 @@ namespace Fast
         unsigned short* pInitialValueToken,
         unsigned short* pA,
         unsigned short* pX,
-        unsigned short* pY)
+        unsigned short* pY,
+        bool* pCarry)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -664,7 +669,7 @@ namespace Fast
         *pByteRepititionCount = 0;
         *pA = *pInitialValueToken;
 
-        c = (*pA) >= 0x8000;
+        *pCarry = (*pA) >= 0x8000;
         (*pA) *= 2;
 
         --(*pY);
@@ -674,9 +679,9 @@ namespace Fast
             *pY = 0x8;
         }
 
-        if (c)
+        if (*pCarry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             (*pY)--;
 
             if (*pY == 0)
@@ -685,7 +690,7 @@ namespace Fast
                 *pY = 0x8;
             }
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             (*pY)--;
 
             if (*pY == 0)
@@ -701,10 +706,10 @@ namespace Fast
 
         unsigned short numberOfRotates = 0x2;
 
-        c = false;
-        while (!c)
+        *pCarry = false;
+        while (!(*pCarry))
         {
-            c = (*pA) >= 0x8000;
+            *pCarry = (*pA) >= 0x8000;
             (*pA) *= 2;
 
             --(*pY);
@@ -719,7 +724,7 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             (*pY)--;
 
             if (*pY == 0)
@@ -744,13 +749,14 @@ namespace Fast
         unsigned short* pInitialValueToken,
         unsigned short* pA,
         unsigned short* pX,
-        unsigned short* pY) // Returns whether we should continue decompression.
+        unsigned short* pY,
+        bool* pCarry) // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
         *pByteRepititionCount = 0;
         (*pA) = *pInitialValueToken;
 
-        c = (*pA) >= 0x8000;
+        *pCarry = (*pA) >= 0x8000;
         (*pA) *= 2;
 
         *pX -= 2;
@@ -761,9 +767,9 @@ namespace Fast
             *pX = 0x10;
         }
 
-        if (c)
+        if (*pCarry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             *pX -= 2;
 
             if (*pX == 0)
@@ -772,7 +778,7 @@ namespace Fast
                 *pX = 0x10;
             }
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             *pX -= 2;
 
             if (*pX != 0)
@@ -791,10 +797,10 @@ namespace Fast
 
         *pY = 2;
 
-        c = false;
-        while (!c)
+        *pCarry = false;
+        while (!(*pCarry))
         {
-            c = (*pA) >= 0x8000;
+            *pCarry = (*pA) >= 0x8000;
             (*pA) *= 2;
 
             *pX -= 2;
@@ -809,7 +815,7 @@ namespace Fast
 
         for (int i = 0; i < *pY; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pA);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, pA, pCarry);
             *pX -= 2;
 
             if (*pX == 0)
@@ -1134,7 +1140,6 @@ namespace Fast
 
     void InitializeCPUAndOtherWRAM()
     {
-        c = false;
         loaded16.Data16 = 0;
     }
 
