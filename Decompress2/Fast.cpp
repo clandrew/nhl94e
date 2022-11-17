@@ -55,8 +55,6 @@ namespace Fast
     // Loaded plainly
     std::vector<unsigned char> romFile;
 
-    Mem16 loaded16{};
-
     Mem16 Load16FromAddress(unsigned short bank, unsigned short offset)
     {
         Mem16 result{};
@@ -98,7 +96,7 @@ namespace Fast
     void LoadNextFrom0CInc(unsigned short* pCompressedSourceIter, unsigned short* pA)
     {
         // This runs in 8 bit mode.
-        loaded16 = Load16FromAddress(dbr, *pCompressedSourceIter);
+        Mem16 loaded16 = Load16FromAddress(dbr, *pCompressedSourceIter);
         (*pA) &= 0xFF00;
         (*pA) |= loaded16.Low8;
         (*pCompressedSourceIter)++;
@@ -139,6 +137,7 @@ namespace Fast
         // 16bit A, 8bit index
         unsigned char loaded = result0.mem7E0500_7E0700[y];
 
+        Mem16 loaded16;
         loaded16.Data16 = loaded;
         if (indirectHigh == 0x7E && indirectLow >= 0x100)
         {
@@ -207,7 +206,7 @@ namespace Fast
         unsigned short compressedSourceIter = compressedSourceLocation;
         compressedSourceIter += 5;
 
-        loaded16 = Load16FromAddress(dbr, compressedSourceIter);
+        Mem16 loaded16 = Load16FromAddress(dbr, compressedSourceIter);
         unsigned short compressedDataToken = loaded16.Data16;
         compressedSourceIter++;
         
@@ -504,6 +503,7 @@ namespace Fast
                 shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
                 {
+                    Mem16 loaded16;
                     loaded16.Low8 = result0.cache7E0750.Low8;
                     loaded16.High8 = result0.cache7E0750.High8;
                     shiftHigh = a >= loaded16.Data16;
@@ -525,6 +525,7 @@ namespace Fast
                 }
 
                 // This is 8 bit acc.
+                Mem16 loaded16;
                 loaded16.Data16 = cache7E0100[loadSource];
                 if (indirectHigh == 0x7E && indirectLow >= 0x100)
                 {
@@ -1138,11 +1139,6 @@ namespace Fast
         }
     }
 
-    void InitializeCPUAndOtherWRAM()
-    {
-        loaded16.Data16 = 0;
-    }
-
     // Player indices are in chronological written order, not some other order.
     int GetFinalWriteLocation()
     {
@@ -1176,7 +1172,6 @@ namespace Fast
     void Decompress(int teamIndex, int playerIndex)
     {
         InitializeCaches();
-        InitializeCPUAndOtherWRAM();
 
         unsigned short compressedSourceLocation;
         InitializeDecompress(teamIndex, playerIndex, &compressedSourceLocation);
