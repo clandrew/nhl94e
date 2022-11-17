@@ -15,12 +15,16 @@ namespace Fast
         unsigned short* pNextCaseCond, 
         unsigned short* pCompressedSourceIter,
         unsigned short* pByteRepititionCount,
-        unsigned short* pInitialValueToken);
-    bool Fn_80C232(unsigned short* pCompressedSourceIter, unsigned short* pByteRepititionCount, unsigned short* pInitialValueToken);
-    void Fn_80C2DC(unsigned short* pCompressedSourceIter);
+        unsigned short* pInitialValueToken,
+        unsigned short* pX);
+    bool Fn_80C232(
+        unsigned short* pCompressedSourceIter, 
+        unsigned short* pByteRepititionCount, 
+        unsigned short* pInitialValueToken,
+        unsigned short* pX);
+    void Fn_80C2DC(unsigned short* pCompressedSourceIter, unsigned short* pX);
 
     unsigned short a = 0;
-    unsigned short x = 0;
     unsigned short y = 0;
     bool c = false;
     unsigned char dbr = 0x9A;
@@ -149,11 +153,11 @@ namespace Fast
         return loaded;
     }
 
-    void LoadNextFrom0600(Monstrosity0Result const& result0, unsigned short* pInitialValueToken)
+    void LoadNextFrom0600(Monstrosity0Result const& result0, unsigned short* pInitialValueToken, unsigned short* pX)
     {
         *pInitialValueToken = a;
         y = *pInitialValueToken >> 8;
-        x = result0.mem7E0500_7E0700[0x100 + y];
+        *pX = result0.mem7E0500_7E0700[0x100 + y];
     }
 
     void LoadNextFrom0CMaskAndShift(int shifts, unsigned short compressedSourceIter, unsigned short* pInitialValueToken)
@@ -219,7 +223,7 @@ namespace Fast
         unsigned short numDatumMultiplies = 0xF;
         unsigned short byteRepititionCount = 0;
         a = 0x10;
-        x = 0xFE;
+        unsigned short x = 0xFE;
         int setBytesInCacheCounter = 0;
         c = false;
         int iteration = 0;
@@ -241,7 +245,8 @@ namespace Fast
                 &result.CaseCond, 
                 &compressedSourceIter, 
                 &byteRepititionCount,
-                &initialValueToken);
+                &initialValueToken,
+                &x);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -296,7 +301,8 @@ namespace Fast
                 &result.CaseCond, 
                 &compressedSourceIter,
                 &byteRepititionCount,
-                &initialValueToken) + 1;
+                &initialValueToken,
+                &x) + 1;
 
             while (howManyLowEntriesToSkip > 0)
             {
@@ -441,9 +447,9 @@ namespace Fast
         unsigned short initialValueToken = result0.InitialValueToken;
 
         a = result0.InitialValueToken;
-        x = result0.CaseCond;
+        unsigned short x = result0.CaseCond;
         nextCaseCond = result0.CaseCond;
-        LoadNextFrom0600(result0, &initialValueToken);
+        LoadNextFrom0600(result0, &initialValueToken, &x);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
         std::vector<unsigned char> cache7F0000_decompressedStaging;
@@ -471,7 +477,7 @@ namespace Fast
                     a *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, &cache7F0000_decompressedStaging);
-                LoadNextFrom0600(result0, &initialValueToken);
+                LoadNextFrom0600(result0, &initialValueToken, &x);
                 continue;
             }
 
@@ -542,7 +548,7 @@ namespace Fast
                             y--;
                             if (y == 0)
                             {
-                                LoadNextFrom0600(result0, &initialValueToken);
+                                LoadNextFrom0600(result0, &initialValueToken, &x);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -558,9 +564,9 @@ namespace Fast
                 // Write output and check if done.
                 x = exitValue;
                 y = result0.CompressedDataToken >> 8;
-                Fn_80C2DC(&compressedSourceIter);
+                Fn_80C2DC(&compressedSourceIter, &x);
                 initialValueToken = a;
-                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &initialValueToken);
+                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &initialValueToken, &x);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
@@ -590,7 +596,7 @@ namespace Fast
                 a = initialValueToken;
 
                 nextCaseCond = x;
-                LoadNextFrom0600(result0, &initialValueToken);
+                LoadNextFrom0600(result0, &initialValueToken, &x);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
             }
         }
@@ -634,7 +640,8 @@ namespace Fast
         unsigned short* pNextCaseCond, 
         unsigned short* pCompressedSourceIter,
         unsigned short* pByteRepititionCount,
-        unsigned short* pInitialValueToken)
+        unsigned short* pInitialValueToken,
+        unsigned short* pX)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -711,7 +718,7 @@ namespace Fast
         }
 
         *pInitialValueToken = a;
-        x = iter;
+        *pX = iter;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         *pByteRepititionCount += s_ROMValueTable_80C2B6[numberOfRotates];
@@ -722,7 +729,8 @@ namespace Fast
     bool Fn_80C232(
         unsigned short* pCompressedSourceIter, 
         unsigned short* pByteRepititionCount,
-        unsigned short* pInitialValueToken) // Returns whether we should continue decompression.
+        unsigned short* pInitialValueToken,
+        unsigned short* pX) // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
         *pByteRepititionCount = 0;
@@ -731,29 +739,29 @@ namespace Fast
         c = a >= 0x8000;
         a *= 2;
 
-        x -= 2;
+        *pX -= 2;
 
-        if (x == 0)
+        if (*pX == 0)
         {
             LoadNextFrom0CInc(pCompressedSourceIter);
-            x = 0x10;
+            *pX = 0x10;
         }
 
         if (c)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount);
-            x -= 2;
+            *pX -= 2;
 
-            if (x == 0)
+            if (*pX == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
-                x = 0x10;
+                *pX = 0x10;
             }
 
             ShiftRotateDecrementMem6F(pByteRepititionCount);
-            x -= 2;
+            *pX -= 2;
 
-            if (x != 0)
+            if (*pX != 0)
             {
                 *pInitialValueToken = a;
                 a = *pByteRepititionCount;
@@ -762,7 +770,7 @@ namespace Fast
 
             LoadNextFrom0CInc(pCompressedSourceIter);
 
-            x = 0x10;
+            *pX = 0x10;
             *pInitialValueToken = a;
             return *pByteRepititionCount != 0;
         }
@@ -775,11 +783,11 @@ namespace Fast
             c = a >= 0x8000;
             a *= 2;
 
-            x -= 2;
-            if (x == 0)
+            *pX -= 2;
+            if (*pX == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
-                x = 0x10;
+                *pX = 0x10;
             }
 
             y++;
@@ -788,12 +796,12 @@ namespace Fast
         for (int i = 0; i < y; ++i)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount);
-            x -= 2;
+            *pX -= 2;
 
-            if (x == 0)
+            if (*pX == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter);
-                x = 0x10;
+                *pX = 0x10;
             }
         }
 
@@ -805,18 +813,18 @@ namespace Fast
         return *pByteRepititionCount != 0;
     }
 
-    void Fn_80C2DC(unsigned short* pCompressedSourceIter)
+    void Fn_80C2DC(unsigned short* pCompressedSourceIter, unsigned short* pX)
     {
         // Input: a, x and y
         // Output: a, mem0c, y
         for (int i = 0; i < y; ++i)
         {
             a *= 2;
-            x -= 2;
-            if (x == 0)
+            *pX -= 2;
+            if (*pX == 0)
             {
                 LoadNextFrom0CInc(pCompressedSourceIter); // Updates a and mem0c
-                x = 0x10;
+                *pX = 0x10;
             }
         }
     }
