@@ -459,7 +459,7 @@ namespace Fast
         bool c = false;
 
         nextCaseCond = result0.CaseCond;
-        LoadNextFrom0600(result0, a, &initialValueToken, &x, &y);
+        LoadNextFrom0600(result0, result0.InitialValueToken, &initialValueToken, &x, &y);
         nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
         std::vector<unsigned char> cache7F0000_decompressedStaging;
