@@ -572,7 +572,7 @@ namespace Fast
             {
                 // Write output and check if done.
                 x = exitValue;
-                y = result0.CompressedDataToken >> 8;
+                y = result0.CompressedDataToken / 256;
                 Fn_80C2DC(y, &compressedSourceIter, &a, &x);
                 swapValueToken = a;
                 continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &swapValueToken, &a, &x, &y, &c);
