@@ -580,13 +580,21 @@ namespace Fast
                 // Write output and check if done.
                 x = exitValue;
                 y = result0.CompressedDataToken / 256;
-                Fn_80C2DC(y, &compressedSourceIter, &a, &x);
-                swapValueToken = a;
-                continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &swapValueToken, &a, &x, &y, &c);
-                if (!continueDecompression)
+
                 {
-                    doneDecompression = true;
-                    break;
+                    unsigned short nextSwapValueToken = a;
+                    Fn_80C2DC(y, &compressedSourceIter, &nextSwapValueToken, &x);
+                    swapValueToken = nextSwapValueToken;
+                }
+
+                {
+                    unsigned short temp = swapValueToken;
+                    continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &swapValueToken, &temp, &x, &y, &c);
+                    if (!continueDecompression)
+                    {
+                        doneDecompression = true;
+                        break;
+                    }
                 }
 
                 // Write the value, some number of times.
