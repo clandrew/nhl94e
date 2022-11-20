@@ -456,7 +456,6 @@ namespace Fast
         unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
-        unsigned short a = swapValueToken;
         unsigned short y = swapValueToken >> 8;
         unsigned short x = result0.mem7E0500_7E0700[0x100 + y];
         bool c = false;
@@ -613,8 +612,6 @@ namespace Fast
                     }
                     indirectLow += 1;
                 }
-
-                a = swapValueToken;
 
                 nextCaseCond = x;
                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
