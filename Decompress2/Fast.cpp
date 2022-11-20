@@ -498,7 +498,6 @@ namespace Fast
                 // The jump760 case with what was formerly known as switchcase 8.
                 x = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSourceIter, &swapValueToken);
-                a = swapValueToken;
 
                 shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
@@ -565,7 +564,6 @@ namespace Fast
                             if (y == 0)
                             {
                                 swapValueToken = nextSwapValueToken;
-                                a = nextSwapValueToken;
                                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
