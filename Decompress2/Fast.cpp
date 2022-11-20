@@ -42,9 +42,6 @@ namespace Fast
 
     unsigned short mem91_HomeOrAway = 0;
 
-    unsigned short indirectHigh;
-    unsigned short indirectLow;
-
     std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
                                             // Data written by Monstrosity0 is read by Monstrosity1.
 
@@ -128,7 +125,12 @@ namespace Fast
         }
     };
 
-    unsigned short LoadNextFrom0500(Monstrosity0Result const& result0, unsigned short y, std::vector<unsigned char>* cache7F0000_decompressedStaging)
+    unsigned short LoadNextFrom0500(
+        Monstrosity0Result const& result0, 
+        unsigned short y, 
+        std::vector<unsigned char>* cache7F0000_decompressedStaging,
+        unsigned short indirectHigh,
+        unsigned short* pIndirectLow)
     {
         // Loads a value from the staging output written by Monstrosity0.
         // Saves the result to indirect.
@@ -138,19 +140,19 @@ namespace Fast
 
         Mem16 loaded16;
         loaded16.Data16 = loaded;
-        if (indirectHigh == 0x7E && indirectLow >= 0x100)
+        if (indirectHigh == 0x7E && (*pIndirectLow) >= 0x100)
         {
-            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+            cache7E0100[(*pIndirectLow) - 0x100] = loaded16.Low8;
         }
         else if (indirectHigh == 0x7F)
         {
-            cache7F0000_decompressedStaging->data()[indirectLow] = loaded16.Low8;
+            cache7F0000_decompressedStaging->data()[(*pIndirectLow)] = loaded16.Low8;
         }
         else
         {
             __debugbreak();
         }
-        indirectLow++;
+        (*pIndirectLow)++;
         return loaded;
     }
 
@@ -290,8 +292,8 @@ namespace Fast
         }
 
         // This is hard coded.
-        indirectHigh = 0x7E;
-        indirectLow = 0x100;
+        unsigned short indirectHigh = 0x7E;
+        unsigned short indirectLow = 0x100;
 
         unsigned short sourceIndexWithWrapping = 0xFF;
 
@@ -381,9 +383,6 @@ namespace Fast
         {
             result.mem7E0500_7E0700[0x100 + resultValue00.Low8 + i] = 0x10;
         }
-
-        indirectHigh = 0x007F;
-        indirectLow = 0;
         result.CompressedSize = compressedSourceIter - compressedSourceLocation;
         result.CompressedSourceIter = compressedSourceIter;
         result.CompressedDataToken = compressedDataToken;
@@ -438,8 +437,15 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    std::vector<unsigned char> Monstrosity1(int teamIndex, int playerIndex, Monstrosity0Result const& result0)
+    std::vector<unsigned char> Monstrosity1(int teamIndex, int playerIndex, Monstrosity0Result& result0)
     {
+        /*
+        if (teamIndex == 0 && playerIndex == 0)
+        {
+            result0.SwapValueToken = 0x200;
+            result0.mem7E0500_7E0700[0x0] = 0xCB;
+        }*/
+
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
@@ -450,6 +456,9 @@ namespace Fast
         unsigned short compressedSourceIter = result0.CompressedSourceIter;
         unsigned short byteRepititionCount = result0.ByteRepititionCount;
         unsigned short swapValueToken = result0.SwapValueToken;
+
+        unsigned short indirectHigh = 0x007F;
+        unsigned short indirectLow = 0;
 
         unsigned short a = swapValueToken;
         unsigned short y = swapValueToken >> 8;
@@ -483,7 +492,7 @@ namespace Fast
                     LoadNextFrom0CInc(&compressedSourceIter, &a);
                     a *= secondMultiplier;
                 }
-                decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging);
+                decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 LoadNextFrom0600(result0, a, &swapValueToken, &x, &y);
                 continue;
             }
@@ -583,6 +592,7 @@ namespace Fast
                 }
 
                 // Write the value, some number of times.
+                // These are output shorts.
                 assert(decompressedValueCandidate <= 0xFF);
                 decompressedValue = static_cast<unsigned char>(decompressedValueCandidate);
                 for (int i = 0; i < byteRepititionCount; ++i)
@@ -1169,6 +1179,21 @@ namespace Fast
         mem91_HomeOrAway = 2;
 
         Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSourceLocation);
+
+        /*if (teamIndex == 0 && playerIndex == 0)
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = decompressedStaging.cache7F0000_decompressedStaging.data();
+            fwrite(pData, 1, 0x480, file);
+            fclose(file);
+            exit(0);
+        }*/
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
