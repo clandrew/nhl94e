@@ -507,7 +507,7 @@ namespace Fast
                     Mem16 loaded16;
                     loaded16.Low8 = result0.cache7E0750.Low8;
                     loaded16.High8 = result0.cache7E0750.High8;
-                    shiftHigh = a >= loaded16.Data16;
+                    shiftHigh = swapValueToken >= loaded16.Data16;
                 }
 
                 unsigned short loadSource = a;
