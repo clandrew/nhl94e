@@ -542,11 +542,12 @@ namespace Fast
                 decompressedValueCandidate = cache7E0100[loadSource];
                 compressedSourceIter++;
 
+                unsigned short nextSwapValueToken{};
                 {
                     Mem16 mem6b;
                     mem6b.Low8 = shiftedCompressedByte;
                     mem6b.High8 = swapValueToken & 0xFF;
-                    a = mem6b.Data16;
+                    nextSwapValueToken = mem6b.Data16;
                 }
                 for (int iter = 0; iter < 8; iter++)
                 {
@@ -555,16 +556,17 @@ namespace Fast
                     {
                         for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
                         {
-                            a *= 2;
+                            nextSwapValueToken *= 2;
                             if (i == 0 || i == 8)
                             {
-                                LoadNextFrom0CInc(&compressedSourceIter, &a);
+                                LoadNextFrom0CInc(&compressedSourceIter, &nextSwapValueToken);
                             }
 
                             y--;
                             if (y == 0)
                             {
-                                swapValueToken = a;
+                                swapValueToken = nextSwapValueToken;
+                                a = nextSwapValueToken;
                                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
