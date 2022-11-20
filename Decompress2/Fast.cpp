@@ -584,11 +584,7 @@ namespace Fast
                 x = exitValue;
                 y = result0.CompressedDataToken / 256;
 
-                {
-                    unsigned short nextSwapValueToken = a;
-                    Fn_80C2DC(y, &compressedSourceIter, &nextSwapValueToken, &x);
-                    swapValueToken = nextSwapValueToken;
-                }
+                Fn_80C2DC(y, &compressedSourceIter, &swapValueToken, &x);
 
                 {
                     unsigned short temp = swapValueToken;
