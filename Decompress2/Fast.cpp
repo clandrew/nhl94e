@@ -161,7 +161,7 @@ namespace Fast
         *pX = result0.mem7E0500_7E0700[0x100 + *pY];
     }
 
-    void LoadNextFrom0CMaskAndShift(int shifts, unsigned short compressedSourceIter, unsigned short* pSwapValueToken, unsigned short* pA)
+    void LoadNextFrom0CMaskAndShift(int shifts, unsigned short compressedSourceIter, unsigned short* pSwapValueToken)
     {
         Mem16 compressedShort = Load16FromAddress(dbr, compressedSourceIter); // Load a single byte.
         compressedShort.High8 = 0;
@@ -173,7 +173,6 @@ namespace Fast
 
         shiftedCompressedByte = compressedShort.Low8;
         *pSwapValueToken |= compressedShort.High8;
-        *pA = *pSwapValueToken;
     }
 
     void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pA, bool* pCarry)
@@ -499,7 +498,8 @@ namespace Fast
             {
                 // The jump760 case with what was formerly known as switchcase 8.
                 x = exitValue;
-                LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSourceIter, &swapValueToken, &a);
+                LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSourceIter, &swapValueToken);
+                a = swapValueToken;
 
                 shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
