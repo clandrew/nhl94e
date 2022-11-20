@@ -23,7 +23,6 @@ namespace Fast
         unsigned short* pCompressedSourceIter, 
         unsigned short* pByteRepititionCount, 
         unsigned short* pSwapValueToken,
-        unsigned short* pA,
         unsigned short* pX,
         unsigned short* pY,
         bool* pCarry);
@@ -583,8 +582,7 @@ namespace Fast
                 Fn_80C2DC(y, &compressedSourceIter, &swapValueToken, &x);
 
                 {
-                    unsigned short temp = swapValueToken;
-                    continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &swapValueToken, &temp, &x, &y, &c);
+                    continueDecompression = Fn_80C232(&compressedSourceIter, &byteRepititionCount, &swapValueToken, &x, &y, &c);
                     if (!continueDecompression)
                     {
                         doneDecompression = true;
@@ -750,50 +748,50 @@ namespace Fast
         unsigned short* pCompressedSourceIter, 
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pTemp,
         unsigned short* pX,
         unsigned short* pY,
         bool* pCarry) // Returns whether we should continue decompression.
     {
         // Input: x, mem6c
+        unsigned short temp = *pSwapValueToken;
         *pByteRepititionCount = 0;
 
-        *pCarry = (*pTemp) >= 0x8000;
-        (*pTemp) *= 2;
+        *pCarry = temp >= 0x8000;
+        temp *= 2;
 
         *pX -= 2;
 
         if (*pX == 0)
         {
-            LoadNextFrom0CInc(pCompressedSourceIter, pTemp);
+            LoadNextFrom0CInc(pCompressedSourceIter, &temp);
             *pX = 0x10;
         }
 
         if (*pCarry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pTemp, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
             *pX -= 2;
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pTemp);
+                LoadNextFrom0CInc(pCompressedSourceIter, &temp);
                 *pX = 0x10;
             }
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pTemp, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
             *pX -= 2;
 
             if (*pX != 0)
             {
-                *pSwapValueToken = *pTemp;
-                *pTemp = *pByteRepititionCount;
+                *pSwapValueToken = temp;
+                temp = *pByteRepititionCount;
                 return *pByteRepititionCount != 0;
             }
 
-            LoadNextFrom0CInc(pCompressedSourceIter, pTemp);
+            LoadNextFrom0CInc(pCompressedSourceIter, &temp);
 
             *pX = 0x10;
-            *pSwapValueToken = *pTemp;
+            *pSwapValueToken = temp;
             return *pByteRepititionCount != 0;
         }
 
@@ -802,13 +800,13 @@ namespace Fast
         *pCarry = false;
         while (!(*pCarry))
         {
-            *pCarry = (*pTemp) >= 0x8000;
-            (*pTemp) *= 2;
+            *pCarry = temp >= 0x8000;
+            temp *= 2;
 
             *pX -= 2;
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pTemp);
+                LoadNextFrom0CInc(pCompressedSourceIter, &temp);
                 *pX = 0x10;
             }
 
@@ -817,17 +815,17 @@ namespace Fast
 
         for (int i = 0; i < *pY; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, pTemp, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
             *pX -= 2;
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(pCompressedSourceIter, pTemp);
+                LoadNextFrom0CInc(pCompressedSourceIter, &temp);
                 *pX = 0x10;
             }
         }
 
-        *pSwapValueToken = (*pTemp);
+        *pSwapValueToken = temp;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = ((*pY) * 2 - 6) / 2;
