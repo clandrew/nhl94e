@@ -154,10 +154,9 @@ namespace Fast
         return loaded;
     }
 
-    void LoadNextFrom0600(Monstrosity0Result const& result0, unsigned short a, unsigned short* pSwapValueToken, unsigned short* pX, unsigned short* pY)
+    void LoadNextFrom0600(Monstrosity0Result const& result0, unsigned short swapValueToken, unsigned short* pX, unsigned short* pY)
     {
-        *pSwapValueToken = a;
-        *pY = *pSwapValueToken >> 8;
+        *pY = swapValueToken >> 8;
         *pX = result0.mem7E0500_7E0700[0x100 + *pY];
     }
 
@@ -491,7 +490,7 @@ namespace Fast
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 swapValueToken = a;
-                LoadNextFrom0600(result0, swapValueToken, &swapValueToken, &x, &y);
+                LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 continue;
             }
 
@@ -565,7 +564,8 @@ namespace Fast
                             y--;
                             if (y == 0)
                             {
-                                LoadNextFrom0600(result0, a, &swapValueToken, &x, &y);
+                                swapValueToken = a;
+                                LoadNextFrom0600(result0, swapValueToken, &x, &y);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -622,7 +622,7 @@ namespace Fast
                 a = swapValueToken;
 
                 nextCaseCond = x;
-                LoadNextFrom0600(result0, swapValueToken, &swapValueToken, &x, &y);
+                LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
             }
         }
