@@ -490,7 +490,8 @@ namespace Fast
                     a *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                LoadNextFrom0600(result0, a, &swapValueToken, &x, &y);
+                swapValueToken = a;
+                LoadNextFrom0600(result0, swapValueToken, &swapValueToken, &x, &y);
                 continue;
             }
 
@@ -510,7 +511,7 @@ namespace Fast
                     shiftHigh = swapValueToken >= loaded16.Data16;
                 }
 
-                unsigned short loadSource = a;
+                unsigned short loadSource = swapValueToken;
 
                 if (shiftHigh)
                 {
