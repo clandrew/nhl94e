@@ -138,15 +138,13 @@ namespace Fast
         // 16bit A, 8bit index
         unsigned char loaded = result0.mem7E0500_7E0700[y];
 
-        Mem16 loaded16;
-        loaded16.Data16 = loaded;
         if (indirectHigh == 0x7E && (*pIndirectLow) >= 0x100)
         {
-            cache7E0100[(*pIndirectLow) - 0x100] = loaded16.Low8;
+            cache7E0100[(*pIndirectLow) - 0x100] = loaded;
         }
         else if (indirectHigh == 0x7F)
         {
-            cache7F0000_decompressedStaging->data()[(*pIndirectLow)] = loaded16.Low8;
+            cache7F0000_decompressedStaging->data()[(*pIndirectLow)] = loaded;
         }
         else
         {
