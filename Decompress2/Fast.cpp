@@ -482,14 +482,13 @@ namespace Fast
                 unsigned short firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
                 unsigned short secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
 
-                a *= firstMultiplier;
+                swapValueToken *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
-                    LoadNextFrom0CInc(&compressedSourceIter, &a);
-                    a *= secondMultiplier;
+                    LoadNextFrom0CInc(&compressedSourceIter, &swapValueToken);
+                    swapValueToken *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                swapValueToken = a;
                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 continue;
             }
