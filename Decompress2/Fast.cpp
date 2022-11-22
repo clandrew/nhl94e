@@ -126,6 +126,14 @@ namespace Fast
         return result;
     }
 
+    Mem16 Load16FromVector(std::vector<unsigned char> const& vec, int index)
+    {
+        Mem16 result;
+        result.Low8 = vec[index];
+        result.High8 = vec[index + 1];
+        return result;
+    }
+
     void LoadNextFrom0CInc(unsigned short* pCompressedSourceIter, unsigned short* pA)
     {
         // This runs in 8 bit mode.
@@ -237,12 +245,15 @@ namespace Fast
         cache7E0740temp.resize(0x20);
         memset(cache7E0740temp.data(), 0, cache7E0740temp.size());
 
+        unsigned short compressedSourceIndex = 0;
         unsigned short compressedSourceIter = compressedSourceLocation;
         compressedSourceIter += 5;
+        compressedSourceIndex += 5;
 
-        Mem16 loaded16 = Load16FromAddress(dbr, compressedSourceIter);
+        Mem16 loaded16 = Load16FromVector(compressedSource, compressedSourceIndex);
         unsigned short compressedDataToken = loaded16.Data16;
         compressedSourceIter++;
+        compressedSourceIndex++;
         
         unsigned short swapValueToken;
         {
