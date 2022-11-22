@@ -155,6 +155,7 @@ namespace Fast
         (*pA) &= 0xFF00;
         (*pA) |= loaded16.Low8;
         (*pCompressedSourceIter)++;
+        (*pCompressedSourceIndex)++;
     }
 
     struct Monstrosity0Result
@@ -614,6 +615,7 @@ namespace Fast
 
                 decompressedValueCandidate = cache7E0100[loadSource];
                 compressedSourceIter++;
+                compressedSourceIndex++;
 
                 {
                     Mem16 mem6b;
