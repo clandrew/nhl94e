@@ -12,9 +12,11 @@
 namespace Fast
 {
     unsigned short Fn_80C1B0_GetSparseValueIncrement(
-        unsigned short iter, 
-        unsigned short* pNextCaseCond, 
+        unsigned short iter,
+        std::vector<unsigned char> const& compressedSource,
+        unsigned short* pNextCaseCond,
         unsigned short* pCompressedSourceIter,
+        unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
         unsigned short* pX,
@@ -292,9 +294,11 @@ namespace Fast
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(
-                iteration, 
+                iteration,
+                compressedSource,
                 &result.CaseCond, 
-                &compressedSourceIter, 
+                &compressedSourceIter,
+                &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
                 &x,
@@ -351,8 +355,10 @@ namespace Fast
             // There are guaranteed to actually be enough low entries.
             unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(
                 sourceIndexWithWrapping, 
+                compressedSource,
                 &result.CaseCond, 
                 &compressedSourceIter,
+                &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
                 &x,
@@ -719,8 +725,10 @@ namespace Fast
 
     unsigned short Fn_80C1B0_GetSparseValueIncrement(
         unsigned short iter, 
+        std::vector<unsigned char> const& compressedSource,
         unsigned short* pNextCaseCond, 
         unsigned short* pCompressedSourceIter,
+        unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
         unsigned short* pX,
