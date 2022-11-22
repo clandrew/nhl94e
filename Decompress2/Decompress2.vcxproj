@@ -145,6 +145,7 @@
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CompressedSizes.h" />
     <ClInclude Include="Decompress2.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

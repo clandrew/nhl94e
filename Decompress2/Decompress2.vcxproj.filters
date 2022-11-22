@@ -35,5 +35,8 @@
     <ClInclude Include="Decompress2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CompressedSizes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

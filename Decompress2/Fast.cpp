@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "Util.h"
 #include "Decompress2.h"
+#include "CompressedSizes.h"
 
 namespace Fast
 {
@@ -49,6 +50,43 @@ namespace Fast
 
     // Loaded plainly
     std::vector<unsigned char> romFile;
+
+    unsigned char Load8FromAddress(unsigned short bank, unsigned short offset)
+    {
+        unsigned char result{};
+
+        if (offset < 0x8000 && bank == 0x96)
+        {
+            bank = 0x7E; // Shadowing
+        }
+
+        if (bank >= 0x80)
+        {
+            // ROM
+            int local = offset - 0x8000;
+            int bankMultiplier = bank - 0x80;
+
+            int fileOffset = 0x8000 * bankMultiplier;
+            return romFile[fileOffset + local];
+        }
+        else if (bank == 0x7E)
+        {
+            if (offset == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                __debugbreak();
+            }
+        }
+        else
+        {
+            __debugbreak();
+        }
+
+        return result;
+    }
 
     Mem16 Load16FromAddress(unsigned short bank, unsigned short offset)
     {
@@ -181,7 +219,7 @@ namespace Fast
         RotateLeft(pByteRepititionCount, pCarry);
     }
 
-    Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation)
+    Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation, std::vector<unsigned char> const& compressedSource)
     {
         Monstrosity0Result result{};
         result.Initialize();
@@ -642,9 +680,26 @@ namespace Fast
 
         Fn_80BBB3_DecompressResult result{};
 
-        Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation);
-        result.CompressedSize = result0.CompressedSize;
+        int compressedSize = -1;
+        for (int i = 0; i < _countof(s_compressedSizes); ++i)
+        {
+            if (s_compressedSizes[i].TeamIndex == teamIndex && s_compressedSizes[i].PlayerIndex == playerIndex)
+            {
+                compressedSize = s_compressedSizes[i].CompressedSize;
+                break;
+            }
+        }
+        assert(compressedSize != -1);
 
+        std::vector<unsigned char> compressedSource;
+        for (int i = 0; i < compressedSize; ++i)
+        {
+            unsigned char ch = Load8FromAddress(dbr, compressedSourceLocation + i);
+            compressedSource.push_back(ch);
+        }
+
+        Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation, compressedSource);
+        result.CompressedSize = result0.CompressedSize;
         result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, result0);
         return result;
     }
