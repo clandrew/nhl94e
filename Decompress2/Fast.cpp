@@ -258,8 +258,10 @@ namespace Fast
         unsigned short swapValueToken;
         {
             loaded16 = Load16FromAddress(dbr, compressedSourceIter);
+            loaded16 = Load16FromVector(compressedSource, compressedSourceIndex);
             swapValueToken = loaded16.Data16;
             compressedSourceIter += 2;
+            compressedSourceIndex += 2;
 
             swapValueToken = ExchangeShortHighAndLow(swapValueToken);
         }
