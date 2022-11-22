@@ -14,6 +14,7 @@ namespace Fast
     unsigned short Fn_80C1B0_GetSparseValueIncrement(
         unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pNextCaseCond,
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex,
@@ -24,6 +25,7 @@ namespace Fast
         bool* pCarry);
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount, 
@@ -34,6 +36,7 @@ namespace Fast
     void Fn_80C2DC(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA, 
@@ -146,10 +149,28 @@ namespace Fast
 
     void LoadNextFrom0CInc(
         std::vector<unsigned char> const& compressedSource, 
+        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIter, 
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA)
     {
+        {
+            unsigned short test0 = *pCompressedSourceIter - compressedSourceLocation;
+            unsigned short test1 = *pCompressedSourceIndex;
+            if (test0 != test1)
+            {
+                __debugbreak();
+            }
+        }
+        {
+            //Mem16 test0 = Load16FromAddress(dbr, *pCompressedSourceIter);
+            //Mem16 test1 = Load16FromVector(compressedSource, *pCompressedSourceIndex);
+            //if (test0.Data16 != test1.Data16)
+            {
+            //    __debugbreak();
+            }
+        }
+
         // This runs in 8 bit mode.
         Mem16 loaded16 = Load16FromAddress(dbr, *pCompressedSourceIter);
         (*pA) &= 0xFF00;
@@ -311,6 +332,7 @@ namespace Fast
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(
                 iteration,
                 compressedSource,
+                compressedSourceLocation,
                 &result.CaseCond, 
                 &compressedSourceIter,
                 &compressedSourceIndex,
@@ -371,6 +393,7 @@ namespace Fast
             unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(
                 sourceIndexWithWrapping, 
                 compressedSource,
+                compressedSourceLocation,
                 &result.CaseCond, 
                 &compressedSourceIter,
                 &compressedSourceIndex,
@@ -508,6 +531,7 @@ namespace Fast
     std::vector<unsigned char> Monstrosity1(
         int teamIndex, 
         int playerIndex,
+        unsigned short compressedSourceLocation,
         std::vector<unsigned char> const& compressedSource,
         Monstrosity0Result& result0)
     {
@@ -561,7 +585,7 @@ namespace Fast
                 swapValueToken *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
-                    LoadNextFrom0CInc(compressedSource, &compressedSourceIter, &compressedSourceIndex, &swapValueToken);
+                    LoadNextFrom0CInc(compressedSource, compressedSourceLocation, &compressedSourceIter, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
@@ -633,7 +657,7 @@ namespace Fast
                             swapValueToken *= 2;
                             if (i == 0 || i == 8)
                             {
-                                LoadNextFrom0CInc(compressedSource, &compressedSourceIter, &compressedSourceIndex, &swapValueToken);
+                                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, &compressedSourceIter, &compressedSourceIndex, &swapValueToken);
                             }
 
                             y--;
@@ -659,6 +683,7 @@ namespace Fast
                 Fn_80C2DC(
                     y,
                     compressedSource,
+                    compressedSourceLocation,
                     &compressedSourceIter,
                     &compressedSourceIndex, 
                     &swapValueToken, 
@@ -667,6 +692,7 @@ namespace Fast
                 {
                     continueDecompression = Fn_80C232(
                         compressedSource,
+                        compressedSourceLocation,
                         &compressedSourceIter,
                         &compressedSourceIndex,
                         &byteRepititionCount, 
@@ -755,13 +781,14 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation, compressedSource);
         result.CompressedSize = result0.CompressedSize;
-        result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
+        result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, compressedSourceLocation, compressedSource, result0);
         return result;
     }
 
     unsigned short Fn_80C1B0_GetSparseValueIncrement(
-        unsigned short iter, 
+        unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pNextCaseCond, 
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex,
@@ -786,7 +813,7 @@ namespace Fast
         --(*pY);
         if (*pY == 0)
         {
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
+            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
             *pY = 0x8;
         }
 
@@ -797,7 +824,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
 
@@ -806,7 +833,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &acc);
                 *pY = 8;
             }
 
@@ -826,7 +853,7 @@ namespace Fast
             --(*pY);
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
 
@@ -840,7 +867,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
         }
@@ -856,6 +883,7 @@ namespace Fast
 
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
@@ -875,7 +903,7 @@ namespace Fast
 
         if (*pX == 0)
         {
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &temp);
+            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &temp);
             *pX = 0x10;
         }
 
@@ -886,7 +914,7 @@ namespace Fast
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
 
@@ -900,7 +928,7 @@ namespace Fast
                 return *pByteRepititionCount != 0;
             }
 
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &temp);
+            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &temp);
 
             *pX = 0x10;
             *pSwapValueToken = temp;
@@ -918,7 +946,7 @@ namespace Fast
             *pX -= 2;
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
 
@@ -932,7 +960,7 @@ namespace Fast
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
         }
@@ -948,6 +976,7 @@ namespace Fast
     void Fn_80C2DC(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
+        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIter,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA, 
@@ -959,7 +988,7 @@ namespace Fast
             *pX -= 2;
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIter, pCompressedSourceIndex, pA);
+                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIter, pCompressedSourceIndex, pA);
                 *pX = 0x10;
             }
         }
