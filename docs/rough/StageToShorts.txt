@@ -70,3 +70,10 @@ For boston_1
 Changing mem[0] to CA copies CA to 0x60
 Changing mem[60] to CA copies CA to 0x5F, 0x3D3, 0x3DF
 
+The shorts are written in order, starting from 0x7E100. See indirectLow.
+
+First, byte repitition count is 32
+
+SwapValueToken is 2A00
+Y is 2A
+Load result0.mem7E0500_7E0700[0x2A], which is 0
