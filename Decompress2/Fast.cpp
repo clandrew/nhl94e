@@ -192,13 +192,11 @@ namespace Fast
         unsigned short ByteRepititionCount;
         unsigned short SwapValueToken;
 
-        int CompressedSize; // For statistics-keeping
         void Initialize()
         {
             mem7E0500_7E0700.resize(0x200);   
             memset(mem7E0500_7E0700.data(), 0, mem7E0500_7E0700.size());
             cache7E0750.Data16 = 0;
-            CompressedSize = 0;
             CaseCond = 0;
             CompressedSourceIter = 0;
             CompressedSourceIndex = 0;
@@ -473,7 +471,6 @@ namespace Fast
         {
             result.mem7E0500_7E0700[0x100 + resultValue00.Low8 + i] = 0x10;
         }
-        result.CompressedSize = compressedSourceIter - compressedSourceLocation;
         result.CompressedSourceIter = compressedSourceIter;
         result.CompressedSourceIndex = compressedSourceIndex;
         result.CompressedDataToken = compressedDataToken;
@@ -528,7 +525,13 @@ namespace Fast
         {16, 1, 9},     // x==16    
     };
 
-    std::vector<unsigned char> Monstrosity1(
+    struct Monstrosity1Result
+    {
+        std::vector<unsigned char> cache7F0000_decompressedStaging;
+        unsigned short CompressedSize;
+    };
+
+    Monstrosity1Result Monstrosity1(
         int teamIndex, 
         int playerIndex,
         unsigned short compressedSourceLocation,
@@ -542,6 +545,7 @@ namespace Fast
             result0.mem7E0500_7E0700[0x0] = 0xCB;
         }*/
 
+        Monstrosity1Result result{ };
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         bool shiftHigh = false;
@@ -564,9 +568,8 @@ namespace Fast
         unsigned short nextCaseCond = result0.CaseCond;
         unsigned short nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
-        std::vector<unsigned char> cache7F0000_decompressedStaging;
-        cache7F0000_decompressedStaging.resize(0xFFFF);
-        memset(cache7F0000_decompressedStaging.data(), 0, cache7F0000_decompressedStaging.size());
+        result.cache7F0000_decompressedStaging.resize(0xFFFF);
+        memset(result.cache7F0000_decompressedStaging.data(), 0, result.cache7F0000_decompressedStaging.size());
 
         bool doneDecompression = false;
 
@@ -588,7 +591,7 @@ namespace Fast
                     LoadNextFrom0CInc(compressedSource, compressedSourceLocation, &compressedSourceIter, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
-                decompressedValueCandidate = LoadNextFrom0500(result0, y, &cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
+                decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 continue;
             }
@@ -632,7 +635,7 @@ namespace Fast
                 }
                 else if (indirectHigh == 0x7F)
                 {
-                    cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
+                    result.cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
                 }
 
                 indirectLow += 1;
@@ -719,7 +722,7 @@ namespace Fast
                     }
                     else if (indirectHigh == 0x7F)
                     {
-                        cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
+                        result.cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
                     }
                     else
                     {
@@ -734,13 +737,15 @@ namespace Fast
             }
         }
 
-        return cache7F0000_decompressedStaging;
+        result.CompressedSize = compressedSourceIter - compressedSourceLocation;
+
+        return result;
     }
 
     struct Fn_80BBB3_DecompressResult
     {
         std::vector<unsigned char> cache7F0000_decompressedStaging;
-        int CompressedSize;
+        unsigned short CompressedSize;
     };
 
     Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex, unsigned short compressedSourceLocation)
@@ -759,7 +764,6 @@ namespace Fast
         // Notes:
         //     A, X, Y are ignored and stomped on.
 
-        Fn_80BBB3_DecompressResult result{};
 
         int compressedSize = -1;
         for (int i = 0; i < _countof(s_compressedSizes); ++i)
@@ -780,8 +784,12 @@ namespace Fast
         }
 
         Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation, compressedSource);
-        result.CompressedSize = result0.CompressedSize;
-        result.cache7F0000_decompressedStaging = Monstrosity1(teamIndex, playerIndex, compressedSourceLocation, compressedSource, result0);
+        Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSourceLocation, compressedSource, result0);
+
+        Fn_80BBB3_DecompressResult result{};
+        result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
+        result.CompressedSize = result1.CompressedSize;
+
         return result;
     }
 
