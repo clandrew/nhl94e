@@ -18,7 +18,6 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pX,
         unsigned short* pY,
         bool* pCarry);
     bool Fn_80C232(
@@ -299,9 +298,9 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &x,
                 &y,
                 &c);
+            x = iteration;
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -358,9 +357,9 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &x,
                 &y,
                 &c) + 1;
+            x = sourceIndexWithWrapping;
 
             while (howManyLowEntriesToSkip > 0)
             {
@@ -490,7 +489,6 @@ namespace Fast
         Monstrosity1Result result{ };
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
-        bool shiftHigh = false;
         unsigned short currentCaseIndex = 0;
         unsigned short mainIndex = 0;
         unsigned short exitValue = 0;
@@ -545,7 +543,7 @@ namespace Fast
 
                 unsigned short loadSource = swapValueToken;
 
-                shiftHigh = false;
+                bool shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
                 {
                     shiftHigh = swapValueToken >= result0.cache7E0750.Data16;
@@ -735,7 +733,6 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pX,
         unsigned short* pY,
         bool* pCarry)
     {
@@ -814,7 +811,6 @@ namespace Fast
         }
 
         *pSwapValueToken = acc;
-        *pX = iter;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         *pByteRepititionCount += s_ROMValueTable_80C2B6[numberOfRotates];
