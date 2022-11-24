@@ -273,7 +273,6 @@ namespace Fast
         unsigned short numDatumMultiplies = 0xF;
         unsigned short byteRepititionCount = 0;
         
-        unsigned short a = 0x10;
         unsigned short x = 0xFE;
         unsigned short y = 8;
         bool c = false;
@@ -396,20 +395,20 @@ namespace Fast
                 resultValue00.Data16 = i * 2;
 
                 // This is running in 8 bit accumulator and index mode.
-                loaded16.Data16 = resultValue00.Data16;
-                loaded16.Low8 = cache7E0100[sourceIndex];
-                a = loaded16.Data16;
+                Mem16 patchedValue{};
+                patchedValue.Data16 = resultValue00.Data16;
+                patchedValue.Low8 = cache7E0100[sourceIndex];
 
                 resultValue00.High8 = cache7E0100[sourceIndex];
 
                 ++sourceIndex;
 
-                if (a == (compressedDataToken & 0xFF))
+                if (patchedValue.Data16 == (compressedDataToken & 0xFF))
                 {
-                    a = i + 1;
+                    patchedValue.Data16 = i + 1;
 
                     compressedDataToken &= 0x00FF; // Keep the first, lower byte
-                    compressedDataToken |= (a << 8); // Replace the upper byte, second byte
+                    compressedDataToken |= (patchedValue.Data16 << 8); // Replace the upper byte, second byte
 
                     resultValue00.Data16 = 0x12;
                 }
