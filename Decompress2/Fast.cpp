@@ -668,8 +668,9 @@ namespace Fast
                 }
 
                 nextCaseCond = x;
-                LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                x = nextCaseCond;
                 continue;
             }
         }
