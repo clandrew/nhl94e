@@ -540,7 +540,7 @@ namespace Fast
             {
                 // The jump760 case with what was formerly known as switchcase 8.
                 x = exitValue;
-                nextCaseCond = x;
+                nextCaseCond = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
 
                 unsigned short loadSource = swapValueToken;
