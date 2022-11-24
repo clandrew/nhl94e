@@ -501,7 +501,6 @@ namespace Fast
         unsigned short indirectLow = 0;
 
         unsigned short y = swapValueToken >> 8;
-        unsigned short x = result0.mem7E0500_7E0700[0x100 + y];
         bool c = false;
 
         unsigned short nextCaseCond = result0.CaseCond;
@@ -512,7 +511,7 @@ namespace Fast
 
         bool doneDecompression = false;
 
-        nextCaseCond = x;
+        nextCaseCond = result0.mem7E0500_7E0700[0x100 + y];
 
         while (!doneDecompression)
         {
@@ -533,7 +532,6 @@ namespace Fast
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
-                x = nextCaseCond;
                 continue;
             }
 
@@ -541,7 +539,6 @@ namespace Fast
             {
                 // The jump760 case with what was formerly known as switchcase 8.
                 unsigned short localX = exitValue;
-                x = exitValue;
                 nextCaseCond = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
 
@@ -606,7 +603,6 @@ namespace Fast
                             if (y == 0)
                             {
                                 LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
-                                x = nextCaseCond;
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -623,7 +619,6 @@ namespace Fast
             {
                 // Write output and check if done.
                 unsigned short localX = exitValue;
-                x = exitValue;
                 y = result0.CompressedDataToken / 256;
 
                 Fn_80C2DC(
@@ -673,7 +668,6 @@ namespace Fast
                 nextCaseCond = localX;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
                 LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
-                x = nextCaseCond;
                 continue;
             }
         }
