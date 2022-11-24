@@ -163,11 +163,12 @@ namespace Fast
             }
         }
         {
-            //Mem16 test0 = Load16FromAddress(dbr, *pCompressedSourceIter);
-            //Mem16 test1 = Load16FromVector(compressedSource, *pCompressedSourceIndex);
-            //if (test0.Data16 != test1.Data16)
+            Mem16 test0 = Load16FromAddress(dbr, *pCompressedSourceIter);
+            Mem16 test1;
+            test1.Low8 = compressedSource[*pCompressedSourceIndex];
+            if (test0.Low8 != test1.Low8)
             {
-            //    __debugbreak();
+                __debugbreak();
             }
         }
 
@@ -770,7 +771,7 @@ namespace Fast
         assert(compressedSize != -1);
 
         std::vector<unsigned char> compressedSource;
-        for (int i = 0; i < compressedSize; ++i)
+        for (int i = 0; i < compressedSize + 1; ++i)
         {
             unsigned char ch = Load8FromAddress(dbr, compressedSourceLocation + i);
             compressedSource.push_back(ch);
