@@ -383,17 +383,15 @@ namespace Fast
         }
 
         unsigned short sourceIndex = 0;
-        unsigned char lowOrderResult{};
+        unsigned char destIndex{};
         unsigned char highOrderResult{};
 
         for (int i=0; i<8; ++i)
         {
-            unsigned short destIndex = lowOrderResult;
-
             int numOfBytesToSeek = cache7E0700temp[i * 2];
             for (int j = 0; j < numOfBytesToSeek; ++j)
             {
-                lowOrderResult = i * 2;
+                unsigned char lowOrderResult = i * 2;
                 highOrderResult = cache7E0100[sourceIndex];
 
                 ++sourceIndex;
@@ -416,15 +414,13 @@ namespace Fast
                     ++destIndex;
                 }
             }
-
-            lowOrderResult = destIndex;
         }
 
         // Always tack a bunch of 0x10 on at the end.
-        int byteCountToSet = 0xFF - lowOrderResult + 1;
+        int byteCountToSet = 0xFF - destIndex + 1;
         for (int i=0; i< byteCountToSet; ++i) 
         {
-            result.mem7E0500_7E0700[0x100 + lowOrderResult + i] = 0x10;
+            result.mem7E0500_7E0700[0x100 + destIndex + i] = 0x10;
         }
 
         result.CompressedSourceIndex = compressedSourceIndex;
