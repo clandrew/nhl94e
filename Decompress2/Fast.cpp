@@ -154,28 +154,9 @@ namespace Fast
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA)
     {
-        {
-            unsigned short test0 = *pCompressedSourceIter - compressedSourceLocation;
-            unsigned short test1 = *pCompressedSourceIndex;
-            if (test0 != test1)
-            {
-                __debugbreak();
-            }
-        }
-        {
-            Mem16 test0 = Load16FromAddress(dbr, *pCompressedSourceIter);
-            Mem16 test1;
-            test1.Low8 = compressedSource[*pCompressedSourceIndex];
-            if (test0.Low8 != test1.Low8)
-            {
-                __debugbreak();
-            }
-        }
-
         // This runs in 8 bit mode.
-        Mem16 loaded16 = Load16FromAddress(dbr, *pCompressedSourceIter);
         (*pA) &= 0xFF00;
-        (*pA) |= loaded16.Low8;
+        (*pA) |= compressedSource[*pCompressedSourceIndex];
         (*pCompressedSourceIter)++;
         (*pCompressedSourceIndex)++;
     }
@@ -783,6 +764,8 @@ namespace Fast
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
         result.CompressedSize = result1.CompressedSize;
+
+        //std::cout << " { " << teamIndex << ", " << playerIndex << ", " << result.CompressedSize << "},\n";
 
         return result;
     }
