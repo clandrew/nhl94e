@@ -622,10 +622,10 @@ namespace Fast
             {
                 // Write output and check if done.
                 unsigned short resultCaseCond = exitValue;
-                unsigned short nextCacheIndex = result0.CompressedDataToken / 256;
+                unsigned short localCacheIndex = result0.CompressedDataToken / 256;
 
                 Fn_80C2DC(
-                    nextCacheIndex,
+                    localCacheIndex,
                     compressedSource,
                     &compressedSourceIndex, 
                     &swapValueToken, 
@@ -637,7 +637,7 @@ namespace Fast
                     &byteRepititionCount,
                     &swapValueToken,
                     &resultCaseCond,
-                    &nextCacheIndex,
+                    &localCacheIndex,
                     &c);
                 if (!continueDecompression)
                 {
@@ -667,8 +667,10 @@ namespace Fast
                 }
 
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[resultCaseCond / 2 - 1];
-                nextCacheIndex = swapValueToken >> 8;
-                nextCaseCond = result0.mem7E0500_7E0700[0x100 + nextCacheIndex];
+                
+                unsigned short localCacheIndex2 = swapValueToken >> 8;
+                nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex2];
+
                 continue;
             }
         }
