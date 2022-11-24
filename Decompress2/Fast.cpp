@@ -532,6 +532,7 @@ namespace Fast
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
+                nextCaseCond = x;
                 continue;
             }
 
@@ -611,8 +612,11 @@ namespace Fast
                         break;
                     }
                 }
+                nextCaseCond = x;
+                continue;
             }
-            else if (nextCaseCond == 0x12)
+            
+            if (nextCaseCond == 0x12)
             {
                 // Write output and check if done.
                 x = exitValue;
@@ -665,6 +669,7 @@ namespace Fast
                 nextCaseCond = x;
                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+                continue;
             }
         }
 
