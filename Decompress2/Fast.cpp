@@ -503,8 +503,10 @@ namespace Fast
 
         bool doneDecompression = false;
 
-        unsigned short cacheIndex = swapValueToken >> 8;
-        nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
+        {
+            unsigned short localCacheIndex = swapValueToken >> 8;
+            nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex];
+        }
 
         while (!doneDecompression)
         {
@@ -527,8 +529,8 @@ namespace Fast
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, localCacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 
-                cacheIndex = swapValueToken >> 8;
-                nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
+                unsigned short localCacheIndex2 = swapValueToken >> 8;
+                nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex2];
 
                 continue;
             }
@@ -670,8 +672,6 @@ namespace Fast
 
                 nextCacheIndex = swapValueToken >> 8;
                 nextCaseCond = result0.mem7E0500_7E0700[0x100 + nextCacheIndex];
-
-                cacheIndex = nextCacheIndex;
                 continue;
             }
         }
