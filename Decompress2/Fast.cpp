@@ -512,10 +512,11 @@ namespace Fast
 
         bool doneDecompression = false;
 
+        nextCaseCond = x;
+
         while (!doneDecompression)
         {
             currentCaseIndex = nextCaseIndex;
-            nextCaseCond = x;
             nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
             exitValue = 0x12 - (currentCaseIndex * 2);
 
