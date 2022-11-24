@@ -270,7 +270,7 @@ namespace Fast
 
         unsigned short valueIncrementTotal = 0;
         unsigned short valueAccumulator = 0;
-        unsigned short numDatumMultiplies = 0xF;
+        unsigned short numDatumMultiplies = 0xE;
         unsigned short byteRepititionCount = 0;
         
         unsigned short x = 0xFE;
@@ -314,7 +314,7 @@ namespace Fast
                 valueAccumulator += valueIncrement;
                 datum.Data16 = valueAccumulator;
 
-                for (int i = 0; i < numDatumMultiplies-1; ++i)
+                for (int i = 0; i < numDatumMultiplies; ++i)
                 {
                     datum.Data16 *= 2;
                 }
