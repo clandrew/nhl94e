@@ -383,8 +383,7 @@ namespace Fast
         }
 
         unsigned short sourceIndex = 0;
-        unsigned char destIndex{};
-        unsigned char highOrderResult{};
+        unsigned char destIndex = 0;
 
         for (int i=0; i<8; ++i)
         {
@@ -392,7 +391,7 @@ namespace Fast
             for (int j = 0; j < numOfBytesToSeek; ++j)
             {
                 unsigned char lowOrderResult = i * 2;
-                highOrderResult = cache7E0100[sourceIndex];
+                unsigned char highOrderResult = cache7E0100[sourceIndex];
 
                 ++sourceIndex;
 
@@ -400,8 +399,8 @@ namespace Fast
                 {
                     unsigned short mask = i + 1;
 
-                    compressedDataToken &= 0x00FF; // Keep the first, lower byte
-                    compressedDataToken |= (mask << 8); // Replace the upper byte, second byte
+                    compressedDataToken &= 0x00FF; // Keep the lower byte
+                    compressedDataToken |= (mask << 8); // Replace the upper byte
 
                     lowOrderResult = 0x12;
                 }
@@ -544,16 +543,13 @@ namespace Fast
                 x = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
 
+                unsigned short loadSource = swapValueToken;
+
                 shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
                 {
-                    Mem16 loaded16;
-                    loaded16.Low8 = result0.cache7E0750.Low8;
-                    loaded16.High8 = result0.cache7E0750.High8;
-                    shiftHigh = swapValueToken >= loaded16.Data16;
+                    shiftHigh = swapValueToken >= result0.cache7E0750.Data16;
                 }
-
-                unsigned short loadSource = swapValueToken;
 
                 if (shiftHigh)
                 {
