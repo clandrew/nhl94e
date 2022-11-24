@@ -205,12 +205,6 @@ namespace Fast
         return loaded;
     }
 
-    void LoadNextFrom0600(Monstrosity0Result const& result0, unsigned short swapValueToken, unsigned short* pX, unsigned short* pY)
-    {
-        *pY = swapValueToken >> 8;
-        *pX = result0.mem7E0500_7E0700[0x100 + *pY];
-    }
-
     void LoadNextFrom0CMaskAndShift(int shifts, std::vector<unsigned char> const& compressedSource, unsigned short compressedSourceIndex, unsigned short* pSwapValueToken)
     {
         Mem16 compressedShort = Load16FromVector(compressedSource, compressedSourceIndex); // Load a single byte.
@@ -530,7 +524,10 @@ namespace Fast
                     swapValueToken *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, cacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &cacheIndex);
+                
+                cacheIndex = swapValueToken >> 8;
+                nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
+
                 continue;
             }
 
@@ -604,7 +601,8 @@ namespace Fast
                             countUntilMatch--;
                             if (countUntilMatch == 0)
                             {
-                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &cacheIndex);
+                                cacheIndex = swapValueToken >> 8;
+                                nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -667,7 +665,10 @@ namespace Fast
 
                 nextCaseCond = resultCaseCond;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &nextCacheIndex);
+
+                nextCacheIndex = swapValueToken >> 8;
+                nextCaseCond = result0.mem7E0500_7E0700[0x100 + nextCacheIndex];
+
                 cacheIndex = nextCacheIndex;
                 continue;
             }
