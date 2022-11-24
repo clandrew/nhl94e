@@ -538,13 +538,6 @@ namespace Fast
         std::vector<unsigned char> const& compressedSource,
         Monstrosity0Result& result0)
     {
-        /*
-        if (teamIndex == 0 && playerIndex == 0)
-        {
-            result0.SwapValueToken = 0x200;
-            result0.mem7E0500_7E0700[0x0] = 0xCB;
-        }*/
-
         Monstrosity1Result result{ };
         bool continueDecompression = true;
         unsigned char decompressedValue = 0;
