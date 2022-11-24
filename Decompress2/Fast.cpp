@@ -146,7 +146,6 @@ namespace Fast
 
     void LoadNextFrom0CInc(
         std::vector<unsigned char> const& compressedSource, 
-        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA)
     {
@@ -547,7 +546,7 @@ namespace Fast
                 swapValueToken *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
-                    LoadNextFrom0CInc(compressedSource, compressedSourceLocation, &compressedSourceIndex, &swapValueToken);
+                    LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
@@ -618,7 +617,7 @@ namespace Fast
                             swapValueToken *= 2;
                             if (i == 0 || i == 8)
                             {
-                                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, &compressedSourceIndex, &swapValueToken);
+                                LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                             }
 
                             y--;
@@ -778,7 +777,7 @@ namespace Fast
         --(*pY);
         if (*pY == 0)
         {
-            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
             *pY = 0x8;
         }
 
@@ -789,7 +788,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
 
@@ -798,7 +797,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
                 *pY = 8;
             }
 
@@ -818,7 +817,7 @@ namespace Fast
             --(*pY);
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
 
@@ -832,7 +831,7 @@ namespace Fast
 
             if (*pY == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &acc);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
                 *pY = 0x8;
             }
         }
@@ -867,7 +866,7 @@ namespace Fast
 
         if (*pX == 0)
         {
-            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &temp);
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
             *pX = 0x10;
         }
 
@@ -878,7 +877,7 @@ namespace Fast
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
 
@@ -892,7 +891,7 @@ namespace Fast
                 return *pByteRepititionCount != 0;
             }
 
-            LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &temp);
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
 
             *pX = 0x10;
             *pSwapValueToken = temp;
@@ -910,7 +909,7 @@ namespace Fast
             *pX -= 2;
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
 
@@ -924,7 +923,7 @@ namespace Fast
 
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, &temp);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
                 *pX = 0x10;
             }
         }
@@ -951,7 +950,7 @@ namespace Fast
             *pX -= 2;
             if (*pX == 0)
             {
-                LoadNextFrom0CInc(compressedSource, compressedSourceLocation, pCompressedSourceIndex, pA);
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pA);
                 *pX = 0x10;
             }
         }
