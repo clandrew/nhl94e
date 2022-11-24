@@ -539,6 +539,7 @@ namespace Fast
             if (nextCaseCond == 0x10)
             {
                 // The jump760 case with what was formerly known as switchcase 8.
+                unsigned short localX = exitValue;
                 x = exitValue;
                 nextCaseCond = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
