@@ -620,6 +620,7 @@ namespace Fast
             if (nextCaseCond == 0x12)
             {
                 // Write output and check if done.
+                unsigned short localX = exitValue;
                 x = exitValue;
                 y = result0.CompressedDataToken / 256;
 
@@ -628,7 +629,7 @@ namespace Fast
                     compressedSource,
                     &compressedSourceIndex, 
                     &swapValueToken, 
-                    &x);
+                    &localX);
 
                 {
                     continueDecompression = Fn_80C232(
@@ -636,7 +637,7 @@ namespace Fast
                         &compressedSourceIndex,
                         &byteRepititionCount, 
                         &swapValueToken, 
-                        &x, 
+                        &localX,
                         &y, 
                         &c);
                     if (!continueDecompression)
@@ -667,7 +668,7 @@ namespace Fast
                     indirectLow += 1;
                 }
 
-                nextCaseCond = x;
+                nextCaseCond = localX;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
                 LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
                 x = nextCaseCond;
