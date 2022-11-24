@@ -487,7 +487,6 @@ namespace Fast
         Monstrosity0Result& result0)
     {
         Monstrosity1Result result{ };
-        bool continueDecompression = true;
         unsigned char decompressedValue = 0;
         unsigned short currentCaseIndex = 0;
         unsigned short mainIndex = 0;
@@ -550,17 +549,20 @@ namespace Fast
                     shiftHigh = swapValueToken >= result0.cache7E0750.Data16;
                 }
 
+                unsigned short localY = 0;
+                unsigned short countUntilMatch = 0;
+
                 if (shiftHigh)
                 {
                     loadSource /= 64;
                     loadSource -= result0.cache7E0730.High16;
-                    y = 2;
+                    countUntilMatch = 2;
                 }
                 else
                 {
                     loadSource /= 128;
                     loadSource -= result0.cache7E0730.Low16;
-                    y = 1;
+                    countUntilMatch = 1;
                 }
 
                 // This is 8 bit acc.
@@ -599,10 +601,10 @@ namespace Fast
                                 LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                             }
 
-                            y--;
-                            if (y == 0)
+                            countUntilMatch--;
+                            if (countUntilMatch == 0)
                             {
-                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &localY);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -612,36 +614,35 @@ namespace Fast
                         break;
                     }
                 }
+                y = localY;
                 continue;
             }
             
             if (nextCaseCond == 0x12)
             {
                 // Write output and check if done.
-                unsigned short localX = exitValue;
-                y = result0.CompressedDataToken / 256;
+                unsigned short resultCaseCond = exitValue;
+                unsigned short localY = result0.CompressedDataToken / 256;
 
                 Fn_80C2DC(
-                    y,
+                    localY,
                     compressedSource,
                     &compressedSourceIndex, 
                     &swapValueToken, 
-                    &localX);
+                    &resultCaseCond);
 
+                bool continueDecompression = Fn_80C232(
+                    compressedSource,
+                    &compressedSourceIndex,
+                    &byteRepititionCount,
+                    &swapValueToken,
+                    &resultCaseCond,
+                    &localY,
+                    &c);
+                if (!continueDecompression)
                 {
-                    continueDecompression = Fn_80C232(
-                        compressedSource,
-                        &compressedSourceIndex,
-                        &byteRepititionCount, 
-                        &swapValueToken, 
-                        &localX,
-                        &y, 
-                        &c);
-                    if (!continueDecompression)
-                    {
-                        doneDecompression = true;
-                        break;
-                    }
+                    doneDecompression = true;
+                    break;
                 }
 
                 // Write the value, some number of times.
@@ -665,9 +666,10 @@ namespace Fast
                     indirectLow += 1;
                 }
 
-                nextCaseCond = localX;
+                nextCaseCond = resultCaseCond;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &localY);
+                y = localY;
                 continue;
             }
         }
