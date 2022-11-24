@@ -531,8 +531,8 @@ namespace Fast
                     swapValueToken *= secondMultiplier;
                 }
                 decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                LoadNextFrom0600(result0, swapValueToken, &x, &y);
-                nextCaseCond = x;
+                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                x = nextCaseCond;
                 continue;
             }
 
