@@ -514,6 +514,8 @@ namespace Fast
 
             if (nextCaseCond < 0x10)
             {
+                unsigned short localCacheIndex = swapValueToken >> 8;
+
                 unsigned short firstMultiplier = s_caseTable[currentCaseIndex].FirstMultipliers[nextCaseCond / 2 - 1];
                 unsigned short secondMultiplier = s_caseTable[currentCaseIndex].SecondMultipliers[nextCaseCond / 2 - 1];
 
@@ -523,7 +525,7 @@ namespace Fast
                     LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
-                decompressedValueCandidate = LoadNextFrom0500(result0, cacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
+                decompressedValueCandidate = LoadNextFrom0500(result0, localCacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
                 
                 cacheIndex = swapValueToken >> 8;
                 nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
@@ -601,8 +603,8 @@ namespace Fast
                             countUntilMatch--;
                             if (countUntilMatch == 0)
                             {
-                                cacheIndex = swapValueToken >> 8;
-                                nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
+                                unsigned short localCacheIndex = swapValueToken >> 8;
+                                nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex];
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
