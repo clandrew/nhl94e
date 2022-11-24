@@ -24,7 +24,6 @@ namespace Fast
         bool* pCarry);
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
-        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount, 
         unsigned short* pSwapValueToken,
@@ -34,7 +33,6 @@ namespace Fast
     void Fn_80C2DC(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
-        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA, 
         unsigned short* pX);
@@ -643,7 +641,6 @@ namespace Fast
                 Fn_80C2DC(
                     y,
                     compressedSource,
-                    compressedSourceLocation,
                     &compressedSourceIndex, 
                     &swapValueToken, 
                     &x);
@@ -651,7 +648,6 @@ namespace Fast
                 {
                     continueDecompression = Fn_80C232(
                         compressedSource,
-                        compressedSourceLocation,
                         &compressedSourceIndex,
                         &byteRepititionCount, 
                         &swapValueToken, 
@@ -847,7 +843,6 @@ namespace Fast
 
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
-        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
@@ -939,7 +934,6 @@ namespace Fast
     void Fn_80C2DC(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
-        unsigned short compressedSourceLocation,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA, 
         unsigned short* pX)
