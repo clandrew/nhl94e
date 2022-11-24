@@ -394,25 +394,20 @@ namespace Fast
             for (int j = 0; j < numOfBytesToSeek; ++j)
             {
                 lowOrderResult = i * 2;
-
-                // This is running in 8 bit accumulator and index mode.
-                Mem16 cachedValue{};
-                cachedValue.Low8 = cache7E0100[sourceIndex];
                 highOrderResult = cache7E0100[sourceIndex];
 
                 ++sourceIndex;
 
-                if (cachedValue.Data16 == (compressedDataToken & 0xFF))
+                if (highOrderResult == (compressedDataToken & 0xFF))
                 {
-                    cachedValue.Data16 = i + 1;
+                    unsigned short mask = i + 1;
 
                     compressedDataToken &= 0x00FF; // Keep the first, lower byte
-                    compressedDataToken |= (cachedValue.Data16 << 8); // Replace the upper byte, second byte
+                    compressedDataToken |= (mask << 8); // Replace the upper byte, second byte
 
                     lowOrderResult = 0x12;
                 }
 
-                // Mem00 contains the data to get written.
                 int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
