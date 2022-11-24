@@ -234,7 +234,7 @@ namespace Fast
         RotateLeft(pByteRepititionCount, pCarry);
     }
 
-    Monstrosity0Result Monstrosity0(unsigned short compressedSourceLocation, std::vector<unsigned char> const& compressedSource)
+    Monstrosity0Result Monstrosity0(std::vector<unsigned char> const& compressedSource)
     {
         Monstrosity0Result result{};
         result.Initialize();
@@ -495,7 +495,6 @@ namespace Fast
     Monstrosity1Result Monstrosity1(
         int teamIndex, 
         int playerIndex,
-        unsigned short compressedSourceLocation,
         std::vector<unsigned char> const& compressedSource,
         Monstrosity0Result& result0)
     {
@@ -731,8 +730,8 @@ namespace Fast
             compressedSource.push_back(ch);
         }
 
-        Monstrosity0Result result0 = Monstrosity0(compressedSourceLocation, compressedSource);
-        Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSourceLocation, compressedSource, result0);
+        Monstrosity0Result result0 = Monstrosity0(compressedSource);
+        Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;

@@ -5,7 +5,7 @@ struct CompressedSizeEntry
     int TeamIndex;
     int PlayerIndex;
     int CompressedSize;
-} s_compressedSizes[] =
+} s_compressedSizes[] = // These all decompress to 1152 bytes each.
 {
  { 0, 0, 561},
  { 0, 1, 553},
