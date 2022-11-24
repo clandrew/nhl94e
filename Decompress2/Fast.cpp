@@ -499,7 +499,7 @@ namespace Fast
         unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
-        unsigned short y = swapValueToken >> 8;
+        unsigned short cacheIndex = swapValueToken >> 8;
         bool c = false;
 
         unsigned short nextCaseCond = result0.CaseCond;
@@ -510,7 +510,7 @@ namespace Fast
 
         bool doneDecompression = false;
 
-        nextCaseCond = result0.mem7E0500_7E0700[0x100 + y];
+        nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
 
         while (!doneDecompression)
         {
@@ -529,8 +529,8 @@ namespace Fast
                     LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
-                decompressedValueCandidate = LoadNextFrom0500(result0, y, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                decompressedValueCandidate = LoadNextFrom0500(result0, cacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
+                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &cacheIndex);
                 continue;
             }
 
@@ -549,7 +549,6 @@ namespace Fast
                     shiftHigh = swapValueToken >= result0.cache7E0750.Data16;
                 }
 
-                unsigned short localY = 0;
                 unsigned short countUntilMatch = 0;
 
                 if (shiftHigh)
@@ -588,6 +587,8 @@ namespace Fast
                     mem6b.High8 = swapValueToken & 0xFF;
                     swapValueToken = mem6b.Data16;
                 }
+
+                unsigned short localY = 0;
                 for (int iter = 0; iter < 8; iter++)
                 {
                     bool foundMatch = false;
@@ -614,7 +615,7 @@ namespace Fast
                         break;
                     }
                 }
-                y = localY;
+                cacheIndex = localY;
                 continue;
             }
             
@@ -669,7 +670,7 @@ namespace Fast
                 nextCaseCond = resultCaseCond;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
                 LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &localY);
-                y = localY;
+                cacheIndex = localY;
                 continue;
             }
         }
