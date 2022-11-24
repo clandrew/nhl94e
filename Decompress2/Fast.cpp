@@ -730,7 +730,7 @@ namespace Fast
             }
         }
 
-        result.CompressedSize = compressedSourceIter - compressedSourceLocation;
+        result.CompressedSize = compressedSourceIter - compressedSourceLocation - 1;
 
         return result;
     }
