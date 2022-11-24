@@ -383,55 +383,55 @@ namespace Fast
         }
 
         unsigned short sourceIndex = 0;
-        Mem16 resultValue00{};
+        unsigned char lowOrderResult{};
+        unsigned char highOrderResult{};
 
         for (int i=0; i<8; ++i)
         {
-            unsigned short destIndex = resultValue00.Data16;
+            unsigned short destIndex = lowOrderResult;
 
             int numOfBytesToSeek = cache7E0700temp[i * 2];
             for (int j = 0; j < numOfBytesToSeek; ++j)
             {
-                resultValue00.Data16 = i * 2;
+                lowOrderResult = i * 2;
 
                 // This is running in 8 bit accumulator and index mode.
-                Mem16 patchedValue{};
-                patchedValue.Data16 = resultValue00.Data16;
-                patchedValue.Low8 = cache7E0100[sourceIndex];
-
-                resultValue00.High8 = cache7E0100[sourceIndex];
+                Mem16 cachedValue{};
+                cachedValue.Low8 = cache7E0100[sourceIndex];
+                highOrderResult = cache7E0100[sourceIndex];
 
                 ++sourceIndex;
 
-                if (patchedValue.Data16 == (compressedDataToken & 0xFF))
+                if (cachedValue.Data16 == (compressedDataToken & 0xFF))
                 {
-                    patchedValue.Data16 = i + 1;
+                    cachedValue.Data16 = i + 1;
 
                     compressedDataToken &= 0x00FF; // Keep the first, lower byte
-                    compressedDataToken |= (patchedValue.Data16 << 8); // Replace the upper byte, second byte
+                    compressedDataToken |= (cachedValue.Data16 << 8); // Replace the upper byte, second byte
 
-                    resultValue00.Data16 = 0x12;
+                    lowOrderResult = 0x12;
                 }
 
                 // Mem00 contains the data to get written.
                 int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
-                    result.mem7E0500_7E0700[destIndex] = resultValue00.High8;
-                    result.mem7E0500_7E0700[0x100 + destIndex] = resultValue00.Low8;
+                    result.mem7E0500_7E0700[destIndex] = highOrderResult;
+                    result.mem7E0500_7E0700[0x100 + destIndex] = lowOrderResult;
                     ++destIndex;
                 }
             }
 
-            resultValue00.Data16 = destIndex;
+            lowOrderResult = destIndex;
         }
 
         // Always tack a bunch of 0x10 on at the end.
-        int byteCountToSet = 0xFF - resultValue00.Low8 + 1;
+        int byteCountToSet = 0xFF - lowOrderResult + 1;
         for (int i=0; i< byteCountToSet; ++i) 
         {
-            result.mem7E0500_7E0700[0x100 + resultValue00.Low8 + i] = 0x10;
+            result.mem7E0500_7E0700[0x100 + lowOrderResult + i] = 0x10;
         }
+
         result.CompressedSourceIndex = compressedSourceIndex;
         result.CompressedDataToken = compressedDataToken;
         result.ByteRepititionCount = byteRepititionCount;
