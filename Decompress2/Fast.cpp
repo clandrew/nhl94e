@@ -499,7 +499,6 @@ namespace Fast
         unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
-        unsigned short cacheIndex = swapValueToken >> 8;
         bool c = false;
 
         unsigned short nextCaseCond = result0.CaseCond;
@@ -510,6 +509,7 @@ namespace Fast
 
         bool doneDecompression = false;
 
+        unsigned short cacheIndex = swapValueToken >> 8;
         nextCaseCond = result0.mem7E0500_7E0700[0x100 + cacheIndex];
 
         while (!doneDecompression)
@@ -588,7 +588,6 @@ namespace Fast
                     swapValueToken = mem6b.Data16;
                 }
 
-                unsigned short localY = 0;
                 for (int iter = 0; iter < 8; iter++)
                 {
                     bool foundMatch = false;
@@ -605,7 +604,7 @@ namespace Fast
                             countUntilMatch--;
                             if (countUntilMatch == 0)
                             {
-                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &localY);
+                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &cacheIndex);
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -615,7 +614,6 @@ namespace Fast
                         break;
                     }
                 }
-                cacheIndex = localY;
                 continue;
             }
             
@@ -623,10 +621,10 @@ namespace Fast
             {
                 // Write output and check if done.
                 unsigned short resultCaseCond = exitValue;
-                unsigned short localY = result0.CompressedDataToken / 256;
+                unsigned short nextCacheIndex = result0.CompressedDataToken / 256;
 
                 Fn_80C2DC(
-                    localY,
+                    nextCacheIndex,
                     compressedSource,
                     &compressedSourceIndex, 
                     &swapValueToken, 
@@ -638,7 +636,7 @@ namespace Fast
                     &byteRepititionCount,
                     &swapValueToken,
                     &resultCaseCond,
-                    &localY,
+                    &nextCacheIndex,
                     &c);
                 if (!continueDecompression)
                 {
@@ -669,8 +667,8 @@ namespace Fast
 
                 nextCaseCond = resultCaseCond;
                 nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &localY);
-                cacheIndex = localY;
+                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &nextCacheIndex);
+                cacheIndex = nextCacheIndex;
                 continue;
             }
         }
