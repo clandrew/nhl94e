@@ -538,7 +538,6 @@ namespace Fast
             if (nextCaseCond == 0x10)
             {
                 // The jump760 case with what was formerly known as switchcase 8.
-                unsigned short localX = exitValue;
                 nextCaseCond = exitValue;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
 
@@ -667,9 +666,7 @@ namespace Fast
                     indirectLow += 1;
                 }
 
-                nextCaseCond = resultCaseCond;
-                nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
-
+                nextCaseIndex = s_caseTable[0].NextCaseIndices[resultCaseCond / 2 - 1];
                 nextCacheIndex = swapValueToken >> 8;
                 nextCaseCond = result0.mem7E0500_7E0700[0x100 + nextCacheIndex];
                 continue;
