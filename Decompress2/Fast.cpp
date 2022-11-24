@@ -603,8 +603,8 @@ namespace Fast
                             y--;
                             if (y == 0)
                             {
-                                LoadNextFrom0600(result0, swapValueToken, &x, &y);
-                                nextCaseCond = x;
+                                LoadNextFrom0600(result0, swapValueToken, &nextCaseCond, &y);
+                                x = nextCaseCond;
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
