@@ -540,6 +540,7 @@ namespace Fast
             {
                 // The jump760 case with what was formerly known as switchcase 8.
                 x = exitValue;
+                nextCaseCond = x;
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
 
                 unsigned short loadSource = swapValueToken;
@@ -589,7 +590,7 @@ namespace Fast
                 for (int iter = 0; iter < 8; iter++)
                 {
                     bool foundMatch = false;
-                    if (x == caseTable8Entries[iter].Cond)
+                    if (nextCaseCond == caseTable8Entries[iter].Cond)
                     {
                         for (int i = caseTable8Entries[iter].Lower; i < caseTable8Entries[iter].Lower + caseTable8Entries[iter].IterCount; ++i)
                         {
@@ -603,6 +604,7 @@ namespace Fast
                             if (y == 0)
                             {
                                 LoadNextFrom0600(result0, swapValueToken, &x, &y);
+                                nextCaseCond = x;
                                 nextCaseIndex = (i % 8) + 1;
                                 foundMatch = true;
                                 break;
@@ -612,7 +614,6 @@ namespace Fast
                         break;
                     }
                 }
-                nextCaseCond = x;
                 continue;
             }
             
