@@ -727,6 +727,20 @@ namespace Fast
         return result;
     }
 
+    void DecrementCaseKey_ResetCaseKeyAndLoadNext(
+        std::vector<unsigned char> const& compressedSource,
+        unsigned short* pCompressedSourceIndex,
+        unsigned short* pCaseKey,
+        unsigned short* pAcc)
+    {
+        --(*pCaseKey);
+        if (*pCaseKey == 0)
+        {
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pAcc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
+            *pCaseKey = 0x8;
+        }
+    }
+
     unsigned short Fn_80C1B0_GetSparseValueIncrement(
         unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
@@ -749,32 +763,17 @@ namespace Fast
         carry = acc >= 0x8000;
         acc *= 2;
 
-        --(*pCaseKey);
-        if (*pCaseKey == 0)
-        {
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
-            *pCaseKey = 0x8;
-        }
+        DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
 
         if (carry)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pCaseKey)--;
 
-            if (*pCaseKey == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pCaseKey = 0x8;
-            }
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
 
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pCaseKey)--;
 
-            if (*pCaseKey == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pCaseKey = 8;
-            }
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
 
             *pSwapValueToken = acc;
             *pNextCaseCond = *pCaseKey * 2;
@@ -788,27 +787,14 @@ namespace Fast
         {
             carry = acc >= 0x8000;
             acc *= 2;
-
-            --(*pCaseKey);
-            if (*pCaseKey == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pCaseKey = 0x8;
-            }
-
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
             ++numberOfRotates;
         }
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pCaseKey)--;
-
-            if (*pCaseKey == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pCaseKey = 0x8;
-            }
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
         }
 
         *pSwapValueToken = acc;
