@@ -734,7 +734,7 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pY)
+        unsigned short* pCaseKey)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -749,35 +749,35 @@ namespace Fast
         carry = acc >= 0x8000;
         acc *= 2;
 
-        --(*pY);
-        if (*pY == 0)
+        --(*pCaseKey);
+        if (*pCaseKey == 0)
         {
             LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
-            *pY = 0x8;
+            *pCaseKey = 0x8;
         }
 
         if (carry)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pY)--;
+            (*pCaseKey)--;
 
-            if (*pY == 0)
+            if (*pCaseKey == 0)
             {
                 LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pY = 0x8;
+                *pCaseKey = 0x8;
             }
 
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pY)--;
+            (*pCaseKey)--;
 
-            if (*pY == 0)
+            if (*pCaseKey == 0)
             {
                 LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pY = 8;
+                *pCaseKey = 8;
             }
 
             *pSwapValueToken = acc;
-            *pNextCaseCond = *pY * 2;
+            *pNextCaseCond = *pCaseKey * 2;
             return *pByteRepititionCount;
         }
 
@@ -789,11 +789,11 @@ namespace Fast
             carry = acc >= 0x8000;
             acc *= 2;
 
-            --(*pY);
-            if (*pY == 0)
+            --(*pCaseKey);
+            if (*pCaseKey == 0)
             {
                 LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pY = 0x8;
+                *pCaseKey = 0x8;
             }
 
             ++numberOfRotates;
@@ -802,12 +802,12 @@ namespace Fast
         for (int i = 0; i < numberOfRotates; ++i)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            (*pY)--;
+            (*pCaseKey)--;
 
-            if (*pY == 0)
+            if (*pCaseKey == 0)
             {
                 LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &acc);
-                *pY = 0x8;
+                *pCaseKey = 0x8;
             }
         }
 
@@ -815,7 +815,7 @@ namespace Fast
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         *pByteRepititionCount += s_ROMValueTable_80C2B6[numberOfRotates];
-        *pNextCaseCond = (*pY) * 2;
+        *pNextCaseCond = (*pCaseKey) * 2;
         return *pByteRepititionCount;
     }
 
