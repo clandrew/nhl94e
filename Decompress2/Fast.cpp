@@ -486,8 +486,6 @@ namespace Fast
         unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
-        bool c = false;
-
         unsigned short nextCaseCond = result0.CaseCond;
         unsigned short nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
 
