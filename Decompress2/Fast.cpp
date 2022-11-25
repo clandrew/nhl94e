@@ -823,7 +823,7 @@ namespace Fast
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
         unsigned short* pCaseCond,
-        unsigned short* pY,
+        unsigned short* pCacheIndex,
         bool* pCarry) // Returns whether we should continue decompression.
     {
         unsigned short nextSwapValueToken = *pSwapValueToken;
@@ -857,7 +857,7 @@ namespace Fast
             return *pByteRepititionCount != 0;
         }
 
-        *pY = 2;
+        *pCacheIndex = 2;
 
         *pCarry = false;
         while (!(*pCarry))
@@ -867,10 +867,10 @@ namespace Fast
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-            (*pY)++;
+            (*pCacheIndex)++;
         }
 
-        for (int i = 0; i < *pY; ++i)
+        for (int i = 0; i < *pCacheIndex; ++i)
         {
             ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
 
@@ -880,7 +880,7 @@ namespace Fast
         *pSwapValueToken = nextSwapValueToken;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = ((*pY) * 2 - 6) / 2;
+        int lookupIndex = ((*pCacheIndex) * 2 - 6) / 2;
         *pByteRepititionCount += lookup[lookupIndex];
         return *pByteRepititionCount != 0;
     }
