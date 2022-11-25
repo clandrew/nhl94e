@@ -916,13 +916,13 @@ namespace Fast
     }
 
     void Fn_80C2DC(
-        unsigned short y,
+        unsigned short cacheIndex,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pA, 
         unsigned short* pX)
     {
-        for (int i = 0; i < y; ++i)
+        for (int i = 0; i < cacheIndex; ++i)
         {
             *pA *= 2;
             *pX -= 2;
