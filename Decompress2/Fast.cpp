@@ -266,7 +266,6 @@ namespace Fast
         unsigned short numDatumMultiplies = 0xE;
         unsigned short byteRepititionCount = 0;
         
-        unsigned short x = 0xFE;
         unsigned short y = 8;
         bool c = false;
 
@@ -294,7 +293,6 @@ namespace Fast
                 &swapValueToken,
                 &y,
                 &c);
-            x = iteration;
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -353,7 +351,6 @@ namespace Fast
                 &swapValueToken,
                 &y,
                 &c) + 1;
-            x = sourceIndexWithWrapping;
 
             while (howManyLowEntriesToSkip > 0)
             {
