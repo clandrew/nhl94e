@@ -18,8 +18,7 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pY,
-        bool* pCarry);
+        unsigned short* pY);
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
@@ -267,7 +266,6 @@ namespace Fast
         unsigned short byteRepititionCount = 0;
         
         unsigned short y = 8;
-        bool c = false;
 
         int setBytesInCacheCounter = 0;
         int iteration = 0;
@@ -291,8 +289,7 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &y,
-                &c);
+                &y);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -349,8 +346,7 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &y,
-                &c) + 1;
+                &y) + 1;
 
             while (howManyLowEntriesToSkip > 0)
             {
@@ -737,8 +733,7 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pY,
-        bool* pCarry)
+        unsigned short* pY)
     {
         // Input: mem6c, which is the SwapToken from the compressed data.
         //        y as an index. y is [0..7]
@@ -748,8 +743,9 @@ namespace Fast
 
         *pByteRepititionCount = 0;
         unsigned short acc = *pSwapValueToken;
+        bool carry = false;
 
-        *pCarry = acc >= 0x8000;
+        carry = acc >= 0x8000;
         acc *= 2;
 
         --(*pY);
@@ -759,9 +755,9 @@ namespace Fast
             *pY = 0x8;
         }
 
-        if (*pCarry)
+        if (carry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
             (*pY)--;
 
             if (*pY == 0)
@@ -770,7 +766,7 @@ namespace Fast
                 *pY = 0x8;
             }
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
             (*pY)--;
 
             if (*pY == 0)
@@ -786,10 +782,10 @@ namespace Fast
 
         unsigned short numberOfRotates = 0x2;
 
-        *pCarry = false;
-        while (!(*pCarry))
+        carry = false;
+        while (!carry)
         {
-            *pCarry = acc >= 0x8000;
+            carry = acc >= 0x8000;
             acc *= 2;
 
             --(*pY);
@@ -804,7 +800,7 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
             (*pY)--;
 
             if (*pY == 0)
