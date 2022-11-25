@@ -142,11 +142,11 @@ namespace Fast
     void LoadNextFrom0CInc(
         std::vector<unsigned char> const& compressedSource, 
         unsigned short* pCompressedSourceIndex, 
-        unsigned short* pA)
+        unsigned short* pSwapValueToken)
     {
         // This runs in 8 bit mode.
-        (*pA) &= 0xFF00;
-        (*pA) |= compressedSource[*pCompressedSourceIndex];
+        (*pSwapValueToken) &= 0xFF00;
+        (*pSwapValueToken) |= compressedSource[*pCompressedSourceIndex];
         (*pCompressedSourceIndex)++;
     }
 
@@ -218,10 +218,10 @@ namespace Fast
         *pSwapValueToken |= compressedShort.High8;
     }
 
-    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pA, bool* pCarry)
+    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pSwapValueToken, bool* pCarry)
     {
-        (*pCarry) = (*pA) >= 0x8000;
-        (*pA) *= 2;
+        (*pCarry) = (*pSwapValueToken) >= 0x8000;
+        (*pSwapValueToken) *= 2;
 
         RotateLeft(pByteRepititionCount, pCarry);
     }
@@ -731,12 +731,12 @@ namespace Fast
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pCaseKey,
-        unsigned short* pAcc)
+        unsigned short* pSwapValueToken)
     {
         --(*pCaseKey);
         if (*pCaseKey == 0)
         {
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pAcc); // Clobbers acc. Effectively forgets SwapToken, and uses the next compressed byte instead
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pSwapValueToken); // Clobbers. Effectively forgets SwapToken, and uses the next compressed byte instead
             *pCaseKey = 0x8;
         }
     }
@@ -757,23 +757,23 @@ namespace Fast
         // Advances mem0c.
 
         *pByteRepititionCount = 0;
-        unsigned short acc = *pSwapValueToken;
-        bool carry = acc >= 0x8000;
-        acc *= 2;
+        unsigned short nextSwapValueToken = *pSwapValueToken;
+        bool carry = nextSwapValueToken >= 0x8000;
+        nextSwapValueToken *= 2;
 
-        DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
+        DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
 
         if (carry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
 
-            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
 
-            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
 
-            *pSwapValueToken = acc;
+            *pSwapValueToken = nextSwapValueToken;
             *pNextCaseCond = *pCaseKey * 2;
             return *pByteRepititionCount;
         }
@@ -783,19 +783,19 @@ namespace Fast
         carry = false;
         while (!carry)
         {
-            carry = acc >= 0x8000;
-            acc *= 2;
-            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
+            carry = nextSwapValueToken >= 0x8000;
+            nextSwapValueToken *= 2;
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
             ++numberOfRotates;
         }
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &acc, &carry);
-            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
         }
 
-        *pSwapValueToken = acc;
+        *pSwapValueToken = nextSwapValueToken;
 
         static unsigned short s_ROMValueTable_80C2B6[] = { 0, 0, 0, 0x4, 0xC, 0x1C, 0x3C, 0x7C, 0xFC };
         *pByteRepititionCount += s_ROMValueTable_80C2B6[numberOfRotates];
@@ -803,55 +803,57 @@ namespace Fast
         return *pByteRepititionCount;
     }
 
+    void DecrementCaseCond_ResetCaseKeyAndLoadNext(
+        std::vector<unsigned char> const& compressedSource,
+        unsigned short* pCompressedSourceIndex,
+        unsigned short* pCaseCond,
+        unsigned short* pSwapValueToken)
+    {
+        (*pCaseCond) -= 2;
+        if (*pCaseCond == 0)
+        {
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pSwapValueToken); // Clobbers. Effectively forgets SwapToken, and uses the next compressed byte instead
+            *pCaseCond = 0x10;
+        }
+    }
+
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pX,
+        unsigned short* pCaseCond,
         unsigned short* pY,
         bool* pCarry) // Returns whether we should continue decompression.
     {
-        // Input: x, mem6c
-        unsigned short temp = *pSwapValueToken;
+        unsigned short nextSwapValueToken = *pSwapValueToken;
         *pByteRepititionCount = 0;
 
-        *pCarry = temp >= 0x8000;
-        temp *= 2;
+        *pCarry = nextSwapValueToken >= 0x8000;
+        nextSwapValueToken *= 2;
 
-        *pX -= 2;
-
-        if (*pX == 0)
-        {
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
-            *pX = 0x10;
-        }
+        DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
         if (*pCarry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
-            *pX -= 2;
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
 
-            if (*pX == 0)
+            DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
+
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
+            *pCaseCond -= 2;
+
+            if (*pCaseCond != 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
-                *pX = 0x10;
-            }
-
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
-            *pX -= 2;
-
-            if (*pX != 0)
-            {
-                *pSwapValueToken = temp;
-                temp = *pByteRepititionCount;
+                *pSwapValueToken = nextSwapValueToken;
+                nextSwapValueToken = *pByteRepititionCount;
                 return *pByteRepititionCount != 0;
             }
 
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
+            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &nextSwapValueToken);
 
-            *pX = 0x10;
-            *pSwapValueToken = temp;
+            *pCaseCond = 0x10;
+            *pSwapValueToken = nextSwapValueToken;
             return *pByteRepititionCount != 0;
         }
 
@@ -860,32 +862,22 @@ namespace Fast
         *pCarry = false;
         while (!(*pCarry))
         {
-            *pCarry = temp >= 0x8000;
-            temp *= 2;
+            *pCarry = nextSwapValueToken >= 0x8000;
+            nextSwapValueToken *= 2;
 
-            *pX -= 2;
-            if (*pX == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
-                *pX = 0x10;
-            }
+            DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
             (*pY)++;
         }
 
         for (int i = 0; i < *pY; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &temp, pCarry);
-            *pX -= 2;
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
 
-            if (*pX == 0)
-            {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &temp);
-                *pX = 0x10;
-            }
+            DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
         }
 
-        *pSwapValueToken = temp;
+        *pSwapValueToken = nextSwapValueToken;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
         int lookupIndex = ((*pY) * 2 - 6) / 2;
