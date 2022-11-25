@@ -275,11 +275,12 @@ namespace Fast
         while (!doneInitializing)
         {
             valueAccumulator *= 2;
-            unsigned short sparseValue = valueAccumulator - valueIncrementTotal;
 
-            loaded16.Data16 = sparseValue;
-            cache7E0720temp[iteration] = loaded16.Low8;
-            cache7E0720temp[iteration + 1] = loaded16.High8;
+            Mem16 sparseValue{};
+            sparseValue.Data16 = valueAccumulator - valueIncrementTotal;
+
+            cache7E0720temp[iteration] = sparseValue.Low8;
+            cache7E0720temp[iteration + 1] = sparseValue.High8;
 
             // 8bit index
             unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(
