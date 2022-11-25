@@ -841,18 +841,9 @@ namespace Fast
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
             ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
-            *pCaseCond -= 2;
 
-            if (*pCaseCond != 0)
-            {
-                *pSwapValueToken = nextSwapValueToken;
-                nextSwapValueToken = *pByteRepititionCount;
-                return *pByteRepititionCount != 0;
-            }
+            DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-            LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, &nextSwapValueToken);
-
-            *pCaseCond = 0x10;
             *pSwapValueToken = nextSwapValueToken;
             return *pByteRepititionCount != 0;
         }
