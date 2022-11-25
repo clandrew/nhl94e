@@ -18,20 +18,20 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pY);
+        unsigned short* pCaseKey);
     bool Fn_80C232(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount, 
         unsigned short* pSwapValueToken,
-        unsigned short* pX,
-        unsigned short* pY);
+        unsigned short* pCaseCond,
+        unsigned short* pCacheIndex);
     void AlignedLoad(
-        unsigned short y,
+        unsigned short cacheIndex,
         std::vector<unsigned char> const& compressedSource,
-        unsigned short* pCompressedSourceIndex, 
-        unsigned short* pA, 
-        unsigned short* pX);
+        unsigned short* pCompressedSourceIndex,
+        unsigned short* pSwapValueToken,
+        unsigned short* pResultCaseCond);
 
     unsigned char dbr = 0x9A;
     unsigned short currentProfileImageIndex = 0;
@@ -176,7 +176,7 @@ namespace Fast
 
     unsigned short LoadNextFrom0500(
         Monstrosity0Result const& result0, 
-        unsigned short y, 
+        unsigned short cacheIndex, 
         std::vector<unsigned char>* cache7F0000_decompressedStaging,
         unsigned short indirectHigh,
         unsigned short* pIndirectLow)
@@ -185,7 +185,7 @@ namespace Fast
         // Saves the result to indirect.
 
         // 16bit A, 8bit index
-        unsigned char loaded = result0.mem7E0500_7E0700[y];
+        unsigned char loaded = result0.mem7E0500_7E0700[cacheIndex];
 
         if (indirectHigh == 0x7E && (*pIndirectLow) >= 0x100)
         {
@@ -875,17 +875,17 @@ namespace Fast
         unsigned short cacheIndex,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex, 
-        unsigned short* pA, 
-        unsigned short* pX)
+        unsigned short* pSwapValueToken, 
+        unsigned short* pResultCaseCond)
     {
         for (int i = 0; i < cacheIndex; ++i)
         {
-            *pA *= 2;
-            *pX -= 2;
-            if (*pX == 0)
+            *pSwapValueToken *= 2;
+            *pResultCaseCond -= 2;
+            if (*pResultCaseCond == 0)
             {
-                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pA);
-                *pX = 0x10;
+                LoadNextFrom0CInc(compressedSource, pCompressedSourceIndex, pSwapValueToken);
+                *pResultCaseCond = 0x10;
             }
         }
     }
