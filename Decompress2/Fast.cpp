@@ -758,9 +758,7 @@ namespace Fast
 
         *pByteRepititionCount = 0;
         unsigned short acc = *pSwapValueToken;
-        bool carry = false;
-
-        carry = acc >= 0x8000;
+        bool carry = acc >= 0x8000;
         acc *= 2;
 
         DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &acc);
