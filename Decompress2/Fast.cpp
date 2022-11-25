@@ -265,7 +265,7 @@ namespace Fast
         unsigned short numDatumMultiplies = 0xE;
         unsigned short byteRepititionCount = 0;
         
-        unsigned short y = 8;
+        unsigned short caseKey = 8; // nextCaseCond is 2* this
 
         int setBytesInCacheCounter = 0;
         int iteration = 0;
@@ -290,7 +290,7 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &y);
+                &caseKey);
             cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
 
             valueIncrementTotal += valueIncrement;
@@ -347,7 +347,7 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &y) + 1;
+                &caseKey) + 1;
 
             while (howManyLowEntriesToSkip > 0)
             {
