@@ -25,8 +25,7 @@ namespace Fast
         unsigned short* pByteRepititionCount, 
         unsigned short* pSwapValueToken,
         unsigned short* pX,
-        unsigned short* pY,
-        bool* pCarry);
+        unsigned short* pY);
     void AlignedLoad(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
@@ -631,8 +630,7 @@ namespace Fast
                     &byteRepititionCount,
                     &swapValueToken,
                     &resultCaseCond,
-                    &localCacheIndex,
-                    &c);
+                    &localCacheIndex);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
@@ -823,24 +821,23 @@ namespace Fast
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
         unsigned short* pCaseCond,
-        unsigned short* pCacheIndex,
-        bool* pCarry) // Returns whether we should continue decompression.
+        unsigned short* pCacheIndex) // Returns whether we should continue decompression.
     {
         unsigned short nextSwapValueToken = *pSwapValueToken;
         *pByteRepititionCount = 0;
 
-        *pCarry = nextSwapValueToken >= 0x8000;
+        bool carry = nextSwapValueToken >= 0x8000;
         nextSwapValueToken *= 2;
 
         DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-        if (*pCarry)
+        if (carry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
@@ -850,10 +847,10 @@ namespace Fast
 
         *pCacheIndex = 2;
 
-        *pCarry = false;
-        while (!(*pCarry))
+        carry = false;
+        while (!carry)
         {
-            *pCarry = nextSwapValueToken >= 0x8000;
+            carry = nextSwapValueToken >= 0x8000;
             nextSwapValueToken *= 2;
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
@@ -863,7 +860,7 @@ namespace Fast
 
         for (int i = 0; i < *pCacheIndex; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, pCarry);
+            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
         }
