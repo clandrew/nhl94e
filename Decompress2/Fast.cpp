@@ -28,7 +28,7 @@ namespace Fast
         unsigned short* pX,
         unsigned short* pY,
         bool* pCarry);
-    void Fn_80C2DC(
+    void AlignedLoad(
         unsigned short y,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex, 
@@ -624,7 +624,7 @@ namespace Fast
                 unsigned short resultCaseCond = exitValue;
                 unsigned short localCacheIndex = result0.CompressedDataToken / 256;
 
-                Fn_80C2DC(
+                AlignedLoad(
                     localCacheIndex,
                     compressedSource,
                     &compressedSourceIndex, 
@@ -915,7 +915,7 @@ namespace Fast
         return *pByteRepititionCount != 0;
     }
 
-    void Fn_80C2DC(
+    void AlignedLoad(
         unsigned short cacheIndex,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex, 
