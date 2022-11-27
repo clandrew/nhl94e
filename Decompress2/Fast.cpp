@@ -19,7 +19,7 @@ namespace Fast
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
         unsigned short* pCaseKey);
-    bool Fn_80C232(
+    bool Decode12(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount, 
@@ -622,7 +622,7 @@ namespace Fast
                     &swapValueToken, 
                     &resultCaseCond);
 
-                bool continueDecompression = Fn_80C232(
+                bool continueDecompression = Decode12(
                     compressedSource,
                     &compressedSourceIndex,
                     &byteRepititionCount,
@@ -813,7 +813,7 @@ namespace Fast
         }
     }
 
-    bool Fn_80C232(
+    bool Decode12(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
