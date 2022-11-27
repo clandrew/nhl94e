@@ -496,7 +496,6 @@ namespace Fast
         {
             unsigned short currentCaseIndex = nextCaseIndex;
             nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-            unsigned short exitValue = 0x12 - (currentCaseIndex * 2);
 
             if (nextCaseCond < 0x10)
             {
@@ -522,10 +521,8 @@ namespace Fast
             if (nextCaseCond == 0x10)
             {
                 // The jump760 case with what was formerly known as switchcase 8.
-                nextCaseCond = exitValue;
+                nextCaseCond = 0x12 - (currentCaseIndex * 2);
                 LoadNextFrom0CMaskAndShift(currentCaseIndex - 1, compressedSource, compressedSourceIndex, &swapValueToken);
-
-                unsigned short loadSource = swapValueToken;
 
                 bool shiftHigh = false;
                 if (result0.ControlFlowSwitch == 0x12)
@@ -533,8 +530,8 @@ namespace Fast
                     shiftHigh = swapValueToken >= result0.cache7E0750.Data16;
                 }
 
+                unsigned short loadSource = swapValueToken;
                 unsigned short countUntilMatch = 0;
-
                 if (shiftHigh)
                 {
                     loadSource /= 64;
@@ -605,7 +602,7 @@ namespace Fast
             if (nextCaseCond == 0x12)
             {
                 // Write output and check if done.
-                unsigned short resultCaseCond = exitValue;
+                unsigned short resultCaseCond = 0x12 - (currentCaseIndex * 2);
                 unsigned short localCacheIndex = result0.CompressedDataToken / 256;
 
                 AlignedLoad(
