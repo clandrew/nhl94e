@@ -484,14 +484,13 @@ namespace Fast
         result.cache7F0000_decompressedStaging.resize(0xFFFF);
         memset(result.cache7F0000_decompressedStaging.data(), 0, result.cache7F0000_decompressedStaging.size());
 
-        bool doneDecompression = false;
-
         unsigned short nextCaseCond{};
         {
             unsigned short localCacheIndex = swapValueToken >> 8;
             nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex];
         }
 
+        bool doneDecompression = false;
         while (!doneDecompression)
         {
             unsigned short currentCaseIndex = nextCaseIndex;
@@ -668,7 +667,7 @@ namespace Fast
         unsigned short CompressedSize;
     };
 
-    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex, unsigned short compressedSourceLocation)
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex, std::vector<unsigned char> const& compressedSource)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -683,25 +682,6 @@ namespace Fast
         //
         // Notes:
         //     A, X, Y are ignored and stomped on.
-
-
-        int compressedSize = -1;
-        for (int i = 0; i < _countof(s_compressedSizes); ++i)
-        {
-            if (s_compressedSizes[i].TeamIndex == teamIndex && s_compressedSizes[i].PlayerIndex == playerIndex)
-            {
-                compressedSize = s_compressedSizes[i].CompressedSize;
-                break;
-            }
-        }
-        assert(compressedSize != -1);
-
-        std::vector<unsigned char> compressedSource;
-        for (int i = 0; i < compressedSize + 1; ++i)
-        {
-            unsigned char ch = Load8FromAddress(dbr, compressedSourceLocation + i);
-            compressedSource.push_back(ch);
-        }
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
@@ -1209,7 +1189,25 @@ namespace Fast
         InitializeDecompress(teamIndex, playerIndex, &compressedSourceLocation);
         mem91_HomeOrAway = 2;
 
-        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSourceLocation);
+        int compressedSize = -1;
+        for (int i = 0; i < _countof(s_compressedSizes); ++i)
+        {
+            if (s_compressedSizes[i].TeamIndex == teamIndex && s_compressedSizes[i].PlayerIndex == playerIndex)
+            {
+                compressedSize = s_compressedSizes[i].CompressedSize;
+                break;
+            }
+        }
+        assert(compressedSize != -1);
+
+        std::vector<unsigned char> compressedSource;
+        for (int i = 0; i < compressedSize + 1; ++i)
+        {
+            unsigned char ch = Load8FromAddress(dbr, compressedSourceLocation + i);
+            compressedSource.push_back(ch);
+        }
+
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSource);
 
         /*if (teamIndex == 0 && playerIndex == 0)
         {
