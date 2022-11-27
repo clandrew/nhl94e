@@ -671,26 +671,59 @@ namespace Fast
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
-        // Preconditions:
-        //     Mem0C contains the source ROM address.
-        //     Mem10 contains the low short of the destination address. (E.g., 0x0000)
-        //     Mem12 contains the bank of the destination address. (E.g., 0x7F)
-        //
         // Postconditions:
         //     Decompressed staging data is written to the destination address.
-        //     Mem0C is scrambled.
         //
-        // Notes:
-        //     A, X, Y are ignored and stomped on.
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
+
+        if (teamIndex == 0 && playerIndex == 0)
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result0.mem7E0500_7E0700.data();
+            fwrite(pData, 1, result0.mem7E0500_7E0700.size(), file);
+            fclose(file);
+            exit(0);
+        }
+
+        if (teamIndex == 0 && playerIndex == 0)
+        {
+            result0.mem7E0500_7E0700.clear();
+            std::string inPath = "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
+            FILE* file{};
+            fopen_s(&file, inPath.c_str(), "rb");
+            fseek(file, 0, SEEK_END);
+            long fileSize = ftell(file);
+            fseek(file, 0, SEEK_SET);
+            result0.mem7E0500_7E0700.resize(fileSize);
+            fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
+            fclose(file);
+        }
+
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
+
+        if (teamIndex == 0 && playerIndex == 0)
+        {
+            std::stringstream outPath;
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
+            outPath << GetTeamName((Team)teamIndex);
+            outPath << "_" << playerIndex << ".bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result1.cache7F0000_decompressedStaging.data();
+            fwrite(pData, 1, 0x480, file);
+            fclose(file);
+            exit(0);
+        }
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
         result.CompressedSize = result1.CompressedSize;
-
-        //std::cout << " { " << teamIndex << ", " << playerIndex << ", " << result.CompressedSize << "},\n";
 
         return result;
     }
@@ -1208,21 +1241,6 @@ namespace Fast
         }
 
         Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSource);
-
-        /*if (teamIndex == 0 && playerIndex == 0)
-        {
-            std::stringstream outPath;
-            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
-            outPath << GetTeamName((Team)teamIndex);
-            outPath << "_" << playerIndex << ".bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = decompressedStaging.cache7F0000_decompressedStaging.data();
-            fwrite(pData, 1, 0x480, file);
-            fclose(file);
-            exit(0);
-        }*/
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
