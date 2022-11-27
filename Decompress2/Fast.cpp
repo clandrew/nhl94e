@@ -158,7 +158,6 @@ namespace Fast
         unsigned short ControlFlowSwitch;
         unsigned short CompressedSourceIndex;
         unsigned short CompressedDataToken;
-        unsigned short ByteRepititionCount;
         unsigned short SwapValueToken;
 
         void Initialize()
@@ -169,7 +168,6 @@ namespace Fast
             CaseCond = 0;
             CompressedSourceIndex = 0;
             CompressedDataToken = 0;
-            ByteRepititionCount = 0;
             SwapValueToken = 0;
         }
     };
@@ -410,7 +408,6 @@ namespace Fast
 
         result.CompressedSourceIndex = compressedSourceIndex;
         result.CompressedDataToken = compressedDataToken;
-        result.ByteRepititionCount = byteRepititionCount;
         result.SwapValueToken = swapValueToken;
 
         result.cache7E0730.Low8 = cache7E0720temp[0x10];
@@ -475,25 +472,21 @@ namespace Fast
     {
         Monstrosity1Result result{ };
         unsigned char decompressedValue = 0;
-        unsigned short currentCaseIndex = 0;
-        unsigned short mainIndex = 0;
-        unsigned short exitValue = 0;
         unsigned short decompressedValueCandidate = 0;
         unsigned short compressedSourceIndex = result0.CompressedSourceIndex;
-        unsigned short byteRepititionCount = result0.ByteRepititionCount;
         unsigned short swapValueToken = result0.SwapValueToken;
 
         unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
-        unsigned short nextCaseCond = result0.CaseCond;
-        unsigned short nextCaseIndex = s_caseTable[0].NextCaseIndices[nextCaseCond / 2 - 1];
+        unsigned short nextCaseIndex = s_caseTable[0].NextCaseIndices[result0.CaseCond / 2 - 1];
 
         result.cache7F0000_decompressedStaging.resize(0xFFFF);
         memset(result.cache7F0000_decompressedStaging.data(), 0, result.cache7F0000_decompressedStaging.size());
 
         bool doneDecompression = false;
 
+        unsigned short nextCaseCond{};
         {
             unsigned short localCacheIndex = swapValueToken >> 8;
             nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex];
@@ -501,9 +494,9 @@ namespace Fast
 
         while (!doneDecompression)
         {
-            currentCaseIndex = nextCaseIndex;
+            unsigned short currentCaseIndex = nextCaseIndex;
             nextCaseIndex = s_caseTable[currentCaseIndex].NextCaseIndices[nextCaseCond / 2 - 1];
-            exitValue = 0x12 - (currentCaseIndex * 2);
+            unsigned short exitValue = 0x12 - (currentCaseIndex * 2);
 
             if (nextCaseCond < 0x10)
             {
@@ -621,6 +614,8 @@ namespace Fast
                     &compressedSourceIndex, 
                     &swapValueToken, 
                     &resultCaseCond);
+
+                unsigned short byteRepititionCount{};
 
                 bool continueDecompression = Decode12(
                     compressedSource,
