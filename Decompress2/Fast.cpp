@@ -678,24 +678,6 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
-        //if (teamIndex == 0 && playerIndex == 1)
-        {
-            std::stringstream outDir;
-            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
-
-            CreateDirectoryA(outDir.str().c_str(), nullptr);
-
-            std::stringstream outPath;
-            outPath << outDir.str() << "\\staging.test.bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = result0.mem7E0500_7E0700.data();
-            fwrite(pData, 1, result0.mem7E0500_7E0700.size(), file);
-            fclose(file);
-            //exit(0);
-        }
-
         /*if (teamIndex == 0 && playerIndex == 0)
         {
             result0.mem7E0500_7E0700.clear();
@@ -728,6 +710,22 @@ namespace Fast
             fclose(file);
             exit(0);
         }*/
+
+        //if (teamIndex == 0 && playerIndex == 1)
+        {
+            std::stringstream outDir;
+            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
+
+            std::stringstream outPath;
+            outPath << outDir.str() << "\\shorts.bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result1.cache7F0000_decompressedStaging.data();
+            fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
+            fclose(file);
+            //exit(0);
+        }
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
