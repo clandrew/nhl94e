@@ -5,6 +5,7 @@
 #include <set>
 #include <iomanip>
 #include <assert.h>
+#include <Windows.h>
 #include "Util.h"
 #include "Decompress2.h"
 #include "CompressedSizes.h"
@@ -677,41 +678,48 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
-        if (teamIndex == 0 && playerIndex == 0)
+        //if (teamIndex == 0 && playerIndex == 1)
         {
+            std::stringstream outDir;
+            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
+
+            CreateDirectoryA(outDir.str().c_str(), nullptr);
+
             std::stringstream outPath;
-            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
+            outPath << outDir.str() << "\\staging.test.bin";
 
             FILE* file{};
             fopen_s(&file, outPath.str().c_str(), "wb");
             unsigned char const* pData = result0.mem7E0500_7E0700.data();
             fwrite(pData, 1, result0.mem7E0500_7E0700.size(), file);
             fclose(file);
-            exit(0);
+            //exit(0);
         }
 
-        if (teamIndex == 0 && playerIndex == 0)
+        /*if (teamIndex == 0 && playerIndex == 0)
         {
             result0.mem7E0500_7E0700.clear();
-            std::string inPath = "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
+            
+            std::stringstream inPath;
+            inPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\test.bin";
+
+            //std::string inPath = "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
             FILE* file{};
-            fopen_s(&file, inPath.c_str(), "rb");
+            fopen_s(&file, inPath.str().c_str(), "rb");
             fseek(file, 0, SEEK_END);
             long fileSize = ftell(file);
             fseek(file, 0, SEEK_SET);
             result0.mem7E0500_7E0700.resize(fileSize);
             fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
             fclose(file);
-        }
+        }*/
 
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
-        if (teamIndex == 0 && playerIndex == 0)
+        /*if (teamIndex == 0 && playerIndex == 0)
         {
             std::stringstream outPath;
-            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\Shorts_Hacked_";
-            outPath << GetTeamName((Team)teamIndex);
-            outPath << "_" << playerIndex << ".bin";
+            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\Shorts_Hacked_" << playerIndex << ".bin";
 
             FILE* file{};
             fopen_s(&file, outPath.str().c_str(), "wb");
@@ -719,7 +727,7 @@ namespace Fast
             fwrite(pData, 1, 0x480, file);
             fclose(file);
             exit(0);
-        }
+        }*/
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
