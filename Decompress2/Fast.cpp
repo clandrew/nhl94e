@@ -678,14 +678,13 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
-        /*if (teamIndex == 0 && playerIndex == 0)
+        if (teamIndex == 0 && playerIndex == 0)
         {
             result0.mem7E0500_7E0700.clear();
             
             std::stringstream inPath;
-            inPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\test.bin";
+            inPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\staging.hacked.bin";
 
-            //std::string inPath = "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\Anaheim_0\\test.bin";
             FILE* file{};
             fopen_s(&file, inPath.str().c_str(), "rb");
             fseek(file, 0, SEEK_END);
@@ -694,37 +693,23 @@ namespace Fast
             result0.mem7E0500_7E0700.resize(fileSize);
             fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
             fclose(file);
-        }*/
+        }
 
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
-        /*if (teamIndex == 0 && playerIndex == 0)
-        {
-            std::stringstream outPath;
-            outPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\Shorts_Hacked_" << playerIndex << ".bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = result1.cache7F0000_decompressedStaging.data();
-            fwrite(pData, 1, 0x480, file);
-            fclose(file);
-            exit(0);
-        }*/
-
-        //if (teamIndex == 0 && playerIndex == 1)
         {
             std::stringstream outDir;
             outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
 
             std::stringstream outPath;
-            outPath << outDir.str() << "\\shorts.bin";
+            outPath << outDir.str() << "\\shorts.hacked.bin";
 
             FILE* file{};
             fopen_s(&file, outPath.str().c_str(), "wb");
             unsigned char const* pData = result1.cache7F0000_decompressedStaging.data();
             fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
             fclose(file);
-            //exit(0);
+            exit(0);
         }
 
         Fn_80BBB3_DecompressResult result{};
