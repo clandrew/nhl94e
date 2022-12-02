@@ -47,7 +47,7 @@ namespace Fast
 
     unsigned short mem91_HomeOrAway = 0;
 
-    std::vector<unsigned char> cache7E0100; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
+    std::vector<unsigned char> dictionaryValues; // Scratch data read and written by both Monstrosity0 and Monstrosity1.
                                             // Data written by Monstrosity0 is read by Monstrosity1.
 
     // Gold reference output
@@ -188,7 +188,7 @@ namespace Fast
 
         if (indirectHigh == 0x7E && (*pIndirectLow) >= 0x100)
         {
-            cache7E0100[(*pIndirectLow) - 0x100] = loaded;
+            dictionaryValues[(*pIndirectLow) - 0x100] = loaded;
         }
         else if (indirectHigh == 0x7F)
         {
@@ -329,7 +329,7 @@ namespace Fast
         // This is hard coded.
         unsigned short cacheDestIndex = 0;
 
-        unsigned short sourceIndexWithWrapping = 0xFF;
+        unsigned short dictionaryValue = 0xFF;
 
         // Set bytes in cache
         for (int i=0; i< setBytesInCacheCounter; ++i)
@@ -338,7 +338,7 @@ namespace Fast
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
             unsigned short howManyLowEntriesToSkip = GetStagingBufferDescriptorCount(
-                sourceIndexWithWrapping, 
+                dictionaryValue,
                 compressedSource,
                 &result.CaseCond, 
                 &compressedSourceIndex,
@@ -348,19 +348,19 @@ namespace Fast
 
             while (howManyLowEntriesToSkip > 0)
             {
-                ++sourceIndexWithWrapping;
-                sourceIndexWithWrapping &= 0xFF;
-                if (result.mem7E0500_7E0700[sourceIndexWithWrapping] < 0x80)
+                ++dictionaryValue;
+                dictionaryValue &= 0xFF;
+                if (result.mem7E0500_7E0700[dictionaryValue] < 0x80)
                 {
                     --howManyLowEntriesToSkip;
                 }
             }
 
-            result.mem7E0500_7E0700[sourceIndexWithWrapping]--;
+            result.mem7E0500_7E0700[dictionaryValue]--;
 
             // This is running in 8 bit index mode.
-            assert(sourceIndexWithWrapping <= 0xFF);
-            cache7E0100[i] = static_cast<unsigned char>(sourceIndexWithWrapping);
+            assert(dictionaryValue <= 0xFF);
+            dictionaryValues[i] = static_cast<unsigned char>(dictionaryValue);
         }
 
         unsigned short sourceIndex = 0;
@@ -371,7 +371,7 @@ namespace Fast
             int descriptorCount = stagingBufferDescriptorCounts[i];
             for (int j = 0; j < descriptorCount; ++j)
             {
-                unsigned char dictionaryValue = cache7E0100[sourceIndex];
+                unsigned char dictionaryValue = dictionaryValues[sourceIndex];
                 unsigned char descriptor = i * 2;
 
                 ++sourceIndex;
@@ -545,10 +545,10 @@ namespace Fast
 
                 // This is 8 bit acc.
                 Mem16 loaded16;
-                loaded16.Data16 = cache7E0100[loadSource];
+                loaded16.Data16 = dictionaryValues[loadSource];
                 if (indirectHigh == 0x7E && indirectLow >= 0x100)
                 {
-                    cache7E0100[indirectLow - 0x100] = loaded16.Low8;
+                    dictionaryValues[indirectLow - 0x100] = loaded16.Low8;
                 }
                 else if (indirectHigh == 0x7F)
                 {
@@ -557,7 +557,7 @@ namespace Fast
 
                 indirectLow += 1;
 
-                decompressedValueCandidate = cache7E0100[loadSource];
+                decompressedValueCandidate = dictionaryValues[loadSource];
                 compressedSourceIndex++;
 
                 {
@@ -633,7 +633,7 @@ namespace Fast
                 {
                     if (indirectHigh == 0x7E && indirectLow >= 0x100)
                     {
-                        cache7E0100[indirectLow - 0x100] = decompressedValue;
+                        dictionaryValues[indirectLow - 0x100] = decompressedValue;
                     }
                     else if (indirectHigh == 0x7F)
                     {
@@ -1103,13 +1103,13 @@ namespace Fast
 
     void CreateCaches()
     {
-        cache7E0100.resize(0x100);
+        dictionaryValues.resize(0x100);
         goldReferenceIndexedColor.resize(0x600);
     }
 
     void InitializeCaches()
     {
-        memset(cache7E0100.data(), 0, cache7E0100.size());
+        memset(dictionaryValues.data(), 0, dictionaryValues.size());
         memset(goldReferenceIndexedColor.data(), 0, goldReferenceIndexedColor.size());
     }
 
