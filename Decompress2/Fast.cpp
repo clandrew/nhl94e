@@ -258,7 +258,7 @@ namespace Fast
             swapValueToken = ExchangeShortHighAndLow(swapValueToken);
         }
 
-        unsigned short valueIncrementTotal = 0;
+        unsigned short descriptorTotal = 0;
         unsigned short valueAccumulator = 0;
         unsigned short numDatumMultiplies = 0xE;
         unsigned short byteRepititionCount = 0;
@@ -275,7 +275,7 @@ namespace Fast
             valueAccumulator *= 2;
 
             Mem16 sparseValue{};
-            sparseValue.Data16 = valueAccumulator - valueIncrementTotal;
+            sparseValue.Data16 = valueAccumulator - descriptorTotal;
 
             cache7E0720temp[iteration * 2] = sparseValue.Low8;
             cache7E0720temp[iteration * 2 + 1] = sparseValue.High8;
@@ -291,9 +291,9 @@ namespace Fast
                 &caseKey);
             stagingBufferDescriptorCounts[iteration] = static_cast<unsigned char>(desciptorCount);
 
-            valueIncrementTotal += desciptorCount;
+            descriptorTotal += desciptorCount;
 
-            setBytesInCacheCounter = valueIncrementTotal;
+            setBytesInCacheCounter = descriptorTotal;
 
             Mem16 datum{};
             if (desciptorCount != 0)
@@ -401,10 +401,11 @@ namespace Fast
             }
         }
 
-        // Always tack a bunch of 0x10 on at the end.
+        // Always tack a bunch of dummy 0x10 descriptors on at the end.
         int byteCountToSet = 0xFF - destIndex + 1;
         for (int i=0; i< byteCountToSet; ++i) 
         {
+            result.mem7E0500_7E0700[destIndex + i] = 0x0;
             result.mem7E0500_7E0700[0x100 + destIndex + i] = 0x10;
         }
 
@@ -677,15 +678,21 @@ namespace Fast
         //     Decompressed staging data is written to the destination address.
         //
 
+        bool outputStaging = false;
+        bool inputStaging = false;
+        bool outputShorts = false;
+
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
-        /*
-        if (teamIndex == 0 && playerIndex == 0)
+        if (inputStaging && teamIndex == 0 && playerIndex == 0)
         {
             result0.mem7E0500_7E0700.clear();
+
+            std::stringstream inDir;
+            inDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
             
             std::stringstream inPath;
-            inPath << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex << "\\staging.hacked.bin";
+            inPath << inDir.str() << "\\staging.hacked.bin";
 
             FILE* file{};
             fopen_s(&file, inPath.str().c_str(), "rb");
@@ -695,12 +702,26 @@ namespace Fast
             result0.mem7E0500_7E0700.resize(fileSize);
             fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
             fclose(file);
-        }*/
+        }
+
+        if (outputStaging && teamIndex == 0 && playerIndex == 0)
+        {
+            std::stringstream outDir;
+            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
+
+            std::stringstream outPath;
+            outPath << outDir.str() << "\\staging.bin";
+
+            FILE* file{};
+            fopen_s(&file, outPath.str().c_str(), "wb");
+            unsigned char const* pData = result0.mem7E0500_7E0700.data();
+            fwrite(pData, 1, result0.mem7E0500_7E0700.size(), file);
+            fclose(file);
+        }
 
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
-        /*
-        if (teamIndex == 0 && playerIndex == 0)
+        if (outputShorts && teamIndex == 0 && playerIndex == 0)
         {
             std::stringstream outDir;
             outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
@@ -714,7 +735,7 @@ namespace Fast
             fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
             fclose(file);
             exit(0);
-        }*/
+        }
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
