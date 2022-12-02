@@ -327,8 +327,7 @@ namespace Fast
         }
 
         // This is hard coded.
-        unsigned short indirectHigh = 0x7E;
-        unsigned short indirectLow = 0x100;
+        unsigned short cacheDestIndex = 0;
 
         unsigned short sourceIndexWithWrapping = 0xFF;
 
@@ -361,8 +360,8 @@ namespace Fast
 
             // This is running in 8 bit index mode.
             loaded16.Data16 = sourceIndexWithWrapping;
-            cache7E0100[indirectLow - 0x100] = loaded16.Low8;
-            indirectLow += 1;
+            cache7E0100[cacheDestIndex] = loaded16.Low8;
+            cacheDestIndex += 1;
 
             setBytesInCacheCounter--;
         }
