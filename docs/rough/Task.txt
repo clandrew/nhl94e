@@ -16,4 +16,8 @@ The format of the staging buffer is as follows:
 	
 	So the staging takes up 0x200 bytes total.
 	
-	Block 1C8-1CF control where 0x0 gets copied to.
+	Each 1 byte of dictionary value corresopnds to 1 descriptor.
+	Dictionary values are all loaded from cache.
+	Descriptors all start at 0 and go up to 0x12.
+	For choosing how many of a pair to write, it depends. The first pairs span e.g., 64 bytes, the last pair spans 1 byte.
+	In this way, the staging buffer is not super optimal but oh well.

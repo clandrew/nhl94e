@@ -231,7 +231,7 @@ namespace Fast
 
         // Some temp memory used for this function
         std::vector<unsigned char> stagingBufferDescriptorCounts;
-        stagingBufferDescriptorCounts.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
+        stagingBufferDescriptorCounts.resize(0xA); // A range of 0x10 looks possible in theory, but only 0xA bytes are used in practice.
         memset(stagingBufferDescriptorCounts.data(), 0, stagingBufferDescriptorCounts.size());
 
         std::vector<unsigned char> cache7E0720temp;
@@ -289,7 +289,7 @@ namespace Fast
                 &byteRepititionCount,
                 &swapValueToken,
                 &caseKey);
-            stagingBufferDescriptorCounts[iteration * 2] = static_cast<unsigned char>(desciptorCount);
+            stagingBufferDescriptorCounts[iteration] = static_cast<unsigned char>(desciptorCount);
 
             valueIncrementTotal += desciptorCount;
 
@@ -372,7 +372,7 @@ namespace Fast
 
         for (int i=0; i<8; ++i)
         {
-            int descriptorCount = stagingBufferDescriptorCounts[i * 2];
+            int descriptorCount = stagingBufferDescriptorCounts[i];
             for (int j = 0; j < descriptorCount; ++j)
             {
                 unsigned char dictionaryValue = cache7E0100[sourceIndex];
