@@ -234,9 +234,8 @@ namespace Fast
         stagingBufferDescriptorCounts.resize(0xA); // A range of 0x10 looks possible in theory, but only 0xA bytes are used in practice.
         memset(stagingBufferDescriptorCounts.data(), 0, stagingBufferDescriptorCounts.size());
 
-        std::vector<unsigned char> cache7E0720temp;
-        cache7E0720temp.resize(0x20);
-        memset(cache7E0720temp.data(), 0, cache7E0720temp.size());
+        Mem16 sparseValueLow{};
+        Mem16 sparseValueHigh{};
 
         std::vector<unsigned char> cache7E0740temp;
         cache7E0740temp.resize(0x20);
@@ -269,7 +268,7 @@ namespace Fast
         int iteration = 0;
         bool doneInitializing = false;
 
-        // This loop sets values of stagingBufferDescriptorCounts, cache7E0720temp and cache7E0740temp.
+        // This loop sets values of stagingBufferDescriptorCounts, sparseValueLow/High and cache7E0740temp.
         while (!doneInitializing)
         {
             valueAccumulator *= 2;
@@ -277,10 +276,13 @@ namespace Fast
             Mem16 sparseValue{};
             sparseValue.Data16 = valueAccumulator - descriptorTotal;
 
-            if (iteration == 8 || iteration == 9)
+            if (iteration == 8)
             {
-                cache7E0720temp[iteration * 2] = sparseValue.Low8;
-                cache7E0720temp[iteration * 2 + 1] = sparseValue.High8;
+                sparseValueLow = sparseValue;
+            }
+            if (iteration == 9)
+            {
+                sparseValueHigh = sparseValue;
             }
 
             // 8bit index
@@ -412,10 +414,8 @@ namespace Fast
         result.CompressedDataToken = compressedDataToken;
         result.SwapValueToken = swapValueToken;
 
-        result.cache7E0730.Low8 = cache7E0720temp[0x10];
-        result.cache7E0730.Mid8 = cache7E0720temp[0x11];
-        result.cache7E0730.High8 = cache7E0720temp[0x12];
-        result.cache7E0730.Top8 = cache7E0720temp[0x13];
+        result.cache7E0730.Low16 = sparseValueLow.Data16;
+        result.cache7E0730.High16 = sparseValueHigh.Data16;
 
         result.cache7E0750.Low8 = cache7E0740temp[0x10];
         result.cache7E0750.High8 = cache7E0740temp[0x11];
