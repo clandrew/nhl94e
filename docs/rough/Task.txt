@@ -7,9 +7,11 @@ Setting some bytes in staging affects nothing.
 
 The format of the staging buffer is as follows:
 	"Dictionary values"- Some values from 0 to FF. They are in ascending order. Some values are repeated. Each value may be copied some number of times to the shorts. Some values are ignored.
+	The values cycle some number of times.
 	Dictionary values comprise 0x100 bytes.
 	
 	"Descriptors"- Some values from 0 to 10. They are in ascending order. Some values are repeated. These values are not copied as is. Hacking them can cause decompression to not work. There is some significance as to how many copies of values there are. The values affect the locations of dictionary items being copied.
+	Descriptors are always even numbers.
 	Descriptors are always 0x100 bytes.
 	
 	So the staging takes up 0x200 bytes total.

@@ -390,7 +390,8 @@ namespace Fast
                     lowOrderResult = 0x12;
                 }
 
-                int numberOfBytesToWrite = romFile[0x3C7B + i] - 1;
+                int table[] = { 64, 32, 16, 8, 4, 2, 1 }; // This could concisely be expressed as a bitshift, but table is more self explanatory.
+                int numberOfBytesToWrite = table[i - 1];
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
                     result.mem7E0500_7E0700[destIndex] = highOrderResult;
@@ -678,6 +679,7 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
+        /*
         if (teamIndex == 0 && playerIndex == 0)
         {
             result0.mem7E0500_7E0700.clear();
@@ -693,10 +695,12 @@ namespace Fast
             result0.mem7E0500_7E0700.resize(fileSize);
             fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
             fclose(file);
-        }
+        }*/
 
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
+        /*
+        if (teamIndex == 0 && playerIndex == 0)
         {
             std::stringstream outDir;
             outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
@@ -710,7 +714,7 @@ namespace Fast
             fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
             fclose(file);
             exit(0);
-        }
+        }*/
 
         Fn_80BBB3_DecompressResult result{};
         result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
