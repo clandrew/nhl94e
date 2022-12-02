@@ -277,19 +277,19 @@ namespace Fast
             Mem16 sparseValue{};
             sparseValue.Data16 = valueAccumulator - valueIncrementTotal;
 
-            cache7E0720temp[iteration] = sparseValue.Low8;
-            cache7E0720temp[iteration + 1] = sparseValue.High8;
+            cache7E0720temp[iteration * 2] = sparseValue.Low8;
+            cache7E0720temp[iteration * 2 + 1] = sparseValue.High8;
 
             // 8bit index
             unsigned short desciptorCount = GetStagingBufferDescriptorCount(
-                iteration,
+                iteration * 2,
                 compressedSource,
                 &result.CaseCond, 
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
                 &caseKey);
-            stagingBufferDescriptorCounts[iteration] = static_cast<unsigned char>(desciptorCount);
+            stagingBufferDescriptorCounts[iteration * 2] = static_cast<unsigned char>(desciptorCount);
 
             valueIncrementTotal += desciptorCount;
 
@@ -311,14 +311,14 @@ namespace Fast
                 datum.Data16 *= 2;
             }
 
-            cache7E0740temp[iteration] = datum.Low8;
-            cache7E0740temp[iteration + 1] = datum.High8;
+            cache7E0740temp[iteration * 2] = datum.Low8;
+            cache7E0740temp[iteration * 2 + 1] = datum.High8;
 
-            iteration += 2;
+            iteration++;
             numDatumMultiplies--;
         }
 
-        result.ControlFlowSwitch = iteration - 2;
+        result.ControlFlowSwitch = (iteration - 1) * 2;
 
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
