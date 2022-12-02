@@ -277,8 +277,11 @@ namespace Fast
             Mem16 sparseValue{};
             sparseValue.Data16 = valueAccumulator - descriptorTotal;
 
-            cache7E0720temp[iteration * 2] = sparseValue.Low8;
-            cache7E0720temp[iteration * 2 + 1] = sparseValue.High8;
+            if (iteration == 8 || iteration == 9)
+            {
+                cache7E0720temp[iteration * 2] = sparseValue.Low8;
+                cache7E0720temp[iteration * 2 + 1] = sparseValue.High8;
+            }
 
             // 8bit index
             unsigned short desciptorCount = GetStagingBufferDescriptorCount(
