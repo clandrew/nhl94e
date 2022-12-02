@@ -359,8 +359,8 @@ namespace Fast
             result.mem7E0500_7E0700[sourceIndexWithWrapping]--;
 
             // This is running in 8 bit index mode.
-            loaded16.Data16 = sourceIndexWithWrapping;
-            cache7E0100[i] = loaded16.Low8;
+            assert(sourceIndexWithWrapping <= 0xFF);
+            cache7E0100[i] = static_cast<unsigned char>(sourceIndexWithWrapping);
         }
 
         unsigned short sourceIndex = 0;
