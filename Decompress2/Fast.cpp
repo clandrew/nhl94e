@@ -12,7 +12,7 @@
 
 namespace Fast
 {
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(
+    unsigned short GetStagingBufferDescriptorCount(
         unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pNextCaseCond,
@@ -230,9 +230,9 @@ namespace Fast
         result.Initialize();
 
         // Some temp memory used for this function
-        std::vector<unsigned char> cache7E0700temp;
-        cache7E0700temp.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
-        memset(cache7E0700temp.data(), 0, cache7E0700temp.size());
+        std::vector<unsigned char> stagingBufferDescriptorCounts;
+        stagingBufferDescriptorCounts.resize(0x14); // A range of 0x20 looks possible in theory, but only 0x14 bytes are used in practice.
+        memset(stagingBufferDescriptorCounts.data(), 0, stagingBufferDescriptorCounts.size());
 
         std::vector<unsigned char> cache7E0720temp;
         cache7E0720temp.resize(0x20);
@@ -269,7 +269,7 @@ namespace Fast
         int iteration = 0;
         bool doneInitializing = false;
 
-        // This loop sets values of cache7E0700temp, cache7E0720temp and cache7E0740temp.
+        // This loop sets values of stagingBufferDescriptorCounts, cache7E0720temp and cache7E0740temp.
         while (!doneInitializing)
         {
             valueAccumulator *= 2;
@@ -281,7 +281,7 @@ namespace Fast
             cache7E0720temp[iteration + 1] = sparseValue.High8;
 
             // 8bit index
-            unsigned short valueIncrement = Fn_80C1B0_GetSparseValueIncrement(
+            unsigned short desciptorCount = GetStagingBufferDescriptorCount(
                 iteration,
                 compressedSource,
                 &result.CaseCond, 
@@ -289,16 +289,16 @@ namespace Fast
                 &byteRepititionCount,
                 &swapValueToken,
                 &caseKey);
-            cache7E0700temp[iteration] = static_cast<unsigned char>(valueIncrement);
+            stagingBufferDescriptorCounts[iteration] = static_cast<unsigned char>(desciptorCount);
 
-            valueIncrementTotal += valueIncrement;
+            valueIncrementTotal += desciptorCount;
 
             setBytesInCacheCounter = valueIncrementTotal;
 
             Mem16 datum{};
-            if (valueIncrement != 0)
+            if (desciptorCount != 0)
             {
-                valueAccumulator += valueIncrement;
+                valueAccumulator += desciptorCount;
                 datum.Data16 = valueAccumulator;
 
                 for (int i = 0; i < numDatumMultiplies; ++i)
@@ -338,7 +338,7 @@ namespace Fast
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
-            unsigned short howManyLowEntriesToSkip = Fn_80C1B0_GetSparseValueIncrement(
+            unsigned short howManyLowEntriesToSkip = GetStagingBufferDescriptorCount(
                 sourceIndexWithWrapping, 
                 compressedSource,
                 &result.CaseCond, 
@@ -372,30 +372,30 @@ namespace Fast
 
         for (int i=0; i<8; ++i)
         {
-            int numOfBytesToSeek = cache7E0700temp[i * 2];
-            for (int j = 0; j < numOfBytesToSeek; ++j)
+            int descriptorCount = stagingBufferDescriptorCounts[i * 2];
+            for (int j = 0; j < descriptorCount; ++j)
             {
-                unsigned char lowOrderResult = i * 2;
-                unsigned char highOrderResult = cache7E0100[sourceIndex];
+                unsigned char dictionaryValue = cache7E0100[sourceIndex];
+                unsigned char descriptor = i * 2;
 
                 ++sourceIndex;
 
-                if (highOrderResult == (compressedDataToken & 0xFF))
+                if (dictionaryValue == (compressedDataToken & 0xFF))
                 {
                     unsigned short mask = i + 1;
 
                     compressedDataToken &= 0x00FF; // Keep the lower byte
                     compressedDataToken |= (mask << 8); // Replace the upper byte
 
-                    lowOrderResult = 0x12;
+                    descriptor = 0x12;
                 }
 
-                int table[] = { 64, 32, 16, 8, 4, 2, 1 }; // This could concisely be expressed as a bitshift, but table is more self explanatory.
-                int numberOfBytesToWrite = table[i - 1];
+                int pow2table[] = { 128, 64, 32, 16, 8, 4, 2, 1 }; // This could concisely be expressed as a bitshift, but table is more self explanatory.
+                int numberOfBytesToWrite = pow2table[i];
                 for (int k = 0; k < numberOfBytesToWrite; ++k)
                 {
-                    result.mem7E0500_7E0700[destIndex] = highOrderResult;
-                    result.mem7E0500_7E0700[0x100 + destIndex] = lowOrderResult;
+                    result.mem7E0500_7E0700[destIndex] = dictionaryValue;
+                    result.mem7E0500_7E0700[0x100 + destIndex] = descriptor;
                     ++destIndex;
                 }
             }
@@ -737,7 +737,7 @@ namespace Fast
         }
     }
 
-    unsigned short Fn_80C1B0_GetSparseValueIncrement(
+    unsigned short GetStagingBufferDescriptorCount(
         unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pNextCaseCond, 
