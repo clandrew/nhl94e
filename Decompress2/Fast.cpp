@@ -332,7 +332,7 @@ namespace Fast
         unsigned short sourceIndexWithWrapping = 0xFF;
 
         // Set bytes in cache
-        while (setBytesInCacheCounter != 0)
+        for (int i=0; i< setBytesInCacheCounter; ++i)
         {
             // Skip the x index past N entries in the cache which are too low, < 0x80.
             // If x gets to go past 255, it wraps back to 0.
@@ -360,10 +360,7 @@ namespace Fast
 
             // This is running in 8 bit index mode.
             loaded16.Data16 = sourceIndexWithWrapping;
-            cache7E0100[cacheDestIndex] = loaded16.Low8;
-            cacheDestIndex += 1;
-
-            setBytesInCacheCounter--;
+            cache7E0100[i] = loaded16.Low8;
         }
 
         unsigned short sourceIndex = 0;
