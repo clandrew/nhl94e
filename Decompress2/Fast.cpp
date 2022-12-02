@@ -13,7 +13,6 @@
 namespace Fast
 {
     unsigned short GetStagingBufferDescriptorCount(
-        unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pNextCaseCond,
         unsigned short* pCompressedSourceIndex,
@@ -276,6 +275,7 @@ namespace Fast
             Mem16 sparseValue{};
             sparseValue.Data16 = valueAccumulator - descriptorTotal;
 
+            // Last two iterations save this out
             if (iteration == 8)
             {
                 sparseValueLow = sparseValue;
@@ -287,7 +287,6 @@ namespace Fast
 
             // 8bit index
             unsigned short desciptorCount = GetStagingBufferDescriptorCount(
-                iteration * 2,
                 compressedSource,
                 &result.CaseCond, 
                 &compressedSourceIndex,
@@ -343,7 +342,6 @@ namespace Fast
             // If x gets to go past 255, it wraps back to 0.
             // There are guaranteed to actually be enough low entries.
             unsigned short howManyLowEntriesToSkip = GetStagingBufferDescriptorCount(
-                dictionaryValue,
                 compressedSource,
                 &result.CaseCond, 
                 &compressedSourceIndex,
@@ -758,7 +756,6 @@ namespace Fast
     }
 
     unsigned short GetStagingBufferDescriptorCount(
-        unsigned short iter,
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pNextCaseCond, 
         unsigned short* pCompressedSourceIndex,
