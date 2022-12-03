@@ -236,10 +236,6 @@ namespace Fast
         Mem16 sparseValueLow{};
         Mem16 sparseValueHigh{};
 
-        std::vector<unsigned char> cache7E0740temp;
-        cache7E0740temp.resize(0x20);
-        memset(cache7E0740temp.data(), 0, cache7E0740temp.size());
-
         unsigned short compressedSourceIndex = 0;
         compressedSourceIndex += 5;
 
@@ -263,9 +259,10 @@ namespace Fast
         unsigned short caseKey = 8; // nextCaseCond is 2* this
 
         int setBytesInCacheCounter = 0;
+        Mem16 finalDatum{};
         bool doneInitializing = false;
 
-        // This loop sets values of stagingBufferDescriptorCounts, sparseValueLow/High and cache7E0740temp.
+        // This loop sets values of stagingBufferDescriptorCounts, sparseValueLow/High and finalDatum.
         // It always iterates 8 or 9 times.
         for (int iteration=0; iteration <=9; ++iteration)
         {
@@ -317,8 +314,7 @@ namespace Fast
 
             if (iteration == 8)
             {
-                cache7E0740temp[0x10] = datum.Low8;
-                cache7E0740temp[0x11] = datum.High8;
+                finalDatum = datum;
             }
 
             result.ControlFlowSwitch = iteration * 2;
@@ -421,8 +417,7 @@ namespace Fast
         result.cache7E0730.Low16 = sparseValueLow.Data16;
         result.cache7E0730.High16 = sparseValueHigh.Data16;
 
-        result.cache7E0750.Low8 = cache7E0740temp[0x10];
-        result.cache7E0750.High8 = cache7E0740temp[0x11];
+        result.cache7E0750 = finalDatum;
 
         return result;
     }
