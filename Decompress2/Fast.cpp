@@ -624,18 +624,7 @@ namespace Fast
                 decompressedValue = static_cast<unsigned char>(decompressedValueCandidate);
                 for (int i = 0; i < byteRepititionCount; ++i)
                 {
-                    if (indirectHigh == 0x7E && indirectLow >= 0x100)
-                    {
-                        result0.dictionaryValues[indirectLow - 0x100] = decompressedValue;
-                    }
-                    else if (indirectHigh == 0x7F)
-                    {
-                        result.cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
-                    }
-                    else
-                    {
-                        __debugbreak();
-                    }
+                    result.cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
                     indirectLow += 1;
                 }
 
