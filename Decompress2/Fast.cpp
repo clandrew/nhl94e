@@ -517,11 +517,7 @@ namespace Fast
                     countUntilMatch = 1;
                 }
 
-                // This is 8 bit acc.
-                Mem16 loaded16;
-                loaded16.Data16 = result0.dictionaryValues[loadSource];
-                result.cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
-
+                result.cache7F0000_decompressedStaging[indirectLow] = result0.dictionaryValues[loadSource];
                 indirectLow += 1;
 
                 decompressedValueCandidate = result0.dictionaryValues[loadSource];
