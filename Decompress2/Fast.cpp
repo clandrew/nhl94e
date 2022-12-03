@@ -258,7 +258,6 @@ namespace Fast
 
         unsigned short descriptorTotal = 0;
         unsigned short valueAccumulator = 0;
-        unsigned short numDatumMultiplies = 0xE;
         unsigned short byteRepititionCount = 0;
         
         unsigned short caseKey = 8; // nextCaseCond is 2* this
@@ -267,6 +266,7 @@ namespace Fast
         bool doneInitializing = false;
 
         // This loop sets values of stagingBufferDescriptorCounts, sparseValueLow/High and cache7E0740temp.
+        // It always iterates 8 or 9 times.
         for (int iteration=0; iteration <=9; ++iteration)
         {
             valueAccumulator *= 2;
@@ -304,6 +304,7 @@ namespace Fast
                 valueAccumulator += desciptorCount;
                 datum.Data16 = valueAccumulator;
 
+                int numDatumMultiplies = 14 - iteration;
                 for (int i = 0; i < numDatumMultiplies; ++i)
                 {
                     datum.Data16 *= 2;
@@ -314,10 +315,11 @@ namespace Fast
                 datum.Data16 *= 2;
             }
 
-            cache7E0740temp[iteration * 2] = datum.Low8;
-            cache7E0740temp[iteration * 2 + 1] = datum.High8;
-
-            numDatumMultiplies--;
+            if (iteration == 8)
+            {
+                cache7E0740temp[0x10] = datum.Low8;
+                cache7E0740temp[0x11] = datum.High8;
+            }
 
             result.ControlFlowSwitch = iteration * 2;
 
