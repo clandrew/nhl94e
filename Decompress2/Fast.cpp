@@ -546,14 +546,7 @@ namespace Fast
                 // This is 8 bit acc.
                 Mem16 loaded16;
                 loaded16.Data16 = result0.dictionaryValues[loadSource];
-                if (indirectHigh == 0x7E && indirectLow >= 0x100)
-                {
-                    result0.dictionaryValues[indirectLow - 0x100] = loaded16.Low8;
-                }
-                else if (indirectHigh == 0x7F)
-                {
-                    result.cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
-                }
+                result.cache7F0000_decompressedStaging[indirectLow] = loaded16.Low8;
 
                 indirectLow += 1;
 
