@@ -264,11 +264,10 @@ namespace Fast
         unsigned short caseKey = 8; // nextCaseCond is 2* this
 
         int setBytesInCacheCounter = 0;
-        int iteration = 0;
         bool doneInitializing = false;
 
         // This loop sets values of stagingBufferDescriptorCounts, sparseValueLow/High and cache7E0740temp.
-        while (!doneInitializing)
+        for (int iteration=0; iteration <=9; ++iteration)
         {
             valueAccumulator *= 2;
 
@@ -318,11 +317,16 @@ namespace Fast
             cache7E0740temp[iteration * 2] = datum.Low8;
             cache7E0740temp[iteration * 2 + 1] = datum.High8;
 
-            iteration++;
             numDatumMultiplies--;
+
+            result.ControlFlowSwitch = iteration * 2;
+
+            if (doneInitializing)
+            {
+                break;
+            }
         }
 
-        result.ControlFlowSwitch = (iteration - 1) * 2;
 
         // Zero out the intermediate
         for (int i = 0; i < 0x100; i++)
