@@ -332,7 +332,7 @@ namespace Fast
             result.mem7E0500_7E0700[i] = 0;
         }
 
-        unsigned short dictionaryValue = 0xFF;
+        unsigned short stagingIndex = 0xFF;
 
         // Set bytes in cache
         for (int i=0; i< setBytesInCacheCounter; ++i)
@@ -350,19 +350,19 @@ namespace Fast
 
             while (howManyLowEntriesToSkip > 0)
             {
-                ++dictionaryValue;
-                dictionaryValue &= 0xFF;
-                if (result.mem7E0500_7E0700[dictionaryValue] < 0x80)
+                ++stagingIndex;
+                stagingIndex &= 0xFF;
+                if (result.mem7E0500_7E0700[stagingIndex] < 0x80)
                 {
                     --howManyLowEntriesToSkip;
                 }
             }
 
-            result.mem7E0500_7E0700[dictionaryValue]--;
+            result.mem7E0500_7E0700[stagingIndex]--;
 
             // This is running in 8 bit index mode.
-            assert(dictionaryValue <= 0xFF);
-            dictionaryValues[i] = static_cast<unsigned char>(dictionaryValue);
+            assert(stagingIndex <= 0xFF);
+            dictionaryValues[i] = static_cast<unsigned char>(stagingIndex);
         }
 
         unsigned short sourceIndex = 0;
