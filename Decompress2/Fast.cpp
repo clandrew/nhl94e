@@ -173,35 +173,6 @@ namespace Fast
         }
     };
 
-    unsigned short LoadNextFrom0500(
-        Monstrosity0Result* result0, 
-        unsigned short cacheIndex, 
-        std::vector<unsigned char>* cache7F0000_decompressedStaging,
-        unsigned short indirectHigh,
-        unsigned short* pIndirectLow)
-    {
-        // Loads a value from the staging output written by Monstrosity0.
-        // Saves the result to indirect.
-
-        // 16bit A, 8bit index
-        unsigned char loaded = result0->mem7E0500_7E0700[cacheIndex];
-
-        if (indirectHigh == 0x7E && (*pIndirectLow) >= 0x100)
-        {
-            result0->dictionaryValues[(*pIndirectLow) - 0x100] = loaded;
-        }
-        else if (indirectHigh == 0x7F)
-        {
-            cache7F0000_decompressedStaging->data()[(*pIndirectLow)] = loaded;
-        }
-        else
-        {
-            __debugbreak();
-        }
-        (*pIndirectLow)++;
-        return loaded;
-    }
-
     void LoadNextFrom0CMaskAndShift(int shifts, std::vector<unsigned char> const& compressedSource, unsigned short compressedSourceIndex, unsigned short* pSwapValueToken)
     {
         Mem16 compressedShort = Load16FromVector(compressedSource, compressedSourceIndex); // Load a single byte.
@@ -508,8 +479,11 @@ namespace Fast
                     LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
-                decompressedValueCandidate = LoadNextFrom0500(&result0, localCacheIndex, &result.cache7F0000_decompressedStaging, indirectHigh, &indirectLow);
-                
+
+                decompressedValueCandidate = result0.mem7E0500_7E0700[localCacheIndex];
+                result.cache7F0000_decompressedStaging[indirectLow] = decompressedValueCandidate;
+                indirectLow++;
+
                 unsigned short localCacheIndex2 = swapValueToken >> 8;
                 nextCaseCond = result0.mem7E0500_7E0700[0x100 + localCacheIndex2];
 
