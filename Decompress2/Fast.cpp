@@ -332,9 +332,6 @@ namespace Fast
             result.mem7E0500_7E0700[i] = 0;
         }
 
-        // This is hard coded.
-        unsigned short cacheDestIndex = 0;
-
         unsigned short dictionaryValue = 0xFF;
 
         // Set bytes in cache
