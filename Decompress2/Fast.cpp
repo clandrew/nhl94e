@@ -446,7 +446,6 @@ namespace Fast
         unsigned short compressedSourceIndex = result0.CompressedSourceIndex;
         unsigned short swapValueToken = result0.SwapValueToken;
 
-        unsigned short indirectHigh = 0x007F;
         unsigned short indirectLow = 0;
 
         unsigned short nextCaseIndex = s_caseTable[0].NextCaseIndices[result0.CaseCond / 2 - 1];
