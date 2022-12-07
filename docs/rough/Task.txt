@@ -24,3 +24,9 @@ The format of the staging buffer is as follows:
 	For choosing how many of a pair to write, it depends. The first pairs span e.g., 64 bytes, the last pair spans 1 byte.
 	So a typical buffer will contain a lot of repeated value pairs especially at the beginning.
 	
+	Generally, SwapValueToken is used to compute which byte of staging gets used.
+	
+	For compression: 
+		First thing is to observe there are 0x32 zeroes. 
+		Then notice that staging[0x2A] is 0.
+		Use compressed byte 0x54, since 0x54 / 2 = 0x2A.
