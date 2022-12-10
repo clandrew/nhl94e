@@ -191,8 +191,14 @@ namespace Fast
     {
         (*pCarry) = (*pSwapValueToken) >= 0x8000;
         (*pSwapValueToken) *= 2;
-
-        RotateLeft(pByteRepititionCount, pCarry);
+        
+        bool c = (*pByteRepititionCount) >= 0x8000;
+        (*pByteRepititionCount) *= 2;
+        if (*pCarry)
+        {
+            *pByteRepititionCount |= 0x1;
+        }
+        *pCarry = c;
     }
 
     Monstrosity0Result Monstrosity0(std::vector<unsigned char> const& compressedSource)
