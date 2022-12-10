@@ -187,7 +187,7 @@ namespace Fast
         *pSwapValueToken |= compressedShort.High8;
     }
 
-    void ShiftRotateDecrementMem6F(unsigned short* pByteRepititionCount, unsigned short* pSwapValueToken, bool* pCarry)
+    void ShiftRotateToken(unsigned short* pByteRepititionCount, unsigned short* pSwapValueToken, bool* pCarry)
     {
         (*pCarry) = (*pSwapValueToken) >= 0x8000;
         (*pSwapValueToken) *= 2;
@@ -728,11 +728,11 @@ namespace Fast
 
         if (carry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
 
@@ -754,7 +754,7 @@ namespace Fast
 
         for (int i = 0; i < numberOfRotates; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
             DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
         }
 
@@ -798,11 +798,11 @@ namespace Fast
 
         if (carry)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
@@ -825,7 +825,7 @@ namespace Fast
 
         for (int i = 0; i < *pCacheIndex; ++i)
         {
-            ShiftRotateDecrementMem6F(pByteRepititionCount, &nextSwapValueToken, &carry);
+            ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
         }
