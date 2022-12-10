@@ -833,7 +833,7 @@ namespace Fast
         *pSwapValueToken = nextSwapValueToken;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = ((*pCacheIndex) * 2 - 6) / 2;
+        int lookupIndex = (*pCacheIndex) - 3;
         *pByteRepititionCount += lookup[lookupIndex];
         return *pByteRepititionCount != 0;
     }
