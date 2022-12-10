@@ -189,16 +189,14 @@ namespace Fast
 
     void ShiftRotateToken(unsigned short* pByteRepititionCount, unsigned short* pSwapValueToken, bool* pCarry)
     {
-        (*pCarry) = (*pSwapValueToken) >= 0x8000;
+        bool tokenCarry = (*pSwapValueToken) >= 0x8000;
         (*pSwapValueToken) *= 2;
         
-        bool c = (*pByteRepititionCount) >= 0x8000;
+        bool repCarry = (*pByteRepititionCount) >= 0x8000;
         (*pByteRepititionCount) *= 2;
-        if (*pCarry)
-        {
-            *pByteRepititionCount |= 0x1;
-        }
-        *pCarry = c;
+        *pByteRepititionCount |= tokenCarry;
+
+        *pCarry = repCarry;
     }
 
     Monstrosity0Result Monstrosity0(std::vector<unsigned char> const& compressedSource)
