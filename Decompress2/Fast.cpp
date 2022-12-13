@@ -717,12 +717,6 @@ namespace Fast
         unsigned short* pSwapValueToken,
         unsigned short* pCaseKey)
     {
-        // Input: mem6c, which is the SwapToken from the compressed data.
-        //        y as an index. y is [0..7]
-        // 
-        // Multiplies mem6c, and/or replaces it with the next compressed byte.
-        // Advances mem0c.
-
         *pByteRepititionCount = 0;
         unsigned short nextSwapValueToken = *pSwapValueToken;
         bool carry = nextSwapValueToken >= 0x8000;
