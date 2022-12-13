@@ -24,8 +24,7 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount, 
         unsigned short* pSwapValueToken,
-        unsigned short* pCaseCond,
-        unsigned short* pCacheIndex);
+        unsigned short* pCaseCond);
     void AlignedLoad(
         unsigned short cacheIndex,
         std::vector<unsigned char> const& compressedSource,
@@ -567,10 +566,9 @@ namespace Fast
             {
                 // Write output and check if done.
                 unsigned short resultCaseCond = 0x12 - (currentCaseIndex * 2);
-                unsigned short localCacheIndex = result0.CompressedDataToken / 256;
 
                 AlignedLoad(
-                    localCacheIndex,
+                    result0.CompressedDataToken / 256,
                     compressedSource,
                     &compressedSourceIndex, 
                     &swapValueToken, 
@@ -583,8 +581,7 @@ namespace Fast
                     &compressedSourceIndex,
                     &byteRepititionCount,
                     &swapValueToken,
-                    &resultCaseCond,
-                    &localCacheIndex);
+                    &resultCaseCond);
                 if (!continueDecompression)
                 {
                     doneDecompression = true;
@@ -783,8 +780,7 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pCaseCond,
-        unsigned short* pCacheIndex) // Returns whether we should continue decompression.
+        unsigned short* pCaseCond) // Returns whether we should continue decompression.
     {
         unsigned short nextSwapValueToken = *pSwapValueToken;
         *pByteRepititionCount = 0;
@@ -808,7 +804,7 @@ namespace Fast
             return *pByteRepititionCount != 0;
         }
 
-        *pCacheIndex = 2;
+        unsigned short cacheIndex = 2;
 
         carry = false;
         while (!carry)
@@ -818,10 +814,10 @@ namespace Fast
 
             DecrementCaseCond_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseCond, &nextSwapValueToken);
 
-            (*pCacheIndex)++;
+            cacheIndex++;
         }
 
-        for (int i = 0; i < *pCacheIndex; ++i)
+        for (int i = 0; i < cacheIndex; ++i)
         {
             ShiftRotateToken(pByteRepititionCount, &nextSwapValueToken, &carry);
 
@@ -831,7 +827,7 @@ namespace Fast
         *pSwapValueToken = nextSwapValueToken;
 
         static const unsigned short lookup[] = { 0x4, 0xC, 0x1C, 0x3C, 0x7C };
-        int lookupIndex = (*pCacheIndex) - 3;
+        int lookupIndex = cacheIndex - 3;
         *pByteRepititionCount += lookup[lookupIndex];
         return *pByteRepititionCount != 0;
     }
