@@ -435,6 +435,7 @@ namespace Fast
     {
         std::vector<unsigned char> cache7F0000_decompressedStaging;
         unsigned short CompressedSize;
+        bool IsValid;
     };
 
     Monstrosity1Result Monstrosity1(
@@ -478,11 +479,21 @@ namespace Fast
                 swapValueToken *= firstMultiplier;
                 if (secondMultiplier != 0)
                 {
+                    if (compressedSourceIndex >= compressedSource.size())
+                    {
+                        result.IsValid = false; // Error case
+                        return result;
+                    }
                     LoadNextFrom0CInc(compressedSource, &compressedSourceIndex, &swapValueToken);
                     swapValueToken *= secondMultiplier;
                 }
 
                 decompressedValueCandidate = result0.mem7E0500_7E0700[localCacheIndex];
+                if (indirectLow >= result.cache7F0000_decompressedStaging.size())
+                {
+                    result.IsValid = false; // Error case
+                    return result;
+                }
                 result.cache7F0000_decompressedStaging[indirectLow] = decompressedValueCandidate;
                 indirectLow++;
 
@@ -608,6 +619,7 @@ namespace Fast
         }
 
         result.CompressedSize = compressedSourceIndex - 1;
+        result.IsValid = true;
 
         return result;
     }
@@ -683,6 +695,12 @@ namespace Fast
             fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
             fclose(file);
             exit(0);
+        }
+
+        if (!result1.IsValid)
+        {
+            MessageBoxA(NULL, "The input wasn't valid", "Invalid input", MB_OK);
+            __debugbreak();
         }
 
         Fn_80BBB3_DecompressResult result{};
