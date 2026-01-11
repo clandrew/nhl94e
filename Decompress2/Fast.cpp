@@ -40,6 +40,7 @@ namespace Fast
 
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
+    bool outputReadWriteLogging = true;
 
     unsigned char shiftedCompressedByte = 0;
 
@@ -139,6 +140,14 @@ namespace Fast
         unsigned short* pCompressedSourceIndex, 
         unsigned short* pSwapValueToken)
     {
+        if (outputReadWriteLogging)
+        {
+            unsigned char loaded = compressedSource[*pCompressedSourceIndex];
+
+            std::cout << "Loaded " << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)loaded
+                << " from compressedSource[" << (*pCompressedSourceIndex) << "]\n";
+        }
+
         // This runs in 8 bit mode.
         (*pSwapValueToken) &= 0xFF00;
         (*pSwapValueToken) |= compressedSource[*pCompressedSourceIndex];
@@ -215,12 +224,26 @@ namespace Fast
         compressedSourceIndex += 5;
 
         Mem16 loaded16 = Load16FromVector(compressedSource, compressedSourceIndex);
+
+        if (outputReadWriteLogging)
+        {
+            std::cout << "Loaded " << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << loaded16.Data16
+                << " from compressedSource[" << compressedSourceIndex << "], compressedSource[" << (compressedSourceIndex + 1) << "]\n";
+        }
+
         unsigned short compressedDataToken = loaded16.Data16;
         compressedSourceIndex++;
         
         unsigned short swapValueToken;
         {
             loaded16 = Load16FromVector(compressedSource, compressedSourceIndex);
+
+            if (outputReadWriteLogging)
+            {
+                std::cout << "Loaded " << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << loaded16.Data16
+                    << " from compressedSource[" << compressedSourceIndex << "], compressedSource[" << (compressedSourceIndex + 1) << "]\n";
+            }
+
             swapValueToken = loaded16.Data16;
             compressedSourceIndex += 2;
 
@@ -494,6 +517,13 @@ namespace Fast
                     result.IsValid = false; // Error case
                     return result;
                 }
+
+                if (outputReadWriteLogging)
+                {
+                    std::cout << "Saved " << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << decompressedValueCandidate
+                        << " to decomp[" << indirectLow << "]\n";
+                }
+
                 result.cache7F0000_decompressedStaging[indirectLow] = decompressedValueCandidate;
                 indirectLow++;
 
@@ -528,6 +558,12 @@ namespace Fast
                     loadSource /= 128;
                     loadSource -= result0.cache7E0730.Low16;
                     countUntilMatch = 1;
+                }
+
+                if (outputReadWriteLogging)
+                {
+                    std::cout << "Saved " << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.dictionaryValues[loadSource]
+                        << " to decomp[" << indirectLow << "]\n";
                 }
 
                 result.cache7F0000_decompressedStaging[indirectLow] = result0.dictionaryValues[loadSource];
@@ -605,6 +641,12 @@ namespace Fast
                 decompressedValue = static_cast<unsigned char>(decompressedValueCandidate);
                 for (int i = 0; i < byteRepititionCount; ++i)
                 {
+                    if (outputReadWriteLogging)
+                    {
+                        std::cout << "Saved " << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << decompressedValue
+                            << " to decomp[" << indirectLow << "]\n";
+                    }
+
                     result.cache7F0000_decompressedStaging[indirectLow] = decompressedValue;
                     indirectLow += 1;
                 }
@@ -645,7 +687,6 @@ namespace Fast
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
-
 
         if (!result1.IsValid)
         {
