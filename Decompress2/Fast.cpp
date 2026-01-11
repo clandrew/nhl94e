@@ -644,58 +644,8 @@ namespace Fast
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
 
-        if (inputStaging && teamIndex == 0 && playerIndex == 0)
-        {
-            result0.mem7E0500_7E0700.clear();
-
-            std::stringstream inDir;
-            inDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
-            
-            std::stringstream inPath;
-            inPath << inDir.str() << "\\staging.hacked.bin";
-
-            FILE* file{};
-            fopen_s(&file, inPath.str().c_str(), "rb");
-            fseek(file, 0, SEEK_END);
-            long fileSize = ftell(file);
-            fseek(file, 0, SEEK_SET);
-            result0.mem7E0500_7E0700.resize(fileSize);
-            fread_s(result0.mem7E0500_7E0700.data(), fileSize, 1, fileSize, file);
-            fclose(file);
-        }
-
-        if (outputStaging && teamIndex == 0 && playerIndex == 0)
-        {
-            std::stringstream outDir;
-            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
-
-            std::stringstream outPath;
-            outPath << outDir.str() << "\\staging.bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = result0.mem7E0500_7E0700.data();
-            fwrite(pData, 1, result0.mem7E0500_7E0700.size(), file);
-            fclose(file);
-        }
-
         Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
 
-        if (outputShorts && teamIndex == 0 && playerIndex == 0)
-        {
-            std::stringstream outDir;
-            outDir << "D:\\repos\\nhl94e\\Decompress2\\StageToShorts\\" << GetTeamName((Team)teamIndex) << "_" << playerIndex;
-
-            std::stringstream outPath;
-            outPath << outDir.str() << "\\shorts.hacked.bin";
-
-            FILE* file{};
-            fopen_s(&file, outPath.str().c_str(), "wb");
-            unsigned char const* pData = result1.cache7F0000_decompressedStaging.data();
-            fwrite(pData, 1, result1.cache7F0000_decompressedStaging.size(), file);
-            fclose(file);
-            exit(0);
-        }
 
         if (!result1.IsValid)
         {
