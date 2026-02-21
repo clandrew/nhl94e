@@ -748,12 +748,22 @@ namespace Fast
         unsigned short numberOfRotates = 0x2;
 
         carry = false;
-        while (!carry)
         {
-            carry = nextSwapValueToken >= 0x8000;
-            nextSwapValueToken *= 2;
-            DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
-            ++numberOfRotates;
+            int iterCount = 0; // Used to escapehatch us out. Unneeded for the game's original data
+
+            while (!carry)
+            {
+                carry = nextSwapValueToken >= 0x8000;
+                nextSwapValueToken *= 2;
+                DecrementCaseKey_ResetCaseKeyAndLoadNext(compressedSource, pCompressedSourceIndex, pCaseKey, &nextSwapValueToken);
+                ++numberOfRotates;
+
+                iterCount++;
+                if (iterCount > 8)
+                {
+                    break;
+                }
+            }
         }
 
         for (int i = 0; i < numberOfRotates; ++i)
