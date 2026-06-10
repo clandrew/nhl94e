@@ -225,7 +225,7 @@ namespace Fast
         unsigned short compressedSourceIndex = 0;
         compressedSourceIndex += 5;
 
-        if (compressedSourceIndex > compressedSource.size())
+        if (compressedSourceIndex >= compressedSource.size() - 1)
         {
             result.IsValid = false;
             return result;
@@ -1219,25 +1219,12 @@ namespace Fast
                 compressedBufferWithHeader.push_back(compressedBuffer[i]);
             }
 
-            // HACK: fill with test data
-            {
-                compressedBufferWithHeader.clear();
-                FILE* pFile{};
-                fopen_s(&pFile, "D:\\repos\\nhl94e\\Decompress2\\Matches\\ref.bin", "rb");
-                fseek(pFile, 0, SEEK_END);
-                long fileSize = ftell(pFile);
-                fseek(pFile, 0, SEEK_SET);
-                compressedBufferWithHeader.resize(fileSize);
-                fread(compressedBufferWithHeader.data(), 1, fileSize, pFile);
-                fclose(pFile);
-            }
-
-
             // Test this buffer
             {
                 Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(compressedBufferWithHeader);
                 if (decompressedStaging.IsValid)
                 {
+                    std::cout << "Found match" << dataMatchNumber << ". Dumping logs.\n";
                     {
                         std::stringstream fileName;
                         fileName << "D:\\repos\\nhl94e\\Decompress2\\Matches\\match_" << dataMatchNumber << ".compressed.bin";
@@ -1285,8 +1272,10 @@ namespace Fast
 
     void DecompressDataTest()
     {
-        for (int i = 2; i < 720; ++i)
+        for (int i = 4; i < 720; ++i)
         {
+            std::cout << "Trying buffers of size " << i << "\n";
+
             TryAllBuffersOfSize(i);
         }
         __debugbreak();
