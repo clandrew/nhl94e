@@ -40,7 +40,7 @@ namespace Fast
 
     bool outputCompressionRatio = false;
     bool outputDecompressedResult = false;
-    bool outputReadWriteLogging = true;
+    bool outputReadWriteLogging = false;
 
     unsigned char shiftedCompressedByte = 0;
 
@@ -165,6 +165,7 @@ namespace Fast
         unsigned short CompressedSourceIndex;
         unsigned short CompressedDataToken;
         unsigned short SwapValueToken;
+        bool IsValid;
 
         void Initialize()
         {
@@ -175,6 +176,7 @@ namespace Fast
             CompressedSourceIndex = 0;
             CompressedDataToken = 0;
             SwapValueToken = 0;
+            IsValid = true;
 
             dictionaryValues.resize(0x100);
             memset(dictionaryValues.data(), 0, dictionaryValues.size());
@@ -222,6 +224,12 @@ namespace Fast
 
         unsigned short compressedSourceIndex = 0;
         compressedSourceIndex += 5;
+
+        if (compressedSourceIndex > compressedSource.size())
+        {
+            result.IsValid = false;
+            return result;
+        }
 
         Mem16 loaded16 = Load16FromVector(compressedSource, compressedSourceIndex);
 
@@ -462,8 +470,6 @@ namespace Fast
     };
 
     Monstrosity1Result Monstrosity1(
-        int teamIndex, 
-        int playerIndex,
         std::vector<unsigned char> const& compressedSource,
         Monstrosity0Result& result0)
     {
@@ -670,9 +676,10 @@ namespace Fast
     {
         std::vector<unsigned char> cache7F0000_decompressedStaging;
         unsigned short CompressedSize;
+        bool IsValid;
     };
 
-    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(int teamIndex, int playerIndex, std::vector<unsigned char> const& compressedSource)
+    Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(std::vector<unsigned char> const& compressedSource)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
         //
@@ -685,18 +692,22 @@ namespace Fast
         bool outputShorts = false;
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
-
-        Monstrosity1Result result1 = Monstrosity1(teamIndex, playerIndex, compressedSource, result0);
-
-        if (!result1.IsValid)
+        if (!result0.IsValid)
         {
-            MessageBoxA(NULL, "The input wasn't valid", "Invalid input", MB_OK);
-            __debugbreak();
+            Fn_80BBB3_DecompressResult result{};
+            result.IsValid = result0.IsValid;
+            return result;
         }
 
+        Monstrosity1Result result1 = Monstrosity1(compressedSource, result0);
+
         Fn_80BBB3_DecompressResult result{};
-        result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
-        result.CompressedSize = result1.CompressedSize;
+        result.IsValid = result1.IsValid;
+        if (result.IsValid)
+        {
+            result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
+            result.CompressedSize = result1.CompressedSize;
+        }
 
         return result;
     }
@@ -1187,6 +1198,100 @@ namespace Fast
         fclose(file);
     }
 
+    static int dataMatchNumber = 0;
+
+    void TryAllBuffersOfSize(int size)
+    {
+        std::vector<unsigned char> compressedBuffer;
+        for (int i = 0; i < size; ++i)
+        {
+            compressedBuffer.push_back(0x00);
+        }
+
+        bool done = false;
+        while (!done)
+        {
+            std::vector<unsigned char> compressedBufferWithHeader;
+            compressedBufferWithHeader.push_back(0x30);
+            compressedBufferWithHeader.push_back(0xFB);
+            for (int i = 0; i < size; ++i)
+            {
+                compressedBufferWithHeader.push_back(compressedBuffer[i]);
+            }
+
+            // HACK: fill with test data
+            {
+                compressedBufferWithHeader.clear();
+                FILE* pFile{};
+                fopen_s(&pFile, "D:\\repos\\nhl94e\\Decompress2\\Matches\\ref.bin", "rb");
+                fseek(pFile, 0, SEEK_END);
+                long fileSize = ftell(pFile);
+                fseek(pFile, 0, SEEK_SET);
+                compressedBufferWithHeader.resize(fileSize);
+                fread(compressedBufferWithHeader.data(), 1, fileSize, pFile);
+                fclose(pFile);
+            }
+
+
+            // Test this buffer
+            {
+                Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(compressedBufferWithHeader);
+                if (decompressedStaging.IsValid)
+                {
+                    {
+                        std::stringstream fileName;
+                        fileName << "D:\\repos\\nhl94e\\Decompress2\\Matches\\match_" << dataMatchNumber << ".compressed.bin";
+                        std::string fileStr = fileName.str();
+                        const char* thisFileName = fileStr.c_str();
+                        FILE* pFile{};
+                        errno_t err = fopen_s(&pFile, thisFileName, "wb");
+                        fwrite(compressedBufferWithHeader.data(), compressedBufferWithHeader.size(), 1, pFile);
+                        fclose(pFile);
+                    }
+                    {
+                        std::stringstream fileName;
+                        fileName << "D:\\repos\\nhl94e\\Decompress2\\Matches\\match_" << dataMatchNumber << ".plain.bin";
+                        FILE* pFile{};
+                        fopen_s(&pFile, fileName.str().c_str(), "wb");
+                        fwrite(decompressedStaging.cache7F0000_decompressedStaging.data(), decompressedStaging.cache7F0000_decompressedStaging.size(), 1, pFile);
+                        fclose(pFile);
+                    }
+                    dataMatchNumber++;
+                }
+            }
+
+            // To advance
+            int pos = size - 1;
+            while (pos >= 0)
+            {
+                if (compressedBuffer[pos] < 0xFF)
+                {
+                    compressedBuffer[pos]++;
+                    break;
+                }
+                else if (compressedBuffer[pos] == 0xFF)
+                {
+                    compressedBuffer[pos] = 0;
+                    pos--;
+                }
+            }
+            if (pos == -1)
+            {
+                done = true;
+                return;
+            }
+        }
+    }
+
+    void DecompressDataTest()
+    {
+        for (int i = 2; i < 720; ++i)
+        {
+            TryAllBuffersOfSize(i);
+        }
+        __debugbreak();
+    }
+
     void Decompress(int teamIndex, int playerIndex)
     {
         InitializeCaches();
@@ -1213,7 +1318,7 @@ namespace Fast
             compressedSource.push_back(ch);
         }
 
-        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(teamIndex, playerIndex, compressedSource);
+        Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(compressedSource);
 
         std::vector<unsigned char> cache7F0000_indexedColor = WriteIndexed(mem91_HomeOrAway, decompressedStaging.cache7F0000_decompressedStaging);
 
@@ -1282,4 +1387,9 @@ void Decompress_Fast_Run(int teamIndex, int playerIndex)
 void DumpIndexedColorToShorts()
 {
     Fast::DumpIndexedColorToShortsImpl();
+}
+
+void Decompress_Fast_DataTest()
+{
+    Fast::DecompressDataTest();
 }
