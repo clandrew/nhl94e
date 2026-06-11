@@ -1198,89 +1198,6 @@ namespace Fast
         fclose(file);
     }
 
-    static int dataMatchNumber = 0;
-
-    void TryAllBuffersOfSize(int size)
-    {
-        std::vector<unsigned char> compressedBuffer;
-        for (int i = 0; i < size; ++i)
-        {
-            compressedBuffer.push_back(0x00);
-        }
-
-        bool done = false;
-        while (!done)
-        {
-            std::vector<unsigned char> compressedBufferWithHeader;
-            compressedBufferWithHeader.push_back(0x30);
-            compressedBufferWithHeader.push_back(0xFB);
-            for (int i = 0; i < size; ++i)
-            {
-                compressedBufferWithHeader.push_back(compressedBuffer[i]);
-            }
-
-            // Test this buffer
-            {
-                Fn_80BBB3_DecompressResult decompressedStaging = Fn_80BBB3_Decompress(compressedBufferWithHeader);
-                if (decompressedStaging.IsValid)
-                {
-                    std::cout << "Found match" << dataMatchNumber << ". Dumping logs.\n";
-                    {
-                        std::stringstream fileName;
-                        fileName << "D:\\repos\\nhl94e\\Decompress2\\Matches\\match_" << dataMatchNumber << ".compressed.bin";
-                        std::string fileStr = fileName.str();
-                        const char* thisFileName = fileStr.c_str();
-                        FILE* pFile{};
-                        errno_t err = fopen_s(&pFile, thisFileName, "wb");
-                        fwrite(compressedBufferWithHeader.data(), compressedBufferWithHeader.size(), 1, pFile);
-                        fclose(pFile);
-                    }
-                    {
-                        std::stringstream fileName;
-                        fileName << "D:\\repos\\nhl94e\\Decompress2\\Matches\\match_" << dataMatchNumber << ".plain.bin";
-                        FILE* pFile{};
-                        fopen_s(&pFile, fileName.str().c_str(), "wb");
-                        fwrite(decompressedStaging.cache7F0000_decompressedStaging.data(), decompressedStaging.cache7F0000_decompressedStaging.size(), 1, pFile);
-                        fclose(pFile);
-                    }
-                    dataMatchNumber++;
-                }
-            }
-
-            // To advance
-            int pos = size - 1;
-            while (pos >= 0)
-            {
-                if (compressedBuffer[pos] < 0xFF)
-                {
-                    compressedBuffer[pos]++;
-                    break;
-                }
-                else if (compressedBuffer[pos] == 0xFF)
-                {
-                    compressedBuffer[pos] = 0;
-                    pos--;
-                }
-            }
-            if (pos == -1)
-            {
-                done = true;
-                return;
-            }
-        }
-    }
-
-    void DecompressDataTest()
-    {
-        for (int i = 4; i < 720; ++i)
-        {
-            std::cout << "Trying buffers of size " << i << "\n";
-
-            TryAllBuffersOfSize(i);
-        }
-        __debugbreak();
-    }
-
     void Decompress(int teamIndex, int playerIndex)
     {
         InitializeCaches();
@@ -1376,9 +1293,4 @@ void Decompress_Fast_Run(int teamIndex, int playerIndex)
 void DumpIndexedColorToShorts()
 {
     Fast::DumpIndexedColorToShortsImpl();
-}
-
-void Decompress_Fast_DataTest()
-{
-    Fast::DecompressDataTest();
 }
