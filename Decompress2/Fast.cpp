@@ -18,7 +18,8 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pCaseKey);
+        unsigned short* pCaseKey,
+        bool* pIsValid);
     bool Decode12(
         std::vector<unsigned char> const& compressedSource,
         unsigned short* pCompressedSourceIndex,
@@ -294,7 +295,14 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &caseKey);
+                &caseKey,
+                &result.IsValid);
+
+            if (!result.IsValid)
+            {
+                return result;
+            }
+
             stagingBufferDescriptorCounts[iteration] = static_cast<unsigned char>(desciptorCount);
 
             descriptorTotal += desciptorCount;
@@ -352,7 +360,13 @@ namespace Fast
                 &compressedSourceIndex,
                 &byteRepititionCount,
                 &swapValueToken,
-                &caseKey) + 1;
+                &caseKey,
+                &result.IsValid) + 1;
+
+            if (!result.IsValid)
+            {
+                return result;
+            }
 
             while (howManyLowEntriesToSkip > 0)
             {
@@ -687,10 +701,6 @@ namespace Fast
         //     Decompressed staging data is written to the destination address.
         //
 
-        bool outputStaging = false;
-        bool inputStaging = false;
-        bool outputShorts = false;
-
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
         if (!result0.IsValid)
         {
@@ -732,8 +742,10 @@ namespace Fast
         unsigned short* pCompressedSourceIndex,
         unsigned short* pByteRepititionCount,
         unsigned short* pSwapValueToken,
-        unsigned short* pCaseKey)
+        unsigned short* pCaseKey,
+        bool* pIsValid)
     {
+        *pIsValid = true;
         *pByteRepititionCount = 0;
         unsigned short nextSwapValueToken = *pSwapValueToken;
         bool carry = nextSwapValueToken >= 0x8000;
@@ -772,7 +784,8 @@ namespace Fast
                 iterCount++;
                 if (iterCount > 8)
                 {
-                    break;
+                    *pIsValid = false;
+                    return 0;
                 }
             }
         }
