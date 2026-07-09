@@ -693,6 +693,8 @@ namespace Fast
         bool IsValid;
     };
 
+    int s_dataIndex = 0;
+
     Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(std::vector<unsigned char> const& compressedSource)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -700,6 +702,14 @@ namespace Fast
         // Postconditions:
         //     Decompressed staging data is written to the destination address.
         //
+        {
+            std::stringstream filePath;
+            filePath << "D:\\repos\\nhl94e\\Decompress2\\DataSet2\\data_" << s_dataIndex << ".math.bin";
+            FILE* pFile;
+            fopen_s(&pFile, filePath.str().c_str(), "wb");
+            fwrite(compressedSource.data(), 1, compressedSource.size(), pFile);
+            fclose(pFile);
+        }
 
         Monstrosity0Result result0 = Monstrosity0(compressedSource);
         if (!result0.IsValid)
@@ -718,6 +728,17 @@ namespace Fast
             result.cache7F0000_decompressedStaging = result1.cache7F0000_decompressedStaging;
             result.CompressedSize = result1.CompressedSize;
         }
+
+        {
+            std::stringstream filePath;
+            filePath << "D:\\repos\\nhl94e\\Decompress2\\DataSet2\\data_" << s_dataIndex << ".plain.bin";
+            FILE* pFile;
+            fopen_s(&pFile, filePath.str().c_str(), "wb");
+            fwrite(result.cache7F0000_decompressedStaging.data(), 1, result.cache7F0000_decompressedStaging.size(), pFile);
+            fclose(pFile);
+        }
+
+        s_dataIndex++;
 
         return result;
     }
