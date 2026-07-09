@@ -693,8 +693,6 @@ namespace Fast
         bool IsValid;
     };
 
-    static int s_dataIndex = 0;
-
     Fn_80BBB3_DecompressResult Fn_80BBB3_Decompress(std::vector<unsigned char> const& compressedSource)
     {
         // This is a sizeable function, a.k.a. 'the monstrosity'.
@@ -710,71 +708,6 @@ namespace Fast
             result.IsValid = result0.IsValid;
             return result;
         }
-
-        // Dump the Monstrosity0 source and dest
-        {
-            std::stringstream filePath;
-            filePath << "D:\\repos\\nhl94e\\Decompress2\\M0\\m0_" << s_dataIndex << "in.bin";
-            FILE* pFile;
-            fopen_s(&pFile, filePath.str().c_str(), "wb");
-            fwrite(compressedSource.data(), 1, compressedSource.size(), pFile);
-            fclose(pFile);
-        }
-        {
-            std::stringstream filePath;
-            filePath << "D:\\repos\\nhl94e\\Decompress2\\M0\\m0_" << s_dataIndex << "out.txt";
-            std::ofstream out(filePath.str().c_str());
-            out << "mem7E0500_7E0700:\n";
-            for (int i = 0; i < result0.mem7E0500_7E0700.size(); ++i)
-            {
-                out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.mem7E0500_7E0700[i] << " ";
-                if (i % 16 == 15)
-                {
-                    out << "\n";
-                }
-            }
-            out << "\n";
-            out << "dictionaryValues:\n";
-            for (int i = 0; i < result0.dictionaryValues.size(); ++i)
-            {
-                out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.dictionaryValues[i] << " ";
-                if (i % 16 == 15)
-                {
-                    out << "\n";
-                }
-            }
-            out << "\n";
-
-            out << "cache7E0730:\n";
-            out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0730.Low8 << " "
-                << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0730.Mid8 << " "
-                << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0730.High8 << " "
-                << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0730.Top8 << "\n";
-            out << "\n";
-
-            out << "cache7E0750:\n";
-            out << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0750.Low8 << " "
-                << std::hex << std::setw(2) << std::setfill('0') << std::uppercase << (int)result0.cache7E0750.High8 << "\n";
-            out << "\n";
-
-            out << "CaseCond:\n";
-            out << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.CaseCond << "\n\n";
-
-            out << "ControlFlowSwitch:\n";
-            out << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.ControlFlowSwitch << "\n\n";
-
-            out << "CompressedSourceIndex:\n";
-            out << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.CompressedSourceIndex << "\n\n";
-
-            out << "CompressedDataToken:\n";
-            out << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.CompressedDataToken << "\n\n";
-
-            out << "SwapValueToken:\n";
-            out << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << result0.SwapValueToken << "\n\n";
-
-            out.close();
-        }
-        s_dataIndex++;
 
         Monstrosity1Result result1 = Monstrosity1(compressedSource, result0);
 
